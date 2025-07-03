@@ -201,7 +201,7 @@ export function NxWelcome({ title }: { title: string }) {
       width: 1.5rem;
     }
     .list-item-link > span {
-      flex-grow: 1;
+      grow: 1;
       font-weight: 400;
       transition-property: background-color, border-color, color, fill, stroke,
       opacity, box-shadow, transform, filter, backdrop-filter,
@@ -211,7 +211,7 @@ export function NxWelcome({ title }: { title: string }) {
     .list-item-link > span > span {
       color: rgba(107, 114, 128, 1);
       display: block;
-      flex-grow: 1;
+      grow: 1;
       font-size: 0.75rem;
       font-weight: 300;
       line-height: 1rem;
@@ -256,7 +256,7 @@ export function NxWelcome({ title }: { title: string }) {
       -webkit-backdrop-filter;
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       transition-duration: 150ms;
-      flex-shrink: 0;
+      shrink: 0;
       width: 3rem;
     }
     .button-pill > span {
@@ -309,7 +309,7 @@ export function NxWelcome({ title }: { title: string }) {
     }
     #nx-cloud > div svg {
       border-radius: 0.375rem;
-      flex-shrink: 0;
+      shrink: 0;
       width: 3rem;
     }
     #nx-cloud > div h2 {
@@ -470,7 +470,7 @@ export function NxWelcome({ title }: { title: string }) {
 
           <div id="middle-content">
             <div id="middle-content-container">
-              <div id="learning-materials" className="rounded shadow">
+              <div id="learning-materials" className="rounded shadow-sm">
                 <h2>Learning materials</h2>
                 <a
                   href="https://nx.dev/getting-started/intro?utm_source=nx-project"
@@ -619,7 +619,7 @@ export function NxWelcome({ title }: { title: string }) {
               </div>
               <a
                 id="nx-repo"
-                className="button-pill rounded shadow"
+                className="button-pill rounded-sm shadow-sm"
                 href="https://github.com/nrwl/nx?utm_source=nx-project"
                 target="_blank"
                 rel="noreferrer"
@@ -641,7 +641,7 @@ export function NxWelcome({ title }: { title: string }) {
             <div id="other-links">
               <a
                 id="nx-console"
-                className="button-pill rounded shadow"
+                className="button-pill rounded-sm shadow-sm"
                 href="https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console&utm_source=nx-project"
                 target="_blank"
                 rel="noreferrer"
@@ -662,7 +662,7 @@ export function NxWelcome({ title }: { title: string }) {
               </a>
               <a
                 id="nx-console-jetbrains"
-                className="button-pill rounded shadow"
+                className="button-pill rounded-sm shadow-sm"
                 href="https://plugins.jetbrains.com/plugin/21060-nx-console"
                 target="_blank"
                 rel="noreferrer"
@@ -694,7 +694,7 @@ export function NxWelcome({ title }: { title: string }) {
                   </span>
                 </span>
               </a>
-              <div id="nx-cloud" className="rounded shadow">
+              <div id="nx-cloud" className="rounded shadow-sm">
                 <div>
                   <svg
                     id="nx-cloud-logo"
@@ -727,7 +727,7 @@ export function NxWelcome({ title }: { title: string }) {
             </div>
           </div>
 
-          <div id="commands" className="rounded shadow">
+          <div id="commands" className="rounded shadow-sm">
             <h2>Next steps</h2>
             <p>Here are some things you can do with Nx:</p>
             <details>
