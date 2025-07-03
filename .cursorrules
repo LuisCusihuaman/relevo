@@ -40,7 +40,7 @@ src
 | Area          | Libs / Tools                                              |
 | ------------- | --------------------------------------------------------- |
 | Build         | **Vite**, **pnpm**                                        |
-| UI            | **React 18**, **Tailwind CSS v4**, Headless UI, Heroicons |
+| UI            | **React 19**, **Tailwind CSS v4**, Headless UI, Heroicons |
 | Routing       | TanStack Router                                           |
 | Data-Fetch    | TanStack Query                                            |
 | State         | Zustand                                                   |
