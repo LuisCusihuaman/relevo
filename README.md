@@ -1,77 +1,95 @@
-# Relevo
+# 🩺 RELEVO
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+RELEVO is a collaborative, real-time handoff platform for clinicians at Hospital Garrahan. It implements the I-PASS methodology to ensure safe, structured medical transitions.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+---
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 📦 Repository Structure
 
-## Finish your CI setup
+This monorepo contains the full backend and real-time stack for RELEVO, plus a standalone frontend
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/qZXpMjwiLq)
-
-
-## Run tasks
-
-To run tasks with Nx use:
-
-```sh
-npx nx <target> <project-name>
+```
+relevo-workspace/
+├── apps/
+│   ├── relevo-api/           # C# Backend (main clinical API)
+│   ├── nestjs-service/       # Realtime WebSocket + sync service
+│   ├── hospital-mock-api/    # Mock EMR API for testing
+│   └── relevo-frontend/      # Vite + React application (based on vite-react-boilerplate)
+│
+├── libs/
+│   ├── shared-types/         # Shared TS types (frontend + NestJS)
+│   ├── hospital-sdk/         # Client SDK for external hospital APIs
+│   └── shared-utils/         # Common utilities
 ```
 
-For example:
+---
 
-```sh
-npx nx build myproject
+## 🌐 Frontend
+
+### Highlights:
+
+* TypeScript + ESLint + Prettier
+* Tailwind CSS
+* TanStack Router / Query / Table
+* Zustand (state)
+* React Hook Form + Zod (forms)
+* Storybook + Testing Library + Vitest + Playwright
+* Internationalization (i18n)
+* Husky + Commitlint + Commitizen
+* Devtools (Query, Router, Table, RHF)
+
+To get started:
+
+```bash
+git clone https://github.com/LuisCusihuaman/relevo && \
+cd relevo-workspace/apps/relevo-frontend && \
+pnpm install && \
+pnpm run setup
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+See [`apps/relevo-frontend/README.md`](./apps/relevo-frontend/README.md) for full instructions.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Add new projects
+## 🔧 Backend Overview
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+| App                 | Description                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `relevo-api`        | Main ASP.NET Core API with domain logic, REST endpoints, and integration with Oracle DB |
+| `nestjs-service`    | Real-time WebSocket sync service using Hocuspocus and Socket.IO                         |
+| `hospital-mock-api` | Mocked external EMR API for local development and testing                               |
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
+The backend communicates with an Oracle XE database and uses Clerk for authentication. Real-time collaboration is enabled via WebSockets and Yjs (through Hocuspocus).
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+The `relevo-api` contains:
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+* Unit setup logic (unit, shifts, roles)
+* Patient list and filtering
+* Full I-PASS workflow endpoints (illness severity, summary, action list, synthesis)
+* Audit logging and timeline API
+* Role-based authorization
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
+---
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+## 🧪 Testing Strategy
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+* Frontend: Vitest, React Testing Library, Playwright (E2E)
+* Backend (C#): xUnit
+* Backend (NestJS): Jest
 
+---
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🧭 Deployment
 
-## Install Nx Console
+* All apps are dockerizable
+* Environment configuration follows 12-factor principles
+* Realtime and auth communication is secured via JWT and Clerk
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+---
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🔐 Security & Compliance
 
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+* Role-based access control (RBAC)
+* TLS 1.3 everywhere
+* Oracle Transparent Data Encryption (TDE)
+* Immutable audit logs with human-readable summaries
