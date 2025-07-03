@@ -7,7 +7,7 @@
 
 ## 1. Code Style & Structure — “Concise-FP”
 
-* **Functional & declarative**; no classes.
+* **Functional & declarative**; no classes, use `type { FC } from 'react'` if is possible.
 * **≤ 80 LOC per component**; one responsibility.
 * **Iterate & modularise**; never duplicate code.
 * **Verb-first names** (`isLoading`, `hasError`, `handleSubmit`).
