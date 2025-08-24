@@ -1,0 +1,15 @@
+# Build artifacts
+bin/
+obj/
+
+# Visual Studio / Rider / VSCode config
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Dependencias de paquetes
+packages/
