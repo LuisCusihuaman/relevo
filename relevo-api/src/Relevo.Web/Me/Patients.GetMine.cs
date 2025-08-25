@@ -3,7 +3,7 @@ using Relevo.Web.Patients;
 
 namespace Relevo.Web.Me;
 
-public class GetMyPatients(Setup.SetupDataStore _dataStore)
+public class GetMyPatients(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
   : Endpoint<GetMyPatientsRequest, GetMyPatientsResponse>
 {
   public override void Configure()
@@ -15,7 +15,7 @@ public class GetMyPatients(Setup.SetupDataStore _dataStore)
   public override async Task HandleAsync(GetMyPatientsRequest req, CancellationToken ct)
   {
     string userId = "demo-user"; // placeholder until auth is wired
-    var (patients, total) = _dataStore.GetMyPatients(userId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = _dataProvider.GetMyPatients(userId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetMyPatientsResponse
     {
       Patients = patients.ToList(),

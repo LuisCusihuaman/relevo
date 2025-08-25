@@ -2,7 +2,7 @@ using FastEndpoints;
 
 namespace Relevo.Web.Me;
 
-public class PostAssignments(Setup.SetupDataStore _dataStore)
+public class PostAssignments(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
   : Endpoint<PostAssignmentsRequest>
 {
   public override void Configure()
@@ -14,7 +14,7 @@ public class PostAssignments(Setup.SetupDataStore _dataStore)
   public override async Task HandleAsync(PostAssignmentsRequest req, CancellationToken ct)
   {
     string userId = "demo-user"; // placeholder until auth is wired
-    _dataStore.Assign(userId, req.ShiftId, req.PatientIds ?? []);
+    _dataProvider.Assign(userId, req.ShiftId, req.PatientIds ?? []);
     await SendNoContentAsync(ct);
   }
 }

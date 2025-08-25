@@ -1,6 +1,7 @@
 ﻿using Relevo.Core.Interfaces;
 using Relevo.Infrastructure;
 using Relevo.Infrastructure.Email;
+using Relevo.Web.Setup;
 
 namespace Relevo.Web.Configurations;
 
@@ -29,8 +30,8 @@ public static class ServiceConfigs
 
     logger.LogInformation("{Project} services registered", "Mediatr and Email Sender");
 
-    // In-memory demo data for setup/me endpoints
-    services.AddSingleton<Relevo.Web.Setup.SetupDataStore>();
+    // Setup/me provider: Oracle-backed or in-memory depending on config
+    services.AddSetupProvider(builder.Configuration);
 
     return services;
   }

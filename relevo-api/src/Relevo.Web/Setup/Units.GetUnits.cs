@@ -2,7 +2,7 @@ using FastEndpoints;
 
 namespace Relevo.Web.Setup;
 
-public class GetUnits(SetupDataStore _dataStore) : EndpointWithoutRequest<UnitListResponse>
+public class GetUnits(ISetupDataProvider _dataProvider) : EndpointWithoutRequest<UnitListResponse>
 {
   public override void Configure()
   {
@@ -12,7 +12,7 @@ public class GetUnits(SetupDataStore _dataStore) : EndpointWithoutRequest<UnitLi
 
   public override async Task HandleAsync(CancellationToken ct)
   {
-    var units = _dataStore.GetUnits();
+    var units = _dataProvider.GetUnits();
     Response = new UnitListResponse
     {
       Units = units.Select(u => new UnitItem { Id = u.Id, Name = u.Name }).ToList()

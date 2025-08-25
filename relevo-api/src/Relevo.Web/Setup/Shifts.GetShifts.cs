@@ -2,7 +2,7 @@ using FastEndpoints;
 
 namespace Relevo.Web.Setup;
 
-public class GetShifts(SetupDataStore _dataStore) : EndpointWithoutRequest<ShiftListResponse>
+public class GetShifts(ISetupDataProvider _dataProvider) : EndpointWithoutRequest<ShiftListResponse>
 {
   public override void Configure()
   {
@@ -12,7 +12,7 @@ public class GetShifts(SetupDataStore _dataStore) : EndpointWithoutRequest<Shift
 
   public override async Task HandleAsync(CancellationToken ct)
   {
-    var shifts = _dataStore.GetShifts();
+    var shifts = _dataProvider.GetShifts();
     Response = new ShiftListResponse
     {
       Shifts = shifts.Select(s => new ShiftItem

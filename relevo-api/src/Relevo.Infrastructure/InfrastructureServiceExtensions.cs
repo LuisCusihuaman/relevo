@@ -18,14 +18,38 @@ public static class InfrastructureServiceExtensions
     ConfigurationManager config,
     ILogger logger)
   {
-    string? connectionString = config.GetConnectionString("SqliteConnection");
-    Guard.Against.Null(connectionString);
-    services.AddDbContext<AppDbContext>(options =>
-     options.UseSqlite(connectionString));
+    bool useOracle = config.GetValue("UseOracle", false);
+
+    if (useOracle)
+    {
+      services.AddSingleton<Data.Oracle.IOracleConnectionFactory, Data.Oracle.OracleConnectionFactory>();
+      // Keep EF for write model if needed; otherwise can be removed later.
+      string? sqlite = config.GetConnectionString("SqliteConnection");
+      if (!string.IsNullOrWhiteSpace(sqlite))
+      {
+        services.AddDbContext<AppDbContext>(options => options.UseSqlite(sqlite));
+      }
+    }
+    else
+    {
+      string? connectionString = config.GetConnectionString("SqliteConnection");
+      Guard.Against.Null(connectionString);
+      services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+    }
 
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>))
            .AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>))
-           .AddScoped<IListContributorsQueryService, ListContributorsQueryService>()
+           .AddScoped<IListContributorsQueryService>(sp =>
+           {
+             var cfg = sp.GetRequiredService<IConfiguration>();
+             bool useOracle = cfg.GetValue("UseOracle", false);
+             if (useOracle)
+             {
+               return new Data.Queries.OracleListContributorsQueryService(
+                 sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
+             }
+             return new ListContributorsQueryService(sp.GetRequiredService<AppDbContext>());
+           })
            .AddScoped<IDeleteContributorService, DeleteContributorService>();
 
 

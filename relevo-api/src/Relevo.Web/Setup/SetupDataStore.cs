@@ -2,7 +2,7 @@ using Relevo.Web.Patients;
 
 namespace Relevo.Web.Setup;
 
-public class SetupDataStore
+public class SetupDataStore : ISetupDataProvider
 {
   private readonly List<UnitRecord> _units =
   [

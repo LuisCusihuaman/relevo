@@ -3,7 +3,7 @@ using Relevo.Web.Patients;
 
 namespace Relevo.Web.Units;
 
-public class GetPatientsByUnit(Setup.SetupDataStore _dataStore)
+public class GetPatientsByUnit(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
   : Endpoint<GetPatientsByUnitRequest, GetPatientsByUnitResponse>
 {
   public override void Configure()
@@ -14,7 +14,7 @@ public class GetPatientsByUnit(Setup.SetupDataStore _dataStore)
 
   public override async Task HandleAsync(GetPatientsByUnitRequest req, CancellationToken ct)
   {
-    var (patients, total) = _dataStore.GetPatientsByUnit(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = _dataProvider.GetPatientsByUnit(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetPatientsByUnitResponse
     {
       Patients = patients.ToList(),
