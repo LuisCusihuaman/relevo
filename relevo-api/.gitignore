@@ -13,3 +13,4 @@ obj/
 
 # Dependencias de paquetes
 packages/
+log*.txt
