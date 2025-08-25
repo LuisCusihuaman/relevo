@@ -9,8 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DailySetupRouteImport } from './routes/daily-setup'
 import { Route as IndexRouteImport } from './routes/index'
 
+const DailySetupRoute = DailySetupRouteImport.update({
+  id: '/daily-setup',
+  path: '/daily-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +25,39 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/daily-setup': typeof DailySetupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/daily-setup': typeof DailySetupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/daily-setup': typeof DailySetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/daily-setup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/daily-setup'
+  id: '__root__' | '/' | '/daily-setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DailySetupRoute: typeof DailySetupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/daily-setup': {
+      id: '/daily-setup'
+      path: '/daily-setup'
+      fullPath: '/daily-setup'
+      preLoaderRoute: typeof DailySetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DailySetupRoute: DailySetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

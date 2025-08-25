@@ -1,27 +1,14 @@
-import { useTranslation } from "react-i18next";
-import type { FunctionComponent } from "../common/types";
+import type { FC } from "react";
+import { useUserStore } from "@/store/user.store";
 
-export const Home = (): FunctionComponent => {
-	const { t, i18n } = useTranslation();
-
-	const onTranslateButtonClick = async (): Promise<void> => {
-		if (i18n.resolvedLanguage === "en") {
-			await i18n.changeLanguage("es");
-		} else {
-			await i18n.changeLanguage("en");
-		}
-	};
+export const Home: FC = () => {
+	const { doctorName } = useUserStore(); // Concise-FP: use destructuring
 
 	return (
-		<div className="bg-blue-300 font-bold w-screen h-screen flex flex-col justify-center items-center">
-			<p className="text-white text-6xl">{t("home.greeting")}</p>
-			<button
-				className="hover:cursor-pointer"
-				type="submit"
-				onClick={onTranslateButtonClick}
-			>
-				translate
-			</button>
+		<div className="p-4">
+			<h1 className="text-2xl font-bold">
+				{doctorName ? `Welcome back, ${doctorName}!` : "Hello, world!"}
+			</h1>
 		</div>
 	);
 };
