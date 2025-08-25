@@ -24,15 +24,21 @@ import { useEffect, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 
-import { unitsConfig, shiftsConfig } from "@/store/config.store";
-import { unitsConfigES, shiftsConfigES } from "@/store/config.store.es";
-import { dailySetupPatients } from "@/store/patients.store";
-import { patientsES } from "@/store/patients.store.es";
+import type { UnitConfig, ShiftConfig, SetupPatient } from "@/common/types";
 import { formatDiagnosis } from "@/lib/formatters";
 import { PatientSelectionCard } from "@/components/PatientSelectionCard";
+import {
+	useUnitsQuery,
+	useShiftsQuery,
+	usePatientsByUnitQuery,
+	useAssignPatientsMutation,
+	type ApiUnit,
+	type ApiShift,
+	type ApiPatient,
+} from "@/api/daily-setup";
 
 export function DailySetup(): ReactElement {
-	const { i18n, t } = useTranslation(["dailySetup", "handover"]);
+	const { t } = useTranslation(["dailySetup", "handover"]);
 	const navigate = useNavigate();
 	const isEditing = false;
 	const existingSetup = null as unknown as {
@@ -48,19 +54,50 @@ export function DailySetup(): ReactElement {
 	const [doctorName, setDoctorName] = useState(existingSetup?.doctorName || "");
 	const [unit, setUnit] = useState(existingSetup?.unit || "");
 	const [shift, setShift] = useState(existingSetup?.shift || "");
-	const [selectedPatients, setSelectedPatients] = useState<Array<number>>(
-		existingSetup?.selectedPatients ?? []
-	);
+	const [selectedIndexes, setSelectedIndexes] = useState<Array<number>>([]);
 	const [showValidationError, setShowValidationError] = useState(false);
 
-	const currentUnitsConfig =
-		i18n.language === "es" ? unitsConfigES : unitsConfig;
-	const currentShiftsConfig =
-		i18n.language === "es" ? shiftsConfigES : shiftsConfig;
-	const currentPatientsSource =
-		i18n.language === "es" ? patientsES : dailySetupPatients;
+	// Fetch from API with ES fallbacks
+	const unitsQuery = useUnitsQuery();
+	const shiftsQuery = useShiftsQuery();
+	const patientsQuery = usePatientsByUnitQuery(unit || undefined);
+	const assignMutation = useAssignPatientsMutation();
 
-	type SetupPatient = (typeof currentPatientsSource)[number];
+	const apiUnits: Array<ApiUnit> | undefined = unitsQuery.data;
+	const apiShifts: Array<ApiShift> | undefined = shiftsQuery.data;
+	const apiPatients: Array<ApiPatient> | undefined = patientsQuery.data;
+
+	const currentUnitsConfig: Array<UnitConfig> = (apiUnits ?? []).map((u) => ({
+		id: u.id,
+		name: u.name,
+		description: u.description ?? "",
+	}));
+
+	const currentShiftsConfig: Array<ShiftConfig> = (apiShifts ?? []).map(
+		(s) => ({
+			id: s.id,
+			name: s.name,
+			time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : "",
+		})
+	);
+
+	const toStatus = (s?: string): "pending" | "in-progress" | "complete" =>
+		s === "pending" || s === "in-progress" || s === "complete" ? s : "pending";
+
+	const toSeverity = (v?: string): "stable" | "watcher" | "unstable" =>
+		v === "stable" || v === "watcher" || v === "unstable" ? v : "watcher";
+
+	const currentPatientsSource: Array<SetupPatient> = (apiPatients ?? []).map(
+		(p) => ({
+			id: Number(p.id),
+			name: p.name,
+			age: p.age,
+			room: p.room ?? "",
+			diagnosis: p.diagnosis ? formatDiagnosis(p.diagnosis) : "",
+			status: toStatus(p.status),
+			severity: toSeverity(p.severity),
+		})
+	);
 
 	const currentPatients = currentPatientsSource.map((p: SetupPatient) => ({
 		id: p.id,
@@ -101,29 +138,22 @@ export function DailySetup(): ReactElement {
 		};
 	}, []);
 
-	const handlePatientToggle = (patientId: number): void => {
-		setSelectedPatients((previous: Array<number>) =>
-			previous.includes(patientId)
-				? previous.filter(
-						(patientIdentifier: number) => patientIdentifier !== patientId
-					)
-				: [...previous, patientId]
+	const handlePatientToggle = (rowIndex: number): void => {
+		setSelectedIndexes((previous: Array<number>) =>
+			previous.includes(rowIndex)
+				? previous.filter((index: number) => index !== rowIndex)
+				: [...previous, rowIndex]
 		);
-		if (showValidationError) {
-			setShowValidationError(false);
-		}
+		if (showValidationError) setShowValidationError(false);
 	};
 
 	const handleSelectAll = (): void => {
-		if (selectedPatients.length === currentPatients.length) {
-			setSelectedPatients([]);
+		if (selectedIndexes.length === currentPatients.length) {
+			setSelectedIndexes([]);
 		} else {
-			setSelectedPatients(currentPatients.map((p) => p.id));
+			setSelectedIndexes(Array.from({ length: currentPatients.length }, (_, index) => index));
 		}
-
-		if (showValidationError) {
-			setShowValidationError(false);
-		}
+		if (showValidationError) setShowValidationError(false);
 	};
 
 	const canProceedToNextStep = (): boolean => {
@@ -135,21 +165,28 @@ export function DailySetup(): ReactElement {
 			case 2:
 				return shift !== "";
 			case 3:
-				return selectedPatients.length > 0;
+				return selectedIndexes.length > 0;
 			default:
 				return false;
 		}
 	};
 
 	const handleNextStep = (): void => {
-		if (currentStep === 3 && selectedPatients.length === 0) {
+		if (currentStep === 3 && selectedIndexes.length === 0) {
 			setShowValidationError(true);
 			return;
 		}
 
 		if (canProceedToNextStep()) {
 			if (currentStep === 3) {
-				void navigate({ to: "/" });
+				const shiftId = shift; // shift is guaranteed by canProceedToNextStep
+				const selected = selectedIndexes.map((index) => currentPatients[index]?.id).filter(Boolean) as Array<string | number>;
+				const payload = { shiftId, patientIds: selected.map(String) };
+				assignMutation.mutate(payload, {
+					onSettled: () => {
+						void navigate({ to: "/" });
+					},
+				});
 			} else {
 				setCurrentStep((previous: number) => previous + 1);
 			}
@@ -383,13 +420,13 @@ export function DailySetup(): ReactElement {
 								<Badge
 									variant="outline"
 									className={`text-base px-4 py-2 ${
-										selectedPatients.length > 0
+										selectedIndexes.length > 0
 											? "bg-primary/10 border-primary/30 text-primary"
 											: "bg-muted/30 border-border/50 text-muted-foreground"
 									}`}
 								>
 									{t("patientsSelected", {
-										count: selectedPatients.length,
+										count: selectedIndexes.length,
 										total: currentPatients.length,
 									})}
 								</Badge>
@@ -412,7 +449,7 @@ export function DailySetup(): ReactElement {
 									variant="outline"
 									onClick={handleSelectAll}
 								>
-									{selectedPatients.length === currentPatients.length ? (
+									{selectedIndexes.length === currentPatients.length ? (
 										<>
 											<Circle className="w-4 h-4" />
 											{t("deselectAll")}
@@ -444,25 +481,22 @@ export function DailySetup(): ReactElement {
 						<div className="flex-1 min-h-0 mt-6">
 							<div className="h-full overflow-y-auto mobile-scroll-fix">
 								<div className="space-y-3 pb-4">
-									{currentPatients.map((patient) => (
+									{currentPatients.map((patient, index) => (
 										<div
 											key={patient.id}
 											className="cursor-pointer"
 											role="button"
 											tabIndex={0}
-											onClick={() => {
-												handlePatientToggle(patient.id);
-											}}
+											onClick={() => { handlePatientToggle(index); }}
 											onKeyDown={(event_) => {
 												if (event_.key === "Enter" || event_.key === " ") {
-													handlePatientToggle(patient.id);
+													handlePatientToggle(index);
 												}
 											}}
 										>
 											<PatientSelectionCard
-												isSelected={selectedPatients.includes(patient.id)}
-												patient={patient}
-												onToggle={handlePatientToggle}
+												isSelected={selectedIndexes.includes(index)}
+												patient={patient as unknown as SetupPatient}
 											/>
 										</div>
 									))}
@@ -587,7 +621,7 @@ export function DailySetup(): ReactElement {
 				</div>
 
 				{/* Validation Help Text */}
-				{currentStep === 3 && selectedPatients.length === 0 && (
+				{currentStep === 3 && selectedIndexes.length === 0 && (
 					<div
 						className="fixed bottom-0 left-0 right-0 z-20 bg-red-50 border-t border-red-200 px-4 py-2"
 						style={{
@@ -805,13 +839,13 @@ export function DailySetup(): ReactElement {
 								<Badge
 									variant="outline"
 									className={`text-base px-4 py-2 ${
-										selectedPatients.length > 0
+										selectedIndexes.length > 0
 											? "bg-primary/10 border-primary/30 text-primary"
 											: "bg-muted/30 border-border/50 text-muted-foreground"
 									}`}
 								>
 									{t("patientsSelected", {
-										count: selectedPatients.length,
+										count: selectedIndexes.length,
 										total: currentPatients.length,
 									})}
 								</Badge>
@@ -833,7 +867,7 @@ export function DailySetup(): ReactElement {
 									variant="outline"
 									onClick={handleSelectAll}
 								>
-									{selectedPatients.length === currentPatients.length ? (
+									{selectedIndexes.length === currentPatients.length ? (
 										<>
 											<Circle className="w-4 h-4" />
 											{t("deselectAll")}
@@ -865,25 +899,22 @@ export function DailySetup(): ReactElement {
 								<div className="patient-scroll-container bg-muted/10 border border-border/40 rounded-xl p-4">
 									<div className="max-h-[380px] overflow-y-auto scrollbar-hidden">
 										<div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-											{currentPatients.map((patient) => (
+											{currentPatients.map((patient, index) => (
 												<div
 													key={patient.id}
 													className="cursor-pointer"
 													role="button"
 													tabIndex={0}
-													onClick={() => {
-														handlePatientToggle(patient.id);
-													}}
+													onClick={() => { handlePatientToggle(index); }}
 													onKeyDown={(event_) => {
 														if (event_.key === "Enter" || event_.key === " ") {
-															handlePatientToggle(patient.id);
+															handlePatientToggle(index);
 														}
 													}}
 												>
 													<PatientSelectionCard
-														isSelected={selectedPatients.includes(patient.id)}
-														patient={patient}
-														onToggle={handlePatientToggle}
+														isSelected={selectedIndexes.includes(index)}
+														patient={patient as unknown as SetupPatient}
 													/>
 												</div>
 											))}

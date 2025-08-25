@@ -3,22 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Activity, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
-
-// Simplified patient type for setup
-interface SetupPatient {
-  id: number;
-  name: string;
-  age?: number;
-  room: string;
-  diagnosis: string;
-  severity: "stable" | "watcher" | "unstable";
-  status: "pending" | "in-progress" | "complete";
-}
+import type { SetupPatient } from "@/common/types";
 
 interface PatientSelectionCardProps {
   patient: SetupPatient;
   isSelected: boolean;
-  onToggle: (patientId: number) => void;
 }
 
 type SeverityConfig = {

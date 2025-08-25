@@ -389,7 +389,7 @@ export interface Alert {
 	}
   
 	if (patient.ipassEntries && patient.ipassEntries.length > 0) {
-	  const latest = patient.ipassEntries[patient.ipassEntries.length - 1];
+	  const latest = patient.ipassEntries[patient.ipassEntries.length - 1]!;
 	  const sectionNames = {
 		illness_severity: "Illness Severity",
 		patient_summary: "Patient Summary",
