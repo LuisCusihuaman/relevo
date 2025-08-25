@@ -25,6 +25,11 @@ export default defineConfig({
 		host: true,
 		strictPort: true,
 	},
+	resolve: {
+		alias: {
+			"@": "/src",
+		},
+	},
 	test: {
 		environment: "jsdom",
 		setupFiles: ["./vitest.setup.ts"],
