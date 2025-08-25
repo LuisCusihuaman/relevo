@@ -1,34 +1,72 @@
 import i18n, { type InitOptions } from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import Backend, { type HttpBackendOptions } from "i18next-http-backend";
 import { initReactI18next } from "react-i18next";
 import translationEN from "../assets/locales/en/translations.json";
 import translationES from "../assets/locales/es/translations.json";
 import { isProduction } from "./utils";
 
-export const defaultNS = "translations";
+export const namespaces = [
+	"actionList",
+	"activityFeed",
+	"appSidebar",
+	"clinicalDocumentation",
+	"collaborationPanel",
+	"collapsibleLayout",
+	"confirmationChecklist",
+	"contextAwareDashboard",
+	"dailySetup",
+	"desktopPatientView",
+	"enhancedLayout",
+	"enhancedPatientCard",
+	"figmaLayout",
+	"fullscreenEditor",
+	"handover",
+	"handoverHistory",
+	"header",
+	"illnessSeverity",
+	"justification",
+	"mainContent",
+	"mobileMenus",
+	"modernLayout",
+	"notificationsView",
+	"patientAlerts",
+	"patientCard",
+	"patientDetailView",
+	"patientListView",
+	"patientSelectionCard",
+	"patientSummary",
+	"profileView",
+	"quickActions",
+	"quickNote",
+	"searchBar",
+	"searchView",
+	"simpleLayout",
+	"simplePatientCard",
+	"situationAwareness",
+	"statusSummary",
+	"synthesisByReceiver",
+	"patientHeader",
+  ] as const;
+
+export const defaultNS = "translations" as const;
+
 export const resources = {
-	en: { translations: translationEN },
-	es: { translations: translationES },
+	en: translationEN,
+	es: translationES,
 } as const;
 
-const i18nOptions: InitOptions<HttpBackendOptions> = {
+const i18nOptions: InitOptions = {
+	resources,
 	defaultNS,
-	ns: [defaultNS],
+	ns: namespaces,
 	debug: !isProduction,
 	fallbackLng: "en",
 	interpolation: {
 		escapeValue: false, // not needed for react as it escapes by default
-	},
-	backend: {
-		loadPath: isProduction
-			? "locales/{{lng}}/translations.json"
-			: "src/assets/locales/{{lng}}/translations.json",
 	},
 };
 
 void i18n
 	.use(initReactI18next)
 	.use(LanguageDetector)
-	.use(Backend)
-	.init<HttpBackendOptions>(i18nOptions);
+	.init(i18nOptions);
