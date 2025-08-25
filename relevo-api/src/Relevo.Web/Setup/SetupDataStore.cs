@@ -6,15 +6,15 @@ public class SetupDataStore
 {
   private readonly List<UnitRecord> _units =
   [
-    new("unit-1", "ICU"),
-    new("unit-2", "Med/Surg"),
-    new("unit-3", "Pediatrics")
+    new("unit-1", "UCI"),
+    new("unit-2", "Pediatría General"),
+    new("unit-3", "Pediatría Especializada")
   ];
 
   private readonly List<ShiftRecord> _shifts =
   [
-    new("shift-day", "Day Shift", "07:00", "19:00"),
-    new("shift-night", "Night Shift", "19:00", "07:00")
+    new("shift-day", "Mañana", "07:00", "15:00"),
+    new("shift-night", "Noche", "19:00", "07:00")
   ];
 
   private readonly Dictionary<string, List<PatientRecord>> _unitIdToPatients = new()
@@ -27,9 +27,9 @@ public class SetupDataStore
     ],
     ["unit-2"] =
     [
-      new("pat-210", "Kim Lee"),
-      new("pat-220", "Chris Green"),
-      new("pat-230", "Sam Brown")
+      new("pat-210", "Ava Thompson"),
+      new("pat-220", "Liam Rodríguez"),
+      new("pat-230", "Mia Patel")
     ],
     ["unit-3"] =
     [
