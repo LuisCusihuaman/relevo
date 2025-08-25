@@ -22,6 +22,21 @@ var appLogger = new SerilogLoggerFactory(logger)
 builder.Services.AddOptionConfigs(builder.Configuration, appLogger, builder);
 builder.Services.AddServiceConfigs(appLogger, builder);
 
+// CORS: allow Vite dev server to call API (frontend runs on :5174)
+const string CorsPolicyName = "FrontendDev";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: CorsPolicyName, policy =>
+        policy.WithOrigins(
+                "http://localhost:5174",
+                "https://localhost:5174"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+    );
+});
+
 builder.Services.AddFastEndpoints()
                 .SwaggerDocument(o =>
                 {
@@ -29,6 +44,8 @@ builder.Services.AddFastEndpoints()
                 });
 
 var app = builder.Build();
+
+app.UseCors(CorsPolicyName);
 
 await app.UseAppMiddleware();
 
