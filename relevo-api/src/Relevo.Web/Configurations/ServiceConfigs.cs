@@ -29,6 +29,9 @@ public static class ServiceConfigs
 
     logger.LogInformation("{Project} services registered", "Mediatr and Email Sender");
 
+    // In-memory demo data for setup/me endpoints
+    services.AddSingleton<Relevo.Web.Setup.SetupDataStore>();
+
     return services;
   }
 

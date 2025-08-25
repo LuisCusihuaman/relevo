@@ -1,0 +1,55 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+### Environment
+@host=https://localhost
+@port=57679
+# When auth is enabled, set a real Clerk JWT here:
+# @bearer = eyJhbGciOi...
+
+### Common headers
+# Authorization: Bearer {{bearer}}
+Accept: application/json
+
+###
+# 1) Get Units  — Daily Setup step 1
+# Spec: GET /setup/units  → returns array of { id, name }
+GET {{host}}:{{port}}/setup/units
+
+###
+# 2) Get Shifts — Daily Setup step 2
+# Spec: GET /setup/shifts → returns array of { id, name, startTime, endTime }
+GET {{host}}:{{port}}/setup/shifts
+
+###
+# 3) Get Patients by Unit — Daily Setup step 3 (roster)
+# Spec: GET /units/{unitId}/patients?page=&pageSize=
+# Tip: use a real unitId from the response of /setup/units (e.g., "unit-1")
+@unitId = unit-1
+@page = 1
+@pageSize = 25
+GET {{host}}:{{port}}/units/{{unitId}}/patients?page={{page}}&pageSize={{pageSize}}
+
+###
+# 4) Assign Patients — complete Daily Setup (finalize)
+# Spec: POST /me/assignments → 204 No Content
+# Tip: use real ids from the roster above (e.g., "pat-123", "pat-456")
+POST {{host}}:{{port}}/me/assignments
+Content-Type: application/json
+# Authorization: Bearer {{bearer}}
+
+{
+  "shiftId": "shift-day",
+  "patientIds": ["pat-123", "pat-456"]
+}
+
+###
+# 5) Get My Patients — verify assignment on the dashboard (optional)
+# Spec: GET /me/patients?page=&pageSize=
+@myPage = 1
+@myPageSize = 25
+GET {{host}}:{{port}}/me/patients?page={{myPage}}&pageSize={{myPageSize}}
+
+###
+# Negative check (when auth is ON): expect 401 without Authorization
+# Remove dev-bypass and run this to verify security is enforced.
+# GET {{host}}:{{port}}/setup/units
