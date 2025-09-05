@@ -1,19 +1,18 @@
-
 import { type ReactElement, useEffect, useState } from "react";
 import {
+	DashboardSidebar,
+	DeploymentsHeader,
+	DeploymentsMobileList,
+	DeploymentsTable,
+	DeploymentsToolbar,
 	Header,
 	MobileMenu,
+	NodeVersionWarning,
+	ProjectHeader,
+	ProjectsList,
+	ProjectsToolbar,
 	SearchOverlay,
 	SubNavigation,
-	NodeVersionWarning,
-	ProjectsToolbar,
-	DashboardSidebar,
-	ProjectsList,
-	DeploymentsHeader,
-	DeploymentsToolbar,
-	DeploymentsTable,
-	DeploymentsMobileList,
-	ProjectHeader,
 	type Project,
 	type SearchResult,
 } from "@/components/home";
@@ -191,7 +190,6 @@ export function Home({
 		deploymentId: string,
 		projectName: string
 	): void => {
-		// Map project display names to slugs
 		const projectSlugMap: { [key: string]: string } = {
 			"calendar-app": "calendar-app",
 			"heroes-app": "heroes-app",
@@ -207,7 +205,6 @@ export function Home({
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			{/* START: Header */}
 			<Header
 				currentProject={currentProject}
 				isMobileMenuOpen={isMobileMenuOpen}
@@ -215,9 +212,7 @@ export function Home({
 				setIsMobileMenuOpen={setIsMobileMenuOpen}
 				setIsSearchOpen={setIsSearchOpen}
 			/>
-			{/* END: Header */}
 
-			{/* START: MobileMenu */}
 			{isMobileMenuOpen && (
 				<MobileMenu
 					currentProject={currentProject}
@@ -225,9 +220,7 @@ export function Home({
 					setIsMobileMenuOpen={setIsMobileMenuOpen}
 				/>
 			)}
-			{/* END: MobileMenu */}
 
-			{/* START: SearchOverlay */}
 			{isSearchOpen && (
 				<SearchOverlay
 					searchQuery={searchQuery}
@@ -236,37 +229,22 @@ export function Home({
 					setSearchQuery={setSearchQuery}
 				/>
 			)}
-			{/* END: SearchOverlay */}
 
-			{/* START: SubNavigation */}
 			<SubNavigation
 				activeTab={activeTab}
 				isProjectView={isProjectView}
 				setActiveTab={setActiveTab}
 			/>
-			{/* END: SubNavigation */}
 
-			{/* Main Content */}
 			<div className="flex-1 p-6">
 				{!isProjectView && activeTab === "Overview" && (
 					<div className="space-y-6">
-						{/* START: NodeVersionWarning */}
 						<NodeVersionWarning />
-						{/* END: NodeVersionWarning */}
-
 						<div className="max-w-7xl mx-auto px-6 py-6">
-							{/* START: ProjectsToolbar */}
 							<ProjectsToolbar />
-							{/* END: ProjectsToolbar */}
-
 							<div className="flex flex-col lg:flex-row gap-8">
-								{/* START: DashboardSidebar */}
 								<DashboardSidebar recentPreviews={recentPreviews} />
-								{/* END: DashboardSidebar */}
-
-								{/* START: ProjectsList */}
 								<ProjectsList projects={projects} />
-								{/* END: ProjectsList */}
 							</div>
 						</div>
 					</div>
@@ -274,34 +252,19 @@ export function Home({
 
 				{!isProjectView && activeTab === "Deployments" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
-						{/* START: DeploymentsHeader */}
 						<DeploymentsHeader />
-						{/* END: DeploymentsHeader */}
-
-						{/* START: DeploymentsToolbar */}
 						<DeploymentsToolbar />
-						{/* END: DeploymentsToolbar */}
-
-						{/* START: DeploymentsTable */}
 						<DeploymentsTable handleDeploymentClick={handleDeploymentClick} />
-						{/* END: DeploymentsTable */}
-
-						{/* START: DeploymentsMobileList */}
 						<DeploymentsMobileList
 							handleDeploymentClick={handleDeploymentClick}
 						/>
-						{/* END: DeploymentsMobileList */}
 					</div>
 				)}
 
 				{isProjectView && currentProject ? (
 					<div className="space-y-6">
 						{activeTab === "Overview" && (
-							<>
-								{/* START: ProjectHeader */}
-								<ProjectHeader currentProject={currentProject} />
-								{/* END: ProjectHeader */}
-							</>
+							<ProjectHeader currentProject={currentProject} />
 						)}
 					</div>
 				) : null}
