@@ -30,24 +30,24 @@ export const PatientDirectoryToolbar: FC = () => {
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
+						title="Filtros"
 						variant="outline"
-						aria-label="Filtros"
 					>
 						<Filter className="h-4 w-4" />
 					</Button>
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
+						title="Vista"
 						variant="outline"
-						aria-label="Vista"
 					>
 						<Grid3X3 className="h-4 w-4" />
 					</Button>
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
+						title="Ordenar"
 						variant="outline"
-						aria-label="Vista"
 					>
 						<List className="h-4 w-4" />
 					</Button>
