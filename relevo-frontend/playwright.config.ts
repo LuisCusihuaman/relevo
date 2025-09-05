@@ -1,16 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
+import { fileURLToPath } from "url";
+import path from "path";
+import dotenv from "dotenv";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const authFile = path.join(__dirname, "playwright/.clerk/user.json");
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+// Load environment variables globally for all tests from multiple possible locations
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
 export default defineConfig({
 	testDir: "./e2e",
+	/* Global setup to ensure environment variables are loaded */
+	globalSetup: path.resolve(__dirname, "./e2e/global.setup.ts"),
 	/* Run tests in files in parallel */
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -33,50 +37,15 @@ export default defineConfig({
 	/* Configure projects for major browsers */
 	projects: [
 		{
-			name: "global setup",
-			testMatch: /.*\.setup\.ts/,
-		},
-		{
 			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
-			dependencies: ["global setup"],
+			use: { ...devices["Desktop Chrome"], storageState: authFile },
 		},
-
-		/* {
-			name: "firefox",
-			use: { ...devices["Desktop Firefox"] },
-		},
-
-		{
-			name: "webkit",
-			use: { ...devices["Desktop Safari"] },
-		}, */
-
-		/* Test against mobile viewports. */
-		// {
-		//   name: 'Mobile Chrome',
-		//   use: { ...devices['Pixel 5'] },
-		// },
-		// {
-		//   name: 'Mobile Safari',
-		//   use: { ...devices['iPhone 12'] },
-		// },
-
-		/* Test against branded browsers. */
-		// {
-		//   name: 'Microsoft Edge',
-		//   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-		// },
-		// {
-		//   name: 'Google Chrome',
-		//   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-		// },
 	],
 
 	/* Run your local dev server before starting the tests */
 	webServer: {
 	  command: 'pnpm run dev',
-	  url: 'http://127.0.0.1:5174',
+	  url: 'http://localhost:5174',
 	  reuseExistingServer: !process.env.CI,
 	},
 });
