@@ -7,6 +7,7 @@ export type Project = {
 	hasGithub: boolean;
 	branch?: string;
 	github?: string;
+	unit?: string;
 };
 
 export type RecentPreview = {
@@ -45,4 +46,6 @@ export type Deployment = {
 	environmentType: "Preview" | "Production";
 	avatar: string;
 	current?: boolean;
+	bedLabel?: string;
+	mrn?: string;
 };

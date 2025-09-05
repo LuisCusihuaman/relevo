@@ -89,6 +89,13 @@ export const projects: Array<Project> = [
 	},
 ];
 
+// Map de nombre técnico de app/repositorio a nombre del paciente
+export const projectToPatientName: Record<string, string> = {
+	"calendar-app": "Ana Pérez",
+	"heroes-app": "Carlos Gómez",
+	"relevo-app": "Laura Schmidt",
+};
+
 export const recentPreviews: Array<RecentPreview> = [
 	{
 		title: "Nuevo paciente asignado",
@@ -153,6 +160,8 @@ export const deployments: Array<Deployment> = [
 		statusTime: "2s (2d ago)",
 		environmentType: "Preview",
 		avatar: "DB",
+		bedLabel: "302A",
+		mrn: "892778",
 	},
 	{
 		id: "8LB4tSUAh",
@@ -174,6 +183,7 @@ export const deployments: Array<Deployment> = [
 		statusTime: "2s (3d ago)",
 		environmentType: "Preview",
 		avatar: "DB",
+		mrn: "12345678",
 	},
 	{
 		id: "3L5k6ngCp",
@@ -195,6 +205,7 @@ export const deployments: Array<Deployment> = [
 		statusTime: "4s (18d ago)",
 		environmentType: "Preview",
 		avatar: "DB",
+		bedLabel: "217B",
 	},
 	{
 		id: "GX6A8fhaZ",
@@ -216,6 +227,7 @@ export const deployments: Array<Deployment> = [
 		statusTime: "4s (38d ago)",
 		environmentType: "Preview",
 		avatar: "DB",
+		mrn: "99887766",
 	},
 	{
 		id: "6qYUWvuN3",
@@ -239,6 +251,7 @@ export const deployments: Array<Deployment> = [
 		current: true,
 		environmentType: "Production",
 		avatar: "LC",
+		bedLabel: "401C",
 	},
 	{
 		id: "8TdfXLHgY",
@@ -261,6 +274,7 @@ export const deployments: Array<Deployment> = [
 		statusTime: "21s (43d ago)",
 		environmentType: "Preview",
 		avatar: "LC",
+		mrn: "445566",
 	},
 ];
 
