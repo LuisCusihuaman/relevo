@@ -231,7 +231,7 @@ export function Home({
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			{/* Header */}
+			{/* START: Header */}
 			<header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-6">
 				<div className="flex items-center gap-3">
 					{/* Vercel Logo */}
@@ -682,8 +682,9 @@ export function Home({
 					</Popover>
 				</div>
 			</header>
+			{/* END: Header */}
 
-			{/* Mobile Menu Overlay */}
+			{/* START: MobileMenu */}
 			{isMobileMenuOpen && (
 				<div className="fixed inset-0 z-[9999] bg-white md:hidden">
 					{/* Mobile Menu Header */}
@@ -855,8 +856,9 @@ export function Home({
 					</div>
 				</div>
 			)}
+			{/* END: MobileMenu */}
 
-			{/* Search Overlay */}
+			{/* START: SearchOverlay */}
 			{isSearchOpen && (
 				<div
 					className="fixed inset-0 z-[9999] bg-white/20 backdrop-blur-sm"
@@ -983,8 +985,9 @@ export function Home({
 					</div>
 				</div>
 			)}
+			{/* END: SearchOverlay */}
 
-			{/* Sub Navigation */}
+			{/* START: SubNavigation */}
 			<div className="sticky top-0 z-50 border-b border-gray-200 bg-white">
 				<div className="px-4 md:px-6">
 					<nav
@@ -1052,11 +1055,13 @@ export function Home({
 					</nav>
 				</div>
 			</div>
+			{/* END: SubNavigation */}
 
 			{/* Main Content */}
 			<div className="flex-1 p-6">
 				{!isProjectView && activeTab === "Overview" && (
 					<div className="space-y-6">
+						{/* START: NodeVersionWarning */}
 						<div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
 							<div className="flex items-start gap-3">
 								<AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
@@ -1074,8 +1079,10 @@ export function Home({
 								</div>
 							</div>
 						</div>
+						{/* END: NodeVersionWarning */}
 
 						<div className="max-w-7xl mx-auto px-6 py-6">
+							{/* START: ProjectsToolbar */}
 							<div className="flex items-center justify-between gap-4 mb-8">
 								<div className="relative flex-1">
 									<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -1122,10 +1129,12 @@ export function Home({
 									</DropdownMenu>
 								</div>
 							</div>
+							{/* END: ProjectsToolbar */}
 
 							<div className="flex flex-col lg:flex-row gap-8">
-								{/* Left Sidebar */}
+								{/* START: DashboardSidebar */}
 								<div className="lg:w-96 space-y-6">
+									{/* START: UsageCard */}
 									<div>
 										<h2 className="text-base font-medium mb-4 leading-tight">
 											Usage
@@ -1287,8 +1296,9 @@ export function Home({
 											</div>
 										</div>
 									</div>
+									{/* END: UsageCard */}
 
-									{/* Recent Previews */}
+									{/* START: RecentPreviewsCard */}
 									<div className="border border-gray-200 rounded-lg bg-white">
 										<div className="p-6">
 											<h3 className="text-base font-medium mb-4 leading-tight">
@@ -1388,9 +1398,11 @@ export function Home({
 											</div>
 										</div>
 									</div>
+									{/* END: RecentPreviewsCard */}
 								</div>
+								{/* END: DashboardSidebar */}
 
-								{/* Projects List */}
+								{/* START: ProjectsList */}
 								<div className="flex-1 min-w-0">
 									<div className="mb-4">
 										<h2 className="text-base font-medium leading-tight">
@@ -1533,6 +1545,7 @@ export function Home({
 										</ul>
 									</div>
 								</div>
+								{/* END: ProjectsList */}
 							</div>
 						</div>
 					</div>
@@ -1540,6 +1553,7 @@ export function Home({
 
 				{!isProjectView && activeTab === "Deployments" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
+						{/* START: DeploymentsHeader */}
 						<div className="flex items-center justify-between">
 							<div>
 								<h1 className="text-2xl font-semibold text-gray-900">
@@ -1553,7 +1567,9 @@ export function Home({
 								</p>
 							</div>
 						</div>
+						{/* END: DeploymentsHeader */}
 
+						{/* START: DeploymentsToolbar */}
 						<div className="flex items-center justify-between mt-6 mb-4">
 							<div className="flex items-center gap-4">
 								<button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
@@ -1574,8 +1590,9 @@ export function Home({
 								</select>
 							</div>
 						</div>
+						{/* END: DeploymentsToolbar */}
 
-						{/* Desktop Table Layout */}
+						{/* START: DeploymentsTable */}
 						<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">
 							{[
 								{
@@ -1795,8 +1812,9 @@ export function Home({
 								</div>
 							))}
 						</div>
+						{/* END: DeploymentsTable */}
 
-						{/* Mobile Card Layout */}
+						{/* START: DeploymentsMobileList */}
 						<div className="md:hidden space-y-4">
 							{[
 								{
@@ -2020,6 +2038,7 @@ export function Home({
 								</div>
 							))}
 						</div>
+						{/* END: DeploymentsMobileList */}
 					</div>
 				)}
 
@@ -2027,9 +2046,10 @@ export function Home({
 					<div className="space-y-6">
 						{activeTab === "Overview" && (
 							<>
+								{/* START: ProjectHeader */}
 								<div>
 									<h1 className="text-2xl font-semibold text-gray-900 mb-8">
-										{currentProject.name}
+										{currentProject?.name}
 									</h1>
 
 									<div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -2081,6 +2101,7 @@ export function Home({
 										</div>
 									</div>
 								</div>
+								{/* END: ProjectHeader */}
 							</>
 						)}
 					</div>
