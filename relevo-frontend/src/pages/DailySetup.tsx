@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUser, SignOutButton } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUserStore } from "@/store/user.store";
 import { Label } from "@/components/ui/label";
 import {
 	Activity,
@@ -41,6 +42,14 @@ export function DailySetup(): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
 	const navigate = useNavigate();
 	const { user, isLoaded } = useUser();
+	const { setDoctorName: setDoctorNameInStore } = useUserStore();
+	const { signOut } = useClerk();
+
+	function handleSignOut(): Promise<void> {
+		return signOut().finally(() => {
+			setDoctorNameInStore("");
+		});
+	}
 	const isEditing = false;
 	const existingSetup = null as unknown as {
 		doctorName?: string;
@@ -143,8 +152,11 @@ export function DailySetup(): ReactElement {
 	useEffect(() => {
 		if (!isLoaded) return;
 		const fullName = user?.fullName ?? [user?.firstName, user?.lastName].filter(Boolean).join(" ");
-		if (fullName && fullName !== doctorName) setDoctorName(fullName);
-	}, [isLoaded, user, doctorName]);
+		if (fullName && fullName !== doctorName) {
+			setDoctorName(fullName);
+			setDoctorNameInStore(fullName);
+		}
+	}, [isLoaded, user, doctorName, setDoctorNameInStore]);
 
 	const handlePatientToggle = (rowIndex: number): void => {
 		setSelectedIndexes((previous: Array<number>) =>
@@ -564,9 +576,7 @@ export function DailySetup(): ReactElement {
 							<div className="text-sm text-muted-foreground">
 								{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
 							</div>
-							<SignOutButton>
-								<Button size="sm" variant="ghost">Sign out</Button>
-							</SignOutButton>
+							<Button size="sm" variant="ghost" onClick={handleSignOut}>Sign out</Button>
 						</div>
 					</div>
 
@@ -684,9 +694,7 @@ export function DailySetup(): ReactElement {
 							<div className="text-sm text-muted-foreground">
 								{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
 							</div>
-							<SignOutButton>
-								<Button size="sm" variant="ghost">Sign out</Button>
-							</SignOutButton>
+							<Button size="sm" variant="ghost" onClick={handleSignOut}>Sign out</Button>
 						</div>
 					</div>
 
