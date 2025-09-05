@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ import {
 	HomeIcon,
 } from "lucide-react";
 
-import { type Project } from "./types";
+import type { Project } from "./types";
 
 type HeaderProps = {
 	isProjectView: boolean;
@@ -125,11 +125,11 @@ export const Header: FC<HeaderProps> = ({
 				</Button>
 
 				<Button
+					size="sm"
+					variant="ghost"
 					className={`h-8 w-8 p-0 text-gray-600 hover:text-gray-900 md:hidden ${
 						isMobileMenuOpen ? "hidden" : ""
 					}`}
-					size="sm"
-					variant="ghost"
 					onClick={() => {
 						setIsSearchOpen(true);
 					}}

@@ -1,10 +1,10 @@
-import { type FC } from "react";
-import { type RecentPreview } from "./types";
-import { UsageCard } from "./UsageCard";
-import { RecentPreviewsCard } from "./RecentPreviewsCard";
+import type { FC } from "react";
+import type { RecentPreview } from "@/components/home/types";
+import { UsageCard } from "@/components/home/UsageCard";
+import { RecentPreviewsCard } from "@/components/home/RecentPreviewsCard";
 
 type DashboardSidebarProps = {
-	recentPreviews: RecentPreview[];
+	recentPreviews: Array<RecentPreview>;
 };
 
 export const DashboardSidebar: FC<DashboardSidebarProps> = ({

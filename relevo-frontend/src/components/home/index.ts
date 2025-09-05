@@ -13,4 +13,4 @@ export * from "./RecentPreviewsCard";
 export * from "./SearchOverlay";
 export * from "./SubNavigation";
 export * from "./UsageCard";
-export * from "./types";
+export type * from "./types";

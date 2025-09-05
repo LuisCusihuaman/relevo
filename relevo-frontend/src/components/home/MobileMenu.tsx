@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
 	LogOut,
 } from "lucide-react";
 
-import { type Project } from "./types";
+import type { Project } from "./types";
 
 type MobileMenuProps = {
 	isProjectView: boolean;

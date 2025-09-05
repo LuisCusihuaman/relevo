@@ -1,6 +1,6 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
-import { type Project } from "./types";
+import type { Project } from "./types";
 
 type ProjectHeaderProps = {
 	currentProject: Project;

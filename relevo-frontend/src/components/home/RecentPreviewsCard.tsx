@@ -1,12 +1,12 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Github, MoreHorizontal } from "lucide-react";
-import { type RecentPreview } from "./types";
+import type { RecentPreview } from "./types";
 
 type RecentPreviewsCardProps = {
-	recentPreviews: RecentPreview[];
+	recentPreviews: Array<RecentPreview>;
 };
 
 export const RecentPreviewsCard: FC<RecentPreviewsCardProps> = ({

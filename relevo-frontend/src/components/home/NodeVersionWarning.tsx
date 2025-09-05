@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { AlertTriangle } from "lucide-react";
 
 export const NodeVersionWarning: FC = () => {

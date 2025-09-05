@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import { Calendar } from "lucide-react";
 
 export const DeploymentsToolbar: FC = () => {

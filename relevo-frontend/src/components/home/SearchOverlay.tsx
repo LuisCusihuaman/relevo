@@ -1,15 +1,15 @@
-import { type Dispatch, type FC, type SetStateAction } from "react";
+import type { Dispatch, FC, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-import { type SearchResult } from "./types";
+import type { SearchResult } from "./types";
 
 type SearchOverlayProps = {
 	setIsSearchOpen: (isOpen: boolean) => void;
 	searchQuery: string;
 	setSearchQuery: Dispatch<SetStateAction<string>>;
-	searchResults: SearchResult[];
+	searchResults: Array<SearchResult>;
 };
 
 export const SearchOverlay: FC<SearchOverlayProps> = ({

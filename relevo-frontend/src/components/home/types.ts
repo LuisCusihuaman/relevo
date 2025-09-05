@@ -11,7 +11,7 @@ export type Project = {
 
 export type RecentPreview = {
 	title: string;
-	avatars: { src: string | null; fallback: string; bg: string }[];
+	avatars: Array<{ src: string | null; fallback: string; bg: string }>;
 	status: string;
 	pr: string;
 	color?: string;

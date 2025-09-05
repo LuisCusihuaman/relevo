@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import type { FC } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -6,10 +6,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
-import { type Project } from "./types";
+import type { Project } from "./types";
 
 type ProjectsListProps = {
-	projects: Project[];
+	projects: Array<Project>;
 };
 
 export const ProjectsList: FC<ProjectsListProps> = ({ projects }) => {
