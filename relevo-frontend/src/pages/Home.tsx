@@ -13,113 +13,12 @@ import {
 	ProjectsToolbar,
 	SearchOverlay,
 	SubNavigation,
-	type Project,
-	type SearchResult,
 } from "@/components/home";
-
-const projects: Array<Project> = [
-	{
-		name: "relevo-app",
-		url: "relevo-app.vercel.app",
-		status: "Connect Git Repository",
-		date: "Jul 12",
-		icon: "react",
-		hasGithub: false,
-	},
-	{
-		name: "v0-portfolio-template-by-v0",
-		url: "v0-portfolio-template-by-v0-mu-...",
-		status: "Connect Git Repository",
-		date: "Aug 17",
-		icon: "react",
-		hasGithub: false,
-	},
-	{
-		name: "heroes-app",
-		url: "No Production Deployment",
-		status: "Create deploy.yml",
-		date: "2/22/21",
-		branch: "master",
-		github: "LuisCusihuaman/Hero...",
-		icon: "react",
-		hasGithub: true,
-	},
-	{
-		name: "calendar-app",
-		url: "No Production Deployment",
-		status: "docs: README.md",
-		date: "8/8/20",
-		branch: "master",
-		github: "LuisCusihuaman/Cale...",
-		icon: "react",
-		hasGithub: true,
-	},
-	{
-		name: "psa-frontend",
-		url: "psa-frontend-alpha.vercel.app",
-		status: "Connect Git Repository",
-		date: "6/30/24",
-		icon: "react",
-		hasGithub: false,
-	},
-	{
-		name: "image-component",
-		url: "image-component-sandy-three.v...",
-		status: "Initial commit",
-		date: "2/5/21",
-		branch: "master",
-		github: "LuisCusihuaman/ima...",
-		icon: "react",
-		hasGithub: true,
-	},
-	{
-		name: "v0-music-game-concept",
-		url: "v0-music-game-concept.vercel.a...",
-		status: "Connect Git Repository",
-		date: "Mar 25",
-		icon: "react",
-		hasGithub: false,
-	},
-	{
-		name: "backoffice",
-		url: "backoffice-pi-dusky.vercel.app",
-		status: "Initial commit",
-		date: "10/16/23",
-		branch: "main",
-		github: "LuisCusihuaman/bac...",
-		icon: "vercel",
-		hasGithub: true,
-	},
-];
-
-const recentPreviews = [
-	{
-		title: "Add new authentication flow",
-		avatars: [
-			{ src: null, fallback: "LC", bg: "bg-blue-500" },
-			{ src: null, fallback: "JD", bg: "bg-green-500" },
-		],
-		status: "Source",
-		pr: "#123",
-		color: "Ready",
-	},
-	{
-		title: "Update dashboard components",
-		avatars: [{ src: null, fallback: "SM", bg: "bg-purple-500" }],
-		status: "Error",
-		pr: "#124",
-	},
-	{
-		title: "Fix mobile responsive issues",
-		avatars: [
-			{ src: null, fallback: "AB", bg: "bg-orange-500" },
-			{ src: null, fallback: "CD", bg: "bg-pink-500" },
-		],
-		status: "Source",
-		pr: "#125",
-		color: "Ready",
-	},
-];
+import {
+	projects,
+	recentPreviews,
+	searchResults,
+} from "@/pages/data";
 
 export type HomeProps = {
 	projectSlug?: string;
@@ -142,22 +41,6 @@ export function Home({
 	const currentProject =
 		(projectSlug && projects.find((p) => p.name === projectSlug)) || null;
 	const isProjectView = Boolean(currentProject);
-	const [searchResults] = useState<Array<SearchResult>>([
-		{
-			name: "eduardoc/spanish",
-			category: "Latest Deployment",
-			type: "deployment",
-		},
-		{ name: "main", category: "Latest Deployment", type: "deployment" },
-		{ name: "Luis Cusihuaman's projects", category: "Team", type: "team" },
-		{ name: "relevo-app", category: "Project", type: "project" },
-		{ name: "Analytics", category: "Project", type: "project" },
-		{
-			name: '"visitors this week"',
-			category: "Navigation Assistant",
-			type: "assistant",
-		},
-	]);
 
 	useEffect(() => {
 		const handleKeyDown = (event_: KeyboardEvent): void => {
@@ -244,10 +127,11 @@ export function Home({
 							<ProjectsToolbar />
 							<div className="flex flex-col lg:flex-row gap-8">
 								<DashboardSidebar recentPreviews={recentPreviews} />
-								<ProjectsList projects={projects} />
-							</div>
-						</div>
-					</div>
+
+								<ProjectsList />
+															</div>
+														</div>
+													</div>
 				)}
 
 				{!isProjectView && activeTab === "Deployments" && (
@@ -258,7 +142,7 @@ export function Home({
 						<DeploymentsMobileList
 							handleDeploymentClick={handleDeploymentClick}
 						/>
-					</div>
+							</div>
 				)}
 
 				{isProjectView && currentProject ? (
