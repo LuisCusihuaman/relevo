@@ -1,39 +1,37 @@
 import { clerk, clerkSetup } from "@clerk/testing/playwright";
-import { test as setup } from "@playwright/test";
+import { chromium, FullConfig } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Ensures that Clerk setup is done before any tests run
-setup.describe.configure({
-	mode: "serial",
-});
-
-setup("global setup", async () => {
-	await clerkSetup();
-	if (
-		!process.env["E2E_CLERK_USER_EMAIL"] ||
-		!process.env["E2E_CLERK_USER_PASSWORD"]
-	) {
-		throw new Error(
-			"Please provide E2E_CLERK_USER_EMAIL and E2E_CLERK_USER_PASSWORD environment variables."
-		);
-	}
-}); // Close previous setup
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const authFile = path.join(__dirname, "../playwright/.clerk/user.json");
 
-setup("authenticate", async ({ page }) => {
-	await page.goto("/");
+async function globalSetup(config: FullConfig): Promise<void> {
+	const { VITE_CLERK_PUBLISHABLE_KEY, E2E_CLERK_USER_EMAIL, E2E_CLERK_USER_PASSWORD } = process.env;
+	
+	if (!VITE_CLERK_PUBLISHABLE_KEY || !E2E_CLERK_USER_EMAIL || !E2E_CLERK_USER_PASSWORD) {
+		throw new Error("Missing required environment variables. Check .env file for VITE_CLERK_PUBLISHABLE_KEY, E2E_CLERK_USER_EMAIL, E2E_CLERK_USER_PASSWORD");
+	}
+
+	await clerkSetup({ publishableKey: VITE_CLERK_PUBLISHABLE_KEY });
+
+	const browser = await chromium.launch();
+	const page = await browser.newPage();
+
+	const baseURL = config.projects?.[0]?.use?.baseURL || "http://localhost:5174/";
+	await page.goto(baseURL, { waitUntil: 'networkidle' });
+
 	await clerk.signIn({
 		page,
 		signInParams: {
 			strategy: "password",
-			identifier: process.env["E2E_CLERK_USER_EMAIL"]!,
-			password: process.env["E2E_CLERK_USER_PASSWORD"]!,
+			identifier: E2E_CLERK_USER_EMAIL,
+			password: E2E_CLERK_USER_PASSWORD,
 		},
 	});
 
 	await page.context().storageState({ path: authFile });
-});
+	await browser.close();
+}
+
+export default globalSetup;
