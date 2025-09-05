@@ -279,18 +279,30 @@ export const deployments: Array<Deployment> = [
 ];
 
 export const searchResults: Array<SearchResult> = [
-	{
-		name: "eduardoc/spanish",
-		category: "Latest Deployment",
-		type: "deployment",
-	},
-	{ name: "main", category: "Latest Deployment", type: "deployment" },
-	{ name: "Luis Cusihuaman's projects", category: "Team", type: "team" },
-	{ name: "relevo-app", category: "Project", type: "project" },
-	{ name: "Analytics", category: "Project", type: "project" },
-	{
-		name: '"visitors this week"',
-		category: "Navigation Assistant",
-		type: "assistant",
-	},
+	// Pacientes
+	{ name: "Ana Pérez", category: "Pacientes", type: "project" },
+	{ name: "Juan Rodríguez", category: "Pacientes", type: "project" },
+	{ name: "Carlos Gómez", category: "Pacientes", type: "project" },
+
+	// Traspasos (mantiene el tipo 'deployment' para el punto verde)
+	{ name: "Ana Pérez", category: "Traspasos", type: "deployment" },
+	{ name: "Laura Schmidt", category: "Traspasos", type: "deployment" },
+
+	// Acciones rápidas (acciones de comando)
+	{ name: "Iniciar traspaso", category: "Acciones rápidas", type: "assistant" },
+	{ name: "Añadir acción", category: "Acciones rápidas", type: "assistant" },
+	{ name: "Marcar alerta crítica", category: "Acciones rápidas", type: "assistant" },
+	{ name: "Abrir notificaciones", category: "Acciones rápidas", type: "assistant" },
+	{ name: "Crear nota clínica", category: "Acciones rápidas", type: "assistant" },
+
+	// Notas clínicas
+	{ name: "Nota de Ana Pérez", category: "Notas clínicas", type: "assistant" },
+	{ name: "Nota de Carlos Gómez", category: "Notas clínicas", type: "assistant" },
+
+	// Unidades/Servicios
+	{ name: "UCI", category: "Unidades/Servicios", type: "assistant" },
+	{ name: "Emergencia", category: "Unidades/Servicios", type: "assistant" },
+
+	// Personas/Equipo
+	{ name: "Luis Cusihuaman", category: "Personas/Equipo", type: "team" },
 ];

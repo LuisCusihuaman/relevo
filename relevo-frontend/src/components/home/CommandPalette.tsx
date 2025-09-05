@@ -21,11 +21,22 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 	const getCategoryText = (category: string): string => {
 		switch (category) {
 			case "Projects":
+			case "Project":
 				return "Pacientes";
 			case "Deployments":
+			case "Latest Deployment":
 				return "Traspasos";
+			case "Team":
+				return "Equipo";
 			case "Actions":
-				return "Acciones";
+			case "Navigation Assistant":
+				return "Acciones rápidas";
+			case "Notas clínicas":
+				return "Notas clínicas";
+			case "Unidades/Servicios":
+				return "Unidades/Servicios";
+			case "Personas/Equipo":
+				return "Personas/Equipo";
 			default:
 				return category;
 		}
@@ -151,8 +162,9 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 							</div>
 						))
 					) : (
-						<div className="p-4 text-sm text-center text-gray-500">
-							Escribe para buscar pacientes, acciones y traspasos…
+						<div className="p-6 text-center">
+							<div className="text-sm font-medium text-gray-700">Sin resultados</div>
+							<div className="mt-1 text-xs text-gray-500">Prueba con el nombre del paciente o escribe ‘acción’ para ver comandos</div>
 						</div>
 					)}
 				</div>
