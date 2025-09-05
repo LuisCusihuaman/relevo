@@ -60,12 +60,13 @@ const i18nOptions: InitOptions = {
 	defaultNS,
 	ns: namespaces,
 	debug: !isProduction,
+	lng: import.meta.env["VITE_APP_LANG"] as string || "es",
 	supportedLngs: ["en", "es"],
 	nonExplicitSupportedLngs: true,
 	load: "languageOnly",
-	fallbackLng: "en",
+	fallbackLng: "es",
 	detection: {
-		order: ["htmlTag", "navigator"],
+		order: ["navigator", "htmlTag"],
 		caches: [],
 	},
 	interpolation: {
