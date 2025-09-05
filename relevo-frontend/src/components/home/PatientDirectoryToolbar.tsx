@@ -60,8 +60,10 @@ export const PatientDirectoryToolbar: FC = () => {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
-						<DropdownMenuItem>Project</DropdownMenuItem>
-						<DropdownMenuItem>Team</DropdownMenuItem>
+						<DropdownMenuItem>Iniciar traspaso</DropdownMenuItem>
+						<DropdownMenuItem>Añadir acción</DropdownMenuItem>
+						<DropdownMenuItem>Marcar alerta</DropdownMenuItem>
+						<DropdownMenuItem>Invitar colaborador</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>

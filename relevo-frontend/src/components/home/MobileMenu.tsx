@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import type { Project } from "./types";
+import { PatientList } from "./PatientList";
 
 type MobileMenuProps = {
 	isProjectView: boolean;
@@ -106,20 +107,9 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						Contact
 					</Button>
 
-					{/* User Profile Section */}
-					<div className="flex items-center justify-between py-4 border-b border-gray-200">
-						<div>
-							<div className="font-medium text-gray-900">
-								Luis Cusihuaman
-							</div>
-							<div className="text-sm text-gray-600">
-								luiscusihuaman88@gmail.com
-							</div>
-						</div>
-						<Avatar className="h-10 w-10">
-							<AvatarImage src="/placeholder.svg?height=40&width=40" />
-							<AvatarFallback>LC</AvatarFallback>
-						</Avatar>
+					{/* Patient List Section */}
+					<div className="border-t border-gray-200">
+						<PatientList />
 					</div>
 
 					{/* Menu Items */}
