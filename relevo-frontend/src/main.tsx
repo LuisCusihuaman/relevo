@@ -5,8 +5,9 @@ import App from "./App.tsx";
 import { routeTree } from "./routeTree.gen.ts";
 import "./index.css";
 import "./common/i18n";
+import { ClerkProvider } from "@clerk/clerk-react";
 
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree, context: { auth: undefined } });
 
 export type TanstackRouter = typeof router;
 
@@ -16,6 +17,12 @@ declare module "@tanstack/react-router" {
 		router: TanstackRouter;
 	}
 }
+// Import your Publishable Key
+const PUBLISHABLE_KEY = import.meta.env["VITE_CLERK_PUBLISHABLE_KEY"] as string;
+
+if (!PUBLISHABLE_KEY) {
+	throw new Error("Add your Clerk Publishable Key to the .env file");
+}
 
 const rootElement = document.querySelector("#root") as Element;
 if (!rootElement.innerHTML) {
@@ -23,7 +30,9 @@ if (!rootElement.innerHTML) {
 	root.render(
 		<React.StrictMode>
 			<React.Suspense fallback="loading">
-				<App router={router} />
+				<ClerkProvider afterSignOutUrl="/" publishableKey={PUBLISHABLE_KEY}>
+					<App router={router} />
+				</ClerkProvider>
 			</React.Suspense>
 		</React.StrictMode>
 	);

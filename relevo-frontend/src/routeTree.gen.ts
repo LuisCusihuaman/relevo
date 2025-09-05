@@ -9,68 +9,115 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DailySetupRouteImport } from './routes/daily-setup'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedDailySetupRouteImport } from './routes/_authenticated/daily-setup'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
-const DailySetupRoute = DailySetupRouteImport.update({
-  id: '/daily-setup',
-  path: '/daily-setup',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDailySetupRoute = AuthenticatedDailySetupRouteImport.update({
+  id: '/daily-setup',
+  path: '/daily-setup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/daily-setup': typeof DailySetupRoute
+  '/login': typeof authLoginRoute
+  '/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/daily-setup': typeof DailySetupRoute
+  '/login': typeof authLoginRoute
+  '/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/daily-setup': typeof DailySetupRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
+  '/_authenticated/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/daily-setup'
+  fullPaths: '/login' | '/daily-setup' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/daily-setup'
-  id: '__root__' | '/' | '/daily-setup'
+  to: '/login' | '/daily-setup' | '/'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/(auth)/login'
+    | '/_authenticated/daily-setup'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DailySetupRoute: typeof DailySetupRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  authLoginRoute: typeof authLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/daily-setup': {
-      id: '/daily-setup'
-      path: '/daily-setup'
-      fullPath: '/daily-setup'
-      preLoaderRoute: typeof DailySetupRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/daily-setup': {
+      id: '/_authenticated/daily-setup'
+      path: '/daily-setup'
+      fullPath: '/daily-setup'
+      preLoaderRoute: typeof AuthenticatedDailySetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDailySetupRoute: typeof AuthenticatedDailySetupRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDailySetupRoute: AuthenticatedDailySetupRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DailySetupRoute: DailySetupRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  authLoginRoute: authLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
