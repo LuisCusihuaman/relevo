@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useUser, SignOutButton } from "@clerk/clerk-react";
 import { Label } from "@/components/ui/label";
 import {
 	Activity,
@@ -40,6 +40,7 @@ import {
 export function DailySetup(): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
 	const navigate = useNavigate();
+	const { user, isLoaded } = useUser();
 	const isEditing = false;
 	const existingSetup = null as unknown as {
 		doctorName?: string;
@@ -137,6 +138,13 @@ export function DailySetup(): ReactElement {
 			window.removeEventListener("resize", checkIsMobile);
 		};
 	}, []);
+
+	// Populate doctor name from Clerk when available
+	useEffect(() => {
+		if (!isLoaded) return;
+		const fullName = user?.fullName ?? [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+		if (fullName && fullName !== doctorName) setDoctorName(fullName);
+	}, [isLoaded, user, doctorName]);
 
 	const handlePatientToggle = (rowIndex: number): void => {
 		setSelectedIndexes((previous: Array<number>) =>
@@ -245,16 +253,12 @@ export function DailySetup(): ReactElement {
 									<User className="w-4 h-4 text-primary" />
 									{t("yourNameLabel")}
 								</Label>
-								<Input
-									className="h-12 text-base border-border focus:border-primary bg-white"
+								<div
+									className="h-12 flex items-center rounded-md border border-border bg-muted/30 px-3 text-base text-foreground"
 									id="doctorName"
-									placeholder={t("namePlaceholder")}
-									type="text"
-									value={doctorName}
-									onChange={(event_) => {
-										setDoctorName(event_.target.value);
-									}}
-								/>
+								>
+									<span className="truncate">{doctorName || "…"}</span>
+								</div>
 								<p className="text-sm text-muted-foreground">
 									{isEditing ? t("updateNameHelp") : t("nameHelp")}
 								</p>
@@ -556,8 +560,13 @@ export function DailySetup(): ReactElement {
 								{isEditing ? t("mobileHeader.update") : t("mobileHeader.new")}
 							</p>
 						</div>
-						<div className="text-sm text-muted-foreground">
-							{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
+						<div className="flex items-center gap-3">
+							<div className="text-sm text-muted-foreground">
+								{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
+							</div>
+							<SignOutButton>
+								<Button size="sm" variant="ghost">Sign out</Button>
+							</SignOutButton>
 						</div>
 					</div>
 
@@ -671,8 +680,13 @@ export function DailySetup(): ReactElement {
 						<Badge className="text-primary" variant="outline">
 							{getStepTitle()}
 						</Badge>
-						<div className="text-sm text-muted-foreground">
-							{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
+						<div className="flex items-center gap-3">
+							<div className="text-sm text-muted-foreground">
+								{t("mobileHeader.step", { current: currentStep + 1, total: 4 })}
+							</div>
+							<SignOutButton>
+								<Button size="sm" variant="ghost">Sign out</Button>
+							</SignOutButton>
 						</div>
 					</div>
 
