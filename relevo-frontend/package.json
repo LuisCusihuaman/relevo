@@ -37,6 +37,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.46.1",
     "@hookform/resolvers": "^5.0.1",
     "@nivo/bar": "^0.99.0",
     "@nivo/core": "^0.99.0",
