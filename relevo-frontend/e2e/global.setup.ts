@@ -19,7 +19,7 @@ async function globalSetup(config: FullConfig): Promise<void> {
 	const page = await browser.newPage();
 
 	const baseURL = config.projects?.[0]?.use?.baseURL || "http://localhost:5174/";
-	await page.goto(baseURL, { waitUntil: 'networkidle' });
+	await page.goto(baseURL);
 
 	await clerk.signIn({
 		page,
