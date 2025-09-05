@@ -184,6 +184,7 @@ export function DailySetup(): ReactElement {
 				const payload = { shiftId, patientIds: selected.map(String) };
 				assignMutation.mutate(payload, {
 					onSettled: () => {
+						window.localStorage.setItem("dailySetupCompleted", "true");
 						void navigate({ to: "/" });
 					},
 				});
