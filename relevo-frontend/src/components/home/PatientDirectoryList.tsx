@@ -8,7 +8,7 @@ import {
 import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
 import { projects } from "../../pages/data";
 
-export const ProjectsList: FC = () => {
+export const PatientDirectoryList: FC = () => {
 	return (
 		<div className="flex-1 min-w-0">
 			<div className="mb-4">

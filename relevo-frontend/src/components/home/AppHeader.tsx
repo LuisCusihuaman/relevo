@@ -26,7 +26,7 @@ import {
 
 import type { Project } from "./types";
 
-type HeaderProps = {
+type AppHeaderProps = {
 	isProjectView: boolean;
 	currentProject: Project | null;
 	setIsSearchOpen: (isOpen: boolean) => void;
@@ -34,7 +34,7 @@ type HeaderProps = {
 	setIsMobileMenuOpen: (isOpen: boolean) => void;
 };
 
-export const Header: FC<HeaderProps> = ({
+export const AppHeader: FC<AppHeaderProps> = ({
 	isProjectView,
 	currentProject,
 	setIsSearchOpen,

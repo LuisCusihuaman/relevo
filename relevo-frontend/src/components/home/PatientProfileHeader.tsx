@@ -2,11 +2,13 @@ import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
 import type { Project } from "./types";
 
-type ProjectHeaderProps = {
+type PatientProfileHeaderProps = {
 	currentProject: Project;
 };
 
-export const ProjectHeader: FC<ProjectHeaderProps> = ({ currentProject }) => {
+export const PatientProfileHeader: FC<PatientProfileHeaderProps> = ({
+	currentProject,
+}) => {
 	return (
 		<div>
 			<h1 className="text-2xl font-semibold text-gray-900 mb-8">

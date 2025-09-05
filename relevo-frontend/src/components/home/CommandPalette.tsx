@@ -5,14 +5,14 @@ import { Search } from "lucide-react";
 
 import type { SearchResult } from "./types";
 
-type SearchOverlayProps = {
+type CommandPaletteProps = {
 	setIsSearchOpen: (isOpen: boolean) => void;
 	searchQuery: string;
 	setSearchQuery: Dispatch<SetStateAction<string>>;
 	searchResults: Array<SearchResult>;
 };
 
-export const SearchOverlay: FC<SearchOverlayProps> = ({
+export const CommandPalette: FC<CommandPaletteProps> = ({
 	setIsSearchOpen,
 	searchQuery,
 	setSearchQuery,

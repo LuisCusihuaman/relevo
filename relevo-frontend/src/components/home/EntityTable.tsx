@@ -2,11 +2,11 @@ import type { FC } from "react";
 import { GitBranch } from "lucide-react";
 import { deployments } from "../../pages/data";
 
-type DeploymentsTableProps = {
+type EntityTableProps = {
 	handleDeploymentClick: (deploymentId: string, projectName: string) => void;
 };
 
-export const DeploymentsTable: FC<DeploymentsTableProps> = ({
+export const EntityTable: FC<EntityTableProps> = ({
 	handleDeploymentClick,
 }) => {
 	return (

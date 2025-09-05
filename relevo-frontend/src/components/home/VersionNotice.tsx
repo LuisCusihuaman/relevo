@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { AlertTriangle } from "lucide-react";
 
-export const NodeVersionWarning: FC = () => {
+export const VersionNotice: FC = () => {
 	return (
 		<div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
 			<div className="flex items-start gap-3">

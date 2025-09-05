@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Github, MoreHorizontal } from "lucide-react";
 import type { RecentPreview } from "./types";
 
-type RecentPreviewsCardProps = {
+type RecentActivityCardProps = {
 	recentPreviews: Array<RecentPreview>;
 };
 
-export const RecentPreviewsCard: FC<RecentPreviewsCardProps> = ({
+export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 	recentPreviews,
 }) => {
 	return (

@@ -1,18 +1,18 @@
 import { type ReactElement, useEffect, useState } from "react";
 import {
+	AppHeader,
+	CommandPalette,
 	DashboardSidebar,
-	DeploymentsHeader,
-	DeploymentsMobileList,
-	DeploymentsTable,
-	DeploymentsToolbar,
-	Header,
+	EntityListMobile,
+	EntityTable,
+	FilterToolbar,
+	ListHeader,
 	MobileMenu,
-	NodeVersionWarning,
-	ProjectHeader,
-	ProjectsList,
-	ProjectsToolbar,
-	SearchOverlay,
+	PatientDirectoryList,
+	PatientDirectoryToolbar,
+	PatientProfileHeader,
 	SubNavigation,
+	VersionNotice,
 } from "@/components/home";
 import {
 	projects,
@@ -88,7 +88,7 @@ export function Home({
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Header
+			<AppHeader
 				currentProject={currentProject}
 				isMobileMenuOpen={isMobileMenuOpen}
 				isProjectView={isProjectView}
@@ -105,7 +105,7 @@ export function Home({
 			)}
 
 			{isSearchOpen && (
-				<SearchOverlay
+				<CommandPalette
 					searchQuery={searchQuery}
 					searchResults={searchResults}
 					setIsSearchOpen={setIsSearchOpen}
@@ -122,33 +122,33 @@ export function Home({
 			<div className="flex-1 p-6">
 				{!isProjectView && activeTab === "Overview" && (
 					<div className="space-y-6">
-						<NodeVersionWarning />
+						<VersionNotice />
 						<div className="max-w-7xl mx-auto px-6 py-6">
-							<ProjectsToolbar />
+							<PatientDirectoryToolbar />
 							<div className="flex flex-col lg:flex-row gap-8">
 								<DashboardSidebar recentPreviews={recentPreviews} />
 
-								<ProjectsList />
-															</div>
-														</div>
-													</div>
+								<PatientDirectoryList />
+							</div>
+						</div>
+					</div>
 				)}
 
 				{!isProjectView && activeTab === "Deployments" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
-						<DeploymentsHeader />
-						<DeploymentsToolbar />
-						<DeploymentsTable handleDeploymentClick={handleDeploymentClick} />
-						<DeploymentsMobileList
+						<ListHeader />
+						<FilterToolbar />
+						<EntityTable handleDeploymentClick={handleDeploymentClick} />
+						<EntityListMobile
 							handleDeploymentClick={handleDeploymentClick}
 						/>
-							</div>
+					</div>
 				)}
 
 				{isProjectView && currentProject ? (
 					<div className="space-y-6">
 						{activeTab === "Overview" && (
-							<ProjectHeader currentProject={currentProject} />
+							<PatientProfileHeader currentProject={currentProject} />
 						)}
 					</div>
 				) : null}

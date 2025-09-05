@@ -2,11 +2,11 @@ import type { FC } from "react";
 import { GitBranch } from "lucide-react";
 import { deployments } from "../../pages/data";
 
-type DeploymentsMobileListProps = {
+type EntityListMobileProps = {
 	handleDeploymentClick: (deploymentId: string, projectName: string) => void;
 };
 
-export const DeploymentsMobileList: FC<DeploymentsMobileListProps> = ({
+export const EntityListMobile: FC<EntityListMobileProps> = ({
 	handleDeploymentClick,
 }) => {
 	return (

@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-export const DeploymentsHeader: FC = () => {
+export const ListHeader: FC = () => {
 	return (
 		<div className="flex items-center justify-between">
 			<div>

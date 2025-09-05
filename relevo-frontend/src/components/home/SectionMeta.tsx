@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
-export const UsageCard: FC = () => {
+export const SectionMeta: FC = () => {
 	return (
 		<div>
 			<h2 className="text-base font-medium mb-4 leading-tight">Usage</h2>

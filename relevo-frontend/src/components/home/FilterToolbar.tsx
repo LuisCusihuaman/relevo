@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Calendar } from "lucide-react";
 
-export const DeploymentsToolbar: FC = () => {
+export const FilterToolbar: FC = () => {
 	return (
 		<div className="flex items-center justify-between mt-6 mb-4">
 			<div className="flex items-center gap-4">

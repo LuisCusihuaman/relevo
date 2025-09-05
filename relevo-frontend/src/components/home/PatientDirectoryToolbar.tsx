@@ -15,7 +15,7 @@ import {
 	LucideChevronDown as DropdownMenuChevronDown,
 } from "lucide-react";
 
-export const ProjectsToolbar: FC = () => {
+export const PatientDirectoryToolbar: FC = () => {
 	return (
 		<div className="flex items-center justify-between gap-4 mb-8">
 			<div className="relative flex-1">
