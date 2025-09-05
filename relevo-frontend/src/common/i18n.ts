@@ -60,7 +60,15 @@ const i18nOptions: InitOptions = {
 	defaultNS,
 	ns: namespaces,
 	debug: !isProduction,
+	supportedLngs: ["en", "es"],
+	nonExplicitSupportedLngs: true,
+	load: "languageOnly",
 	fallbackLng: "en",
+	detection: {
+		order: ["navigator", "localStorage"],
+		caches: ["localStorage"],
+		lookupLocalStorage: "i18nextLng",
+	},
 	interpolation: {
 		escapeValue: false, // not needed for react as it escapes by default
 	},
