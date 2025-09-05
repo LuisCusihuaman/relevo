@@ -22,7 +22,7 @@ export const PatientDirectoryToolbar: FC = () => {
 				<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 				<Input
 					className="pl-10 h-10 border-gray-300 focus:border-gray-400 focus:ring-0 bg-white"
-					placeholder="Search Projects..."
+					placeholder="Buscar pacientes… (F)"
 				/>
 			</div>
 			<div className="flex items-center gap-2">
@@ -31,6 +31,7 @@ export const PatientDirectoryToolbar: FC = () => {
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
 						variant="outline"
+						aria-label="Filtros"
 					>
 						<Filter className="h-4 w-4" />
 					</Button>
@@ -38,6 +39,7 @@ export const PatientDirectoryToolbar: FC = () => {
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
 						variant="outline"
+						aria-label="Vista"
 					>
 						<Grid3X3 className="h-4 w-4" />
 					</Button>
@@ -45,6 +47,7 @@ export const PatientDirectoryToolbar: FC = () => {
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
 						variant="outline"
+						aria-label="Vista"
 					>
 						<List className="h-4 w-4" />
 					</Button>
@@ -52,7 +55,7 @@ export const PatientDirectoryToolbar: FC = () => {
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button className="bg-black text-white hover:bg-gray-800 h-10 px-4 ml-2">
-							Add New...
+							Acción rápida…
 							<DropdownMenuChevronDown className="ml-2 h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>

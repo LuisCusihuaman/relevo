@@ -9,6 +9,24 @@ type EntityListMobileProps = {
 export const EntityListMobile: FC<EntityListMobileProps> = ({
 	handleDeploymentClick,
 }) => {
+	const getStatusText = (status: string): string => {
+		switch (status) {
+			case "Queued":
+			case "Pending":
+				return "No iniciado";
+			case "Running":
+			case "In progress":
+				return "En progreso";
+			case "Succeeded":
+			case "Completed":
+				return "Completado";
+			case "Failed":
+				return "Fallido";
+			default:
+				return status;
+		}
+	};
+
 	return (
 		<div className="md:hidden space-y-4">
 			{deployments.map((deployment) => (
@@ -42,7 +60,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 							className={`h-2 w-2 rounded-full ${deployment.statusColor}`}
 						></span>
 						<span className="text-sm font-medium text-gray-900">
-							{deployment.status}
+							{getStatusText(deployment.status)}
 						</span>
 						<span className="text-sm text-gray-500">
 							{deployment.statusTime}

@@ -65,7 +65,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									className="text-base font-medium text-gray-900 hover:text-gray-700"
 									onClick={() => (window.location.href = "/")}
 								>
-									Luis Cusihuaman's projects
+									Pacientes de Luis Cusihuaman
 								</button>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									<AvatarFallback>LC</AvatarFallback>
 								</Avatar>
 								<span className="text-base font-medium text-gray-900">
-									Luis Cusihuaman's projects
+									Pacientes de Luis Cusihuaman
 								</span>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
 							</div>
@@ -105,7 +105,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					<Input
 						readOnly
 						className="pl-10 pr-8 w-48 h-8 text-sm border-gray-300 focus:border-gray-400 focus:ring-0 cursor-pointer"
-						placeholder="Find..."
+						placeholder="Buscar..."
 						onClick={() => {
 							setIsSearchOpen(true);
 						}}
@@ -121,7 +121,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					size="sm"
 					variant="ghost"
 				>
-					Feedback
+					Sugerencias
 				</Button>
 
 				<Button
@@ -156,13 +156,13 @@ export const AppHeader: FC<AppHeaderProps> = ({
 							<div className="flex items-center justify-between px-4 py-3">
 								<div className="flex items-center gap-6">
 									<button className="text-sm font-medium text-gray-900 border-b-2 border-black pb-1">
-										Inbox
+										Bandeja de entrada
 									</button>
 									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										Archive
+										Archivados
 									</button>
 									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										Comments
+										Comentarios
 									</button>
 								</div>
 								<Button
@@ -183,11 +183,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 font-medium">
-											<span className="font-semibold">calendar-app</span> failed
-											to deploy in the{" "}
-											<span className="font-semibold">Preview</span> environment
+											Falló el traspaso de{" "}
+											<span className="font-semibold">Ana Pérez</span> en el
+											entorno de <span className="font-semibold">Pruebas</span>
 										</p>
-										<p className="text-xs text-gray-500 mt-1">2d ago</p>
+										<p className="text-xs text-gray-500 mt-1">hace 2d</p>
 									</div>
 									<Button
 										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
@@ -218,11 +218,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 font-medium">
-											<span className="font-semibold">calendar-app</span> failed
-											to deploy in the{" "}
-											<span className="font-semibold">Preview</span> environment
+											Falló el traspaso de{" "}
+											<span className="font-semibold">Carlos Gómez</span> en el
+											entorno de <span className="font-semibold">Pruebas</span>
 										</p>
-										<p className="text-xs text-gray-500 mt-1">2d ago</p>
+										<p className="text-xs text-gray-500 mt-1">hace 2d</p>
 									</div>
 									<Button
 										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
@@ -254,14 +254,15 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</Avatar>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 font-medium">
-											Node.js 18 is being discontinued on Monday, September
-											1st, 2025
+											El paciente{" "}
+											<span className="font-semibold">Juan Rodríguez</span>{" "}
+											requiere atención antes del 1 de Septiembre de 2025
 										</p>
 										<p className="text-sm text-gray-600 mt-1">
-											Please upgrade your Node.js version today to prevent any
-											errors. Click for more information.
+											Por favor, actualice el plan de traspaso para prevenir
+											errores. Haga click para más información.
 										</p>
-										<p className="text-xs text-gray-500 mt-2">Aug 7</p>
+										<p className="text-xs text-gray-500 mt-2">7 Ago</p>
 									</div>
 									<Button
 										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
@@ -292,11 +293,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 font-medium">
-											<span className="font-semibold">heroes-app</span> failed
-											to deploy in the{" "}
-											<span className="font-semibold">Preview</span> environment
+											Falló el traspaso de{" "}
+											<span className="font-semibold">María García</span> en el
+											entorno de <span className="font-semibold">Pruebas</span>
 										</p>
-										<p className="text-xs text-gray-500 mt-1">Aug 6</p>
+										<p className="text-xs text-gray-500 mt-1">6 Ago</p>
 									</div>
 									<Button
 										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
@@ -328,12 +329,13 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</Avatar>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 font-medium">
-											Node.js 18 is being discontinued on Monday, September
-											1st, 2025
+											El paciente{" "}
+											<span className="font-semibold">Pedro Martinez</span>{" "}
+											requiere atención antes del 1 de Septiembre de 2025
 										</p>
 										<p className="text-sm text-gray-600 mt-1">
-											Please upgrade your Node.js version today to prevent any
-											errors. Click for more information.
+											Por favor, actualice el plan de traspaso para prevenir
+											errores. Haga click para más información.
 										</p>
 									</div>
 									<Button
@@ -364,7 +366,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 								className="w-full text-sm text-gray-600 hover:text-gray-900 justify-center"
 								variant="ghost"
 							>
-								Archive All
+								Archivar todo
 							</Button>
 						</div>
 					</PopoverContent>

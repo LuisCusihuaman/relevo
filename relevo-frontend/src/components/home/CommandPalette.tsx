@@ -18,6 +18,26 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 	setSearchQuery,
 	searchResults,
 }) => {
+	const getCategoryText = (category: string): string => {
+		switch (category) {
+			case "Projects":
+				return "Pacientes";
+			case "Deployments":
+				return "Traspasos";
+			case "Actions":
+				return "Acciones";
+			default:
+				return category;
+		}
+	};
+
+	const filteredResults = searchResults.filter(
+		(result) =>
+			searchQuery === "" ||
+			result.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			result.category.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
 	return (
 		<div
 			className="fixed inset-0 z-[9999] bg-white/20 backdrop-blur-sm"
@@ -38,7 +58,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 						<Input
 							autoFocus
 							className="pl-10 pr-16 h-10 border-gray-300 focus:border-gray-400 focus:ring-0"
-							placeholder="Find..."
+							placeholder="Buscar… (F)"
 							value={searchQuery}
 							onChange={(event_) => {
 								setSearchQuery(event_.target.value);
@@ -59,18 +79,8 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 
 				{/* Search Results */}
 				<div className="p-2 max-h-96 overflow-y-auto">
-					{searchResults
-						.filter(
-							(result) =>
-								searchQuery === "" ||
-								result.name
-									.toLowerCase()
-									.includes(searchQuery.toLowerCase()) ||
-								result.category
-									.toLowerCase()
-									.includes(searchQuery.toLowerCase())
-						)
-						.map((result, index) => (
+					{filteredResults.length > 0 ? (
+						filteredResults.map((result, index) => (
 							<div
 								key={index}
 								className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 cursor-pointer"
@@ -135,13 +145,19 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 										{result.name}
 									</div>
 									<div className="text-sm text-gray-500 truncate">
-										{result.category}
+										{getCategoryText(result.category)}
 									</div>
 								</div>
 							</div>
-						))}
+						))
+					) : (
+						<div className="p-4 text-sm text-center text-gray-500">
+							Escribe para buscar pacientes, acciones y traspasos…
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
 	);
 };
+

@@ -9,6 +9,24 @@ type EntityTableProps = {
 export const EntityTable: FC<EntityTableProps> = ({
 	handleDeploymentClick,
 }) => {
+	const getStatusText = (status: string): string => {
+		switch (status) {
+			case "Queued":
+			case "Pending":
+				return "No iniciado";
+			case "Running":
+			case "In progress":
+				return "En progreso";
+			case "Succeeded":
+			case "Completed":
+				return "Completado";
+			case "Failed":
+				return "Fallido";
+			default:
+				return status;
+		}
+	};
+
 	return (
 		<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">
 			{deployments.map((deployment, index) => (
@@ -38,7 +56,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 								className={`h-2 w-2 rounded-full ${deployment.statusColor}`}
 							></span>
 							<span className="text-sm font-medium text-gray-900">
-								{deployment.status}
+								{getStatusText(deployment.status)}
 							</span>
 						</div>
 						<div className="text-xs text-gray-500">

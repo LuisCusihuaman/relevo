@@ -9,13 +9,9 @@ export const VersionNotice: FC = () => {
 				<div className="flex-1">
 					<p className="text-sm text-orange-800">
 						<strong>
-							You have 5 projects using Node.js 18 or older.
+							Tienes 5 pacientes sin traspaso activo.
 						</strong>{" "}
-						These versions{" "}
-						<a className="underline hover:no-underline" href="#">
-							will be disabled soon
-						</a>
-						.
+						Debes iniciar sus traspasos pronto.
 					</p>
 				</div>
 			</div>

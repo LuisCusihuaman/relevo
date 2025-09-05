@@ -5,23 +5,23 @@ import { ChevronDown } from "lucide-react";
 export const SectionMeta: FC = () => {
 	return (
 		<div>
-			<h2 className="text-base font-medium mb-4 leading-tight">Usage</h2>
+			<h2 className="text-base font-medium mb-4 leading-tight">Indicadores del turno</h2>
 			<div className="border border-gray-200 rounded-lg bg-white">
 				<div className="p-6">
 					<div className="flex items-center justify-between mb-6">
 						<div>
 							<p className="text-base font-medium text-gray-900 leading-tight">
-								Last 30 days
+								Últimos 30 días
 							</p>
 							<p className="text-sm text-gray-600 mt-1 leading-tight">
-								Updated 16m ago
+								Actualizado hace 16 min
 							</p>
 						</div>
 						<Button
 							className="bg-black text-white hover:bg-gray-800 h-8 px-3 text-sm font-medium"
 							size="sm"
 						>
-							Upgrade
+							Ver más
 						</Button>
 					</div>
 
@@ -49,7 +49,7 @@ export const SectionMeta: FC = () => {
 									</svg>
 								</div>
 								<span className="text-sm text-gray-900 leading-tight">
-									Edge Requests
+									Pacientes asignados
 								</span>
 							</div>
 							<span className="text-sm text-gray-600 font-mono leading-tight">
@@ -80,7 +80,7 @@ export const SectionMeta: FC = () => {
 									</svg>
 								</div>
 								<span className="text-sm text-gray-900 leading-tight">
-									ISR Reads
+									Traspasos en progreso
 								</span>
 							</div>
 							<span className="text-sm text-gray-600 font-mono leading-tight">
@@ -111,7 +111,7 @@ export const SectionMeta: FC = () => {
 									</svg>
 								</div>
 								<span className="text-sm text-gray-900 leading-tight">
-									Fast Origin Transfer
+									Acciones pendientes
 								</span>
 							</div>
 							<span className="text-sm text-gray-600 font-mono leading-tight">
@@ -142,7 +142,7 @@ export const SectionMeta: FC = () => {
 									</svg>
 								</div>
 								<span className="text-sm text-gray-900 leading-tight">
-									Fast Data Transfer
+									Alertas críticas
 								</span>
 							</div>
 							<span className="text-sm text-gray-600 font-mono leading-tight">

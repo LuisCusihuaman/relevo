@@ -16,7 +16,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 		<div className="border border-gray-200 rounded-lg bg-white">
 			<div className="p-6">
 				<h3 className="text-base font-medium mb-4 leading-tight">
-					Recent Previews
+					Actividad reciente
 				</h3>
 				<div className="space-y-0 divide-y divide-gray-100">
 					{recentPreviews.map((preview, index) => (
@@ -64,7 +64,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 													fillRule="evenodd"
 												/>
 											</svg>
-											Preview
+											Vista
 										</Button>
 										{preview.status === "Source" && (
 											<Button
@@ -73,7 +73,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 												variant="ghost"
 											>
 												<Github className="h-3 w-3 mr-1" />
-												Source
+												Fuente
 											</Button>
 										)}
 										{preview.pr && (
@@ -86,7 +86,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 												className="text-xs h-5 px-2 bg-green-50 text-green-700 hover:bg-green-50 border-0 font-normal rounded"
 												variant="secondary"
 											>
-												{preview.color}
+												{preview.color === "Ready" ? "Listo" : preview.color}
 											</Badge>
 										)}
 										{preview.status === "Error" && (

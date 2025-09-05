@@ -13,30 +13,30 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 }) => {
 	const tabs = isProjectView
 		? [
-				"Overview",
-				"Deployments",
+				"Resumen",
+				"Traspasos",
 				"Analytics",
 				"Speed Insights",
 				"Logs",
-				"Observability",
+				"Monitoreo",
 				"Firewall",
-				"Storage",
-				"Flags",
-				"Settings",
+				"Documentos",
+				"Marcadores",
+				"Ajustes",
 			]
 		: [
-				"Overview",
-				"Integrations",
-				"Deployments",
-				"Activity",
-				"Domains",
-				"Usage",
-				"Observability",
-				"Storage",
-				"Flags",
-				"AI Gateway",
-				"Support",
-				"Settings",
+				"Resumen",
+				"Integraciones",
+				"Traspasos",
+				"Notificaciones",
+				"Pacientes",
+				"Indicadores",
+				"Monitoreo",
+				"Documentos",
+				"Marcadores",
+				"Asistentes",
+				"Soporte",
+				"Ajustes",
 			];
 
 	return (
@@ -64,7 +64,7 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 									: "text-gray-600 hover:text-gray-900 font-normal"
 							}`}
 							onClick={() => {
-								if (tab === "Deployments" && !isProjectView) {
+								if (tab === "Traspasos" && !isProjectView) {
 									window.location.href = "/deployments";
 								} else {
 									setActiveTab(tab);
