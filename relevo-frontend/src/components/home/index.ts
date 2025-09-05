@@ -13,5 +13,4 @@ export * from "./RecentActivityCard";
 export * from "./CommandPalette";
 export * from "./SubNavigation";
 export * from "./SectionMeta";
-export * from "./PatientList";
 export type * from "./types";

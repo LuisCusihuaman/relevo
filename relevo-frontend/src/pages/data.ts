@@ -10,7 +10,7 @@ export const projects: Array<Project> = [
 	{
 		name: "Ana Pérez",
 		url: "relevo-app.vercel.app",
-		status: "Connect Git Repository",
+		status: "Iniciar traspaso",
 		date: "Jul 12",
 		icon: "R",
 		hasGithub: false,
@@ -19,7 +19,7 @@ export const projects: Array<Project> = [
 	{
 		name: "Juan Rodríguez",
 		url: "v0-portfolio-template-by-v0-mu-...",
-		status: "Connect Git Repository",
+		status: "Iniciar traspaso",
 		date: "Aug 17",
 		icon: "V",
 		hasGithub: false,
@@ -50,7 +50,7 @@ export const projects: Array<Project> = [
 	{
 		name: "Laura Schmidt",
 		url: "psa-frontend-alpha.vercel.app",
-		status: "Connect Git Repository",
+		status: "Iniciar traspaso",
 		date: "6/30/24",
 		icon: "P",
 		hasGithub: false,
@@ -70,7 +70,7 @@ export const projects: Array<Project> = [
 	{
 		name: "Sofía Rossi",
 		url: "v0-music-game-concept.vercel.a...",
-		status: "Connect Git Repository",
+		status: "Iniciar traspaso",
 		date: "Mar 25",
 		icon: "M",
 		hasGithub: false,
