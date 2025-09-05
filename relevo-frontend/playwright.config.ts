@@ -39,7 +39,7 @@ export default defineConfig({
 	projects: [
 		{
 			name: "chromium",
-			use: { ...devices["Desktop Chrome"], storageState: authFile, locale: "es" },
+			use: { ...devices["Desktop Chrome"], storageState: authFile, locale: "es", headless: true },
 		},
 	],
 

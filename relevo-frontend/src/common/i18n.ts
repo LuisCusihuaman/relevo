@@ -65,9 +65,8 @@ const i18nOptions: InitOptions = {
 	load: "languageOnly",
 	fallbackLng: "en",
 	detection: {
-		order: ["navigator", "localStorage"],
-		caches: ["localStorage"],
-		lookupLocalStorage: "i18nextLng",
+		order: ["htmlTag", "navigator"],
+		caches: [],
 	},
 	interpolation: {
 		escapeValue: false, // not needed for react as it escapes by default
@@ -75,6 +74,6 @@ const i18nOptions: InitOptions = {
 };
 
 void i18n
-	.use(initReactI18next)
 	.use(LanguageDetector)
+	.use(initReactI18next)
 	.init(i18nOptions);
