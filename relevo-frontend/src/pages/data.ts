@@ -83,7 +83,7 @@ export const projects: Array<Project> = [
 
 export const recentPreviews: Array<RecentPreview> = [
 	{
-		title: "Add new authentication flow",
+		title: "Nuevo paciente asignado",
 		avatars: [
 			{ src: null, fallback: "LC", bg: "bg-blue-500" },
 			{ src: null, fallback: "JD", bg: "bg-green-500" },
@@ -93,19 +93,33 @@ export const recentPreviews: Array<RecentPreview> = [
 		color: "Ready",
 	},
 	{
-		title: "Update dashboard components",
+		title: "Severidad cambió a Crítico",
 		avatars: [{ src: null, fallback: "SM", bg: "bg-purple-500" }],
 		status: "Error",
 		pr: "#124",
 	},
 	{
-		title: "Fix mobile responsive issues",
+		title: "Nueva acción asignada",
 		avatars: [
 			{ src: null, fallback: "AB", bg: "bg-orange-500" },
 			{ src: null, fallback: "CD", bg: "bg-pink-500" },
 		],
 		status: "Source",
 		pr: "#125",
+		color: "Ready",
+	},
+	{
+		title: "Comentario en traspaso",
+		avatars: [{ src: null, fallback: "LC", bg: "bg-blue-500" }],
+		status: "Source",
+		pr: "#126",
+		color: "Ready",
+	},
+	{
+		title: "Traspaso completado",
+		avatars: [{ src: null, fallback: "JD", bg: "bg-green-500" }],
+		status: "Source",
+		pr: "#127",
 		color: "Ready",
 	},
 ];
