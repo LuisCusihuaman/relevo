@@ -1,3 +1,4 @@
+import { setupClerkTestingToken } from "@clerk/testing/playwright";
 import { test, expect } from "@playwright/test";
 
 test.describe("DailySetup Flow", () => {
@@ -10,6 +11,7 @@ test.describe("DailySetup Flow", () => {
 	test("should allow a user to complete the daily setup process", async ({
 		page,
 	}) => {
+		await setupClerkTestingToken({ page })
 		// Step 0: Navigate to the Daily Setup page and enter doctor's name
 		await page.goto("/daily-setup");
 		await expect(page.getByRole("heading", { name: /bienvenido a relevo/i })).toBeVisible();
