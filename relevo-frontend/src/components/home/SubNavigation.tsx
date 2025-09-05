@@ -1,43 +1,15 @@
 import type { FC } from "react";
 
 type SubNavigationProps = {
-	isProjectView: boolean;
 	activeTab: string;
 	setActiveTab: (tab: string) => void;
 };
 
 export const SubNavigation: FC<SubNavigationProps> = ({
-	isProjectView,
 	activeTab,
 	setActiveTab,
 }) => {
-	const tabs = isProjectView
-		? [
-				"Resumen",
-				"Traspasos",
-				"Analytics",
-				"Speed Insights",
-				"Logs",
-				"Monitoreo",
-				"Firewall",
-				"Documentos",
-				"Marcadores",
-				"Ajustes",
-			]
-		: [
-				"Resumen",
-				"Integraciones",
-				"Traspasos",
-				"Notificaciones",
-				"Pacientes",
-				"Indicadores",
-				"Monitoreo",
-				"Documentos",
-				"Marcadores",
-				"Asistentes",
-				"Soporte",
-				"Ajustes",
-			];
+	const tabs = ["Resumen", "Traspasos", "Pacientes", "Ajustes"];
 
 	return (
 		<div className="sticky top-0 z-50 border-b border-gray-200 bg-white">
@@ -52,9 +24,9 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 					{/* Tailwind-v4: Hide scrollbar cross-browser */}
 					{/* Readable-JSX: Use Tailwind utilities instead of <style jsx> */}
 					{/* 
-                      - 'scrollbar-none' is a Tailwind v4 utility for hiding scrollbars.
-                      - If not available, fallback to 'scrollbar-hide' from a plugin or custom CSS.
-                  */}
+                     - 'scrollbar-none' is a Tailwind v4 utility for hiding scrollbars.
+                     - If not available, fallback to 'scrollbar-hide' from a plugin or custom CSS.
+                 */}
 					{tabs.map((tab) => (
 						<button
 							key={tab}
@@ -64,11 +36,7 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 									: "text-gray-600 hover:text-gray-900 font-normal"
 							}`}
 							onClick={() => {
-								if (tab === "Traspasos" && !isProjectView) {
-									window.location.href = "/deployments";
-								} else {
-									setActiveTab(tab);
-								}
+								setActiveTab(tab);
 							}}
 						>
 							{tab}

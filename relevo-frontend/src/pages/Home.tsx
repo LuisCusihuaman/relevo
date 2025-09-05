@@ -27,7 +27,7 @@ export type HomeProps = {
 
 export function Home({
 	projectSlug,
-	initialTab = "Overview",
+	initialTab = "Resumen",
 }: HomeProps): ReactElement {
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
@@ -115,12 +115,11 @@ export function Home({
 
 			<SubNavigation
 				activeTab={activeTab}
-				isProjectView={isProjectView}
 				setActiveTab={setActiveTab}
 			/>
 
 			<div className="flex-1 p-6">
-				{!isProjectView && activeTab === "Overview" && (
+				{!isProjectView && activeTab === "Resumen" && (
 					<div className="space-y-6">
 						<VersionNotice />
 						<div className="max-w-7xl mx-auto px-6 py-6">
@@ -134,7 +133,7 @@ export function Home({
 					</div>
 				)}
 
-				{!isProjectView && activeTab === "Deployments" && (
+				{!isProjectView && activeTab === "Traspasos" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 						<ListHeader />
 						<FilterToolbar />
@@ -147,7 +146,7 @@ export function Home({
 
 				{isProjectView && currentProject ? (
 					<div className="space-y-6">
-						{activeTab === "Overview" && (
+						{activeTab === "Resumen" && (
 							<PatientProfileHeader currentProject={currentProject} />
 						)}
 					</div>
