@@ -2,6 +2,7 @@ import type { Dispatch, FC, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { SearchResult } from "./types";
 
@@ -18,6 +19,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 	setSearchQuery,
 	searchResults,
 }) => {
+	const { t } = useTranslation("home");
 	const filteredResults = searchResults.filter(
 		(result) =>
 			searchQuery === "" ||
@@ -45,7 +47,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 						<Input
 							autoFocus
 							className="pl-10 pr-16 h-10 border-gray-300 focus:border-gray-400 focus:ring-0"
-							placeholder="Buscar… (F)"
+							placeholder={t("search.placeholder")}
 							value={searchQuery}
 							onChange={(event_) => {
 								setSearchQuery(event_.target.value);
@@ -139,8 +141,8 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 						))
 					) : (
 						<div className="p-6 text-center">
-							<div className="text-sm font-medium text-gray-700">Sin resultados</div>
-							<div className="mt-1 text-xs text-gray-500">Prueba con el nombre del paciente o escribe ‘acción’ para ver comandos</div>
+							<div className="text-sm font-medium text-gray-700">{t("search.emptyTitle")}</div>
+							<div className="mt-1 text-xs text-gray-500">{t("search.emptyHint")}</div>
 						</div>
 					)}
 				</div>

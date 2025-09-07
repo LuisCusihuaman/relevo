@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
 import { handovers } from "../../pages/data";
 import type { Handover } from "./types";
@@ -26,6 +27,7 @@ type EntityTableProps = {
 export const EntityTable: FC<EntityTableProps> = ({
 	handleHandoverClick,
 }) => {
+	const { t } = useTranslation("home");
 	// environment label now shown only via status/time; keep mapping if needed later
 
 	const formatRelative = (value: string): string => {
@@ -37,9 +39,9 @@ export const EntityTable: FC<EntityTableProps> = ({
 	};
 
 	const formatAuthor = (name: string): string => {
-		if (!name) return "sistema";
+		if (!name) return t("table.system");
 		const lower = name.toLowerCase();
-		if (lower.includes("[bot]") || lower.includes("dependabot")) return "sistema";
+		if (lower.includes("[bot]") || lower.includes("dependabot")) return t("table.system");
 		return name;
 	};
 
@@ -57,14 +59,14 @@ export const EntityTable: FC<EntityTableProps> = ({
 
 	const getTitleLine = (d: Handover): string => {
 		const bed = isString(d.bedLabel) ? String(d.bedLabel) : undefined;
-		if (bed && bed !== "") return `Cama ${bed}`;
+		if (bed && bed !== "") return t("table.bed", { label: bed });
 
 		const mrnValue = isString(d.mrn) ? String(d.mrn) : undefined;
 		if (mrnValue && mrnValue !== "") {
 			const short: string = mrnValue.length > 6 ? `${mrnValue.slice(-6, -2)}-${mrnValue.slice(-2)}` : mrnValue;
-			return `MRN · ${short}`;
+			return t("table.mrn", { value: short });
 		}
-		return "Sin ubicación";
+		return t("table.noLocation");
 	};
 
 	const handoversList: ReadonlyArray<Handover> = handovers as ReadonlyArray<Handover>;
@@ -83,10 +85,10 @@ export const EntityTable: FC<EntityTableProps> = ({
 				>
 					{/* Left Column: Location/MRN instead of technical ID */}
 					<div className="min-w-0">
-						<div className="font-medium text-gray-900 text-sm hover:underline cursor-pointer truncate" title="Ubicación del paciente">
+						<div className="font-medium text-gray-900 text-sm hover:underline cursor-pointer truncate" title={t("table.locationTitle")}>
 							{getTitleLine(handover)}
 						</div>
-						<div className="text-xs text-gray-500 mt-0.5" title="Tipo de sesión de traspaso">
+						<div className="text-xs text-gray-500 mt-0.5" title={t("table.handoverType")}>
 							{handover.environmentType}
 						</div>
 					</div>
@@ -96,7 +98,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="flex items-center gap-2 mb-1">
 							<span
 								className={`h-2 w-2 rounded-full ${handover.statusColor}`}
-								title="Estado del traspaso"
+								title={t("table.handoverType")}
 							></span>
 							<span className="text-sm font-medium text-gray-900">
 								{handover.status}
@@ -120,18 +122,18 @@ export const EntityTable: FC<EntityTableProps> = ({
 							</span>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title="Más" onClick={(event_) => { event_.stopPropagation(); }}>
+									<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title={t("table.more")} onClick={(event_) => { event_.stopPropagation(); }}>
 										<MoreHorizontal className="h-4 w-4" />
 									</button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
-									<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>Copiar ID</DropdownMenuItem>
+									<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>{t("table.copyId")}</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
 						<div className="flex items-center gap-1 text-xs text-gray-500">
 							<GitBranch className="h-3 w-3" />
-							<span className="truncate">Notas clínicas</span>
+							<span className="truncate">{t("table.clinicalNotes")}</span>
 						</div>
 					</div>
 
@@ -140,7 +142,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="flex items-center justify-end gap-2">
 							<GitBranch className="h-3 w-3 text-gray-400" />
 							<span className="text-xs text-gray-500">
-								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
+								{formatRelative(handover.time)} {t("table.createdBy", { author: formatAuthor(handover.author) })}
 							</span>
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
 								{handover.avatar}

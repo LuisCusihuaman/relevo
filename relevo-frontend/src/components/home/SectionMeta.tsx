@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import {
@@ -11,27 +12,28 @@ import { metrics } from "@/pages/data";
 
 
 export const SectionMeta: FC = () => {
+	const { t } = useTranslation("home");
 	return (
 		<div>
 			<h2 className="text-base font-medium mb-4 leading-tight">
-				Indicadores del turno
+				{t("sectionMeta.title")}
 			</h2>
 			<div className="border border-gray-200 rounded-lg bg-white">
 				<div className="p-6">
 					<div className="flex items-center justify-between mb-6">
 						<div>
 							<p className="text-base font-medium text-gray-900 leading-tight">
-								Últimos 30 días
+								{t("sectionMeta.last30Days")}
 							</p>
 							<p className="text-sm text-gray-600 mt-1 leading-tight">
-								Actualizado hace 2 min
+								{t("sectionMeta.updatedAgo")}
 							</p>
 						</div>
 						<Button
 							className="bg-black text-white hover:bg-gray-800 h-8 px-3 text-sm font-medium"
 							size="sm"
 						>
-							Ver más
+							{t("sectionMeta.viewMore")}
 						</Button>
 					</div>
 
@@ -62,7 +64,7 @@ export const SectionMeta: FC = () => {
 												</svg>
 											</div>
 											<span className="text-sm text-gray-900 leading-tight">
-												{metric.label}
+												{t(metric.label)}
 											</span>
 										</div>
 										<span className="text-sm text-gray-600 font-mono leading-tight">
@@ -71,7 +73,7 @@ export const SectionMeta: FC = () => {
 									</div>
 								</PopoverTrigger>
 								<PopoverContent>
-									<p className="text-sm">{metric.tooltip}</p>
+									<p className="text-sm">{t(metric.tooltip)}</p>
 								</PopoverContent>
 							</Popover>
 						))}

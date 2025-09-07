@@ -94,7 +94,7 @@ export const patients: Array<Patient> = [
 
 export const recentPreviews: Array<RecentPreview> = [
 	{
-		title: "Nuevo paciente asignado",
+			title: "home:recentPreview.newPatientAssigned",
 		avatars: [
 			{ src: null, fallback: "LC", bg: "bg-blue-500" },
 			{ src: null, fallback: "JD", bg: "bg-green-500" },
@@ -104,13 +104,13 @@ export const recentPreviews: Array<RecentPreview> = [
 		color: "Ready",
 	},
 	{
-		title: "Severidad cambió a Crítico",
+		title: "home:recentPreview.severityChangedCritical",
 		avatars: [{ src: null, fallback: "SM", bg: "bg-purple-500" }],
 		status: "Error",
 		pr: "#124",
 	},
 	{
-		title: "Nueva acción asignada",
+		title: "home:recentPreview.newActionAssigned",
 		avatars: [
 			{ src: null, fallback: "AB", bg: "bg-orange-500" },
 			{ src: null, fallback: "CD", bg: "bg-pink-500" },
@@ -120,14 +120,14 @@ export const recentPreviews: Array<RecentPreview> = [
 		color: "Ready",
 	},
 	{
-		title: "Comentario en traspaso",
+		title: "home:recentPreview.handoverComment",
 		avatars: [{ src: null, fallback: "LC", bg: "bg-blue-500" }],
 		status: "Source",
 		pr: "#126",
 		color: "Ready",
 	},
 	{
-		title: "Traspaso completado",
+		title: "home:recentPreview.handoverCompleted",
 		avatars: [{ src: null, fallback: "JD", bg: "bg-green-500" }],
 		status: "Source",
 		pr: "#127",
@@ -286,60 +286,60 @@ export const handovers: Array<Handover> = [
 
 export const searchResults: Array<SearchResult> = [
 	// Pacientes
-	{ name: "Ana Pérez", category: "Pacientes", type: "patient" },
-	{ name: "Juan Rodríguez", category: "Pacientes", type: "patient" },
-	{ name: "Carlos Gómez", category: "Pacientes", type: "patient" },
+	{ name: "Ana Pérez", category: "home:search.category.patients", type: "patient" },
+	{ name: "Juan Rodríguez", category: "home:search.category.patients", type: "patient" },
+	{ name: "Carlos Gómez", category: "home:search.category.patients", type: "patient" },
 
 
 	// Pacientes (antes Traspasos)
-	{ name: "Ana Pérez", category: "Pacientes", type: "handover" },
-	{ name: "Laura Schmidt", category: "Pacientes", type: "handover" },
+	{ name: "Ana Pérez", category: "home:search.category.patients", type: "handover" },
+	{ name: "Laura Schmidt", category: "home:search.category.patients", type: "handover" },
 
 	// Acciones rápidas (acciones de comando)
-	{ name: "Iniciar traspaso", category: "Acciones rápidas", type: "assistant" },
-	{ name: "Añadir acción", category: "Acciones rápidas", type: "assistant" },
-	{ name: "Marcar alerta crítica", category: "Acciones rápidas", type: "assistant" },
-	{ name: "Abrir notificaciones", category: "Acciones rápidas", type: "assistant" },
-	{ name: "Crear nota clínica", category: "Acciones rápidas", type: "assistant" },
+	{ name: "home:search.actions.startHandover", category: "home:search.category.quickActions", type: "assistant" },
+	{ name: "home:search.actions.addAction", category: "home:search.category.quickActions", type: "assistant" },
+	{ name: "home:search.actions.markCriticalAlert", category: "home:search.category.quickActions", type: "assistant" },
+	{ name: "home:search.actions.openNotifications", category: "home:search.category.quickActions", type: "assistant" },
+	{ name: "home:search.actions.createClinicalNote", category: "home:search.category.quickActions", type: "assistant" },
 
 	// Notas clínicas
-	{ name: "Nota de Ana Pérez", category: "Notas clínicas", type: "assistant" },
-	{ name: "Nota de Carlos Gómez", category: "Notas clínicas", type: "assistant" },
+	{ name: "Nota de Ana Pérez", category: "home:search.category.clinicalNotes", type: "assistant" },
+	{ name: "Nota de Carlos Gómez", category: "home:search.category.clinicalNotes", type: "assistant" },
 
 	// Unidades/Servicios
-	{ name: "UCI", category: "Unidades/Servicios", type: "assistant" },
-	{ name: "Emergencia", category: "Unidades/Servicios", type: "assistant" },
+	{ name: "UCI", category: "home:search.category.units", type: "assistant" },
+	{ name: "Emergencia", category: "home:search.category.units", type: "assistant" },
 
 	// Personas/Equipo
-	{ name: "Luis Cusihuaman", category: "Personas/Equipo", type: "team" },
+	{ name: "Luis Cusihuaman", category: "home:search.category.team", type: "team" },
 ];
 
 export const metrics: Array<Metric> = [
 	{
-		label: "Pacientes asignados",
+		label: "home:metrics.assignedPatients.label",
 		value: "12",
-		tooltip: "Pacientes asignados a ti en el turno actual.",
+		tooltip: "home:metrics.assignedPatients.tooltip",
 		currentValue: "12",
 		totalValue: "15",
 	},
 	{
-		label: "Traspasos en progreso",
+		label: "home:metrics.handoversInProgress.label",
 		value: "5",
-		tooltip: "Sesiones de traspaso abiertas sin completar.",
+		tooltip: "home:metrics.handoversInProgress.tooltip",
 		currentValue: "5",
 		totalValue: "10",
 	},
 	{
-		label: "Acciones pendientes",
+		label: "home:metrics.pendingActions.label",
 		value: "18",
-		tooltip: "Tareas con vencimiento hoy.",
+		tooltip: "home:metrics.pendingActions.tooltip",
 		currentValue: "18",
 		totalValue: "25",
 	},
 	{
-		label: "Alertas críticas",
+		label: "home:metrics.criticalAlerts.label",
 		value: "2",
-		tooltip: "Severidad Crítico en últimas 24 h.",
+		tooltip: "home:metrics.criticalAlerts.tooltip",
 		currentValue: "2",
 		totalValue: "3",
 	},

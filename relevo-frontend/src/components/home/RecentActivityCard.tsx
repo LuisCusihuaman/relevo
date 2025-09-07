@@ -1,8 +1,9 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Github, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import type { RecentPreview } from "./types";
 
 type RecentActivityCardProps = {
@@ -12,6 +13,7 @@ type RecentActivityCardProps = {
 export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 	recentPreviews,
 }) => {
+    const { t } = useTranslation("home");
 	const handleActionClick = (): void => {
 		// Agrega aquí la lógica para el deep-link
 		alert("Abriendo detalles...");
@@ -20,9 +22,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 	return (
 		<div className="border border-gray-200 rounded-lg bg-white">
 			<div className="p-6">
-				<h3 className="text-base font-medium mb-4 leading-tight">
-					Actividad reciente
-				</h3>
+				<h3 className="text-base font-medium mb-4 leading-tight">{t("recentActivity.title")}</h3>
 				<div className="space-y-0 divide-y divide-gray-100">
 					{recentPreviews.length > 0 ? (
 						recentPreviews.map((preview, index) => (
@@ -50,7 +50,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm text-gray-900 mb-2 leading-tight font-normal">
-											{preview.title}
+											{t(preview.title)}
 										</p>
 										<div className="flex items-center gap-2 flex-wrap">
 											<Button
@@ -71,14 +71,14 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 														fillRule="evenodd"
 													/>
 												</svg>
-												Abrir
+												{t("recentActivity.open")}
 											</Button>
 											{preview.status === "Source" && (
 												<Badge
 													className="text-xs h-5 px-2 bg-gray-100 text-gray-700 hover:bg-gray-200 border-0 font-normal rounded"
 													variant="secondary"
 												>
-													Fuente
+													{t("recentActivity.source")}
 												</Badge>
 											)}
 											{preview.pr && (
@@ -91,7 +91,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 													className="text-xs h-5 px-2 bg-green-50 text-green-700 hover:bg-green-50 border-0 font-normal rounded"
 													variant="secondary"
 												>
-													Listo
+													{t("recentActivity.ready")}
 												</Badge>
 											)}
 											{preview.status === "Error" && (
@@ -99,7 +99,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 													className="text-xs h-5 px-2 bg-red-50 text-red-600 hover:bg-red-50 border-0 font-normal rounded"
 													variant="destructive"
 												>
-													● Error
+													● {t("recentActivity.error")}
 												</Badge>
 											)}
 										</div>
@@ -115,9 +115,7 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 							</div>
 						))
 					) : (
-						<div className="text-center py-8 text-gray-500">
-							Aún no hay actividad para este rango.
-						</div>
+						<div className="text-center py-8 text-gray-500">{t("recentActivity.empty")}</div>
 					)}
 				</div>
 			</div>

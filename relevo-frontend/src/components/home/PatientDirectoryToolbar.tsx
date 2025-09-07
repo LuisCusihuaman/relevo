@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,13 +17,14 @@ import {
 } from "lucide-react";
 
 export const PatientDirectoryToolbar: FC = () => {
+	const { t } = useTranslation("home");
 	return (
 		<div className="flex items-center justify-between gap-4 mb-8">
 			<div className="relative flex-1">
 				<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 				<Input
 					className="pl-10 h-10 border-gray-300 focus:border-gray-400 focus:ring-0 bg-white"
-					placeholder="Buscar pacientes… (F)"
+					placeholder={t("filterToolbar.searchPlaceholder")}
 				/>
 			</div>
 			<div className="flex items-center gap-2">
@@ -30,7 +32,7 @@ export const PatientDirectoryToolbar: FC = () => {
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
-						title="Filtros"
+						title={t("filterToolbar.filters")}
 						variant="outline"
 					>
 						<Filter className="h-4 w-4" />
@@ -38,7 +40,7 @@ export const PatientDirectoryToolbar: FC = () => {
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
-						title="Vista"
+						title={t("filterToolbar.view")}
 						variant="outline"
 					>
 						<Grid3X3 className="h-4 w-4" />
@@ -46,7 +48,7 @@ export const PatientDirectoryToolbar: FC = () => {
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
 						size="sm"
-						title="Ordenar"
+						title={t("filterToolbar.sort")}
 						variant="outline"
 					>
 						<List className="h-4 w-4" />
@@ -55,15 +57,15 @@ export const PatientDirectoryToolbar: FC = () => {
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button className="bg-black text-white hover:bg-gray-800 h-10 px-4 ml-2">
-							Acción rápida…
+							{t("filterToolbar.quickAction")}
 							<DropdownMenuChevronDown className="ml-2 h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
-						<DropdownMenuItem>Iniciar traspaso</DropdownMenuItem>
-						<DropdownMenuItem>Añadir acción</DropdownMenuItem>
-						<DropdownMenuItem>Marcar alerta</DropdownMenuItem>
-						<DropdownMenuItem>Invitar colaborador</DropdownMenuItem>
+						<DropdownMenuItem>{t("filterToolbar.startHandover")}</DropdownMenuItem>
+						<DropdownMenuItem>{t("filterToolbar.addAction")}</DropdownMenuItem>
+						<DropdownMenuItem>{t("filterToolbar.markAlert")}</DropdownMenuItem>
+						<DropdownMenuItem>{t("filterToolbar.inviteCollaborator")}</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>

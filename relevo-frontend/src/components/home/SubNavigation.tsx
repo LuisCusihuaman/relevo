@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 
 type SubNavigationProps = {
 	activeTab: string;
@@ -9,7 +10,8 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 	activeTab,
 	setActiveTab,
 }) => {
-	const tabs = ["Resumen", "Pacientes", "Ajustes"];
+	const { t } = useTranslation("home");
+	const tabs = [t("subnav.summary"), t("subnav.patients"), t("subnav.settings")];
 
 	return (
 		<div className="sticky top-0 z-50 border-b border-gray-200 bg-white">

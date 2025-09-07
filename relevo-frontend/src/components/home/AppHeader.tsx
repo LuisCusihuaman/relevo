@@ -26,6 +26,7 @@ import {
 
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
+import { useTranslation } from "react-i18next";
 
 type AppHeaderProps = {
 	isPatientView: boolean;
@@ -43,6 +44,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 	setIsMobileMenuOpen,
 }) => {
 	const { doctorName, unitName } = useUserStore();
+    const { t } = useTranslation("home");
 	return (
 		<header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-6">
 			<div className="flex items-center gap-3">
@@ -98,7 +100,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					<Input
 						readOnly
 						className="pl-10 pr-8 w-48 h-8 text-sm border-gray-300 focus:border-gray-400 focus:ring-0 cursor-pointer"
-						placeholder="Buscar..."
+						placeholder={t("search.placeholder")}
 						onClick={() => {
 							setIsSearchOpen(true);
 						}}
@@ -114,7 +116,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					size="sm"
 					variant="ghost"
 				>
-					Sugerencias
+					{t("feedback.suggestions")}
 				</Button>
 
 				<Button
@@ -149,13 +151,13 @@ export const AppHeader: FC<AppHeaderProps> = ({
 							<div className="flex items-center justify-between px-4 py-3">
 								<div className="flex items-center gap-6">
 									<button className="text-sm font-medium text-gray-900 border-b-2 border-black pb-1">
-										Bandeja de entrada
+										{t("notifications.inbox")}
 									</button>
 									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										Archivados
+										{t("notifications.archived")}
 									</button>
 									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										Comentarios
+										{t("notifications.comments")}
 									</button>
 								</div>
 								<Button
@@ -256,41 +258,6 @@ export const AppHeader: FC<AppHeaderProps> = ({
 											errores. Haga click para más información.
 										</p>
 										<p className="text-xs text-gray-500 mt-2">7 Ago</p>
-									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
-										size="sm"
-										variant="ghost"
-									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									</Button>
-								</div>
-							</div>
-
-							<div className="px-4 py-3 border-b border-gray-100">
-								<div className="flex items-center gap-3">
-									<div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-										<AlertTriangle className="h-4 w-4 text-orange-600" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 font-medium">
-											Falló el traspaso de{" "}
-											<span className="font-semibold">María García</span> en el
-											entorno de <span className="font-semibold">Pruebas</span>
-										</p>
-										<p className="text-xs text-gray-500 mt-1">6 Ago</p>
 									</div>
 									<Button
 										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
