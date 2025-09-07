@@ -25,7 +25,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 
-import type { UnitConfig, ShiftConfig } from "@/common/types";
+import type { UnitConfig, ShiftConfig, SetupPatient } from "@/common/types";
 import { formatDiagnosis } from "@/lib/formatters";
 import { PatientSelectionCard } from "@/components/PatientSelectionCard";
 import {
@@ -33,9 +33,6 @@ import {
 	useShifts,
 	usePatientsByUnit,
 	useAssignPatients,
-	type Unit,
-	type Shift,
-	type SetupPatient,
 } from "@/api";
 
 export function DailySetup(): ReactElement {

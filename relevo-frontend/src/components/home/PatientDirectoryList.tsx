@@ -5,11 +5,15 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
-import { patients as patients } from "../../pages/data";
+import { Activity, GitBranch, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { Patient } from "./types";
 
-export const PatientDirectoryList: FC = () => {
+export type PatientDirectoryListProps = {
+	patients: ReadonlyArray<Patient>;
+};
+
+export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }) => {
 	const { t } = useTranslation("home");
 
 	const formatDate = (dateString: string): string => {
@@ -75,17 +79,8 @@ export const PatientDirectoryList: FC = () => {
 								</div>
 
 								<div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
-									{patient.hasGithub ? (
-										<a
-											className="inline-flex items-center h-7 px-2.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-xs min-w-0 max-w-[120px] truncate"
-											title="Severidad y signos"
-										>
-											<Github className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-											<span className="truncate">{patient.github}</span>
-										</a>
-									) : (
-										<div className="w-[120px]"></div>
-									)}
+									{/* Placeholder for future GitHub/status indicator */}
+									<div className="w-[120px]"></div>
 									<button
 										className="h-8 w-8 rounded-full text-gray-400 hover:bg-gray-50 shrink-0 flex items-center justify-center"
 										title={String(t("patientList.actionList"))}

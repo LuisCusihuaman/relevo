@@ -41,6 +41,8 @@ export type Handover = {
 	current?: boolean;
 	bedLabel?: string;
 	mrn?: string;
+	author?: string;
+	avatar?: string;
 };
 
 export type Metric = {

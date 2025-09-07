@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import { handovers } from "../../pages/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { Handover } from "./types";
 
 const monthMap: Record<string, string> = {
 	Jan: "Ene",
@@ -20,10 +20,12 @@ const monthMap: Record<string, string> = {
 };
 
 type EntityListMobileProps = {
+	handovers: ReadonlyArray<Handover>;
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
 };
 
 export const EntityListMobile: FC<EntityListMobileProps> = ({
+	handovers,
 	handleHandoverClick,
 }) => {
 	const { t } = useTranslation("home");
@@ -42,9 +44,9 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 	};
 
 	const formatAuthor = (name: string): string => {
-		if (!name) return t("table.system");
+		if (!name) return String(t("table.system"));
 		const lower = name.toLowerCase();
-		if (lower.includes("[bot]") || lower.includes("dependabot")) return t("table.system");
+		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.system"));
 		return name;
 	};
 
@@ -59,13 +61,13 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 	};
 
 	const getTitleLine = (d: typeof handovers[number]): string => {
-		if (d.bedLabel) return t("table.bed", { label: d.bedLabel });
+		if (d.bedLabel) return String(t("table.bed", { label: d.bedLabel }));
 		if (typeof d.mrn === "string" && d.mrn.length > 0) {
 			const mrn: string = d.mrn;
 			const short = mrn.length > 6 ? `${mrn.slice(-6, -2)}-${mrn.slice(-2)}` : mrn;
-			return t("table.mrn", { value: short });
+			return String(t("table.mrn", { value: short }));
 		}
-		return t("table.noLocation");
+		return String(t("table.noLocation"));
 	};
 
 	return (
@@ -81,21 +83,21 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					{/* Card Header */}
 					<div className="flex items-center justify-between">
 						<div>
-							<h3 className="font-medium text-gray-900 text-base hover:underline cursor-pointer" title={t("table.locationTitle")}>
+							<h3 className="font-medium text-gray-900 text-base hover:underline cursor-pointer" title={String(t("table.locationTitle"))}>
 								{getTitleLine(handover)}
 							</h3>
-							<p className="text-sm text-gray-500" title={t("table.handoverType")}>
+							<p className="text-sm text-gray-500" title={String(t("table.handoverType"))}>
 								{handover.environmentType}
 							</p>
 						</div>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title={t("table.more")} onClick={(event_) => { event_.stopPropagation(); }}>
+								<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title={String(t("table.more"))} onClick={(event_) => { event_.stopPropagation(); }}>
 									<MoreHorizontal className="h-4 w-4" />
 								</button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>{t("table.copyId")}</DropdownMenuItem>
+								<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>{String(t("table.copyId"))}</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -104,7 +106,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					<div className="flex items-center gap-2">
 						<span
 							className={`h-2 w-2 rounded-full ${handover.statusColor}`}
-							title={t("table.handoverType")}
+							title={String(t("table.handoverType"))}
 						></span>
 						<span className="text-sm font-medium text-gray-900">
 							{handover.status}
@@ -142,7 +144,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					<div className="space-y-1">
 						<div className="flex items-center gap-1 text-sm text-gray-600">
 							<GitBranch className="h-4 w-4" />
-							<span>{t("table.clinicalNotes")}</span>
+							<span>{String(t("table.clinicalNotes"))}</span>
 						</div>
 					</div>
 
@@ -153,7 +155,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								{handover.avatar}
 							</div>
 							<span className="text-sm text-gray-600">
-								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
+								{formatRelative(handover.time)} por {formatAuthor(handover.author || "")}
 							</span>
 						</div>
 					</div>
