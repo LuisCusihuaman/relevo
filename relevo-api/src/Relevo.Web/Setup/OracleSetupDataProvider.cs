@@ -30,11 +30,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     using IDbConnection conn = _factory.CreateConnection();
     int p = Math.Max(page, 1);
     int ps = Math.Max(pageSize, 1);
-    const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = :unitId";
+    const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = @unitId";
     const string pageSql = @"SELECT * FROM (
       SELECT ID AS Id, NAME AS Name, ROW_NUMBER() OVER (ORDER BY ID) AS RN
-      FROM PATIENTS WHERE UNIT_ID = :unitId
-    ) WHERE RN BETWEEN :startRow AND :endRow";
+      FROM PATIENTS WHERE UNIT_ID = @unitId
+    ) WHERE RN BETWEEN @startRow AND @endRow";
 
     int total = conn.ExecuteScalar<int>(countSql, new { unitId });
     int startRow = ((p - 1) * ps) + 1;
@@ -65,7 +65,7 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     if (ids.Length == 0) return (Array.Empty<PatientRecord>(), 0);
 
     // Build a dynamic IN clause using Dapper parameter expansion
-    const string sql = "SELECT ID AS Id, NAME AS Name FROM PATIENTS WHERE ID IN :ids";
+    const string sql = "SELECT ID AS Id, NAME AS Name FROM PATIENTS WHERE ID IN @ids";
     var selected = conn.Query<PatientRecord>(sql, new { ids }).ToList();
 
     int total = selected.Count;

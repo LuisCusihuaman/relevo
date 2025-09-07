@@ -14,7 +14,9 @@ public class GetMyPatients(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
 
   public override async Task HandleAsync(GetMyPatientsRequest req, CancellationToken ct)
   {
-    string userId = "demo-user"; // placeholder until auth is wired
+    // TODO: Get actual user ID from authentication context when auth is implemented
+    // For now, use a default user or get from request headers/query parameters
+    string userId = req.UserId ?? "demo-user"; // Allow override via request for testing
     var (patients, total) = _dataProvider.GetMyPatients(userId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetMyPatientsResponse
     {
@@ -29,6 +31,7 @@ public class GetMyPatients(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
 
 public class GetMyPatientsRequest
 {
+  public string? UserId { get; set; } // Optional override for testing
   public int Page { get; set; } = 1;
   public int PageSize { get; set; } = 25;
 }

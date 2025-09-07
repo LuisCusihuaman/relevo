@@ -1,65 +1,124 @@
 using Relevo.Web.Patients;
+using System.Data;
+using Dapper;
+using Microsoft.Data.Sqlite;
 
 namespace Relevo.Web.Setup;
 
 public class SetupDataStore : ISetupDataProvider
 {
-  private readonly List<UnitRecord> _units =
-  [
-    new("unit-1", "UCI"),
-    new("unit-2", "Pediatría General"),
-    new("unit-3", "Pediatría Especializada")
-  ];
+  private readonly IDbConnection _connection;
 
-  private readonly List<ShiftRecord> _shifts =
-  [
-    new("shift-day", "Mañana", "07:00", "15:00"),
-    new("shift-night", "Noche", "19:00", "07:00")
-  ];
-
-  private readonly Dictionary<string, List<PatientRecord>> _unitIdToPatients = new()
+  public SetupDataStore()
   {
-    ["unit-1"] =
-    [
-      new("pat-123", "John Doe"),
-      new("pat-456", "Jane Smith"),
-      new("pat-789", "Alex Johnson")
-    ],
-    ["unit-2"] =
-    [
-      new("pat-210", "Ava Thompson"),
-      new("pat-220", "Liam Rodríguez"),
-      new("pat-230", "Mia Patel")
-    ],
-    ["unit-3"] =
-    [
-      new("pat-310", "Pat Taylor"),
-      new("pat-320", "Jordan White")
-    ]
-  };
+    // Use in-memory SQLite database for testing
+    _connection = new SqliteConnection("Data Source=:memory:");
+    _connection.Open();
 
-  // simple in-memory assignments per user id
+    // Create tables with same structure as Oracle
+    CreateTables();
+    SeedTestData();
+  }
+
+  private void CreateTables()
+  {
+    using var cmd = _connection.CreateCommand();
+    cmd.CommandText = @"
+      CREATE TABLE UNITS (
+        ID TEXT PRIMARY KEY,
+        NAME TEXT NOT NULL
+      );
+
+      CREATE TABLE SHIFTS (
+        ID TEXT PRIMARY KEY,
+        NAME TEXT NOT NULL,
+        START_TIME TEXT NOT NULL,
+        END_TIME TEXT NOT NULL
+      );
+
+      CREATE TABLE PATIENTS (
+        ID TEXT PRIMARY KEY,
+        NAME TEXT NOT NULL,
+        UNIT_ID TEXT,
+        FOREIGN KEY (UNIT_ID) REFERENCES UNITS(ID)
+      );";
+    cmd.ExecuteNonQuery();
+  }
+
+  private void SeedTestData()
+  {
+    // Seed units
+    _connection.Execute(@"
+      INSERT INTO UNITS (ID, NAME) VALUES
+      (@Id, @Name);",
+      new[]
+      {
+        new { Id = "unit-1", Name = "UCI" },
+        new { Id = "unit-2", Name = "Pediatría General" },
+        new { Id = "unit-3", Name = "Pediatría Especializada" }
+      });
+
+    // Seed shifts
+    _connection.Execute(@"
+      INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES
+      (@Id, @Name, @StartTime, @EndTime);",
+      new[]
+      {
+        new { Id = "shift-day", Name = "Mañana", StartTime = "07:00", EndTime = "15:00" },
+        new { Id = "shift-night", Name = "Noche", StartTime = "19:00", EndTime = "07:00" }
+      });
+
+    // Seed patients
+    _connection.Execute(@"
+      INSERT INTO PATIENTS (ID, NAME, UNIT_ID) VALUES
+      (@Id, @Name, @UnitId);",
+      new[]
+      {
+        new { Id = "pat-123", Name = "John Doe", UnitId = "unit-1" },
+        new { Id = "pat-456", Name = "Jane Smith", UnitId = "unit-1" },
+        new { Id = "pat-789", Name = "Alex Johnson", UnitId = "unit-1" },
+        new { Id = "pat-210", Name = "Ava Thompson", UnitId = "unit-2" },
+        new { Id = "pat-220", Name = "Liam Rodríguez", UnitId = "unit-2" },
+        new { Id = "pat-230", Name = "Mia Patel", UnitId = "unit-2" },
+        new { Id = "pat-310", Name = "Pat Taylor", UnitId = "unit-3" },
+        new { Id = "pat-320", Name = "Jordan White", UnitId = "unit-3" }
+      });
+  }
+
+  // In-memory assignments (not persisted to maintain demo functionality)
   private readonly Dictionary<string, (string ShiftId, HashSet<string> PatientIds)> _assignments = new();
 
-  public IReadOnlyList<UnitRecord> GetUnits() => _units;
+  public IReadOnlyList<UnitRecord> GetUnits()
+  {
+    const string sql = "SELECT ID AS Id, NAME AS Name FROM UNITS ORDER BY ID";
+    return _connection.Query<UnitRecord>(sql).ToList();
+  }
 
-  public IReadOnlyList<ShiftRecord> GetShifts() => _shifts;
+  public IReadOnlyList<ShiftRecord> GetShifts()
+  {
+    const string sql = "SELECT ID AS Id, NAME AS Name, START_TIME AS StartTime, END_TIME AS EndTime FROM SHIFTS ORDER BY ID";
+    return _connection.Query<ShiftRecord>(sql).ToList();
+  }
 
   public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetPatientsByUnit(
     string unitId,
     int page,
     int pageSize)
   {
-    if (!_unitIdToPatients.TryGetValue(unitId, out var patients))
-    {
-      patients = [];
-    }
+    int p = Math.Max(page, 1);
+    int ps = Math.Max(pageSize, 1);
 
-    var total = patients.Count;
-    var items = patients
-      .Skip((Math.Max(page, 1) - 1) * Math.Max(pageSize, 1))
-      .Take(Math.Max(pageSize, 1))
-      .ToList();
+    const string countSql = "SELECT COUNT(*) FROM PATIENTS WHERE UNIT_ID = @unitId";
+    const string pageSql = @"
+      SELECT ID AS Id, NAME AS Name
+      FROM PATIENTS
+      WHERE UNIT_ID = @unitId
+      ORDER BY ID
+      LIMIT @pageSize OFFSET @offset";
+
+    int total = _connection.ExecuteScalar<int>(countSql, new { unitId });
+    int offset = (p - 1) * ps;
+    var items = _connection.Query<PatientRecord>(pageSql, new { unitId, pageSize = ps, offset }).ToList();
 
     return (items, total);
   }
@@ -86,14 +145,20 @@ public class SetupDataStore : ISetupDataProvider
       return (Array.Empty<PatientRecord>(), 0);
     }
 
-    // find patients across all units that match the ids
-    var allPatients = _unitIdToPatients.Values.SelectMany(x => x).ToList();
-    var selected = allPatients.Where(p => assignment.PatientIds.Contains(p.Id)).ToList();
+    var ids = assignment.PatientIds.ToArray();
+    if (ids.Length == 0)
+      return (Array.Empty<PatientRecord>(), 0);
+
+    // Query patients by IDs from database
+    const string sql = "SELECT ID AS Id, NAME AS Name FROM PATIENTS WHERE ID IN @ids ORDER BY ID";
+    var selected = _connection.Query<PatientRecord>(sql, new { ids }).ToList();
 
     var total = selected.Count;
+    var p = Math.Max(page, 1);
+    var ps = Math.Max(pageSize, 1);
     var items = selected
-      .Skip((Math.Max(page, 1) - 1) * Math.Max(pageSize, 1))
-      .Take(Math.Max(pageSize, 1))
+      .Skip((p - 1) * ps)
+      .Take(ps)
       .ToList();
 
     return (items, total);
