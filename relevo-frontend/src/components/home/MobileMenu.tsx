@@ -13,6 +13,7 @@ import {
 
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
+import { useTranslation } from "react-i18next";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
@@ -26,6 +27,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 	setIsMobileMenuOpen,
 }) => {
     const { doctorName, unitName } = useUserStore();
+    const { t } = useTranslation("home");
 	return (
 		<div className="fixed inset-0 z-[9999] bg-white md:hidden">
 			{/* Mobile Menu Header */}
@@ -95,26 +97,19 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 				<div className="p-4 space-y-4 pb-8">
 					{/* Upgrade to Pro Button */}
 					<Button className="w-full bg-black text-white hover:bg-gray-800 h-12 text-base font-medium">
-						Upgrade to Pro
+						{t("userMenu.upgradeToPro")}
 					</Button>
 
 					{/* Contact Button */}
-					<Button
-						className="w-full h-12 text-base font-medium border-gray-300 bg-transparent"
-						variant="outline"
-					>
-						Contact
+					<Button className="w-full h-12 text-base font-medium border-gray-300 bg-transparent" variant="outline">
+						{t("userMenu.contact")}
 					</Button>
 
 					{/* User Profile Section */}
 					<div className="flex items-center justify-between py-4 border-b border-gray-200">
 						<div>
-							<div className="font-medium text-gray-900">
-								Luis Cusihuaman
-							</div>
-							<div className="text-sm text-gray-600">
-								luiscusihuaman88@gmail.com
-							</div>
+							<div className="font-medium text-gray-900">Luis Cusihuaman</div>
+							<div className="text-sm text-gray-600">luiscusihuaman88@gmail.com</div>
 						</div>
 						<Avatar className="h-10 w-10">
 							<AvatarImage src="/placeholder.svg?height=40&width=40" />
@@ -127,7 +122,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						<button className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
 							<div className="flex items-center gap-3">
 								<Settings className="h-5 w-5 text-gray-500" />
-								<span className="text-base">Account Settings</span>
+								<span className="text-base">{t("userMenu.accountSettings")}</span>
 							</div>
 							<Settings className="h-5 w-5 text-gray-400" />
 						</button>
@@ -135,7 +130,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						<button className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
 							<div className="flex items-center gap-3">
 								<Plus className="h-5 w-5 text-gray-500" />
-								<span className="text-base">Create Team</span>
+								<span className="text-base">{t("userMenu.createTeam")}</span>
 							</div>
 							<Plus className="h-5 w-5 text-gray-400" />
 						</button>
@@ -143,7 +138,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						<button className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
 							<div className="flex items-center gap-3">
 								<Monitor className="h-5 w-5 text-gray-500" />
-								<span className="text-base">Theme</span>
+								<span className="text-base">{t("userMenu.theme")}</span>
 							</div>
 							<div className="flex items-center gap-1">
 								<Monitor className="h-4 w-4 text-gray-400" />
@@ -155,38 +150,30 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						<button className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
 							<div className="flex items-center gap-3">
 								<LogOut className="h-5 w-5 text-gray-500" />
-								<span className="text-base">Log Out</span>
+								<span className="text-base">{t("userMenu.logOut")}</span>
 							</div>
 						</button>
 					</div>
 
 					{/* Resources Section */}
 					<div className="pt-6 space-y-2">
-						<h3 className="text-sm font-medium text-gray-500 px-4 mb-3">
-							Resources
-						</h3>
+						<h3 className="text-sm font-medium text-gray-500 px-4 mb-3">{t("userMenu.resources")}</h3>
 
 						<button className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
-							<span className="text-base">Changelog</span>
+							<span className="text-base">{t("userMenu.changelog")}</span>
 						</button>
 
 						<button className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
-							<span className="text-base">Help</span>
+							<span className="text-base">{t("userMenu.help")}</span>
 						</button>
 
 						<button className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
-							<span className="text-base">Documentation</span>
+							<span className="text-base">{t("userMenu.documentation")}</span>
 						</button>
 
 						<button className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
-							<span className="text-base">Home page</span>
-							<svg
-								className="text-gray-400"
-								fill="currentColor"
-								height="16"
-								viewBox="0 0 75 65"
-								width="16"
-							>
+							<span className="text-base">{t("userMenu.homePage")}</span>
+							<svg className="text-gray-400" fill="currentColor" height="16" viewBox="0 0 75 65" width="16">
 								<path d="M37.59.25l36.95 64H.64l36.95-64z" />
 							</svg>
 						</button>
