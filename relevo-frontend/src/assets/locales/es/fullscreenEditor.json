@@ -1,0 +1,20 @@
+{
+  "titles": {
+    "patientSummary": "Resumen del Paciente - Editor de Pantalla Completa",
+    "situationAwareness": "Conocimiento de la Situación - Editor de Pantalla Completa",
+    "default": "Editor de Pantalla Completa"
+  },
+  "syncStatus": {
+    "synced": "Todos los cambios guardados",
+    "pending": "Guardando cambios...",
+    "error": "Error al guardar",
+    "ready": "Listo"
+  },
+  "relevo": "RELEVO",
+  "moreUsers": "+{{count}}",
+  "save": "Guardar",
+  "footer": {
+    "editing": "Editando en pantalla completa",
+    "shortcuts": "Presione Esc para salir, Ctrl+S para guardar"
+  }
+}

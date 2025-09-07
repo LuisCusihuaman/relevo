@@ -1,0 +1,99 @@
+{
+  "services": {
+    "infection_control": "Servicio de Control de Infecciones",
+    "pharmacy": "Servicio de Farmacia",
+    "laboratory": "Servicio de Laboratorio",
+    "nutrition": "Servicio de Nutrición",
+    "social_work": "Servicio de Trabajo Social",
+    "quality_safety": "Servicio de Calidad y Seguridad"
+  },
+  "alerts": {
+    "newMDRO": {
+      "title": "Nueva Alerta de MDRO",
+      "message": "Paciente {{patientName}} ({{room}}) - Se detectó OXAB/163. Implemente precauciones de contacto de inmediato.",
+      "details": "Se detectó organismo multi-resistente a medicamentos en cultivo respiratorio. Se requiere aislamiento de contacto. El personal debe usar bata y guantes."
+    },
+    "drugAllergy": {
+      "title": "Alerta de Alergia a Medicamento",
+      "message": "Paciente {{patientName}} ({{room}}) - Posible interacción farmacológica con la nueva orden de medicación cardíaca.",
+      "details": "El inhibidor de la ECA está contraindicado con el régimen diurético actual. Se recomienda un medicamento alternativo o un ajuste de dosis."
+    },
+    "criticalLabResult": {
+      "title": "Resultado de Laboratorio Crítico",
+      "message": "Paciente {{patientName}} ({{room}}) - El nivel de glucosa es críticamente alto (450 mg/dL).",
+      "details": "Se requiere intervención inmediata. Considere ajustar la tasa de goteo de insulina y monitorear las cetonas."
+    },
+    "dietModification": {
+      "title": "Modificación de Dieta Requerida",
+      "message": "Paciente {{patientName}} ({{room}}) - El estado NPO necesita ser actualizado para el procedimiento planificado.",
+      "details": "Programado para broncoscopia mañana a las 10:00 AM. NPO (nada por boca) después de la medianoche de hoy."
+    },
+    "dischargePlanning": {
+      "title": "Alerta de Planificación de Alta",
+      "message": "Paciente Emma Johnson (PICU-09) - Se debe organizar el equipo de oxígeno en casa.",
+      "details": "La familia requiere capacitación sobre el uso de oxígeno en casa y el mantenimiento del equipo antes del alta."
+    },
+    "fallRisk": {
+      "title": "Actualización de Evaluación de Riesgo de Caídas",
+      "message": "Varios pacientes requieren una reevaluación del riesgo de caídas después de cambios en la medicación.",
+      "details": "Los nuevos protocolos de sedación pueden afectar las puntuaciones de movilidad. Por favor, reevalúe y actualice las medidas de seguridad."
+    }
+  },
+  "actions": {
+    "implementContactPrecautions": "Implementar Precauciones de Contacto",
+    "notifyAttendingPhysician": "Notificar al Médico Adjunto",
+    "updateCarePlan": "Actualizar Plan de Cuidados",
+    "reviewMedicationOrders": "Revisar Órdenes de Medicación",
+    "contactPrescribingPhysician": "Contactar al Médico Prescriptor",
+    "considerAlternativeTherapy": "Considerar Terapia Alternativa",
+    "adjustInsulinProtocol": "Ajustar Protocolo de Insulina",
+    "checkKetones": "Verificar Cetonas",
+    "notifyEndocrinology": "Notificar a Endocrinología",
+    "updateDietOrders": "Actualizar Órdenes de Dieta",
+    "notifyNursingStaff": "Notificar al Personal de Enfermería",
+    "patientFamilyEducation": "Educación del Paciente/Familia",
+    "coordinateEquipment": "Coordinar Equipo",
+    "scheduleFamilyTraining": "Programar Capacitación Familiar",
+    "confirmInsuranceCoverage": "Confirmar Cobertura del Seguro",
+    "completeAssessments": "Completar Evaluaciones",
+    "updateSafetyPlans": "Actualizar Planes de Seguridad",
+    "documentChanges": "Documentar Cambios"
+  },
+  "header": {
+    "title": "Alertas de Servicio",
+    "subtitle": "Alertas de los servicios del hospital que requieren atención",
+    "unacknowledged_one": "{{count}} sin reconocer",
+    "unacknowledged_other": "{{count}} sin reconocer",
+    "updated": "Actualizado en tiempo real",
+    "filter": "Filtrar",
+    "acknowledgeAll": "Reconocer Todas"
+  },
+  "stats": {
+    "totalAlerts": "Alertas Totales",
+    "highPriority": "Prioridad Alta",
+    "unacknowledged": "Sin Reconocer",
+    "actionRequired": "Acción Requerida"
+  },
+  "searchPlaceholder": "Buscar alertas, pacientes, servicios...",
+  "filters": {
+    "servicePlaceholder": "Filtrar por servicio",
+    "allServices": "Todos los Servicios",
+    "priorityPlaceholder": "Filtrar por prioridad",
+    "allPriorities": "Todas las Prioridades",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "acknowledged": "Reconocidas"
+  },
+  "priorities": {
+    "high": "Prioridad Alta",
+    "medium": "Prioridad Media",
+    "info": "Información"
+  },
+  "noAlerts": {
+    "title": "No se encontraron alertas",
+    "adjustCriteria": "Intente ajustar sus criterios de búsqueda",
+    "allAcknowledged": "Todas las alertas han sido reconocidas"
+  },
+  "actionRequired": "Acción Requerida",
+  "acknowledged": "✓ Reconocida"
+}

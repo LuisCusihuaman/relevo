@@ -1,0 +1,61 @@
+{
+  "title": "Handover History",
+  "patientTimeline": "Patient Timeline",
+  "mrn": "MRN:",
+  "admitted": "Admitted:",
+  "status": {
+    "current": "Current",
+    "completed": "Completed"
+  },
+  "severityLabel": "Severity",
+  "severity": {
+    "stable": "Stable",
+    "guarded": "Guarded",
+    "unstable": "Unstable",
+    "critical": "Critical"
+  },
+  "from": "From:",
+  "to": "To:",
+  "keyPointsLabel": "Key Points:",
+  "moreKeyPoints": "+{{count}} more...",
+  "teamsLabel": "Teams:",
+  "out": "Out:",
+  "in": "In:",
+  "allKeyPointsLabel": "All Key Points:",
+  "viewFull": "View Full",
+  "compare": "Compare",
+  "footer": "{{count}} handovers • Last 48 hours",
+  "shifts": {
+    "dayToEvening": "Day → Evening",
+    "nightToDay": "Night → Day",
+    "eveningToNight": "Evening → Night"
+  },
+  "teams": {
+    "dayInternal": "Day Shift - Internal Medicine",
+    "eveningInternal": "Evening Shift - Internal Medicine",
+    "nightInternal": "Night Shift - Internal Medicine",
+    "dayEmergency": "Day Shift - Emergency Medicine",
+    "eveningEmergency": "Evening Shift - Emergency Medicine"
+  },
+  "doctors": {
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez",
+    "chen": "Dr. Chen",
+    "williams": "Dr. Williams",
+    "rodriguez": "Dr. Rodriguez"
+  },
+  "keyPoints": {
+    "copdImproving": "COPD exacerbation improving",
+    "o2Decreased": "O2 requirements decreased to 2L",
+    "familyMeeting": "Family meeting scheduled",
+    "admittedCopd": "Patient admitted with COPD exacerbation",
+    "startedSteroids": "Started on corticosteroids and bronchodilators",
+    "initialO2": "Initial O2 requirement 4L",
+    "emergencyAdmission": "Emergency admission from ED",
+    "acuteDistress": "Acute respiratory distress",
+    "stabilized": "Stabilized with oxygen therapy",
+    "severeDyspnea": "Patient presented with severe dyspnea",
+    "workupCompleted": "Initial workup completed",
+    "xrayCopd": "Chest X-ray shows COPD changes"
+  }
+}

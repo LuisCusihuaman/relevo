@@ -1,0 +1,73 @@
+{
+  "searchPlaceholder": "Search patients...",
+  "filter": {
+    "all": "All Status",
+    "pending": "Pending",
+    "active": "Active",
+    "complete": "Complete"
+  },
+  "sort": {
+    "priority": "Priority",
+    "room": "Room",
+    "name": "Name",
+    "recentActivity": "Recent Activity"
+  },
+  "patientInfo": "{{age}}y • {{room}}-{{bed}}",
+  "incoming": "Incoming",
+  "clinicalEntries": "{{count}} clinical entries",
+  "lastEntry": "Last",
+  "yearsOld": "{{age}} years old",
+  "priority_one": "{{priority}} Priority",
+  "priority_other": "{{priority}} Priority",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "priority": "Priority",
+  "room": "Room",
+  "mrn": "MRN",
+  "admitted": "Admitted",
+  "estDischarge": "Est. Discharge",
+  "tbd": "TBD",
+  "assessment": "Assessment",
+  "progressNote": "Progress Note",
+  "clinicalEntry": "Clinical Entry",
+  "tabs": {
+    "clinicalDocumentation": "Clinical Documentation",
+    "careTeam": "Care Team",
+    "alertsAndProtocols": "Alerts & Protocols",
+    "familyAndDischarge": "Family & Discharge"
+  },
+  "collaborators_one": "{{count}} collaborator",
+  "collaborators_other": "{{count}} collaborators",
+  "addResponse": "Add Response",
+  "noClinicalDocumentation": {
+    "title": "No Clinical Documentation Yet",
+    "description": "Start documenting this patient's clinical information",
+    "button": "Create First Entry"
+  },
+  "team": {
+    "primaryTeam": "Primary Team",
+    "attendingPhysician": "Attending Physician",
+    "residents": "Residents",
+    "nursing": "Nursing",
+    "specialists": "Specialists"
+  },
+  "familyInfo": {
+    "title": "Family Information",
+    "primaryContact": "Primary Contact",
+    "lastContact": "Last Contact",
+    "currentConcerns": "Current Concerns"
+  },
+  "careMilestones": {
+    "title": "Care Milestones",
+    "admission": "Admission",
+    "lastAssessment": "Last Assessment",
+    "nextPlanned": "Next Planned",
+    "estimatedDischarge": "Estimated Discharge"
+  },
+  "selectPatient": {
+    "title": "Select a Patient",
+    "description": "Choose a patient from the list to view detailed information and clinical documentation."
+  },
+  "needsAttention": "Needs Attention"
+}

@@ -1,0 +1,63 @@
+{
+  "updateYourSetup": "Actualizar tu Configuración",
+  "welcome": "Bienvenido a RELEVO",
+  "modifyAssignments": "Modifica tu turno y pacientes asignados",
+  "platformDescription": "Plataforma digital de traspaso médico para el Hospital Garrahan",
+  "ipassProtocol": "Protocolo I-PASS",
+  "secureDocumentation": "Documentación Segura",
+  "yourNameLabel": "Tu Nombre",
+  "namePlaceholder": "Dra. María González",
+  "updateNameHelp": "Actualiza tu nombre si es necesario",
+  "nameHelp": "Se usará para identificar tu documentación y sesiones de traspaso",
+  "greeting": "¡Hola, {{doctorName}}!",
+  "updateUnitAssignment": "Actualiza tu unidad asignada",
+  "configureShiftDetails": "Vamos a configurar los detalles de tu turno",
+  "changeYourUnit": "Cambiar tu unidad",
+  "selectYourUnit": "Selecciona tu unidad",
+  "updateYourShift": "Actualizar tu turno",
+  "selectYourShift": "Selecciona tu turno",
+  "changeShiftAssignment": "Cambia la asignación de tu turno si es necesario",
+  "whenProvidingCare": "¿Cuándo brindarás atención?",
+  "availableShifts": "Turnos disponibles",
+  "updateYourPatients": "Actualiza tus pacientes",
+  "selectYourPatients": "Selecciona tus pacientes",
+  "patientsSelected": "{{count}} de {{total}} pacientes seleccionados",
+  "previouslyAssigned": "Tenías {{count}} pacientes asignados previamente",
+  "deselectAll": "Deseleccionar Todos",
+  "selectAll": "Seleccionar Todos",
+  "validationErrorTitle": "Por favor, selecciona al menos un paciente",
+  "validationErrorBody": "Necesitas asignarte pacientes para continuar",
+  "stepTitle": {
+    "updateInfo": "Actualizar Información",
+    "yourInfo": "Tu Información",
+    "updateUnit": "Actualizar Unidad",
+    "unitSelection": "Selección de Unidad",
+    "updateShift": "Actualizar Turno",
+    "shiftSelection": "Selección de Turno",
+    "updatePatients": "Actualizar Pacientes",
+    "patientSelection": "Selección de Pacientes",
+    "setup": "Configuración"
+  },
+  "mobileHeader": {
+    "update": "Actualizar Configuración",
+    "new": "Configuración de Traspaso Médico",
+    "step": "Paso {{current}} de {{total}}"
+  },
+  "back": "Atrás",
+  "saveChanges": "Guardar Cambios",
+  "startUsingRelevo": "Empezar a usar RELEVO",
+  "continue": "Continuar",
+  "mobileValidation": "Selecciona al menos un paciente para continuar",
+  "desktopHeader": {
+    "update": "Actualizar Configuración de RELEVO",
+    "new": "Configuración de RELEVO"
+  },
+  "desktopSubheader": {
+    "update": "Modifica tu configuración",
+    "new": "Configura tu sesión de traspaso",
+    "progress": "{{action}} tu sesión de traspaso, {{name}}"
+  },
+  "completeSetup": "Completar Configuración",
+  "configure": "Configurar",
+  "update": "Actualizar"
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Justificación Clínica",
+  "isEditing": "{{name}} está editando",
+  "addEntry": "Añadir Entrada",
+  "newEntryTitle": "Nueva Entrada de Justificación",
+  "newEntryPlaceholder": "Introduzca el razonamiento clínico, la justificación de la decisión o el contexto adicional...",
+  "cancel": "Cancelar",
+  "editingBy": "Editando: {{name}}",
+  "comment": "Comentario",
+  "lastUpdated": "Última actualización: {{time}}",
+  "entriesTotal": "{{count}} entradas en total",
+  "sharedWithTeam": "Compartido con el equipo",
+  "authors": {
+    "martinez": "Dra. Ana Martinez",
+    "johnson": "Dr. Johnson"
+  },
+  "entries": {
+    "content1": "El paciente requiere soporte de oxígeno continuo debido a la exacerbación aguda de la EPOC. Se observa una mejoría clínica con el plan de tratamiento actual que incluye corticosteroides y broncodilatadores. Se recomienda mantener el flujo actual de O2 y monitorear para una mayor mejoría en las próximas 24 horas.",
+    "content2": "Se completó la educación del paciente y la familia sobre el manejo de la EPOC y los signos de exacerbación. Se inició la discusión sobre la planificación del alta. Se solicitó una consulta con trabajo social para la evaluación del cuidado en el hogar."
+  }
+}

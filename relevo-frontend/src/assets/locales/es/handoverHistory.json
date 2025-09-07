@@ -1,0 +1,61 @@
+{
+  "title": "Historial de Traspaso",
+  "patientTimeline": "Cronología del Paciente",
+  "mrn": "Nº Historial:",
+  "admitted": "Ingresado:",
+  "status": {
+    "current": "Actual",
+    "completed": "Completado"
+  },
+  "severityLabel": "Gravedad",
+  "severity": {
+    "stable": "Estable",
+    "guarded": "Vigilado",
+    "unstable": "Inestable",
+    "critical": "Crítico"
+  },
+  "from": "De:",
+  "to": "A:",
+  "keyPointsLabel": "Puntos Clave:",
+  "moreKeyPoints": "+{{count}} más...",
+  "teamsLabel": "Equipos:",
+  "out": "Salida:",
+  "in": "Entrada:",
+  "allKeyPointsLabel": "Todos los Puntos Clave:",
+  "viewFull": "Ver Completo",
+  "compare": "Comparar",
+  "footer": "{{count}} traspasos • Últimas 48 horas",
+  "shifts": {
+    "dayToEvening": "Día → Tarde",
+    "nightToDay": "Noche → Día",
+    "eveningToNight": "Tarde → Noche"
+  },
+  "teams": {
+    "dayInternal": "Turno de Día - Medicina Interna",
+    "eveningInternal": "Turno de Tarde - Medicina Interna",
+    "nightInternal": "Turno de Noche - Medicina Interna",
+    "dayEmergency": "Turno de Día - Medicina de Emergencia",
+    "eveningEmergency": "Turno de Tarde - Medicina de Emergencia"
+  },
+  "doctors": {
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez",
+    "chen": "Dr. Chen",
+    "williams": "Dr. Williams",
+    "rodriguez": "Dr. Rodriguez"
+  },
+  "keyPoints": {
+    "copdImproving": "Exacerbación de EPOC mejorando",
+    "o2Decreased": "Requisitos de O2 disminuyeron a 2L",
+    "familyMeeting": "Reunión familiar programada",
+    "admittedCopd": "Paciente ingresado con exacerbación de EPOC",
+    "startedSteroids": "Se inició con corticosteroides y broncodilatadores",
+    "initialO2": "Requisito inicial de O2 4L",
+    "emergencyAdmission": "Ingreso de emergencia desde la guardia",
+    "acuteDistress": "Dificultad respiratoria aguda",
+    "stabilized": "Estabilizado con terapia de oxígeno",
+    "severeDyspnea": "El paciente presentó disnea severa",
+    "workupCompleted": "Se completó la evaluación inicial",
+    "xrayCopd": "La radiografía de tórax muestra cambios de EPOC"
+  }
+}

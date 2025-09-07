@@ -1,0 +1,73 @@
+{
+  "searchPlaceholder": "Buscar pacientes...",
+  "filter": {
+    "all": "Todos los Estados",
+    "pending": "Pendiente",
+    "active": "Activo",
+    "complete": "Completo"
+  },
+  "sort": {
+    "priority": "Prioridad",
+    "room": "Habitación",
+    "name": "Nombre",
+    "recentActivity": "Actividad Reciente"
+  },
+  "patientInfo": "{{age}}a • {{room}}-{{bed}}",
+  "incoming": "Entrante",
+  "clinicalEntries": "{{count}} entradas clínicas",
+  "lastEntry": "Última",
+  "yearsOld": "{{age}} años",
+  "priority_one": "{{priority}} Prioridad",
+  "priority_other": "{{priority}} Prioridad",
+  "high": "Alta",
+  "medium": "Media",
+  "low": "Baja",
+  "priority": "Prioridad",
+  "room": "Habitación",
+  "mrn": "Nº Historial",
+  "admitted": "Ingresado",
+  "estDischarge": "Alta Estimada",
+  "tbd": "Por definir",
+  "assessment": "Evaluación",
+  "progressNote": "Nota de Progreso",
+  "clinicalEntry": "Entrada Clínica",
+  "tabs": {
+    "clinicalDocumentation": "Documentación Clínica",
+    "careTeam": "Equipo de Atención",
+    "alertsAndProtocols": "Alertas y Protocolos",
+    "familyAndDischarge": "Familia y Alta"
+  },
+  "collaborators_one": "{{count}} colaborador",
+  "collaborators_other": "{{count}} colaboradores",
+  "addResponse": "Añadir Respuesta",
+  "noClinicalDocumentation": {
+    "title": "Aún no hay Documentación Clínica",
+    "description": "Comience a documentar la información clínica de este paciente",
+    "button": "Crear Primera Entrada"
+  },
+  "team": {
+    "primaryTeam": "Equipo Primario",
+    "attendingPhysician": "Médico Adjunto",
+    "residents": "Residentes",
+    "nursing": "Enfermería",
+    "specialists": "Especialistas"
+  },
+  "familyInfo": {
+    "title": "Información Familiar",
+    "primaryContact": "Contacto Principal",
+    "lastContact": "Último Contacto",
+    "currentConcerns": "Preocupaciones Actuales"
+  },
+  "careMilestones": {
+    "title": "Hitos del Cuidado",
+    "admission": "Ingreso",
+    "lastAssessment": "Última Evaluación",
+    "nextPlanned": "Próximo Planificado",
+    "estimatedDischarge": "Alta Estimada"
+  },
+  "selectPatient": {
+    "title": "Seleccionar un Paciente",
+    "description": "Elija un paciente de la lista para ver información detallada y documentación clínica."
+  },
+  "needsAttention": "Necesita Atención"
+}

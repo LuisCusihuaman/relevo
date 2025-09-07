@@ -1,0 +1,110 @@
+{
+  "title": "Situation Awareness",
+  "description": "Collaborative, real-time patient status documentation",
+  "done": "Done",
+  "edit": "Edit",
+  "currentSituation": {
+    "title": "Current Situation",
+    "description": "Collaborative documentation of the patient's real-time status.",
+    "placeholder": "Enter current situation details..."
+  },
+  "contingencyPlanning": {
+    "title": "Contingency Planning",
+    "description": "Anticipatory guidance for potential patient changes.",
+    "addPlan": "Add Contingency Plan",
+    "ifPrefix": "IF:",
+    "thenPrefix": "THEN:",
+    "form": {
+      "conditionLabel": "IF (Condition):",
+      "conditionPlaceholder": "e.g., If patient temperature rises above 38.5°C...",
+      "actionLabel": "THEN (Action):",
+      "actionPlaceholder": "e.g., Obtain blood cultures, notify physician immediately...",
+      "priorityLabel": "Priority:"
+    }
+  },
+  "status": {
+    "active": "active",
+    "planned": "planned"
+  },
+  "autoSave": {
+    "saving": "Saving...",
+    "saved": "All changes saved",
+    "error": "Error saving"
+  },
+  "priorities": {
+    "high": "High Priority",
+    "medium": "Medium Priority",
+    "low": "Low Priority"
+  },
+  "cancel": "Cancel",
+  "submittedBy": "Submitted by {{name}} at {{time}}",
+  "newPlan": {
+    "title": "New Contingency Plan",
+    "submitting": "Submitting...",
+    "submit": "Submit Plan"
+  },
+  "editor": {
+    "fullscreenTitle": "Current Situation - Fullscreen Editor",
+    "title": "Current Situation",
+    "placeholder": "Enter current situation details...",
+    "lines": "lines",
+    "words": "words",
+    "autosaving": "Auto-saving",
+    "useFullscreenControls": "Use fullscreen controls to save",
+    "peopleEditing": "{{count}} people editing"
+  },
+  "view": {
+    "editAriaLabel": "Click to edit situation awareness documentation",
+    "fullscreenTitle": "Current Situation - Fullscreen View",
+    "allCanEdit": "All can edit",
+    "active": "Active",
+    "lastUpdatedBy": "Last updated by {{user}}",
+    "clickToEdit": "Click to edit"
+  },
+  "initialSituation": {
+    "header": "CURRENT STATUS - 16:30",
+    "line1": "• Patient stable, responding well to current interventions",
+    "line2": "• Heart rate stabilized at 82 bpm, blood pressure 128/76",
+    "line3": "• Oxygen saturation maintaining 96% on 2L nasal cannula",
+    "line4": "• Patient reports decreased shortness of breath since morning",
+    "line5": "• Ambulating with assistance, appetite improving",
+    "monitoringHeader": "MONITORING PRIORITIES:",
+    "monitoring1": "□ Hourly urine output monitoring - target >30ml/hr",
+    "monitoring2": "□ Daily weight monitoring for fluid balance",
+    "monitoring3": "□ Respiratory rate and oxygen requirements",
+    "monitoring4": "□ Pain assessment q4h - current pain 3/10",
+    "monitoring5": "□ Continue cardiac monitoring overnight",
+    "teamNotesHeader": "NOTES FROM TEAM:",
+    "teamNote1": "• 14:30 - Cardiology reviewed echo results, EF improved to 40%",
+    "teamNote2": "• 15:15 - PT evaluation completed, cleared for discharge planning",
+    "teamNote3": "• 16:00 - Family meeting scheduled for tomorrow 10:00",
+    "teamNote4": "• 16:15 - Evening nurse briefed on care plan",
+    "nextShiftGoalsHeader": "GOALS FOR NEXT SHIFT:",
+    "goal1": "□ Continue diuretic therapy - monitor electrolytes",
+    "goal2": "□ Advance activity as tolerated",
+    "goal3": "□ Finalize discharge planning with case manager",
+    "goal4": "□ Patient education on heart failure management completed"
+  },
+  "contingencyPlans": {
+    "plan1": {
+      "condition": "Patient experiences increased shortness of breath or O2 sat drops below 92%",
+      "action": "Increase oxygen to 4L, obtain arterial blood gas, notify physician immediately, prepare for possible BiPAP"
+    },
+    "plan2": {
+      "condition": "Urine output decreases to less than 20ml/hr for 2 consecutive hours",
+      "action": "Check catheter patency, review fluid balance, obtain creatinine and BUN, consider nephrology consult"
+    },
+    "plan3": {
+      "condition": "Blood pressure drops below 90/60 or patient shows signs of hypotension",
+      "action": "Hold diuretics, fluid bolus 250ml NS, reassess in 30 minutes, notify attending physician"
+    }
+  },
+  "doctors": {
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez",
+    "rodriguez": "Dr. Rodriguez"
+  },
+  "time": {
+    "today": "Today"
+  }
+}

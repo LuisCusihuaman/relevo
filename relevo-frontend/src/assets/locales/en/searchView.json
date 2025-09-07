@@ -1,0 +1,26 @@
+{
+  "title": "Search",
+  "subtitle": "Find patients, diagnoses, and medical records",
+  "placeholder": "Search patients, diagnoses, rooms...",
+  "filters": {
+    "all": "All",
+    "critical": "Critical",
+    "pending": "Pending",
+    "complete": "Complete",
+    "myPatients": "My Patients"
+  },
+  "noResults": {
+    "title": "No results found",
+    "forQuery": "No results found for \"{{query}}\"",
+    "suggestion": "Try adjusting your search terms"
+  },
+  "recentSearches": "Recent Searches",
+  "suggestedSearches": "Suggested Searches",
+  "searchTypes": {
+    "diagnosis": "Diagnosis",
+    "room": "Room",
+    "doctor": "Doctor",
+    "procedure": "Procedure",
+    "condition": "Condition"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "initialSummary": "72-year-old female with acute exacerbation of COPD, admitted 3 days ago for increased dyspnea and productive cough. Patient has been responding well to bronchodilator therapy and systemic corticosteroids.\n\nPast Medical History:\n• COPD (moderate to severe)\n• Hypertension\n• Type 2 Diabetes Mellitus\n• Former smoker (quit 5 years ago)\n\nCurrent medications showing good response. Patient ambulating with minimal assistance and oxygen requirements have decreased from 4L to 2L over past 24 hours.\n\nSocial History:\n• Lives with daughter\n• Independent in ADLs prior to admission\n• No advance directives on file\n\nPhysical Exam:\n• Alert and oriented x3\n• Respiratory: Decreased breath sounds bilaterally, mild expiratory wheeze\n• Cardiovascular: Regular rate and rhythm\n• No acute distress currently\n\nDischarge Planning:\n• Social work consulted for home services\n• PT/OT evaluation completed\n• Family education on COPD management\n• Follow-up with pulmonology in 2 weeks\n\nCode Status: DNR/DNI (confirmed with family)\nAllergies: Penicillin, Sulfa\nEmergency Contact: Daughter - Sarah Rodriguez (555) 123-4567",
+  "time": {
+    "lessThan1Hour": "Less than 1 hour ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  },
+  "editing": {
+    "fullscreenTitle": "Clinical Record - Fullscreen Editor",
+    "title": "Editing Clinical Record",
+    "updating": "Updating...",
+    "placeholder": "Enter patient background and clinical summary...",
+    "words": "words",
+    "lines": "lines",
+    "cancel": "Cancel",
+    "save": "Save",
+    "useSaveButtonAbove": "Use Save button above",
+    "useFullscreenControls": "Use fullscreen controls to save"
+  },
+  "view": {
+    "editAriaLabel": "Click to edit clinical record",
+    "fullscreenTitle": "Clinical Record - Fullscreen View",
+    "title": "Clinical Record",
+    "only": " only",
+    "current": "Current",
+    "updated": "Updated",
+    "words": "words",
+    "clickToEdit": "Click to edit"
+  },
+  "permission": {
+    "only": "Only",
+    "canModify": "can modify this clinical record."
+  }
+}

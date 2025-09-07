@@ -1,0 +1,22 @@
+{
+  "title": "RELEVO",
+  "hospitalName": "Hospital Garrahan",
+  "shift": "Shift",
+  "patients": "Patients",
+  "searchPlaceholder": "Search patients, notes, or alerts...",
+  "addPatient": "Add Patient",
+  "profileSettings": "Profile Settings",
+  "preferences": "Preferences",
+  "filterSection": "Filter Section",
+  "sortByPriority": "Sort by Priority",
+  "noItems": "No items in {{title}}",
+  "addItem": "Add Item",
+  "addTo": "Add to {{title}}",
+  "urgent": "Urgent",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "unknownPriority": "Unknown Priority",
+  "alerts_one": "{{count}} Alert",
+  "alerts_other": "{{count}} Alerts"
+}

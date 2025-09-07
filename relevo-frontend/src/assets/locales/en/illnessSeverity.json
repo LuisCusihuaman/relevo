@@ -1,0 +1,52 @@
+{
+  "levels": {
+    "stable": {
+      "label": "Stable",
+      "description": "Patient condition is stable with minimal intervention needed"
+    },
+    "guarded": {
+      "label": "Guarded",
+      "description": "Patient requires close monitoring with potential for change"
+    },
+    "unstable": {
+      "label": "Unstable",
+      "description": "Patient condition is unstable requiring immediate intervention"
+    },
+    "critical": {
+      "label": "Critical",
+      "description": "Patient in critical condition requiring urgent care"
+    }
+  },
+  "justNow": "Just now",
+  "youCanEdit": "You can edit severity assessment",
+  "liveAssessment": "Live severity assessment",
+  "liveUpdate": "Live update",
+  "editor": "Editor",
+  "viewer": "Viewer",
+  "setBy": "Set by {{user}}",
+  "assessmentBy": "Assessment by {{user}} ({{role}})",
+  "lastSynced": "Last synced at {{time}}",
+  "changesSynced": "Changes are automatically synced to all viewers in real-time",
+  "onlyUserCanModify": "Only {{user}} ({{role}}) can modify this assessment",
+  "updatesAutomatic": "You will see updates automatically as they are made",
+  "enterFocusMode": "Enter Focus Mode",
+  "exitFocusMode": "Exit Focus Mode",
+  "options": "Options",
+  "syncing": "Sincronizando...",
+  "allChangesSaved": "Todos los cambios guardados",
+  "offline": "Sin conexión",
+  "syncError": "Error de sincronización",
+  "viewingNow": "Viendo ahora",
+  "lastSeen": "Visto por última vez {{time}}",
+  "handoverStatus": "Estado del Traspaso",
+  "timeRemaining": "Tiempo Restante",
+  "sessionDuration": "Duración de la Sesión",
+  "syncStatus": "Estado de Sincronización",
+  "viewHistory": "Ver Historial",
+  "viewDiscussion": "Ver Discusión",
+  "mrn": "Nº Historial {{mrn}}",
+  "unit": "{{unit}}",
+  "primaryDiagnosis": "{{diagnosis}}",
+  "handover": "Traspaso",
+  "inHandoverTime": "en {{time}}"
+}

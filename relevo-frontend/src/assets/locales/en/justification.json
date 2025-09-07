@@ -1,0 +1,21 @@
+{
+  "title": "Clinical Justification",
+  "isEditing": "{{name}} is editing",
+  "addEntry": "Add Entry",
+  "newEntryTitle": "New Justification Entry",
+  "newEntryPlaceholder": "Enter clinical reasoning, decision rationale, or additional context...",
+  "cancel": "Cancel",
+  "editingBy": "Editing: {{name}}",
+  "comment": "Comment",
+  "lastUpdated": "Last updated: {{time}}",
+  "entriesTotal": "{{count}} entries total",
+  "sharedWithTeam": "Shared with team",
+  "authors": {
+    "martinez": "Dr. Ana Martinez",
+    "johnson": "Dr. Johnson"
+  },
+  "entries": {
+    "content1": "Patient requires continued oxygen support due to acute exacerbation of COPD. Clinical improvement noted with current treatment plan including corticosteroids and bronchodilators. Recommend maintaining current O2 flow rate and monitoring for further improvement over next 24 hours.",
+    "content2": "Patient and family education completed regarding COPD management and signs of exacerbation. Discharge planning discussion initiated. Social work consultation requested for home care evaluation."
+  }
+}

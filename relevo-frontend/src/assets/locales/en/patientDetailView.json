@@ -1,0 +1,55 @@
+{
+  "severity": {
+    "unstable": "Unstable",
+    "watcher": "Watcher",
+    "stable": "Stable",
+    "unknown": "Unknown"
+  },
+  "header": {
+    "back": "Back",
+    "title": "Patient Information",
+    "ipass": "I-PASS",
+    "startHandover": "Start Handover"
+  },
+  "patientHeader": {
+    "age": "{{age}} years old",
+    "mrn": "MRN:",
+    "diagnosis": "Diagnosis",
+    "nextCheck": "Next: Check in 2h (2 hours)"
+  },
+  "sections": {
+    "readOnly": "Read-Only",
+    "lastUpdated": "Last updated {{time}}",
+    "clinicalSummary": {
+      "title": "Clinical Summary",
+      "ipass": "I-PASS: P",
+      "editNote": {
+        "start": "To edit this summary, use",
+        "end": "or mobile I-PASS documentation"
+      },
+      "noData": "No clinical summary documented yet."
+    },
+    "currentSituation": {
+      "title": "Current Situation",
+      "ipass": "I-PASS: I",
+      "noData": "No current situation documented yet."
+    },
+    "ipassPlans": {
+      "title": "I-PASS Plans",
+      "ipass": "I-PASS: S",
+      "content": "Contingency plans for respiratory distress, discharge planning in progress...",
+      "noData": "No plans documented yet."
+    },
+    "actionList": {
+      "title": "Action List",
+      "ipass": "I-PASS: A",
+      "urgent_one": "{{count}} urgent",
+      "urgent_other": "{{count}} urgent",
+      "pending_one": "{{count}} pending",
+      "pending_other": "{{count}} pending",
+      "addAction": "Add Action",
+      "completed": "Completed",
+      "due": "Due"
+    }
+  }
+}

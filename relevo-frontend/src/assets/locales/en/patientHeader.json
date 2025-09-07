@@ -1,0 +1,22 @@
+{
+  "age": "Age: {{age}}",
+  "room": "Room: {{room}}",
+  "admitted": "Admitted: {{date}}",
+  "mrn": "MRN: {{mrn}}",
+  "handoverInProgress": "Handover In Progress",
+  "handoverComplete": "Handover Complete",
+  "los": "LOS: {{count}} days",
+  "activeHandoverSession": "Active handover session: {{shift}}",
+  "collaborationMessage": "Team members are currently collaborating on this handover",
+  "severity": {
+    "stable": "Stable",
+    "guarded": "Guarded",
+    "unstable": "Unstable",
+    "critical": "Critical"
+  },
+  "diabetes": {
+    "management": {
+      "type2": "Type 2 Diabetes Management"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "header": {
+    "title": "Colaboración de Traspaso",
+    "liveSession": "Sesión en vivo",
+    "sessionInfo": "María Rodríguez • Habitación 302A"
+  },
+  "tabs": {
+    "discussion": "Discusión",
+    "updates": "Actualizaciones"
+  },
+  "discussionTab": {
+    "title": "Discusión de Traspaso",
+    "subtitle": "Conversación del turno Día → Tarde"
+  },
+  "messageInput": {
+    "placeholder": "Añadir a la discusión de traspaso...",
+    "send": "Enviar"
+  },
+  "activityTab": {
+    "title": "Actualizaciones Recientes",
+    "subtitle": "Actividad de traspaso en vivo"
+  },
+  "discussion": {
+    "user1": {
+      "user": "Dr. Patel",
+      "userInitials": "SP",
+      "role": "Médico de guardia",
+      "message": "Acabo de revisar el caso. La insuficiencia cardíaca parece estable hoy. ¿Alguna preocupación sobre el balance de líquidos?",
+      "time": "Hace 2 minutos"
+    },
+    "user2": {
+      "user": "Dr. Johnson",
+      "userInitials": "DJ",
+      "role": "Médico del día",
+      "message": "El paciente ha estado con un balance neto negativo de 500ml hoy. Respondió bien al ajuste de lasix esta mañana. El peso actual es 2kg menos que al ingreso.",
+      "time": "Hace 1 minuto"
+    },
+    "user3": {
+      "user": "Dr. Rodríguez",
+      "userInitials": "MR",
+      "role": "Residente",
+      "message": "¿Debemos continuar con la dosis actual de diuréticos durante la noche? El BUN/Cr está estable en 1.2.",
+      "time": "Hace 30 segundos"
+    },
+    "userpatel": {
+      "user": "Dr. Patel",
+      "role": "Médico de guardia",
+      "message": "Acabo de revisar el caso. La insuficiencia cardíaca parece estable hoy. ¿Alguna preocupación sobre el balance de líquidos?",
+      "time": "Hace 2 minutos"
+    },
+    "userjohnson": {
+      "user": "Dr. Johnson",
+      "role": "Médico del día",
+      "message": "El paciente ha estado con un balance neto negativo de 500ml hoy. Respondió bien al ajuste de lasix esta mañana. El peso actual es 2kg menos que al ingreso.",
+      "time": "Hace 1 minuto"
+    },
+    "userrodriguez": {
+      "user": "Dr. Rodríguez",
+      "role": "Residente",
+      "message": "¿Debemos continuar con la dosis actual de diuréticos durante la noche? El BUN/Cr está estable en 1.2.",
+      "time": "Hace 30 segundos"
+    }
+  },
+  "activity": {
+    "user1": {
+      "user": "Dr. Patel",
+      "userInitials": "SP",
+      "action": "se unió a la sesión de traspaso",
+      "time": "Hace 5 minutos"
+    },
+    "user2": {
+      "user": "Dr. Johnson",
+      "userInitials": "DJ",
+      "action": "actualizó la evaluación de la gravedad de la enfermedad",
+      "time": "Hace 3 minutos"
+    },
+    "user3": {
+      "user": "Dr. Rodríguez",
+      "userInitials": "MR",
+      "action": "añadió un elemento de acción sobre los laboratorios matutinos",
+      "time": "Hace 2 minutos"
+    },
+    "user4": {
+      "user": "Enfermera Clara",
+      "userInitials": "CJ",
+      "action": "revisó el resumen del paciente",
+      "time": "Hace 1 minuto"
+    }
+  }
+}

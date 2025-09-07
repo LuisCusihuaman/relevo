@@ -1,0 +1,51 @@
+{
+  "status": {
+    "pending": "Revisión Pendiente",
+    "inProgress": "Atención Activa",
+    "stable": "Estable"
+  },
+  "criticalAlerts": "Alertas Críticas ({{count}})",
+  "moreAlerts": "+ {{count}} más alertas",
+  "age": "{{age}}a",
+  "priority": "Prioridad",
+  "high": "Alta",
+  "medium": "Media",
+  "low": "Baja",
+  "liveMonitoring": "Monitoreo en Vivo",
+  "mrn": "Nº Historial:",
+  "admitted": "Ingresado",
+  "ipass": {
+    "button": "I-PASS",
+    "title": "Resumen de Traspaso I-PASS",
+    "illnessSeverity": "Gravedad de la Enfermedad",
+    "patientSummary": "Resumen del Paciente",
+    "actionList": "Lista de Acciones",
+    "situationAwareness": "Conocimiento de la Situación",
+    "synthesisByReceiver": "Síntesis por el Receptor",
+    "notSpecified": "No especificado"
+  },
+  "vitals": {
+    "title": "Signos Vitales en Tiempo Real",
+    "updated": "Actualizado {{time}}",
+    "types": {
+      "heartRate": "Frecuencia Cardíaca",
+      "oxygen": "Oxígeno",
+      "temperature": "Temperatura",
+      "bloodPressure": "Presión Arterial"
+    },
+    "status": {
+      "critical": "crítico",
+      "warning": "advertencia",
+      "normal": "normal"
+    }
+  },
+  "medications": "Medicamentos",
+  "allergies": "Alergias",
+  "handoverHistory": {
+    "title": "Historial de Traspaso",
+    "item": "{{from}} a {{to}}"
+  },
+  "carePlanProgress": "Progreso del Plan de Cuidados",
+  "keyTeamMembers": "Miembros Clave del Equipo",
+  "startHandover": "Iniciar Traspaso"
+}

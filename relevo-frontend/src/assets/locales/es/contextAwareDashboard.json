@@ -1,0 +1,31 @@
+{
+  "welcome": "Bienvenido de nuevo, {{name}}",
+  "unit": "Unidad {{name}}",
+  "assignedPatients": "Pacientes Asignados",
+  "unitCapacity": "Capacidad de la Unidad",
+  "criticalStatus": "Estado Crítico",
+  "staffOnDuty": "Personal de Servicio",
+  "todaysSchedule": "Horario de Hoy",
+  "viewFullSchedule": "Ver Horario Completo",
+  "recentActivity": "Actividad Reciente",
+  "viewAllActivity": "Ver Toda la Actividad",
+  "overview": "Resumen de {{name}}",
+  "unitStatus": "Estado de la Unidad",
+  "currentPatients": "Pacientes Actuales:",
+  "availableBeds": "Camas Disponibles:",
+  "staffMembers": "Miembros del Personal:",
+  "handoverSchedule": "Horario de Traspaso",
+  "lastHandover": "Último Traspaso:",
+  "nextHandover": "Próximo Traspaso:",
+  "status": "Estado:",
+  "normalOperations": "Operaciones Normales",
+  "quickActions": "Acciones Rápidas",
+  "startHandover": "Iniciar Traspaso",
+  "teamChat": "Chat de Equipo",
+  "reportIssue": "Informar Problema",
+  "priorities": {
+    "high": "alta",
+    "medium": "media",
+    "low": "baja"
+  }
+}

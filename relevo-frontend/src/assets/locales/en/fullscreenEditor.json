@@ -1,0 +1,20 @@
+{
+  "titles": {
+    "patientSummary": "Patient Summary - Fullscreen Editor",
+    "situationAwareness": "Situation Awareness - Fullscreen Editor",
+    "default": "Fullscreen Editor"
+  },
+  "syncStatus": {
+    "synced": "All changes saved",
+    "pending": "Saving changes...",
+    "error": "Save failed",
+    "ready": "Ready"
+  },
+  "relevo": "RELEVO",
+  "moreUsers": "+{{count}}",
+  "save": "Save",
+  "footer": {
+    "editing": "Editing in fullscreen",
+    "shortcuts": "Press Esc to exit, Ctrl+S to save"
+  }
+}

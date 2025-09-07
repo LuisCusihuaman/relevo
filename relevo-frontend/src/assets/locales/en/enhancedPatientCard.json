@@ -1,0 +1,51 @@
+{
+  "status": {
+    "pending": "Pending Review",
+    "inProgress": "Active Care",
+    "stable": "Stable"
+  },
+  "criticalAlerts": "Critical Alerts ({{count}})",
+  "moreAlerts": "+ {{count}} more alerts",
+  "age": "{{age}}y",
+  "priority": "Priority",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "liveMonitoring": "Live Monitoring",
+  "mrn": "MRN:",
+  "admitted": "Admitted",
+  "ipass": {
+    "button": "I-PASS",
+    "title": "I-PASS Handover Summary",
+    "illnessSeverity": "Illness Severity",
+    "patientSummary": "Patient Summary",
+    "actionList": "Action List",
+    "situationAwareness": "Situation Awareness",
+    "synthesisByReceiver": "Synthesis by Receiver",
+    "notSpecified": "Not specified"
+  },
+  "vitals": {
+    "title": "Real-time Vitals",
+    "updated": "Updated {{time}}",
+    "types": {
+      "heartRate": "Heart Rate",
+      "oxygen": "Oxygen",
+      "temperature": "Temperature",
+      "bloodPressure": "Blood Pressure"
+    },
+    "status": {
+      "critical": "critical",
+      "warning": "warning",
+      "normal": "normal"
+    }
+  },
+  "medications": "Medications",
+  "allergies": "Allergies",
+  "handoverHistory": {
+    "title": "Handover History",
+    "item": "{{from}} to {{to}}"
+  },
+  "carePlanProgress": "Care Plan Progress",
+  "keyTeamMembers": "Key Team Members",
+  "startHandover": "Start Handover"
+}

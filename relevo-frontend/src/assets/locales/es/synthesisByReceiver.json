@@ -1,0 +1,60 @@
+{
+  "title": "Síntesis por el Receptor",
+  "description": "Confirmación por el Receptor",
+  "receivingPhysician": "Médico Receptor",
+  "confirmationRequired": "Confirmación Requerida",
+  "onlyReceiverConfirms": "Solo {{name}} puede confirmar este traspaso",
+  "receiverMustAccept": "El médico receptor debe aceptar formalmente la responsabilidad antes de la finalización del traspaso.",
+  "confirmationProgress": "Progreso de la Confirmación",
+  "progress": "{{completed}} de {{total}}",
+  "allItemsConfirmed": "Todos los elementos confirmados - listos para el traspaso final",
+  "checklistTitle": "Lista de Verificación de Confirmación del Traspaso",
+  "critical": "Crítico",
+  "finalConfirmation": {
+    "title": "Confirmación Final del Traspaso",
+    "description": "Al hacer clic en confirmar, usted acepta formalmente la responsabilidad clínica de este paciente.",
+    "button": {
+      "confirm": "Confirmar Traspaso y Aceptar Responsabilidad",
+      "incomplete": {
+        "prefix": "Complete Todos los Elementos para Continuar (",
+        "suffix": ")"
+      }
+    }
+  },
+  "status": {
+    "waitingFor": "Esperando que {{name}} confirme el traspaso",
+    "itemsConfirmed": "{{completed}} de {{total}} elementos confirmados",
+    "pending": "Confirmación pendiente"
+  },
+  "focusMode": {
+    "title": "Síntesis por el Receptor",
+    "description": "{{name}} confirmará la finalización del traspaso",
+    "readOnly": "Modo de solo lectura - La confirmación está disponible en modo interactivo"
+  },
+  "confirmationItems": {
+    "illnessSeverity": {
+      "label": "Entiendo la gravedad de la enfermedad actual y la estabilidad del paciente",
+      "description": "Condición del paciente, requisitos de monitoreo y evaluación de gravedad"
+    },
+    "clinicalBackground": {
+      "label": "He revisado los antecedentes clínicos y el historial del paciente",
+      "description": "Historial médico, alergias, estado del código e información de referencia"
+    },
+    "actionItems": {
+      "label": "Reconozco todos los elementos de acción y tareas pendientes",
+      "description": "Órdenes pendientes, resultados pendientes e intervenciones programadas"
+    },
+    "contingencyPlans": {
+      "label": "Entiendo los planes de contingencia y las posibles complicaciones",
+      "description": "Escenarios de si-entonces, desencadenantes de escalada y protocolos de emergencia"
+    },
+    "questionsAnswered": {
+      "label": "Todas mis preguntas han sido respondidas satisfactoriamente",
+      "description": "Cualquier aclaración o preocupación ha sido abordada"
+    },
+    "acceptResponsibility": {
+      "label": "Acepto formalmente la responsabilidad clínica de este paciente",
+      "description": "Transferencia oficial del cuidado y la responsabilidad"
+    }
+  }
+}

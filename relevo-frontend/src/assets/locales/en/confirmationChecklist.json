@@ -1,0 +1,32 @@
+{
+  "title": "Confirmation Checklist",
+  "requiredCount": "{{count}}/{{total}} Required",
+  "completionProgress": "Completion Progress",
+  "requiredConfirmations": "Required Confirmations",
+  "additionalConfirmations": "Additional Confirmations",
+  "readyForCompletion": "Ready for Handover Completion",
+  "allRequiredConfirmed": "All required items have been confirmed. The handover can now be completed.",
+  "itemsRemaining": "{{count}} items remaining",
+  "pleaseConfirmItems": "Please confirm all required items to complete the handover process.",
+  "checklistInitiated": "Checklist initiated: {{date, datetime}}",
+  "categories": {
+    "clinicalStatus": "Clinical Status",
+    "medications": "Medications",
+    "safety": "Safety",
+    "carePlan": "Care Plan",
+    "contingency": "Contingency",
+    "communication": "Communication",
+    "documentation": "Documentation",
+    "family": "Family"
+  },
+  "items": {
+    "reviewClinicalData": "I have reviewed all clinical data and patient status",
+    "understandMedications": "I understand current medications and any pending orders",
+    "noteAllergies": "I have noted all allergies and safety precautions",
+    "understandPriorities": "I understand the immediate care priorities and action items",
+    "awareOfContingency": "I am aware of contingency plans and when to escalate",
+    "knowWhoToContact": "I know who to contact for questions or emergencies",
+    "documentationComplete": "All documentation is complete and accurate",
+    "awareOfFamilyNeeds": "I am aware of family communication needs and scheduled meetings"
+  }
+}

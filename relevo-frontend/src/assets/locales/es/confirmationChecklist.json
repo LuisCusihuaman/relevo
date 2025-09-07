@@ -1,0 +1,32 @@
+{
+  "title": "Lista de Verificación de Confirmación",
+  "requiredCount": "{{count}}/{{total}} Requeridos",
+  "completionProgress": "Progreso de Finalización",
+  "requiredConfirmations": "Confirmaciones Requeridas",
+  "additionalConfirmations": "Confirmaciones Adicionales",
+  "readyForCompletion": "Listo para la Finalización del Traspaso",
+  "allRequiredConfirmed": "Todos los elementos requeridos han sido confirmados. El traspaso ahora se puede completar.",
+  "itemsRemaining": "{{count}} elementos restantes",
+  "pleaseConfirmItems": "Por favor, confirme todos los elementos requeridos para completar el proceso de traspaso.",
+  "checklistInitiated": "Lista de verificación iniciada: {{date, datetime}}",
+  "categories": {
+    "clinicalStatus": "Estado Clínico",
+    "medications": "Medicamentos",
+    "safety": "Seguridad",
+    "carePlan": "Plan de Cuidados",
+    "contingency": "Contingencia",
+    "communication": "Comunicación",
+    "documentation": "Documentación",
+    "family": "Familia"
+  },
+  "items": {
+    "reviewClinicalData": "He revisado todos los datos clínicos y el estado del paciente",
+    "understandMedications": "Entiendo los medicamentos actuales y cualquier orden pendiente",
+    "noteAllergies": "He tomado nota de todas las alergias y precauciones de seguridad",
+    "understandPriorities": "Entiendo las prioridades de atención inmediata y los elementos de acción",
+    "awareOfContingency": "Soy consciente de los planes de contingencia y de cuándo escalar",
+    "knowWhoToContact": "Sé a quién contactar para preguntas o emergencias",
+    "documentationComplete": "Toda la documentación está completa y es precisa",
+    "awareOfFamilyNeeds": "Soy consciente de las necesidades de comunicación de la familia y de las reuniones programadas"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "header": {
+    "title": "Handover Collaboration",
+    "liveSession": "Live session",
+    "sessionInfo": "Maria Rodriguez • Room 302A"
+  },
+  "tabs": {
+    "discussion": "Discussion",
+    "updates": "Updates"
+  },
+  "discussionTab": {
+    "title": "Handover Discussion",
+    "subtitle": "Day → Evening shift conversation"
+  },
+  "messageInput": {
+    "placeholder": "Add to the handover discussion...",
+    "send": "Send"
+  },
+  "activityTab": {
+    "title": "Recent Updates",
+    "subtitle": "Live handover activity"
+  },
+  "discussion": {
+    "user1": {
+      "user": "Dr. Patel",
+      "userInitials": "SP",
+      "role": "Evening Attending",
+      "message": "Just reviewed the case. The heart failure seems stable today. Any concerns about the fluid balance?",
+      "time": "2 minutes ago"
+    },
+    "user2": {
+      "user": "Dr. Johnson",
+      "userInitials": "DJ",
+      "role": "Day Attending",
+      "message": "Patient has been net negative 500ml today. Responded well to the lasix adjustment this morning. Current weight is down 2kg from admission.",
+      "time": "1 minute ago"
+    },
+    "user3": {
+      "user": "Dr. Rodriguez",
+      "userInitials": "MR",
+      "role": "Resident",
+      "message": "Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.",
+      "time": "30 seconds ago"
+    },
+    "userpatel": {
+      "user": "Dr. Patel",
+      "role": "Evening Attending",
+      "message": "Just reviewed the case. The heart failure seems stable today. Any concerns about the fluid balance?",
+      "time": "2 minutes ago"
+    },
+    "userjohnson": {
+      "user": "Dr. Johnson",
+      "role": "Day Attending",
+      "message": "Patient has been net negative 500ml today. Responded well to the lasix adjustment this morning. Current weight is down 2kg from admission.",
+      "time": "1 minute ago"
+    },
+    "userrodriguez": {
+      "user": "Dr. Rodriguez",
+      "role": "Resident",
+      "message": "Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.",
+      "time": "30 seconds ago"
+    }
+  },
+  "activity": {
+    "user1": {
+      "user": "Dr. Patel",
+      "userInitials": "SP",
+      "action": "joined handover session",
+      "time": "5 minutes ago"
+    },
+    "user2": {
+      "user": "Dr. Johnson",
+      "userInitials": "DJ",
+      "action": "updated illness severity assessment",
+      "time": "3 minutes ago"
+    },
+    "user3": {
+      "user": "Dr. Rodriguez",
+      "userInitials": "MR",
+      "action": "added action item about morning labs",
+      "time": "2 minutes ago"
+    },
+    "user4": {
+      "user": "Nurse Clara",
+      "userInitials": "CJ",
+      "action": "reviewed patient summary",
+      "time": "1 minute ago"
+    }
+  }
+}

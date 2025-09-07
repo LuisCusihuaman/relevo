@@ -1,0 +1,90 @@
+{
+  "title": "Action List",
+  "pending": "Pending",
+  "done": "Done",
+  "moreTasks": "more tasks",
+  "completed": "Completed",
+  "moreCompleted": "more completed",
+  "addTask": "Add Task",
+  "newTask": "New Task",
+  "describeTask": "Describe the task...",
+  "low": "Low",
+  "medium": "Medium",
+  "high": "High",
+  "dueTime": "Due time",
+  "cancel": "Cancel",
+  "adding": "Adding",
+  "add": "Add",
+  "pendingTasks": "Pending Tasks",
+  "completedTasks": "Completed Tasks",
+  "addNewTask": "Add New Task",
+  "submitting": "Submitting...",
+  "tasksPersist": "Tasks persist across shifts until completed",
+  "currentShift": "Current shift",
+  "active": "active",
+  "addActionItem": "Add Action Item",
+  "newActionItem": "New Action Item",
+  "taskDescription": "Task Description",
+  "taskDescriptionPlaceholder": "e.g., Follow up on lab results, Contact cardiology for consult...",
+  "priority": "Priority",
+  "lowPriority": "Low Priority",
+  "mediumPriority": "Medium Priority",
+  "highPriority": "High Priority",
+  "dueTimePlaceholder": "e.g., End of shift, 2PM",
+  "submitTask": "Submit Task",
+  "form": {
+    "taskDescription": {
+      "label": "Task Description",
+      "placeholder": "e.g., Check potassium level"
+    },
+    "priority": {
+      "label": "Priority"
+    },
+    "dueTime": {
+      "label": "Due Time (Optional)",
+      "placeholder": "e.g., Before morning rounds"
+    }
+  },
+  "actionItems": {
+    "followUpCulture": {
+      "task": "Follow up on blood culture results from yesterday - patient spiked fever at 02:00",
+      "dueTime": "Before rounds"
+    },
+    "cardiologyConsult": {
+      "task": "Cardiology consult for new murmur detected during admission"
+    },
+    "dischargePlanning": {
+      "task": "Discuss discharge planning with family - daughter will be here at 14:00"
+    },
+    "reviewXray": {
+      "task": "Review chest X-ray results and adjust oxygen therapy accordingly",
+      "dueTime": "Evening rounds"
+    },
+    "monitorUrine": {
+      "task": "Monitor urine output closely - patient had decreased output this afternoon",
+      "dueTime": "Q2H checks"
+    }
+  },
+  "doctors": {
+    "park": "Dr. Park",
+    "kim": "Dr. Kim",
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez"
+  },
+  "nurses": {
+    "clara": "Nurse Clara"
+  },
+  "time": {
+    "lastNight": "Last night",
+    "today": "Today"
+  },
+  "shifts": {
+    "nightToDay": "Night → Day",
+    "dayToEvening": "Day → Evening"
+  },
+  "priorities": {
+    "high": "HIGH",
+    "medium": "MEDIUM",
+    "low": "LOW"
+  }
+}

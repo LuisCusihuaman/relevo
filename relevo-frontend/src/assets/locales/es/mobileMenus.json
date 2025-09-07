@@ -1,0 +1,42 @@
+{
+  "controls": {
+    "title": "Controles de Traspaso",
+    "description": "Acceda a la información del paciente, herramientas de colaboración en equipo y controles de traspaso para {{patientName}}."
+  },
+  "patientInfo": {
+    "title": "Información del Paciente",
+    "age": "Edad:",
+    "mrn": "Nº Historial:",
+    "diagnosis": "Diagnóstico:"
+  },
+  "session": {
+    "active": "Sesión Activa",
+    "untilHandover": "{{time}} hasta el traspaso"
+  },
+  "collaboration": {
+    "title": "Colaboración en Equipo",
+    "discussion": "Discusión",
+    "discussionHint": "Conversación de traspaso",
+    "history": "Historial de Traspaso",
+    "historyHint": "Registros anteriores"
+  },
+  "focusMode": {
+    "title": "Modo de Enfoque",
+    "description": "Vista sin distracciones"
+  },
+  "activeTeam": {
+    "title": "Equipo Activo",
+    "online": "{{count}} en línea",
+    "current": "Actual",
+    "receiving": "Receptor",
+    "moreActive": "+{{count}} más activos"
+  },
+  "historySheet": {
+    "title": "Historial de Traspaso",
+    "description": "Registros de traspasos anteriores para {{patientName}}."
+  },
+  "collaborationSheet": {
+    "title": "Colaboración de Traspaso",
+    "description": "Discusión de equipo y herramientas de colaboración para {{patientName}}."
+  }
+}

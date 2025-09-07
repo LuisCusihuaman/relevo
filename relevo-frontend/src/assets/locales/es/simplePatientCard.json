@@ -1,0 +1,24 @@
+{
+  "incoming": "Entrante",
+  "age": "{{age}}a",
+  "severity": {
+    "Unstable": "Inestable",
+    "Watcher": "Vigilancia",
+    "Stable": "Estable"
+  },
+  "alerts": {
+    "critical_one": "{{count}} Crítica",
+    "critical_other": "{{count}} Críticas",
+    "multiple_one": "{{count}} Alerta",
+    "multiple_other": "{{count}} Alertas"
+  },
+  "sections": {
+    "illness_severity": "Gravedad evaluada",
+    "patient_summary": "Resumen actualizado",
+    "action_list": "Acciones documentadas",
+    "situation_awareness": "Situación anotada"
+  },
+  "active_one": "{{count}} activo",
+  "active_other": "{{count}} activos",
+  "startHandover": "Iniciar Traspaso"
+}

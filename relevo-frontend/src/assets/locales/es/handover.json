@@ -1,0 +1,60 @@
+{
+  "historySidebarTitle": "Historial de Traspaso",
+  "collaborationSidebarTitle": "Colaboración de Traspaso",
+  "handoverAt": "Traspaso a las {{time}}",
+  "remaining": "{{time}} restante",
+  "session": "Sesión: {{duration}}",
+  "handoverComplete": "Por recibir",
+  "completeHandover": "Completar Traspaso",
+  "focusTitle": "Sesión de Traspaso I-PASS",
+  "focusExit": "Presione Esc para salir",
+  "participants_one": "{{count}} participante",
+  "participants_other": "{{count}} participantes",
+  "ipassGuidelines": {
+    "illness": {
+      "title": "Pautas de Gravedad de la Enfermedad",
+      "points": {
+        "0": "Evaluar la estabilidad actual y el nivel de agudeza",
+        "1": "Considerar la trayectoria y el potencial de cambio",
+        "2": "Identificar los requisitos de monitorización",
+        "3": "Determinar el nivel de intervención necesario"
+      }
+    },
+    "patient": {
+      "title": "Pautas de Resumen del Paciente",
+      "points": {
+        "0": "Incluir el historial médico relevante y las alergias",
+        "1": "Documentar los medicamentos y órdenes actuales",
+        "2": "Anotar el estado del código y las directivas anticipadas",
+        "3": "Proporcionar contexto para la admisión actual"
+      }
+    },
+    "actions": {
+      "title": "Pautas de Lista de Acciones",
+      "points": {
+        "0": "Priorizar las tareas y órdenes pendientes",
+        "1": "Incluir el cronograma y las partes responsables",
+        "2": "Anotar los requisitos de seguimiento",
+        "3": "Documentar las acciones de contingencia"
+      }
+    },
+    "awareness": {
+      "title": "Pautas de Conciencia de la Situación",
+      "points": {
+        "0": "Proporcionar actualizaciones en tiempo real del estado del paciente",
+        "1": "Incluir cambios y tendencias recientes",
+        "2": "Anotar los parámetros de monitorización actuales",
+        "3": "Identificar preocupaciones inmediatas o puntos de vigilancia"
+      }
+    },
+    "synthesis": {
+      "title": "Pautas de Síntesis",
+      "points": {
+        "0": "Confirmar la comprensión de los puntos clave",
+        "1": "Hacer preguntas aclaratorias",
+        "2": "Verificar los elementos de acción y las responsabilidades",
+        "3": "Reconocer la aceptación del cuidado"
+      }
+    }
+  }
+}

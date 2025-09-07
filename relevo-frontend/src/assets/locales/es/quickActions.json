@@ -1,0 +1,66 @@
+{
+  "title": "Acciones Rápidas I-PASS",
+  "patientInfo": "{{name}} • Habitación {{room}}",
+  "progressOverview": {
+    "title": "Progreso I-PASS",
+    "sectionsCompleted": "{{completed}}/{{total}} Completado"
+  },
+  "addToIPass": "Añadir a I-PASS",
+  "cancel": "Cancelar",
+  "add": "Añadir",
+  "notePlaceholder": "Introduzca una nota clínica para la sección I-PASS seleccionada...",
+  "addTo": "Añadir a {{section}}",
+  "clear": "Borrar",
+  "quickTemplates": "Plantillas I-PASS",
+  "passSection": "Sección {{letter}}-PASS",
+  "footer": {
+    "progress": "Progreso I-PASS: {{progress}}%",
+    "saveTemplate": "Guardar Plantilla"
+  },
+  "ipassSections": {
+    "illness": "I - Gravedad de la Enfermedad",
+    "patient": "P - Resumen del Paciente",
+    "action": "A - Lista de Acciones",
+    "situation": "S - Conciencia de la Situación",
+    "synthesis": "S - Síntesis"
+  },
+  "ipassTemplates": {
+    "illness": {
+      "title": "Actualización de Gravedad de la Enfermedad",
+      "template": "Evaluación de gravedad: El paciente parece [ESTABLE/VIGILADO/INESTABLE/CRÍTICO]. [INDICADORES_CLÍNICOS]. Requiere [NIVEL_DE_INTERVENCIÓN]."
+    },
+    "patient": {
+      "title": "Nota de Resumen del Paciente",
+      "template": "Paciente de [EDAD] años, [GÉNERO] con [DIAGNÓSTICO_PRINCIPAL]. Ingresado el [FECHA] por [RAZÓN]. Estado actual: [ESTADO]. Preocupaciones clave: [PREOCUPACIONES]."
+    },
+    "action": {
+      "title": "Elemento de Acción",
+      "template": "Acción necesaria: [TAREA]. Plazo: [CUÁNDO]. Responsable: [QUIÉN]. Prioridad: [ALTA/MEDIA/BAJA]. Seguimiento: [SEGUIMIENTO]."
+    },
+    "situation": {
+      "title": "Actualización de Situación",
+      "template": "Actualización de situación: [QUÉ_CAMBIÓ]. Impacto: [IMPACTO_CLÍNICO]. Vigilar por: [PUNTOS_DE_MONITORIZACIÓN]. Si-entonces: [CONTINGENCIA]."
+    },
+    "synthesis": {
+      "title": "Nota de Síntesis",
+      "template": "Puntos clave: [RESUMEN]. Preguntas: [PREGUNTAS]. Comprensión confirmada: [CONFIRMACIÓN]. Próximos pasos: [PRÓXIMOS_PASOS]."
+    }
+  },
+  "ipassProgress": {
+    "illness": {
+      "label": "Gravedad de la Enfermedad"
+    },
+    "patient": {
+      "label": "Resumen del Paciente"
+    },
+    "action": {
+      "label": "Lista de Acciones"
+    },
+    "awareness": {
+      "label": "Conciencia de la Situación"
+    },
+    "synthesis": {
+      "label": "Síntesis"
+    }
+  }
+}

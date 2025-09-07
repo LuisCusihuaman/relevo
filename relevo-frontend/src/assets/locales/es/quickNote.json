@@ -1,0 +1,34 @@
+{
+  "title": "Nota Rápida",
+  "patientLabel": "Paciente",
+  "selectPatientPlaceholder": "Seleccionar paciente",
+  "noteTypeLabel": "Tipo de Nota",
+  "noteTypes": {
+    "assessment": "📋 Evaluación",
+    "plan": "🎯 Actualización de Plan",
+    "observation": "👁️ Observación",
+    "concern": "⚠️ Preocupación",
+    "improvement": "📈 Mejora",
+    "family": "👨‍👩‍👧‍👦 Nota Familiar"
+  },
+  "quickTemplatesLabel": "Plantillas Rápidas",
+  "quickTemplates": {
+    "t1": "Estable durante la noche, sin preocupaciones agudas",
+    "t2": "Dolor bien controlado con el régimen actual",
+    "t3": "Reunión familiar programada para mañana",
+    "t4": "Considerar el paso a una unidad de menor complejidad si continúa la trayectoria actual",
+    "t5": "Esperando resultados de los laboratorios de la mañana",
+    "t6": "Se discutió la planificación del alta con el equipo"
+  },
+  "yourNoteLabel": "Su Nota",
+  "yourNotePlaceholder": "Añade tu {{noteType}} aquí...",
+  "note": "nota",
+  "characters_one": "{{count}} caracter",
+  "characters_other": "{{count}} caracteres",
+  "suggestion": "Considera dividirla en varias notas",
+  "recentNotesLabel": "Notas Recientes",
+  "saving": "Guardando...",
+  "saveNote": "Guardar Nota",
+  "cancel": "Cancelar",
+  "clear": "Borrar"
+}

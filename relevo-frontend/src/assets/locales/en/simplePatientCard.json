@@ -1,0 +1,24 @@
+{
+  "incoming": "Incoming",
+  "age": "{{age}}y",
+  "severity": {
+    "Unstable": "Unstable",
+    "Watcher": "Watcher",
+    "Stable": "Stable"
+  },
+  "alerts": {
+    "critical_one": "{{count}} Critical",
+    "critical_other": "{{count}} Critical",
+    "multiple_one": "{{count}} Alert",
+    "multiple_other": "{{count}} Alerts"
+  },
+  "sections": {
+    "illness_severity": "Severity assessed",
+    "patient_summary": "Summary updated",
+    "action_list": "Actions documented",
+    "situation_awareness": "Situation noted"
+  },
+  "active_one": "{{count}} active",
+  "active_other": "{{count}} active",
+  "startHandover": "Start Handover"
+}

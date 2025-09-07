@@ -1,0 +1,42 @@
+{
+  "controls": {
+    "title": "Handover Controls",
+    "description": "Access patient information, team collaboration tools, and handover controls for {{patientName}}."
+  },
+  "patientInfo": {
+    "title": "Patient Information",
+    "age": "Age:",
+    "mrn": "MRN:",
+    "diagnosis": "Diagnosis:"
+  },
+  "session": {
+    "active": "Active Session",
+    "untilHandover": "{{time}} until handover"
+  },
+  "collaboration": {
+    "title": "Team Collaboration",
+    "discussion": "Discussion",
+    "discussionHint": "Handover conversation",
+    "history": "Handover History",
+    "historyHint": "Previous records"
+  },
+  "focusMode": {
+    "title": "Focus Mode",
+    "description": "Distraction-free view"
+  },
+  "activeTeam": {
+    "title": "Active Team",
+    "online": "{{count}} online",
+    "current": "Current",
+    "receiving": "Receiving",
+    "moreActive": "+{{count}} more active"
+  },
+  "historySheet": {
+    "title": "Handover History",
+    "description": "Previous handover records for {{patientName}}."
+  },
+  "collaborationSheet": {
+    "title": "Handover Collaboration",
+    "description": "Team discussion and collaboration tools for {{patientName}}."
+  }
+}

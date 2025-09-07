@@ -1,0 +1,20 @@
+{
+  "criticalAlerts_one": "{{count}} Alerta Crítica",
+  "criticalAlerts_other": "{{count}} Alertas Críticas",
+  "moreCriticalAlerts": "+ {{count}} más alertas críticas",
+  "more": "+{{count}} más",
+  "title": "Alertas del Paciente ({{count}} Activas)",
+  "hide": "Ocultar",
+  "show": "Mostrar",
+  "inactive": "Inactivas ({{count}})",
+  "HIGH": "ALTA",
+  "MEDIUM": "MEDIA",
+  "INFORMATIONAL": "INFORMATIVA",
+  "INACTIVE": "INACTIVA",
+  "code": "Código",
+  "type": "Tipo",
+  "since": "Desde",
+  "until": "Hasta",
+  "createdBy": "Creado por {{author}} • {{source}} • {{timestamp}}",
+  "noAlerts": "No hay alertas para este paciente"
+}

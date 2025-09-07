@@ -1,0 +1,90 @@
+{
+  "title": "Lista de Acciones",
+  "pending": "Pendiente",
+  "done": "Hecho",
+  "moreTasks": "más tareas",
+  "completed": "Completado",
+  "moreCompleted": "más completadas",
+  "addTask": "Añadir Tarea",
+  "newTask": "Nueva Tarea",
+  "describeTask": "Describa la tarea...",
+  "low": "Baja",
+  "medium": "Media",
+  "high": "Alta",
+  "dueTime": "Hora de vencimiento",
+  "cancel": "Cancelar",
+  "adding": "Añadiendo",
+  "add": "Añadir",
+  "pendingTasks": "Tareas Pendientes",
+  "completedTasks": "Tareas Completadas",
+  "addNewTask": "Añadir Nueva Tarea",
+  "submitting": "Enviando...",
+  "tasksPersist": "Las tareas persisten a través de los turnos hasta que se completan",
+  "currentShift": "Turno actual",
+  "active": "activo",
+  "addActionItem": "Añadir Elemento de Acción",
+  "newActionItem": "Nuevo Elemento de Acción",
+  "taskDescription": "Descripción de la Tarea",
+  "taskDescriptionPlaceholder": "p. ej., Dar seguimiento a los resultados de laboratorio, Contactar a cardiología para una consulta...",
+  "priority": "Prioridad",
+  "lowPriority": "Prioridad Baja",
+  "mediumPriority": "Prioridad Media",
+  "highPriority": "Prioridad Alta",
+  "dueTimePlaceholder": "p. ej., Al final del turno, 2PM",
+  "submitTask": "Enviar Tarea",
+  "form": {
+    "taskDescription": {
+      "label": "Descripción de la Tarea",
+      "placeholder": "p. ej., Verificar nivel de potasio"
+    },
+    "priority": {
+      "label": "Prioridad"
+    },
+    "dueTime": {
+      "label": "Hora de Vencimiento (Opcional)",
+      "placeholder": "p. ej., Antes de las rondas matutinas"
+    }
+  },
+  "actionItems": {
+    "followUpCulture": {
+      "task": "Dar seguimiento a los resultados del hemocultivo de ayer - el paciente tuvo fiebre a las 02:00",
+      "dueTime": "Antes de las rondas"
+    },
+    "cardiologyConsult": {
+      "task": "Consulta de cardiología por nuevo soplo detectado durante la admisión"
+    },
+    "dischargePlanning": {
+      "task": "Discutir la planificación del alta con la familia - la hija estará aquí a las 14:00"
+    },
+    "reviewXray": {
+      "task": "Revisar los resultados de la radiografía de tórax y ajustar la terapia de oxígeno según corresponda",
+      "dueTime": "Rondas de la tarde"
+    },
+    "monitorUrine": {
+      "task": "Monitorear de cerca la diuresis - el paciente tuvo una diuresis disminuida esta tarde",
+      "dueTime": "Chequeos cada 2 horas"
+    }
+  },
+  "doctors": {
+    "park": "Dr. Park",
+    "kim": "Dr. Kim",
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez"
+  },
+  "nurses": {
+    "clara": "Enfermera Clara"
+  },
+  "time": {
+    "lastNight": "Anoche",
+    "today": "Hoy"
+  },
+  "shifts": {
+    "nightToDay": "Noche → Día",
+    "dayToEvening": "Día → Tarde"
+  },
+  "priorities": {
+    "high": "ALTA",
+    "medium": "MEDIA",
+    "low": "BAJA"
+  }
+}

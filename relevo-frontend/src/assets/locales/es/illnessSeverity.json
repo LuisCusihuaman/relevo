@@ -1,0 +1,53 @@
+{
+  "levels": {
+    "stable": {
+      "label": "Estable",
+      "description": "La condición del paciente es estable con mínima intervención necesaria"
+    },
+    "guarded": {
+      "label": "Vigilado",
+      "description": "El paciente requiere una monitorización estrecha con potencial de cambio"
+    },
+    "unstable": {
+      "label": "Inestable",
+      "description": "La condición del paciente es inestable y requiere intervención inmediata"
+    },
+    "critical": {
+      "label": "Crítico",
+      "description": "Paciente en estado crítico que requiere atención urgente"
+    }
+  },
+  "justNow": "Justo ahora",
+  "youCanEdit": "Puede editar la evaluación de gravedad",
+  "liveAssessment": "Evaluación de gravedad en vivo",
+  "liveUpdate": "Actualización en vivo",
+  "editor": "Editor",
+  "viewer": "Espectador",
+  "setBy": "Establecido por {{user}}",
+  "assessmentBy": "Evaluación por {{user}} ({{role}})",
+  "lastSynced": "Última sincronización a las {{time}}",
+  "changesSynced": "Los cambios se sincronizan automáticamente con todos los espectadores en tiempo real",
+  "onlyUserCanModify": "Solo {{user}} ({{role}}) puede modificar esta evaluación",
+  "updatesAutomatic": "Verá las actualizaciones automáticamente a medida que se realicen",
+  "enterFocusMode": "Entrar en Modo de Enfoque",
+  "exitFocusMode": "Salir del Modo de Enfoque",
+  "options": "Opciones",
+  "syncing": "Sincronizando...",
+  "allChangesSaved": "Todos los cambios guardados",
+  "offline": "Sin conexión",
+  "syncError": "Error de sincronización",
+  "viewingNow": "Viendo ahora",
+  "lastSeen": "Visto por última vez {{time}}",
+  "handoverStatus": "Estado del Traspaso",
+  "timeRemaining": "Tiempo Restante",
+  "sessionDuration": "Duración de la Sesión",
+  "syncStatus": "Estado de Sincronización",
+  "viewHistory": "Ver Historial",
+  "viewDiscussion": "Ver Discusión",
+  "age": "Edad {{age}}",
+  "mrn": "Nº Historial {{mrn}}",
+  "unit": "{{unit}}",
+  "primaryDiagnosis": "{{diagnosis}}",
+  "handover": "Traspaso",
+  "inHandoverTime": "en {{time}}"
+}

@@ -1,0 +1,20 @@
+{
+  "age": "Age {{age}}",
+  "ageNotAvailable": "Age N/A",
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "complete": "Complete",
+    "unknown": "Unknown"
+  },
+  "severity": {
+    "unstable": "Unstable",
+    "watcher": "Watcher",
+    "stable": "Stable"
+  },
+  "toggleAssignment": {
+    "add": "Click to add to assignment",
+    "remove": "Click to remove from assignment"
+  },
+  "selected": "Selected"
+}

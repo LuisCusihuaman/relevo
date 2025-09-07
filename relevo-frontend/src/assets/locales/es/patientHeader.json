@@ -1,0 +1,22 @@
+{
+  "age": "Edad: {{age}}",
+  "room": "Habitación: {{room}}",
+  "admitted": "Ingresado: {{date}}",
+  "mrn": "Nº Historial: {{mrn}}",
+  "handoverInProgress": "Traspaso en Curso",
+  "handoverComplete": "Traspaso Completo",
+  "los": "Días de estadía: {{count}}",
+  "activeHandoverSession": "Sesión de traspaso activa: {{shift}}",
+  "collaborationMessage": "Los miembros del equipo están colaborando actualmente en este traspaso",
+  "severity": {
+    "stable": "Estable",
+    "guarded": "Vigilado",
+    "unstable": "Inestable",
+    "critical": "Crítico"
+  },
+  "diabetes": {
+    "management": {
+      "type2": "Manejo de Diabetes Tipo 2"
+    }
+  }
+}

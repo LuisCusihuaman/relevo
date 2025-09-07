@@ -1,0 +1,35 @@
+{
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "complete": "Complete",
+    "unknown": "Unknown"
+  },
+  "age": "{{age}}y",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "id": "ID:",
+  "admitted": "Admitted:",
+  "vitals": {
+    "title": "Vital Signs",
+    "hr": "HR",
+    "bpm": "bpm",
+    "bp": "BP",
+    "mmHg": "mmHg",
+    "temp": "Temp",
+    "celsius": "celsius",
+    "o2": "O₂",
+    "saturation": "saturation"
+  },
+  "medications": "Current Medications",
+  "allergies": "Allergies",
+  "treatmentProgress": "Treatment Progress",
+  "less": "Less",
+  "more": "More",
+  "action": {
+    "complete": "View",
+    "in-progress": "Continue",
+    "pending": "Start"
+  }
+}

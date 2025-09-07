@@ -1,0 +1,55 @@
+{
+  "severity": {
+    "unstable": "Inestable",
+    "watcher": "Vigilancia",
+    "stable": "Estable",
+    "unknown": "Desconocido"
+  },
+  "header": {
+    "back": "Atrás",
+    "title": "Información del Paciente",
+    "ipass": "I-PASS",
+    "startHandover": "Iniciar Traspaso"
+  },
+  "patientHeader": {
+    "age": "{{age}} años",
+    "mrn": "Nº Historial:",
+    "diagnosis": "Diagnóstico",
+    "nextCheck": "Próximo: Revisar en 2h (2 horas)"
+  },
+  "sections": {
+    "readOnly": "Solo Lectura",
+    "lastUpdated": "Última actualización {{time}}",
+    "clinicalSummary": {
+      "title": "Resumen Clínico",
+      "ipass": "I-PASS: P",
+      "editNote": {
+        "start": "Para editar este resumen, use",
+        "end": "o la documentación móvil I-PASS"
+      },
+      "noData": "Aún no se ha documentado un resumen clínico."
+    },
+    "currentSituation": {
+      "title": "Situación Actual",
+      "ipass": "I-PASS: I",
+      "noData": "Aún no se ha documentado la situación actual."
+    },
+    "ipassPlans": {
+      "title": "Planes I-PASS",
+      "ipass": "I-PASS: S",
+      "content": "Planes de contingencia para dificultad respiratoria, planificación de alta en curso...",
+      "noData": "Aún no se han documentado planes."
+    },
+    "actionList": {
+      "title": "Lista de Acciones",
+      "ipass": "I-PASS: A",
+      "urgent_one": "{{count}} urgente",
+      "urgent_other": "{{count}} urgentes",
+      "pending_one": "{{count}} pendiente",
+      "pending_other": "{{count}} pendientes",
+      "addAction": "Añadir Acción",
+      "completed": "Completado",
+      "due": "Vencimiento"
+    }
+  }
+}

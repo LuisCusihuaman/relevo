@@ -1,0 +1,39 @@
+{
+  "header": {
+    "title": "Sus Pacientes",
+    "assigned_one": "{{count}} asignado a usted",
+    "assigned_other": "{{count}} asignados a usted",
+    "shift": "Turno de Mañana",
+    "tapHint": "Toque para ver detalles",
+    "unit": "Unidad PICU",
+    "description": "Pacientes asignados a usted para este turno",
+    "clickHint": "Haga clic en las tarjetas para ver información detallada",
+    "date": "23 de enero de 2025",
+    "shiftTime": "Turno de Mañana (08:00-16:00)",
+    "entries_one": "{{count}} entrada de documentación",
+    "entries_other": "{{count}} entradas de documentación"
+  },
+  "stats": {
+    "yourPatients": "Sus Pacientes",
+    "unstable": "Inestable",
+    "watcher": "Vigilancia",
+    "stable": "Estable"
+  },
+  "search": {
+    "placeholder": "Buscar sus pacientes..."
+  },
+  "sort": {
+    "placeholder": "Ordenar por",
+    "options": {
+      "one": "Prioridad Médica",
+      "two": "Alertas Críticas",
+      "three": "Nombre del Paciente",
+      "four": "Actividad Reciente"
+    }
+  },
+  "noPatients": {
+    "title": "No se encontraron pacientes",
+    "description": "Su búsqueda de \"{{searchTerm}}\" no coincidió con ningún paciente.",
+    "clearSearch": "Borrar Búsqueda"
+  }
+}

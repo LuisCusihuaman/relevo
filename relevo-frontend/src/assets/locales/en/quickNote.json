@@ -1,0 +1,34 @@
+{
+  "title": "Quick Note",
+  "patientLabel": "Patient",
+  "selectPatientPlaceholder": "Select patient",
+  "noteTypeLabel": "Note Type",
+  "noteTypes": {
+    "assessment": "📋 Assessment",
+    "plan": "🎯 Plan Update",
+    "observation": "👁️ Observation",
+    "concern": "⚠️ Concern",
+    "improvement": "📈 Improvement",
+    "family": "👨‍👩‍👧‍👦 Family Note"
+  },
+  "quickTemplatesLabel": "Quick Templates",
+  "quickTemplates": {
+    "t1": "Stable overnight, no acute concerns",
+    "t2": "Pain well controlled with current regimen",
+    "t3": "Family meeting scheduled for tomorrow",
+    "t4": "Consider step-down if continues current trajectory",
+    "t5": "Awaiting results from morning labs",
+    "t6": "Discussed discharge planning with team"
+  },
+  "yourNoteLabel": "Your Note",
+  "yourNotePlaceholder": "Add your {{noteType}} here...",
+  "note": "note",
+  "characters_one": "{{count}} character",
+  "characters_other": "{{count}} characters",
+  "suggestion": "Consider breaking into multiple notes",
+  "recentNotesLabel": "Recent Notes",
+  "saving": "Saving...",
+  "saveNote": "Save Note",
+  "cancel": "Cancel",
+  "clear": "Clear"
+}

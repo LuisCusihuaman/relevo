@@ -1,0 +1,110 @@
+{
+  "title": "Conocimiento de la Situación",
+  "description": "Documentación colaborativa en tiempo real del estado del paciente",
+  "done": "Hecho",
+  "edit": "Editar",
+  "currentSituation": {
+    "title": "Situación Actual",
+    "description": "Documentación colaborativa del estado del paciente en tiempo real.",
+    "placeholder": "Introduzca los detalles de la situación actual..."
+  },
+  "contingencyPlanning": {
+    "title": "Planificación de Contingencia",
+    "description": "Orientación anticipatoria para posibles cambios en el paciente.",
+    "addPlan": "Añadir Plan de Contingencia",
+    "ifPrefix": "SI:",
+    "thenPrefix": "ENTONCES:",
+    "form": {
+      "conditionLabel": "SI (Condición):",
+      "conditionPlaceholder": "p. ej., Si la temperatura del paciente sube por encima de 38.5°C...",
+      "actionLabel": "ENTONCES (Acción):",
+      "actionPlaceholder": "p. ej., Obtener hemocultivos, notificar al médico inmediatamente...",
+      "priorityLabel": "Prioridad:"
+    }
+  },
+  "status": {
+    "active": "activo",
+    "planned": "planificado"
+  },
+  "autoSave": {
+    "saving": "Guardando...",
+    "saved": "Todos los cambios guardados",
+    "error": "Error al guardar"
+  },
+  "priorities": {
+    "high": "Prioridad Alta",
+    "medium": "Prioridad Media",
+    "low": "Prioridad Baja"
+  },
+  "cancel": "Cancelar",
+  "submittedBy": "Enviado por {{name}} a las {{time}}",
+  "newPlan": {
+    "title": "Nuevo Plan de Contingencia",
+    "submitting": "Enviando...",
+    "submit": "Enviar Plan"
+  },
+  "editor": {
+    "fullscreenTitle": "Situación Actual - Editor de Pantalla Completa",
+    "title": "Situación Actual",
+    "placeholder": "Introduzca los detalles de la situación actual...",
+    "lines": "líneas",
+    "words": "palabras",
+    "autosaving": "Auto-guardando",
+    "useFullscreenControls": "Use los controles de pantalla completa para guardar",
+    "peopleEditing": "{{count}} personas editando"
+  },
+  "view": {
+    "editAriaLabel": "Haga clic para editar la documentación de conocimiento de la situación",
+    "fullscreenTitle": "Situación Actual - Vista de Pantalla Completa",
+    "allCanEdit": "Todos pueden editar",
+    "active": "Activo",
+    "lastUpdatedBy": "Última actualización por {{user}}",
+    "clickToEdit": "Haga clic para editar"
+  },
+  "initialSituation": {
+    "header": "ESTADO ACTUAL - 16:30",
+    "line1": "• Paciente estable, respondiendo bien a las intervenciones actuales",
+    "line2": "• Frecuencia cardíaca estabilizada en 82 lpm, presión arterial 128/76",
+    "line3": "• Saturación de oxígeno mantenida en 96% con cánula nasal de 2L",
+    "line4": "• El paciente informa una disminución de la falta de aire desde la mañana",
+    "line5": "• Deambulando con asistencia, el apetito está mejorando",
+    "monitoringHeader": "PRIORIDADES DE MONITOREO:",
+    "monitoring1": "□ Monitoreo de diuresis cada hora - objetivo >30ml/hr",
+    "monitoring2": "□ Monitoreo de peso diario para el balance de líquidos",
+    "monitoring3": "□ Frecuencia respiratoria y requerimientos de oxígeno",
+    "monitoring4": "□ Evaluación del dolor cada 4 horas - dolor actual 3/10",
+    "monitoring5": "□ Continuar el monitoreo cardíaco durante la noche",
+    "teamNotesHeader": "NOTAS DEL EQUIPO:",
+    "teamNote1": "• 14:30 - Cardiología revisó los resultados del eco, la FE mejoró a 40%",
+    "teamNote2": "• 15:15 - Se completó la evaluación de fisioterapia, autorizado para la planificación del alta",
+    "teamNote3": "• 16:00 - Reunión familiar programada para mañana a las 10:00",
+    "teamNote4": "• 16:15 - Se informó a la enfermera del turno de tarde sobre el plan de cuidados",
+    "nextShiftGoalsHeader": "OBJETIVOS PARA EL PRÓXIMO TURNO:",
+    "goal1": "□ Continuar la terapia diurética - monitorear electrolitos",
+    "goal2": "□ Aumentar la actividad según la tolerancia",
+    "goal3": "□ Finalizar la planificación del alta con el gestor de casos",
+    "goal4": "□ Educación del paciente sobre el manejo de la insuficiencia cardíaca completada"
+  },
+  "contingencyPlans": {
+    "plan1": {
+      "condition": "El paciente experimenta un aumento de la falta de aire o la saturación de O2 cae por debajo del 92%",
+      "action": "Aumentar el oxígeno a 4L, obtener gasometría arterial, notificar al médico de inmediato, prepararse para posible BiPAP"
+    },
+    "plan2": {
+      "condition": "La diuresis disminuye a menos de 20ml/hr durante 2 horas consecutivas",
+      "action": "Verificar la permeabilidad del catéter, revisar el balance de líquidos, obtener creatinina y BUN, considerar la consulta de nefrología"
+    },
+    "plan3": {
+      "condition": "La presión arterial cae por debajo de 90/60 o el paciente muestra signos de hipotensión",
+      "action": "Suspender diuréticos, bolo de 250ml de solución salina, reevaluar en 30 minutos, notificar al médico adjunto"
+    }
+  },
+  "doctors": {
+    "johnson": "Dr. Johnson",
+    "martinez": "Dr. Martinez",
+    "rodriguez": "Dr. Rodriguez"
+  },
+  "time": {
+    "today": "Hoy"
+  }
+}

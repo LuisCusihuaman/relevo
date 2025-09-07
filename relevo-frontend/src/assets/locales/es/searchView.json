@@ -1,0 +1,26 @@
+{
+  "title": "Buscar",
+  "subtitle": "Encontrar pacientes, diagnósticos y registros médicos",
+  "placeholder": "Buscar pacientes, diagnósticos, habitaciones...",
+  "filters": {
+    "all": "Todos",
+    "critical": "Críticos",
+    "pending": "Pendientes",
+    "complete": "Completos",
+    "myPatients": "Mis Pacientes"
+  },
+  "noResults": {
+    "title": "No se encontraron resultados",
+    "forQuery": "No se encontraron resultados para \"{{query}}\"",
+    "suggestion": "Intente ajustar sus términos de búsqueda"
+  },
+  "recentSearches": "Búsquedas Recientes",
+  "suggestedSearches": "Búsquedas Sugeridas",
+  "searchTypes": {
+    "diagnosis": "Diagnóstico",
+    "room": "Habitación",
+    "doctor": "Doctor",
+    "procedure": "Procedimiento",
+    "condition": "Condición"
+  }
+}

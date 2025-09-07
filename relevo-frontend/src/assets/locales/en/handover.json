@@ -1,0 +1,60 @@
+{
+  "historySidebarTitle": "Handover History",
+  "collaborationSidebarTitle": "Handover Collaboration",
+  "handoverAt": "Handover at {{time}}",
+  "remaining": "{{time}} remaining",
+  "session": "Session: {{duration}}",
+  "handoverComplete": "Handover Complete",
+  "completeHandover": "Complete Handover",
+  "focusTitle": "I-PASS Handover Session",
+  "focusExit": "Press Esc to exit",
+  "participants_one": "{{count}} participant",
+  "participants_other": "{{count}} participants",
+  "ipassGuidelines": {
+    "illness": {
+      "title": "Illness Severity Guidelines",
+      "points": {
+        "0": "Assess current stability and acuity level",
+        "1": "Consider trajectory and potential for change",
+        "2": "Identify monitoring requirements",
+        "3": "Determine level of intervention needed"
+      }
+    },
+    "patient": {
+      "title": "Patient Summary Guidelines",
+      "points": {
+        "0": "Include relevant medical history and allergies",
+        "1": "Document current medications and orders",
+        "2": "Note code status and advance directives",
+        "3": "Provide context for current admission"
+      }
+    },
+    "actions": {
+      "title": "Action List Guidelines",
+      "points": {
+        "0": "Prioritize pending tasks and orders",
+        "1": "Include timeline and responsible parties",
+        "2": "Note follow-up requirements",
+        "3": "Document contingency actions"
+      }
+    },
+    "awareness": {
+      "title": "Situation Awareness Guidelines",
+      "points": {
+        "0": "Provide real-time patient status updates",
+        "1": "Include recent changes and trends",
+        "2": "Note current monitoring parameters",
+        "3": "Identify immediate concerns or watch points"
+      }
+    },
+    "synthesis": {
+      "title": "Synthesis Guidelines",
+      "points": {
+        "0": "Confirm understanding of key points",
+        "1": "Ask clarifying questions",
+        "2": "Verify action items and responsibilities",
+        "3": "Acknowledge acceptance of care"
+      }
+    }
+  }
+}

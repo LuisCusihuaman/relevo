@@ -1,0 +1,20 @@
+{
+  "focusMode": {
+    "title": "Sesión de Traspaso I-PASS",
+    "exitHint": "{{patientName}} • Presione Esc para salir",
+    "sessionDuration": "Sesión: {{duration}}",
+    "participants_one": "{{count}} participante",
+    "participants_other": "{{count}} participantes"
+  },
+  "sections": {
+    "illnessSeverity": "Gravedad de la Enfermedad",
+    "patientSummary": "Resumen del Paciente",
+    "actionList": "Lista de Acciones",
+    "situationAwareness": "Conocimiento de la Situación",
+    "synthesisByReceiver": "Síntesis por el Receptor",
+    "illnessSeverityDescription": "Evaluar la condición y estabilidad del paciente",
+    "patientSummaryDescription": "Registro estático del paciente copiado de traspasos anteriores",
+    "situationAwarenessDescription": "Estado del paciente y actualizaciones en tiempo real",
+    "actionListDescription": "Tareas pendientes"
+  }
+}

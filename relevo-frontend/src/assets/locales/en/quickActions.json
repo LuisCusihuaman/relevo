@@ -1,0 +1,66 @@
+{
+  "title": "I-PASS Quick Actions",
+  "patientInfo": "{{name}} • Room {{room}}",
+  "progressOverview": {
+    "title": "I-PASS Progress",
+    "sectionsCompleted": "{{completed}}/{{total}} Complete"
+  },
+  "addToIPass": "Add to I-PASS",
+  "cancel": "Cancel",
+  "add": "Add",
+  "notePlaceholder": "Enter clinical note for selected I-PASS section...",
+  "addTo": "Add to {{section}}",
+  "clear": "Clear",
+  "quickTemplates": "I-PASS Templates",
+  "passSection": "{{letter}}-PASS Section",
+  "footer": {
+    "progress": "I-PASS Progress: {{progress}}%",
+    "saveTemplate": "Save Template"
+  },
+  "ipassSections": {
+    "illness": "I - Illness Severity",
+    "patient": "P - Patient Summary",
+    "action": "A - Action List",
+    "situation": "S - Situation Awareness",
+    "synthesis": "S - Synthesis"
+  },
+  "ipassTemplates": {
+    "illness": {
+      "title": "Illness Severity Update",
+      "template": "Severity assessment: Patient appears [STABLE/GUARDED/UNSTABLE/CRITICAL]. [CLINICAL_INDICATORS]. Requires [INTERVENTION_LEVEL]."
+    },
+    "patient": {
+      "title": "Patient Summary Note",
+      "template": "[AGE]-year-old [GENDER] with [PRIMARY_DIAGNOSIS]. Admitted [DATE] for [REASON]. Current status: [STATUS]. Key concerns: [CONCERNS]."
+    },
+    "action": {
+      "title": "Action Item",
+      "template": "Action needed: [TASK]. Timeline: [WHEN]. Responsible: [WHO]. Priority: [HIGH/MEDIUM/LOW]. Follow-up: [FOLLOW_UP]."
+    },
+    "situation": {
+      "title": "Situation Update",
+      "template": "Situation update: [WHAT_CHANGED]. Impact: [CLINICAL_IMPACT]. Watch for: [MONITORING_POINTS]. If-then: [CONTINGENCY]."
+    },
+    "synthesis": {
+      "title": "Synthesis Note",
+      "template": "Key takeaways: [SUMMARY]. Questions: [QUESTIONS]. Confirmed understanding: [CONFIRMATION]. Next steps: [NEXT_STEPS]."
+    }
+  },
+  "ipassProgress": {
+    "illness": {
+      "label": "Illness Severity"
+    },
+    "patient": {
+      "label": "Patient Summary"
+    },
+    "action": {
+      "label": "Action List"
+    },
+    "awareness": {
+      "label": "Situation Awareness"
+    },
+    "synthesis": {
+      "label": "Synthesis"
+    }
+  }
+}

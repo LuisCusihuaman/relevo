@@ -1,0 +1,60 @@
+{
+  "title": "Synthesis by Receiver",
+  "description": "Confirmation by the Receiver",
+  "receivingPhysician": "Receiving Physician",
+  "confirmationRequired": "Confirmation Required",
+  "onlyReceiverConfirms": "Only {{name}} can confirm this handover",
+  "receiverMustAccept": "The receiving physician must formally accept responsibility before handover completion.",
+  "confirmationProgress": "Confirmation Progress",
+  "progress": "{{completed}} of {{total}}",
+  "allItemsConfirmed": "All items confirmed - ready for final handover",
+  "checklistTitle": "Handover Confirmation Checklist",
+  "critical": "Critical",
+  "finalConfirmation": {
+    "title": "Final Handover Confirmation",
+    "description": "By clicking confirm, you formally accept clinical responsibility for this patient.",
+    "button": {
+      "confirm": "Confirm Handover & Accept Responsibility",
+      "incomplete": {
+        "prefix": "Complete All Items to Continue (",
+        "suffix": ")"
+      }
+    }
+  },
+  "status": {
+    "waitingFor": "Waiting for {{name}} to confirm handover",
+    "itemsConfirmed": "{{completed}} of {{total}} items confirmed",
+    "pending": "Confirmation pending"
+  },
+  "focusMode": {
+    "title": "Synthesis by Receiver",
+    "description": "{{name}} will confirm handover completion",
+    "readOnly": "Read-only mode - Confirmation available in interactive mode"
+  },
+  "confirmationItems": {
+    "illnessSeverity": {
+      "label": "I understand the patient's current illness severity and stability",
+      "description": "Patient condition, monitoring requirements, and severity assessment"
+    },
+    "clinicalBackground": {
+      "label": "I have reviewed the clinical background and patient history",
+      "description": "Medical history, allergies, code status, and baseline information"
+    },
+    "actionItems": {
+      "label": "I acknowledge all pending action items and tasks",
+      "description": "Outstanding orders, pending results, and scheduled interventions"
+    },
+    "contingencyPlans": {
+      "label": "I understand the contingency plans and potential complications",
+      "description": "If-then scenarios, escalation triggers, and emergency protocols"
+    },
+    "questionsAnswered": {
+      "label": "All my questions have been answered satisfactorily",
+      "description": "Any clarifications or concerns have been addressed"
+    },
+    "acceptResponsibility": {
+      "label": "I formally accept clinical responsibility for this patient",
+      "description": "Official transfer of care and responsibility"
+    }
+  }
+}

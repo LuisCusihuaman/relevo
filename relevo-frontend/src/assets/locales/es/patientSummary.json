@@ -1,0 +1,36 @@
+{
+  "initialSummary": "Mujer de 72 años con exacerbación aguda de la EPOC, ingresada hace 3 días por aumento de la disnea y tos productiva. La paciente ha estado respondiendo bien a la terapia con broncodilatadores y corticosteroides sistémicos.\n\nAntecedentes Médicos:\n• EPOC (moderada a severa)\n• Hipertensión\n• Diabetes Mellitus tipo 2\n• Ex-fumadora (dejó hace 5 años)\n\nLos medicamentos actuales muestran una buena respuesta. La paciente deambula con mínima asistencia y los requerimientos de oxígeno han disminuido de 4L a 2L en las últimas 24 horas.\n\nHistoria Social:\n• Vive con su hija\n• Independiente en las actividades de la vida diaria antes del ingreso\n• No hay directivas anticipadas registradas\n\nExamen Físico:\n• Alerta y orientada x3\n• Respiratorio: Sonidos respiratorios disminuidos bilateralmente, sibilancias espiratorias leves\n• Cardiovascular: Frecuencia y ritmo regulares\n• No hay dificultad aguda actualmente\n\nPlanificación del Alta:\n• Trabajo social consultado para servicios a domicilio\n• Evaluación de fisioterapia/terapia ocupacional completada\n• Educación familiar sobre el manejo de la EPOC\n• Seguimiento con neumología en 2 semanas\n\nEstado del Código: DNR/DNI (confirmado con la familia)\nAlérgias: Penicilina, Sulfa\nContacto de Emergencia: Hija - Sarah Rodriguez (555) 123-4567",
+  "time": {
+    "lessThan1Hour": "Hace menos de 1 hora",
+    "hoursAgo_one": "Hace {{count}} hora",
+    "hoursAgo_other": "Hace {{count}} horas",
+    "daysAgo_one": "Hace {{count}} día",
+    "daysAgo_other": "Hace {{count}} días"
+  },
+  "editing": {
+    "fullscreenTitle": "Historial Clínico - Editor de Pantalla Completa",
+    "title": "Editando Historial Clínico",
+    "updating": "Actualizando...",
+    "placeholder": "Introduzca los antecedentes del paciente y el resumen clínico...",
+    "words": "palabras",
+    "lines": "líneas",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "useSaveButtonAbove": "Use el botón Guardar de arriba",
+    "useFullscreenControls": "Use los controles de pantalla completa para guardar"
+  },
+  "view": {
+    "editAriaLabel": "Haga clic para editar el historial clínico",
+    "fullscreenTitle": "Historial Clínico - Vista de Pantalla Completa",
+    "title": "Historial Clínico",
+    "only": " solo",
+    "current": "Actual",
+    "updated": "Actualizado",
+    "words": "palabras",
+    "clickToEdit": "Haga clic para editar"
+  },
+  "permission": {
+    "only": "Solo",
+    "canModify": "puede modificar este historial clínico."
+  }
+}

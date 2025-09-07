@@ -1,0 +1,39 @@
+{
+  "header": {
+    "title": "Your Patients",
+    "assigned_one": "{{count}} assigned to you",
+    "assigned_other": "{{count}} assigned to you",
+    "shift": "Morning Shift",
+    "tapHint": "Tap to view details",
+    "unit": "PICU Unit",
+    "description": "Patients assigned to you for this shift",
+    "clickHint": "Click cards to view detailed information",
+    "date": "January 23, 2025",
+    "shiftTime": "Morning Shift (08:00-16:00)",
+    "entries_one": "{{count}} documentation entry",
+    "entries_other": "{{count}} documentation entries"
+  },
+  "stats": {
+    "yourPatients": "Your Patients",
+    "unstable": "Unstable",
+    "watcher": "Watcher",
+    "stable": "Stable"
+  },
+  "search": {
+    "placeholder": "Search your patients..."
+  },
+  "sort": {
+    "placeholder": "Sort by",
+    "options": {
+      "one": "Medical Priority",
+      "two": "Critical Alerts",
+      "three": "Patient Name",
+      "four": "Recent Activity"
+    }
+  },
+  "noPatients": {
+    "title": "No patients found",
+    "description": "Your search for \"{{searchTerm}}\" did not match any patients.",
+    "clearSearch": "Clear Search"
+  }
+}

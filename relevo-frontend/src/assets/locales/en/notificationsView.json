@@ -1,0 +1,99 @@
+{
+  "services": {
+    "infection_control": "Infection Control Service",
+    "pharmacy": "Pharmacy Service",
+    "laboratory": "Laboratory Service",
+    "nutrition": "Nutrition Service",
+    "social_work": "Social Work Service",
+    "quality_safety": "Quality & Safety Service"
+  },
+  "alerts": {
+    "newMDRO": {
+      "title": "New MDRO Alert",
+      "message": "Patient {{patientName}} ({{room}}) - OXAB/163 detected. Implement contact precautions immediately.",
+      "details": "Multi-drug resistant organism detected in respiratory culture. Contact isolation required. Staff must use gown and gloves."
+    },
+    "drugAllergy": {
+      "title": "Drug Allergy Alert",
+      "message": "Patient {{patientName}} ({{room}}) - Potential drug interaction with new cardiac medication order.",
+      "details": "ACE inhibitor contraindicated with current diuretic regimen. Recommend alternative medication or dose adjustment."
+    },
+    "criticalLabResult": {
+      "title": "Critical Lab Result",
+      "message": "Patient {{patientName}} ({{room}}) - Glucose level critically high (450 mg/dL).",
+      "details": "Immediate intervention required. Consider adjusting insulin drip rate and monitoring ketones."
+    },
+    "dietModification": {
+      "title": "Diet Modification Required",
+      "message": "Patient {{patientName}} ({{room}}) - NPO status needs to be updated for planned procedure.",
+      "details": "Scheduled for bronchoscopy tomorrow at 10:00 AM. NPO after midnight tonight."
+    },
+    "dischargePlanning": {
+      "title": "Discharge Planning Alert",
+      "message": "Patient Emma Johnson (PICU-09) - Home oxygen equipment needs to be arranged.",
+      "details": "Family requires training on home oxygen use and equipment maintenance before discharge."
+    },
+    "fallRisk": {
+      "title": "Fall Risk Assessment Update",
+      "message": "Multiple patients require fall risk reassessment after medication changes.",
+      "details": "New sedation protocols may affect mobility scores. Please reassess and update safety measures."
+    }
+  },
+  "actions": {
+    "implementContactPrecautions": "Implement Contact Precautions",
+    "notifyAttendingPhysician": "Notify Attending Physician",
+    "updateCarePlan": "Update Care Plan",
+    "reviewMedicationOrders": "Review Medication Orders",
+    "contactPrescribingPhysician": "Contact Prescribing Physician",
+    "considerAlternativeTherapy": "Consider Alternative Therapy",
+    "adjustInsulinProtocol": "Adjust Insulin Protocol",
+    "checkKetones": "Check Ketones",
+    "notifyEndocrinology": "Notify Endocrinology",
+    "updateDietOrders": "Update Diet Orders",
+    "notifyNursingStaff": "Notify Nursing Staff",
+    "patientFamilyEducation": "Patient/Family Education",
+    "coordinateEquipment": "Coordinate Equipment",
+    "scheduleFamilyTraining": "Schedule Family Training",
+    "confirmInsuranceCoverage": "Confirm Insurance Coverage",
+    "completeAssessments": "Complete Assessments",
+    "updateSafetyPlans": "Update Safety Plans",
+    "documentChanges": "Document Changes"
+  },
+  "header": {
+    "title": "Service Alerts",
+    "subtitle": "Alerts from hospital services requiring attention",
+    "unacknowledged_one": "{{count}} unacknowledged",
+    "unacknowledged_other": "{{count}} unacknowledged",
+    "updated": "Updated in real-time",
+    "filter": "Filter",
+    "acknowledgeAll": "Acknowledge All"
+  },
+  "stats": {
+    "totalAlerts": "Total Alerts",
+    "highPriority": "High Priority",
+    "unacknowledged": "Unacknowledged",
+    "actionRequired": "Action Required"
+  },
+  "searchPlaceholder": "Search alerts, patients, services...",
+  "filters": {
+    "servicePlaceholder": "Filter by service",
+    "allServices": "All Services",
+    "priorityPlaceholder": "Filter by priority",
+    "allPriorities": "All Priorities",
+    "hide": "Hide",
+    "show": "Show",
+    "acknowledged": "Acknowledged"
+  },
+  "priorities": {
+    "high": "High Priority",
+    "medium": "Medium Priority",
+    "info": "Information"
+  },
+  "noAlerts": {
+    "title": "No alerts found",
+    "adjustCriteria": "Try adjusting your search criteria",
+    "allAcknowledged": "All alerts have been acknowledged"
+  },
+  "actionRequired": "Action Required",
+  "acknowledged": "✓ Acknowledged"
+}

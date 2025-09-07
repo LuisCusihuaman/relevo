@@ -1,0 +1,63 @@
+{
+  "updateYourSetup": "Update Your Setup",
+  "welcome": "Welcome to RELEVO",
+  "modifyAssignments": "Modify your shift and patient assignments",
+  "platformDescription": "Digital medical handover platform for Hospital Garrahan",
+  "ipassProtocol": "I-PASS Protocol",
+  "secureDocumentation": "Secure Documentation",
+  "yourNameLabel": "Your Name",
+  "namePlaceholder": "Dr. Maria Gonzalez",
+  "updateNameHelp": "Update your name if needed",
+  "nameHelp": "This will be used to identify your documentation and handover sessions",
+  "greeting": "Hello, {{doctorName}}!",
+  "updateUnitAssignment": "Update your unit assignment",
+  "configureShiftDetails": "Let's configure your shift details",
+  "changeYourUnit": "Change your unit",
+  "selectYourUnit": "Select your unit",
+  "updateYourShift": "Update your shift",
+  "selectYourShift": "Select your shift",
+  "changeShiftAssignment": "Change your shift assignment if needed",
+  "whenProvidingCare": "When will you be providing care?",
+  "availableShifts": "Available shifts",
+  "updateYourPatients": "Update your patients",
+  "selectYourPatients": "Select your patients",
+  "patientsSelected": "{{count}} of {{total}} patients selected",
+  "previouslyAssigned": "Previously had {{count}} patients assigned",
+  "deselectAll": "Deselect All",
+  "selectAll": "Select All",
+  "validationErrorTitle": "Please select at least one patient",
+  "validationErrorBody": "You need to assign yourself to patients to continue",
+  "stepTitle": {
+    "updateInfo": "Update Information",
+    "yourInfo": "Your Information",
+    "updateUnit": "Update Unit",
+    "unitSelection": "Unit Selection",
+    "updateShift": "Update Shift",
+    "shiftSelection": "Shift Selection",
+    "updatePatients": "Update Patients",
+    "patientSelection": "Patient Selection",
+    "setup": "Setup"
+  },
+  "mobileHeader": {
+    "update": "Update Setup",
+    "new": "Medical Handover Setup",
+    "step": "Step {{current}} of {{total}}"
+  },
+  "back": "Back",
+  "saveChanges": "Save Changes",
+  "startUsingRelevo": "Start Using RELEVO",
+  "continue": "Continue",
+  "mobileValidation": "Select at least one patient to continue",
+  "desktopHeader": {
+    "update": "Update RELEVO Setup",
+    "new": "RELEVO Setup"
+  },
+  "desktopSubheader": {
+    "update": "Modify your configuration",
+    "new": "Configure your handover session",
+    "progress": "{{action}} your handover session, {{name}}"
+  },
+  "completeSetup": "Complete Setup",
+  "configure": "Configure",
+  "update": "Update"
+}

@@ -1,0 +1,20 @@
+{
+  "criticalAlerts_one": "{{count}} Critical Alert",
+  "criticalAlerts_other": "{{count}} Critical Alerts",
+  "moreCriticalAlerts": "+ {{count}} more critical alerts",
+  "more": "+{{count}} more",
+  "title": "Patient Alerts ({{count}} Active)",
+  "hide": "Hide",
+  "show": "Show",
+  "inactive": "Inactive ({{count}})",
+  "HIGH": "HIGH",
+  "MEDIUM": "MEDIUM",
+  "INFORMATIONAL": "INFORMATIONAL",
+  "INACTIVE": "INACTIVE",
+  "code": "Code",
+  "type": "Type",
+  "since": "Since",
+  "until": "Until",
+  "createdBy": "Created by {{author}} • {{source}} • {{timestamp}}",
+  "noAlerts": "No alerts for this patient"
+}

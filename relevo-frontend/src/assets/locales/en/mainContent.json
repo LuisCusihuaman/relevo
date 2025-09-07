@@ -1,0 +1,20 @@
+{
+  "focusMode": {
+    "title": "I-PASS Handover Session",
+    "exitHint": "{{patientName}} • Press Esc to exit",
+    "sessionDuration": "Session: {{duration}}",
+    "participants_one": "{{count}} participant",
+    "participants_other": "{{count}} participants"
+  },
+  "sections": {
+    "illnessSeverity": "Illness Severity",
+    "patientSummary": "Patient Summary",
+    "actionList": "Action List",
+    "situationAwareness": "Situation Awareness",
+    "synthesisByReceiver": "Synthesis by Receiver",
+    "illnessSeverityDescription": "Evaluate patient condition and stability",
+    "patientSummaryDescription": "Static patient record copied from previous handovers",
+    "situationAwarenessDescription": "Real-time patient status and updates",
+    "actionListDescription": "Pending tasks"
+  }
+}
