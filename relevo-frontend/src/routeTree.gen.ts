@@ -9,12 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SetupRouteRouteImport } from './routes/_setup/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as SetupDailySetupRouteImport } from './routes/_setup/daily-setup'
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
-import { Route as AuthenticatedDailySetupRouteImport } from './routes/_authenticated/daily-setup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
+const SetupRouteRoute = SetupRouteRouteImport.update({
+  id: '/_setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -24,14 +29,14 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const SetupDailySetupRoute = SetupDailySetupRouteImport.update({
+  id: '/daily-setup',
+  path: '/daily-setup',
+  getParentRoute: () => SetupRouteRoute,
+} as any)
 const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
   id: '/patients',
   path: '/patients',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDailySetupRoute = AuthenticatedDailySetupRouteImport.update({
-  id: '/daily-setup',
-  path: '/daily-setup',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const authLoginRoute = authLoginRouteImport.update({
@@ -42,45 +47,55 @@ const authLoginRoute = authLoginRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
-  '/daily-setup': typeof AuthenticatedDailySetupRoute
   '/patients': typeof AuthenticatedPatientsRoute
+  '/daily-setup': typeof SetupDailySetupRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
-  '/daily-setup': typeof AuthenticatedDailySetupRoute
   '/patients': typeof AuthenticatedPatientsRoute
+  '/daily-setup': typeof SetupDailySetupRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_setup': typeof SetupRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
-  '/_authenticated/daily-setup': typeof AuthenticatedDailySetupRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
+  '/_setup/daily-setup': typeof SetupDailySetupRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/daily-setup' | '/patients' | '/'
+  fullPaths: '/login' | '/patients' | '/daily-setup' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/daily-setup' | '/patients' | '/'
+  to: '/login' | '/patients' | '/daily-setup' | '/'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/_setup'
     | '/(auth)/login'
-    | '/_authenticated/daily-setup'
     | '/_authenticated/patients'
+    | '/_setup/daily-setup'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  SetupRouteRoute: typeof SetupRouteRouteWithChildren
   authLoginRoute: typeof authLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_setup': {
+      id: '/_setup'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof SetupRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -95,18 +110,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_setup/daily-setup': {
+      id: '/_setup/daily-setup'
+      path: '/daily-setup'
+      fullPath: '/daily-setup'
+      preLoaderRoute: typeof SetupDailySetupRouteImport
+      parentRoute: typeof SetupRouteRoute
+    }
     '/_authenticated/patients': {
       id: '/_authenticated/patients'
       path: '/patients'
       fullPath: '/patients'
       preLoaderRoute: typeof AuthenticatedPatientsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/daily-setup': {
-      id: '/_authenticated/daily-setup'
-      path: '/daily-setup'
-      fullPath: '/daily-setup'
-      preLoaderRoute: typeof AuthenticatedDailySetupRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(auth)/login': {
@@ -120,13 +135,11 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedDailySetupRoute: typeof AuthenticatedDailySetupRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedDailySetupRoute: AuthenticatedDailySetupRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
@@ -134,8 +147,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface SetupRouteRouteChildren {
+  SetupDailySetupRoute: typeof SetupDailySetupRoute
+}
+
+const SetupRouteRouteChildren: SetupRouteRouteChildren = {
+  SetupDailySetupRoute: SetupDailySetupRoute,
+}
+
+const SetupRouteRouteWithChildren = SetupRouteRoute._addFileChildren(
+  SetupRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  SetupRouteRoute: SetupRouteRouteWithChildren,
   authLoginRoute: authLoginRoute,
 }
 export const routeTree = rootRouteImport

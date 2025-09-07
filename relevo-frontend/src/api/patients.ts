@@ -4,7 +4,7 @@ import type { SetupPatient } from "@/common/types";
 
 // Axios instance with default config
 const api = axios.create({
-	baseURL: (import.meta.env["VITE_API_URL"] as string | undefined) || "https://api.relevo.app/v1",
+	baseURL: (import.meta.env["VITE_API_URL"] as string | undefined) || "https://localhost:57679",
 	headers: {
 		"Content-Type": "application/json",
 		Accept: "application/json",

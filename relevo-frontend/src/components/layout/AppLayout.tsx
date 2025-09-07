@@ -74,3 +74,12 @@ export function AppLayout(): ReactElement {
 		</div>
 	);
 }
+
+// Setup Layout - Minimal layout for setup/wizard flows
+export function SetupLayout(): ReactElement {
+	return (
+		<div className="min-h-screen bg-background">
+			<Outlet />
+		</div>
+	);
+}
