@@ -11,7 +11,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Ana Pérez",
 		url: "relevo-app.vercel.app",
-		status: "Iniciar traspaso",
+		status: "home:patientList.startHandover",
 		date: "Jul 12",
 		icon: "R",
 		hasGithub: false,
@@ -20,7 +20,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Juan Rodríguez",
 		url: "v0-portfolio-template-by-v0-mu-...",
-		status: "Iniciar traspaso",
+		status: "home:patientList.startHandover",
 		date: "Aug 17",
 		icon: "V",
 		hasGithub: false,
@@ -29,7 +29,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Carlos Gómez",
 		url: "Sin traspaso activo",
-		status: "Create deploy.yml",
+		status: "home:patientList.noActiveHandover",
 		date: "2/22/21",
 		branch: "master",
 		github: "LuisCusihuaman/Hero...",
@@ -40,7 +40,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "María García",
 		url: "Sin traspaso activo",
-		status: "docs: README.md",
+		status: "home:patientList.pendingClinicalNotes",
 		date: "8/8/20",
 		branch: "master",
 		github: "LuisCusihuaman/Cale...",
@@ -51,7 +51,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Laura Schmidt",
 		url: "psa-frontend-alpha.vercel.app",
-		status: "Iniciar traspaso",
+		status: "home:patientList.startHandover",
 		date: "6/30/24",
 		icon: "P",
 		hasGithub: false,
@@ -60,7 +60,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Pedro Martinez",
 		url: "image-component-sandy-three.v...",
-		status: "Initial commit",
+		status: "home:patientList.initialAdmission",
 		date: "2/5/21",
 		branch: "master",
 		github: "LuisCusihuaman/ima...",
@@ -71,7 +71,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Sofía Rossi",
 		url: "v0-music-game-concept.vercel.a...",
-		status: "Iniciar traspaso",
+		status: "home:patientList.startHandover",
 		date: "Mar 25",
 		icon: "M",
 		hasGithub: false,
@@ -80,7 +80,7 @@ export const patients: Array<Patient> = [
 	{
 		name: "Martin Herrera",
 		url: "backoffice-pi-dusky.vercel.app",
-		status: "Initial commit",
+		status: "home:patientList.initialAdmission",
 		date: "10/16/23",
 		branch: "main",
 		github: "LuisCusihuaman/bac...",

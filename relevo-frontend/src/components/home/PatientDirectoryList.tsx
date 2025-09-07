@@ -7,35 +7,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
 import { patients as patients } from "../../pages/data";
+import { useTranslation } from "react-i18next";
 
 export const PatientDirectoryList: FC = () => {
-	const getStatusText = (status: string): string => {
-		switch (status) {
-			case "No Production Deployment":
-				return "Sin traspaso activo";
-			case "Create deploy.yml":
-				return "Crear plan de traspaso";
-			case "docs: README.md":
-				return "Notas clínicas";
-			case "Initial commit":
-				return "Ingreso inicial";
-			default:
-				return status;
-		}
-	};
+	const { t } = useTranslation("home");
 
 	const formatDate = (dateString: string): string => {
 		if (!/^[a-zA-Z]{3}\s\d{1,2}$/.test(dateString)) {
 			return dateString;
 		}
 		const [month, day] = dateString.split(" ");
-		return `Ingresó: ${day} ${month}`;
+		return `${day} ${month}`;
+	};
+
+	const getTranslatedStatus = (status: string): string => {
+		if (status.startsWith("home:")) {
+			const key = status.replace("home:", "");
+			return String(t(key));
+		}
+		return status;
 	};
 
 	return (
 		<div className="flex-1 min-w-0">
 			<div className="mb-4">
-				<h2 className="text-base font-medium leading-tight">Mis Pacientes</h2>
+				<h2 className="text-base font-medium leading-tight">{t("patientList.title")}</h2>
 			</div>
 			<div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 				<ul className="divide-y divide-gray-200">
@@ -55,20 +51,20 @@ export const PatientDirectoryList: FC = () => {
 											{patient.name}
 										</div>
 										<div className="text-xs text-gray-600 truncate">
-											{getStatusText(patient.status)}
+											{getTranslatedStatus(patient.status)}
 										</div>
 									</div>
 								</div>
 
 								<div className="min-w-0 flex-1">
 									<a className="block text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline truncate">
-										Iniciar traspaso
+										{t("patientList.startHandover")}
 									</a>
 									<div className="mt-1 text-xs text-gray-600 flex items-center gap-2">
 										<time>{formatDate(patient.date)}</time>
 										{patient.unit && (
 											<>
-												<span>en</span>
+												<span>{t("patientList.in")}</span>
 												<span className="inline-flex items-center gap-1">
 													<GitBranch className="h-3.5 w-3.5" />
 													{patient.unit}
@@ -92,7 +88,7 @@ export const PatientDirectoryList: FC = () => {
 									)}
 									<button
 										className="h-8 w-8 rounded-full text-gray-400 hover:bg-gray-50 shrink-0 flex items-center justify-center"
-										title="Lista de acciones"
+										title={String(t("patientList.actionList"))}
 									>
 										<Activity className="h-4 w-4" />
 									</button>
@@ -100,16 +96,16 @@ export const PatientDirectoryList: FC = () => {
 										<DropdownMenuTrigger asChild>
 											<button
 												className="h-8 w-8 rounded-full text-gray-600 hover:bg-gray-50 shrink-0 flex items-center justify-center"
-												title="Más"
+												title={String(t("patientList.more"))}
 											>
 												<MoreHorizontal className="h-4 w-4" />
 											</button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
-											<DropdownMenuItem>Abrir</DropdownMenuItem>
-											<DropdownMenuItem>Ver notas</DropdownMenuItem>
+											<DropdownMenuItem>{t("patientList.open")}</DropdownMenuItem>
+											<DropdownMenuItem>{t("patientList.viewNotes")}</DropdownMenuItem>
 											<DropdownMenuItem>
-												Iniciar traspaso
+												{t("patientList.startHandover")}
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>
@@ -118,9 +114,9 @@ export const PatientDirectoryList: FC = () => {
 						))
 					) : (
 						<li className="text-center py-8 text-gray-500">
-							No se encontraron pacientes.{" "}
-							<a href="#" className="text-blue-600 hover:underline">
-								Cambiar filtros
+							{t("patientList.noPatientsFound")}{" "}
+							<a className="text-blue-600 hover:underline" href="#">
+								{t("patientList.changeFilters")}
 							</a>
 						</li>
 					)}

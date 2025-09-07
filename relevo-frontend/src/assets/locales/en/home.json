@@ -102,7 +102,20 @@
   "table.system": "system",
   "table.bed": "Bed {{label}}",
   "table.mrn": "MRN · {{value}}",
-  "table.noLocation": "No location"
+  "table.noLocation": "No location",
+
+  "patientList.title": "My Patients",
+  "patientList.startHandover": "Start handover",
+  "patientList.in": "in",
+  "patientList.actionList": "Action list",
+  "patientList.more": "More",
+  "patientList.open": "Open",
+  "patientList.viewNotes": "View notes",
+  "patientList.noPatientsFound": "No patients found.",
+  "patientList.changeFilters": "Change filters",
+  "patientList.initialAdmission": "Initial admission",
+  "patientList.noActiveHandover": "No active handover",
+  "patientList.pendingClinicalNotes": "Pending clinical notes"
 }
 
 

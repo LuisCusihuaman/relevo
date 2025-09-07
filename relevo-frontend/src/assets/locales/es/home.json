@@ -102,7 +102,20 @@
   "table.system": "sistema",
   "table.bed": "Cama {{label}}",
   "table.mrn": "MRN · {{value}}",
-  "table.noLocation": "Sin ubicación"
+  "table.noLocation": "Sin ubicación",
+
+  "patientList.title": "Mis Pacientes",
+  "patientList.startHandover": "Iniciar traspaso",
+  "patientList.in": "en",
+  "patientList.actionList": "Lista de acciones",
+  "patientList.more": "Más",
+  "patientList.open": "Abrir",
+  "patientList.viewNotes": "Ver notas",
+  "patientList.noPatientsFound": "No se encontraron pacientes.",
+  "patientList.changeFilters": "Cambiar filtros",
+  "patientList.initialAdmission": "Ingreso inicial",
+  "patientList.noActiveHandover": "Sin traspaso activo",
+  "patientList.pendingClinicalNotes": "Notas clínicas pendientes"
 }
 
 
