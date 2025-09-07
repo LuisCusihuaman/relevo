@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
 using Relevo.Web.Patients;
+using Relevo.Web.Models;
 using DomainPatientRecord = Relevo.Core.Interfaces.PatientRecord;
 using Microsoft.Extensions.Logging;
 
@@ -47,8 +48,8 @@ public class GetMyPatients(
         Pagination = new PaginationInfo
         {
             TotalCount = total,
-            Page = req.Page,
-            PageSize = req.PageSize
+            Page = req.Page <= 0 ? 1 : req.Page,
+            PageSize = req.PageSize <= 0 ? 25 : req.PageSize
         }
     };
 
@@ -81,12 +82,5 @@ public class PatientSummaryCard
     public string? HandoverId { get; set; }
 }
 
-public class PaginationInfo
-{
-  public int TotalCount { get; set; }
-  public int Page { get; set; }
-  public int PageSize { get; set; }
-  public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
-}
 
 

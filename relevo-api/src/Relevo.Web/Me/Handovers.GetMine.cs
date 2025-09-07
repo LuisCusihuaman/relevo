@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
 using Relevo.Web.Setup;
+using Relevo.Web.Models;
 using DomainHandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Me;
@@ -54,13 +55,6 @@ public class GetMyHandoversResponse
   public PaginationInfo Pagination { get; set; } = new();
 }
 
-public class PaginationInfo
-{
-  public int TotalItems { get; set; }
-  public int TotalPages { get; set; }
-  public int CurrentPage { get; set; }
-  public int PageSize { get; set; }
-}
 
 public record HandoverRecord(
   string Id,
