@@ -332,13 +332,13 @@ INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER) VALUES ('Dra. Ana Martínez
 
 -- Insertar traspasos de ejemplo
 INSERT INTO HANDOVERS (ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, CREATED_BY, ASSIGNED_TO, COMPLETED_AT)
-VALUES ('hvo-001', 'pat-123', 'InProgress', 'Stable', 'Paciente estable postoperatorio con signos vitales buenos. No se observan complicaciones. Dolor bien controlado con el régimen actual.', 'hvo-001-sa', NULL, 'Mañana', 'demo-user', 'demo-user', NULL);
+VALUES ('hvo-001', 'pat-001', 'InProgress', 'Stable', 'Paciente estable postoperatorio con signos vitales buenos. No se observan complicaciones. Dolor bien controlado con el régimen actual.', 'hvo-001-sa', NULL, 'Mañana', 'demo-user', 'demo-user', NULL);
 
 INSERT INTO HANDOVERS (ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, CREATED_BY, ASSIGNED_TO, COMPLETED_AT)
-VALUES ('hvo-002', 'pat-456', 'Completed', 'Watcher', 'Paciente muestra signos de mejoría con requerimientos reducidos de oxígeno. Fisioterapia respiratoria efectiva.', 'hvo-002-sa', 'Paciente listo para cuidados de menor complejidad. Continuar monitoreo del estado respiratorio.', 'Noche', 'demo-user', 'demo-user', SYSTIMESTAMP - 2);
+VALUES ('hvo-002', 'pat-002', 'Completed', 'Watcher', 'Paciente muestra signos de mejoría con requerimientos reducidos de oxígeno. Fisioterapia respiratoria efectiva.', 'hvo-002-sa', 'Paciente listo para cuidados de menor complejidad. Continuar monitoreo del estado respiratorio.', 'Noche', 'demo-user', 'demo-user', SYSTIMESTAMP - 2);
 
 INSERT INTO HANDOVERS (ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, CREATED_BY, ASSIGNED_TO, COMPLETED_AT)
-VALUES ('hvo-003', 'pat-789', 'InProgress', 'Stable', 'Recuperación postoperatoria procediendo según lo esperado. Cicatrización de herida buena sin signos de infección.', 'hvo-003-sa', NULL, 'Mañana', 'demo-user', 'demo-user', NULL);
+VALUES ('hvo-003', 'pat-003', 'InProgress', 'Stable', 'Recuperación postoperatoria procediendo según lo esperado. Cicatrización de herida buena sin signos de infección.', 'hvo-003-sa', NULL, 'Mañana', 'demo-user', 'demo-user', NULL);
 
 -- Insertar elementos de acción de traspasos de ejemplo
 INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)

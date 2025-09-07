@@ -10,27 +10,35 @@ public class ContributorServiceDelete : BaseDapperTestFixture
   [Fact]
   public void DeletesItemAfterAddingIt()
   {
+    // This test is skipped if Oracle is not available
+
+    Assert.NotNull(_connection); // Additional safety check
+
     // Add a contributor
     var initialName = Guid.NewGuid().ToString();
 
-    var insertSql = @"
-      INSERT INTO Contributors (Name, Status)
-      VALUES (@Name, @Status);
-      SELECT last_insert_rowid();";
+    // Get next ID from sequence first
+    var sequenceSql = "SELECT CONTRIBUTORS_SEQ.NEXTVAL FROM DUAL";
+    var newId = _connection.ExecuteScalar<long>(sequenceSql, transaction: _transaction);
 
-    var newId = _connection.ExecuteScalar<long>(insertSql, new
+    var insertSql = @"
+      INSERT INTO CONTRIBUTORS (ID, NAME, EMAIL)
+      VALUES (:Id, :Name, :Email)";
+
+    _connection.Execute(insertSql, new
     {
+      Id = newId,
       Name = initialName,
-      Status = 0
-    });
+      Email = $"{initialName}@test.com"
+    }, transaction: _transaction);
 
     // Delete the item
-    var deleteSql = "DELETE FROM Contributors WHERE Id = @Id";
-    _connection.Execute(deleteSql, new { Id = newId });
+    var deleteSql = "DELETE FROM CONTRIBUTORS WHERE ID = :Id";
+    _connection.Execute(deleteSql, new { Id = newId }, transaction: _transaction);
 
     // Verify it's no longer there
-    var countSql = "SELECT COUNT(*) FROM Contributors WHERE Id = @Id";
-    var count = _connection.ExecuteScalar<long>(countSql, new { Id = newId });
+    var countSql = "SELECT COUNT(*) FROM CONTRIBUTORS WHERE ID = :Id";
+    var count = _connection.ExecuteScalar<long>(countSql, new { Id = newId }, transaction: _transaction);
 
     Assert.Equal(0, count);
   }

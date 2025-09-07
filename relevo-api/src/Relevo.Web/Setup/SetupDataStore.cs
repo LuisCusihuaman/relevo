@@ -2,7 +2,7 @@ using Relevo.Web.Patients;
 using Relevo.Web.Me;
 using System.Data;
 using Dapper;
-using Microsoft.Data.Sqlite;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Relevo.Web.Setup;
 
@@ -12,11 +12,11 @@ public class SetupDataStore : ISetupDataProvider
 
   public SetupDataStore()
   {
-    // Use in-memory SQLite database for testing
-    _connection = new SqliteConnection("Data Source=:memory:");
+    // Use Oracle database for testing
+    _connection = new OracleConnection("User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
     _connection.Open();
 
-    // Create tables with same structure as Oracle
+    // Create tables with Oracle structure
     CreateTables();
     SeedTestData();
   }
@@ -26,29 +26,29 @@ public class SetupDataStore : ISetupDataProvider
     using var cmd = _connection.CreateCommand();
     cmd.CommandText = @"
       CREATE TABLE UNITS (
-        ID TEXT PRIMARY KEY,
-        NAME TEXT NOT NULL
+        ID VARCHAR2(50) PRIMARY KEY,
+        NAME VARCHAR2(100) NOT NULL
       );
 
       CREATE TABLE SHIFTS (
-        ID TEXT PRIMARY KEY,
-        NAME TEXT NOT NULL,
-        START_TIME TEXT NOT NULL,
-        END_TIME TEXT NOT NULL
+        ID VARCHAR2(50) PRIMARY KEY,
+        NAME VARCHAR2(100) NOT NULL,
+        START_TIME VARCHAR2(5) NOT NULL,
+        END_TIME VARCHAR2(5) NOT NULL
       );
 
       CREATE TABLE PATIENTS (
-        ID TEXT PRIMARY KEY,
-        NAME TEXT NOT NULL,
-        UNIT_ID TEXT,
+        ID VARCHAR2(50) PRIMARY KEY,
+        NAME VARCHAR2(200) NOT NULL,
+        UNIT_ID VARCHAR2(50),
         FOREIGN KEY (UNIT_ID) REFERENCES UNITS(ID)
       );
 
       CREATE TABLE USER_ASSIGNMENTS (
-        USER_ID TEXT NOT NULL,
-        SHIFT_ID TEXT NOT NULL,
-        PATIENT_ID TEXT NOT NULL,
-        ASSIGNED_AT DATETIME DEFAULT CURRENT_TIMESTAMP,
+        USER_ID VARCHAR2(255) NOT NULL,
+        SHIFT_ID VARCHAR2(50) NOT NULL,
+        PATIENT_ID VARCHAR2(50) NOT NULL,
+        ASSIGNED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
         PRIMARY KEY (USER_ID, PATIENT_ID),
         FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
         FOREIGN KEY (SHIFT_ID) REFERENCES SHIFTS(ID)
@@ -250,13 +250,13 @@ public class SetupDataStore : ISetupDataProvider
     var offset = (p - 1) * ps;
 
     var patients = _connection.Query<PatientRecord>(@"
-      SELECT p.ID, p.NAME
-      FROM PATIENTS p
-      INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
-      WHERE ua.USER_ID = @UserId
-      ORDER BY p.ID
-      LIMIT @PageSize OFFSET @Offset",
-      new { UserId = userId, PageSize = ps, Offset = offset });
+      SELECT ID, NAME FROM (
+        SELECT p.ID, p.NAME, ROW_NUMBER() OVER (ORDER BY p.ID) AS RN
+        FROM PATIENTS p
+        INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+        WHERE ua.USER_ID = :UserId
+      ) WHERE RN BETWEEN :StartRow AND :EndRow",
+      new { UserId = userId, StartRow = offset + 1, EndRow = offset + ps });
 
     return (patients.ToList(), total);
   }

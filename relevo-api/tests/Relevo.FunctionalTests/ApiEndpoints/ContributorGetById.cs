@@ -1,6 +1,6 @@
 ﻿using Ardalis.HttpClientTestExtensions;
-using Relevo.Infrastructure.Data;
 using Relevo.Web.Contributors;
+using System.Linq;
 using Xunit;
 
 namespace Relevo.FunctionalTests.ApiEndpoints;
@@ -11,12 +11,17 @@ public class ContributorGetById(CustomWebApplicationFactory<Program> factory) : 
   private readonly HttpClient _client = factory.CreateClient();
 
   [Fact]
-  public async Task ReturnsSeedContributorGivenId1()
+  public async Task ReturnsSeedContributorArdalis()
   {
-    var result = await _client.GetAndDeserializeAsync<ContributorRecord>(GetContributorByIdRequest.BuildRoute(1));
+    // First get the list to find the actual ID
+    var listResult = await _client.GetAndDeserializeAsync<ContributorListResponse>("/Contributors");
+    var ardalisContributor = listResult.Contributors.First(c => c.Name == "Ardalis");
 
-    Assert.Equal(1, result.Id);
-    Assert.Equal(SeedData.Contributor1.Name, result.Name);
+    var result = await _client.GetAndDeserializeAsync<ContributorRecord>(GetContributorByIdRequest.BuildRoute((int)ardalisContributor.Id));
+
+    Assert.Equal(ardalisContributor.Id, result.Id);
+    Assert.Equal("Ardalis", result.Name);
+    Assert.Equal("+1-555-0101", result.PhoneNumber);
   }
 
   [Fact]

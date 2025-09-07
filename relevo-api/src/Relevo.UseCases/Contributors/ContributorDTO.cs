@@ -1,2 +1,2 @@
 ﻿namespace Relevo.UseCases.Contributors;
-public record ContributorDTO(int Id, string Name, string? PhoneNumber);
+public record ContributorDTO(decimal Id, string Name, string? PhoneNumber);

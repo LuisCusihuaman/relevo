@@ -37,26 +37,13 @@ public static class WebApplicationConfigs
   {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
-    var configuration = services.GetRequiredService<IConfiguration>();
     var logger = services.GetRequiredService<ILogger<Program>>();
 
     try
     {
-      bool useOracle = configuration.GetValue("UseOracle", false);
-
-      if (useOracle)
-      {
-        // For Oracle, use Dapper service
-        var contributorService = services.GetRequiredService<IContributorService>();
-        await SeedOracleData(contributorService, logger);
-      }
-      else
-      {
-        // For SQLite, use EF Core
-        var context = services.GetRequiredService<AppDbContext>();
-        context.Database.EnsureCreated();
-        await SeedData.InitializeAsync(context);
-      }
+      // Always use Oracle now
+      var contributorService = services.GetRequiredService<IContributorService>();
+      await SeedOracleData(contributorService, logger);
     }
     catch (Exception ex)
     {

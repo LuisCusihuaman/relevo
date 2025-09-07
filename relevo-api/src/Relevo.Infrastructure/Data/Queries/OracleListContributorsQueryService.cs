@@ -11,11 +11,11 @@ public class OracleListContributorsQueryService(Data.Oracle.IOracleConnectionFac
   public async Task<IEnumerable<ContributorDTO>> ListAsync()
   {
     using IDbConnection conn = _factory.CreateConnection();
-    const string sql = @"SELECT 
-      c.Id AS Id,
-      c.Name AS Name,
-      c.PhoneNumber_Number AS PhoneNumber
-    FROM Contributors c";
+    const string sql = @"SELECT
+      c.ID AS Id,
+      c.NAME AS Name,
+      c.PHONE_NUMBER AS PhoneNumber
+    FROM CONTRIBUTORS c";
 
     var rows = await conn.QueryAsync<ContributorDTO>(sql);
     return rows;

@@ -4,7 +4,6 @@ using Relevo.Core.Interfaces;
 using Relevo.Core.Services;
 using Relevo.Infrastructure.Data;
 using Relevo.Infrastructure.Data.Queries;
-using Relevo.Infrastructure.Data.Sqlite;
 using Relevo.UseCases.Contributors.List;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,71 +19,22 @@ public static class InfrastructureServiceExtensions
     IConfiguration config,
     ILogger logger)
   {
-            // Force SQLite for testing environment by checking environment variables
-            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+    // Always use Oracle - no more SQLite support
+    logger.LogInformation("Infrastructure: Always using Oracle database");
 
-            // Debug specific environment variables
-            logger.LogInformation("Infrastructure: ASPNETCORE_ENVIRONMENT = {AspNetCore}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-            logger.LogInformation("Infrastructure: DOTNET_ENVIRONMENT = {DotNet}", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
-            logger.LogInformation("Infrastructure: Environment = {Environment}", environmentName);
+    // Configure Oracle connection factory
+    services.AddSingleton<Data.Oracle.IOracleConnectionFactory, Data.Oracle.OracleConnectionFactory>();
+    services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
 
-            bool useOracle = environmentName == "Testing" ? false : config.GetValue("UseOracle", false);
-            bool useOracleForSetup = environmentName == "Testing" ? false : config.GetValue("UseOracleForSetup", false);
+    logger.LogInformation("Oracle database configured - using Oracle repositories");
 
-            logger.LogInformation("Infrastructure: UseOracle = {UseOracle}", useOracle);
-            logger.LogInformation("Infrastructure: UseOracleForSetup = {UseOracleForSetup}", useOracleForSetup);
-            logger.LogInformation("Infrastructure: ConnectionString = {ConnectionString}", config.GetConnectionString("SqliteConnection"));
-
-    string? connectionString = config.GetConnectionString("SqliteConnection");
-
-    if (useOracle)
-    {
-      services.AddSingleton<Data.Oracle.IOracleConnectionFactory, Data.Oracle.OracleConnectionFactory>();
-      services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
-
-      logger.LogInformation("Oracle database configured - using Oracle repositories");
-    }
-    else
-    {
-      services.AddSingleton<Data.Sqlite.ISqliteConnectionFactory, Data.Sqlite.SqliteConnectionFactory>();
-      services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Sqlite.ISqliteConnectionFactory>());
-
-      // Keep EF DbContext only for seeding in SQLite mode
-      Guard.Against.Null(connectionString);
-      services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
-    }
-
-    // Register database-specific ContributorService implementations
-    if (useOracle)
-    {
-      services.AddScoped<Relevo.Core.Interfaces.IContributorService, OracleContributorService>();
-    }
-    else
-    {
-      services.AddScoped<Relevo.Core.Interfaces.IContributorService, SqliteContributorService>();
-    }
-
-    if (useOracle)
-    {
-      services.AddScoped<IListContributorsQueryService, Data.Queries.OracleListContributorsQueryService>();
-    }
-    else
-    {
-      services.AddScoped<IListContributorsQueryService, ListContributorsQueryService>();
-    }
-
+    // Always use Oracle implementations
+    services.AddScoped<Relevo.Core.Interfaces.IContributorService, OracleContributorService>();
+    services.AddScoped<IListContributorsQueryService, Data.Queries.OracleListContributorsQueryService>();
     services.AddScoped<IDeleteContributorService, DeleteContributorService>();
 
-    // Setup Repository Services (Hexagonal Architecture)
-    if (useOracleForSetup)
-    {
-      services.AddScoped<ISetupRepository, Repositories.OracleSetupRepository>();
-    }
-    else
-    {
-      Guard.Against.Null(connectionString);
-      services.AddScoped<ISetupRepository>(sp => new Repositories.SqliteSetupRepository(connectionString));
-    }
+    // Always use Oracle setup repository
+    services.AddScoped<ISetupRepository, Repositories.OracleSetupRepository>();
 
     // Setup Use Cases
     services.AddScoped<Relevo.UseCases.Setup.AssignPatientsUseCase>();

@@ -15,7 +15,7 @@ public class OracleContributorService(IDbConnectionFactory factory) : Relevo.Cor
 
         const string sql = @"
             INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER)
-            VALUES (@Name, @Email, @PhoneNumber)";
+            VALUES (:Name, :Email, :PhoneNumber)";
 
         var phone = contributor.PhoneNumber;
         var parameters = new
@@ -34,7 +34,7 @@ public class OracleContributorService(IDbConnectionFactory factory) : Relevo.Cor
         var conn = _factory.CreateConnection();
 
         // Oracle syntax: uppercase columns
-        const string sql = @"SELECT ID, NAME, EMAIL, PHONE_NUMBER FROM CONTRIBUTORS WHERE ID = @Id";
+        const string sql = @"SELECT ID, NAME, EMAIL, PHONE_NUMBER FROM CONTRIBUTORS WHERE ID = :Id";
         var result = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id });
 
         if (result == null) return null;
@@ -76,10 +76,10 @@ public class OracleContributorService(IDbConnectionFactory factory) : Relevo.Cor
 
         const string sql = @"
             UPDATE CONTRIBUTORS
-            SET NAME = @Name,
-                EMAIL = @Email,
-                PHONE_NUMBER = @PhoneNumber
-            WHERE ID = @Id";
+            SET NAME = :Name,
+                EMAIL = :Email,
+                PHONE_NUMBER = :PhoneNumber
+            WHERE ID = :Id";
 
         var phone = contributor.PhoneNumber;
         await conn.ExecuteAsync(sql, new
@@ -94,7 +94,7 @@ public class OracleContributorService(IDbConnectionFactory factory) : Relevo.Cor
     public async Task DeleteAsync(int id)
     {
         var conn = _factory.CreateConnection();
-        const string sql = "DELETE FROM CONTRIBUTORS WHERE ID = @Id";
+        const string sql = "DELETE FROM CONTRIBUTORS WHERE ID = :Id";
         await conn.ExecuteAsync(sql, new { Id = id });
     }
 

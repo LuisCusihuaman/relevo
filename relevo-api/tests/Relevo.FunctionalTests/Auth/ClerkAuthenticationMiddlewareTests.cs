@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Relevo.FunctionalTests.Auth;
 
+[Collection("Sequential")]
 public class ClerkAuthenticationMiddlewareTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
     private readonly CustomWebApplicationFactory<Program> _factory;
@@ -100,7 +101,7 @@ public class ClerkAuthenticationMiddlewareTests : IClassFixture<CustomWebApplica
         client.DefaultRequestHeaders.Add("x-clerk-user-token", token);
 
         var requestContent = new StringContent(
-            @"{""shiftId"": ""shift-day"", ""patientIds"": [""pat-123""]}",
+            @"{""shiftId"": ""shift-day"", ""patientIds"": [""pat-001""]}",
             System.Text.Encoding.UTF8,
             "application/json");
 
