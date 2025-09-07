@@ -9,6 +9,9 @@ public static class ServiceConfigs
 {
   public static IServiceCollection AddServiceConfigs(this IServiceCollection services, ILogger logger, WebApplicationBuilder builder)
   {
+    // Add authorization services (required for UseAuthorization middleware)
+    services.AddAuthorization();
+
     services.AddInfrastructureServices(builder.Configuration, logger)
             .AddMediatrConfigs();
 

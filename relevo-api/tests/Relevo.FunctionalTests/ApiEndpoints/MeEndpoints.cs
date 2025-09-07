@@ -13,6 +13,9 @@ public class MeEndpoints(CustomWebApplicationFactory<Program> factory) : IClassF
   [Fact]
   public async Task AssignmentsAndGetMyPatients_Flow_Works()
   {
+    // Add authentication token for the test
+    _client.DefaultRequestHeaders.Add("x-clerk-user-token", "test-token-valid");
+
     var payload = new PostAssignmentsRequest
     {
       ShiftId = "shift-day",

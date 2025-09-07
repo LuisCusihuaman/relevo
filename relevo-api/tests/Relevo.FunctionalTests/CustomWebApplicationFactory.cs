@@ -1,4 +1,6 @@
-﻿using Relevo.Infrastructure.Data;
+﻿using Relevo.Core.Interfaces;
+using Relevo.Core.Models;
+using Relevo.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -77,6 +79,17 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         {
           // Configure test dependencies here
 
+          // Replace the authentication service with a test implementation
+          var authServiceDescriptor = services.FirstOrDefault(
+            d => d.ServiceType == typeof(Relevo.Core.Interfaces.IAuthenticationService));
+
+          if (authServiceDescriptor != null)
+          {
+            services.Remove(authServiceDescriptor);
+          }
+
+          services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, TestAuthenticationService>();
+
           //// Remove the app's ApplicationDbContext registration.
           //var descriptor = services.SingleOrDefault(
           //d => d.ServiceType ==
@@ -96,5 +109,41 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           //  options.UseInMemoryDatabase(inMemoryCollectionName);
           //});
         });
+  }
+}
+
+/// <summary>
+/// Test implementation of IAuthenticationService for functional testing
+/// </summary>
+public class TestAuthenticationService : IAuthenticationService
+{
+  public Task<AuthenticationResult> AuthenticateAsync(string token)
+  {
+    // For functional tests, accept any non-empty token as valid
+    if (string.IsNullOrEmpty(token))
+    {
+      return Task.FromResult(AuthenticationResult.Failure("Token is required"));
+    }
+
+    // Create a test user for functional tests
+    var user = new User
+    {
+      Id = "test-user-id",
+      Email = "test@example.com",
+      FirstName = "Test",
+      LastName = "User",
+      Roles = new[] { "clinician" },
+      Permissions = new[] { "patients.read", "patients.assign" },
+      LastLoginAt = DateTime.UtcNow,
+      IsActive = true
+    };
+
+    return Task.FromResult(AuthenticationResult.Success(user));
+  }
+
+  public Task<bool> ValidateTokenAsync(string token)
+  {
+    // For functional tests, any non-empty token is considered valid
+    return Task.FromResult(!string.IsNullOrEmpty(token));
   }
 }

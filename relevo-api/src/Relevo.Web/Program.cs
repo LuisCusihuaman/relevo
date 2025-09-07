@@ -48,17 +48,8 @@ var app = builder.Build();
 
 app.UseCors(CorsPolicyName);
 
-// Add routing middleware first
-app.UseRouting();
-
 // Add authentication middleware
 app.UseClerkAuthentication();
-
-// Add authorization middleware (required for FastEndpoints)
-app.UseAuthorization();
-
-// Configure endpoints (this must come after authorization)
-app.UseEndpoints(endpoints => { });
 
 await app.UseAppMiddleware();
 
