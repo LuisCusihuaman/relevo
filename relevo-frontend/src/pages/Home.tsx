@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useEffect } from "react";
 import {
 	DashboardSidebar,
 	PatientDirectoryList,
@@ -12,22 +12,12 @@ import { useUiStore } from "@/store/ui.store";
 
 export type HomeProps = {
 	patientSlug?: string;
-	initialTab?: string;
 };
 
 export function Home({
 	patientSlug,
-	initialTab = "summary",
 }: HomeProps): ReactElement {
-	const [activeTab, setActiveTab] = useState<string>(initialTab);
 	const { currentPatient, actions } = useUiStore();
-
-	useEffect(() => {
-		// Normalize legacy Spanish labels to new keys
-		if (initialTab === "Resumen") setActiveTab("summary");
-		else if (initialTab === "Ajustes") setActiveTab("settings");
-		else setActiveTab(initialTab);
-	}, [initialTab]);
 
 	useEffect(() => {
 		const patientsList: ReadonlyArray<Patient> =
@@ -43,7 +33,7 @@ export function Home({
 
 	return (
 		<div className="flex-1 p-6">
-			{!isPatientView && activeTab === "summary" && (
+			{!isPatientView && (
 				<div className="space-y-6">
 					<VersionNotice />
 					<div className="max-w-7xl mx-auto px-6 py-6">
@@ -59,9 +49,7 @@ export function Home({
 
 			{isPatientView && currentPatient ? (
 				<div className="space-y-6">
-					{activeTab === "summary" && (
-						<PatientProfileHeader currentPatient={currentPatient} />
-					)}
+					<PatientProfileHeader currentPatient={currentPatient} />
 				</div>
 			) : null}
 		</div>
