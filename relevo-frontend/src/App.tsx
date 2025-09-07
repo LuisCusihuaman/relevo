@@ -6,7 +6,15 @@ import type { TanstackRouter } from "./main";
 import { TanStackRouterDevelopmentTools } from "./components/utils/development-tools/TanStackRouterDevelopmentTools";
 import { useSyncClerkUser } from "./store/user.store";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false, // Prevent refetch when switching tabs globally
+			staleTime: 5 * 60 * 1000, // 5 minutes
+			gcTime: 15 * 60 * 1000, // 15 minutes
+		},
+	},
+});
 
 type AppProps = { router: TanstackRouter };
 

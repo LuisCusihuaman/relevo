@@ -89,12 +89,13 @@ export function usePatientsByUnit(
 	parameters?: {
 		page?: number;
 		pageSize?: number;
+		enabled?: boolean;
 	}
 ): ReturnType<typeof useQuery<Array<SetupPatient> | undefined, Error>> {
 	return useQuery({
 		queryKey: setupQueryKeys.patientsByUnit(unitId ?? ""),
 		queryFn: () => getPatientsByUnit(unitId ?? "", parameters),
-		enabled: Boolean(unitId),
+		enabled: parameters?.enabled ?? Boolean(unitId), // Use provided enabled or default to Boolean(unitId)
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 15 * 60 * 1000, // 15 minutes
 		select: (data: Array<SetupPatient> | undefined) => data,

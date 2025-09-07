@@ -59,5 +59,6 @@
   },
   "completeSetup": "Complete Setup",
   "configure": "Configure",
-  "update": "Update"
+  "update": "Update",
+  "signOut": "Sign out"
 }
