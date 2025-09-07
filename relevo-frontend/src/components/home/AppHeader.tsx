@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import {
 	Search,
-	ChevronDown,
+	ChevronRight,
 	AlertTriangle,
 	Bell,
 	Grid2X2,
@@ -59,7 +59,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 								>
 									Relevo de Luis Cusihuaman
 								</button>
-								<ChevronDown className="h-4 w-4 text-gray-400" />
+								<ChevronRight className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
 									{currentPatient?.name === "relevo-app" ? (
 										<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
@@ -72,14 +72,14 @@ export const AppHeader: FC<AppHeaderProps> = ({
 										{currentPatient?.name}
 									</span>
 								</div>
-								<ChevronDown className="h-4 w-4 text-gray-400" />
+								<ChevronRight className="h-4 w-4 text-gray-400" />
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<span className="text-base font-medium text-gray-900">
 									Relevo de Luis Cusihuaman
 								</span>
-								<ChevronDown className="h-4 w-4 text-gray-400" />
+								<ChevronRight className="h-4 w-4 text-gray-400" />
 							</div>
 						)}
 					</div>

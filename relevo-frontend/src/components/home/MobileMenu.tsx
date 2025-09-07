@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-	ChevronDown,
+	ChevronRight,
 	Settings,
 	Plus,
 	Monitor,
@@ -57,7 +57,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 								Relevo de Luis Cusihuaman
 							</span>
 						)}
-						<ChevronDown className="h-4 w-4 text-gray-500" />
+						<ChevronRight className="h-4 w-4 text-gray-500" />
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
