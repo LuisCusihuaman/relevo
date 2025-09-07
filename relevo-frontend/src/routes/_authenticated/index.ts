@@ -7,7 +7,6 @@ export const Route = createFileRoute("/_authenticated/")({
 		const completed = window.localStorage.getItem("dailySetupCompleted") === "true";
 		if (!completed) {
 			redirect({ to: "/daily-setup", throw: true });
-			return;
 		}
 	},
 });
