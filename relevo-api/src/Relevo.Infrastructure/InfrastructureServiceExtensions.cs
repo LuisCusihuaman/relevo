@@ -50,6 +50,10 @@ public static class InfrastructureServiceExtensions
 
     services.AddScoped<IDeleteContributorService, DeleteContributorService>();
 
+    // Authentication and Authorization Services
+    services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, Auth.ClerkAuthenticationService>();
+    services.AddScoped<Relevo.Core.Interfaces.IAuthorizationService, Auth.ClerkAuthorizationService>();
+    services.AddScoped<Relevo.Core.Interfaces.IUserContext, Auth.HttpContextUserContext>();
 
     logger.LogInformation("{Project} services registered", "Infrastructure");
 
