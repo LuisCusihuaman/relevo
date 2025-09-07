@@ -1,5 +1,24 @@
+import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { SetupPatient } from "@/common/types";
+
+// Axios instance with default config
+const api = axios.create({
+	baseURL: (import.meta.env["VITE_API_URL"] as string | undefined) || "https://api.relevo.app/v1",
+	headers: {
+		"Content-Type": "application/json",
+		Accept: "application/json",
+	},
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use((config) => {
+	const token = localStorage.getItem("authToken");
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
+});
 
 // API Response Types (matching the OpenAPI schema)
 export type PatientSummaryCard = {
@@ -51,7 +70,6 @@ export type PaginatedPatientHandoverTimeline = {
 };
 
 // API Functions
-const API_BASE_URL: string = (import.meta.env["VITE_API_URL"] as string | undefined) || "https://api.relevo.app/v1";
 
 // Additional types for Daily Setup
 export type Unit = {
@@ -95,40 +113,16 @@ export async function getAssignedPatients(parameters?: {
 	page?: number;
 	pageSize?: number;
 }): Promise<PaginatedPatientSummaryCards> {
-	const queryParameters = new URLSearchParams();
-	if (parameters?.page) queryParameters.set("page", parameters.page.toString());
-	if (parameters?.pageSize) queryParameters.set("pageSize", parameters.pageSize.toString());
-
-	const response = await fetch(`${API_BASE_URL}/me/patients?${queryParameters}`, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch assigned patients: ${response.statusText}`);
-	}
-
-	return response.json() as Promise<PaginatedPatientSummaryCards>;
+	const { data } = await api.get<PaginatedPatientSummaryCards>("/me/patients", { params: parameters });
+	return data;
 }
 
 /**
  * Get detailed information for a specific patient
  */
 export async function getPatientDetails(patientId: string): Promise<PatientDetail> {
-	const response = await fetch(`${API_BASE_URL}/patients/${patientId}`, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch patient details: ${response.statusText}`);
-	}
-
-	return response.json() as Promise<PatientDetail>;
+	const { data } = await api.get<PatientDetail>(`/patients/${patientId}`);
+	return data;
 }
 
 /**
@@ -141,43 +135,15 @@ export async function getPatientHandoverTimeline(
 		pageSize?: number;
 	}
 ): Promise<PaginatedPatientHandoverTimeline> {
-	const queryParameters = new URLSearchParams();
-	if (parameters?.page) queryParameters.set("page", parameters.page.toString());
-	if (parameters?.pageSize) queryParameters.set("pageSize", parameters.pageSize.toString());
-
-	const response = await fetch(
-		`${API_BASE_URL}/patients/${patientId}/handovers?${queryParameters}`,
-		{
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-			},
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch patient handover timeline: ${response.statusText}`);
-	}
-
-	return response.json() as Promise<PaginatedPatientHandoverTimeline>;
+	const { data } = await api.get<PaginatedPatientHandoverTimeline>(`/patients/${patientId}/handovers`, { params: parameters });
+	return data;
 }
 
 /**
  * Get hospital units
  */
 export async function getUnits(): Promise<Array<Unit>> {
-	const response = await fetch(`${API_BASE_URL}/setup/units`, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch units: ${response.statusText}`);
-	}
-
-	const data = await response.json() as UnitsResponse;
+	const { data } = await api.get<UnitsResponse>("/setup/units");
 	return data.units ?? data.Units ?? [];
 }
 
@@ -185,18 +151,7 @@ export async function getUnits(): Promise<Array<Unit>> {
  * Get available shifts
  */
 export async function getShifts(): Promise<Array<Shift>> {
-	const response = await fetch(`${API_BASE_URL}/setup/shifts`, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch shifts: ${response.statusText}`);
-	}
-
-	const data = await response.json() as ShiftsResponse;
+	const { data } = await api.get<ShiftsResponse>("/setup/shifts");
 	return data.shifts ?? data.Shifts ?? [];
 }
 
@@ -207,25 +162,7 @@ export async function getPatientsByUnit(unitId: string, parameters?: {
 	page?: number;
 	pageSize?: number;
 }): Promise<Array<SetupPatient>> {
-	const queryParameters = new URLSearchParams();
-	if (parameters?.page) queryParameters.set("page", parameters.page.toString());
-	if (parameters?.pageSize) queryParameters.set("pageSize", parameters.pageSize.toString());
-
-	const response = await fetch(
-		`${API_BASE_URL}/units/${unitId}/patients?${queryParameters}`,
-		{
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-			},
-		}
-	);
-
-	if (!response.ok) {
-		throw new Error(`Failed to fetch patients for unit ${unitId}: ${response.statusText}`);
-	}
-
-	const data = await response.json() as SetupPatientsResponse;
+	const { data } = await api.get<SetupPatientsResponse>(`/units/${unitId}/patients`, { params: parameters });
 	return data.patients ?? data.Patients ?? [];
 }
 
@@ -233,19 +170,7 @@ export async function getPatientsByUnit(unitId: string, parameters?: {
  * Assign patients to a shift
  */
 export async function assignPatients(payload: AssignPatientsPayload): Promise<void> {
-	const response = await fetch(`${API_BASE_URL}/me/assignments`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			Accept: "application/json",
-			Authorization: `Bearer ${localStorage.getItem("authToken") ?? ""}`,
-		},
-		body: JSON.stringify(payload),
-	});
-
-	if (!response.ok) {
-		throw new Error(`Failed to assign patients: ${response.statusText}`);
-	}
+	await api.post("/me/assignments", payload);
 }
 
 // Query Keys for cache invalidation
@@ -276,25 +201,27 @@ export const patientQueryKeys = {
 export function useAssignedPatients(parameters?: {
 	page?: number;
 	pageSize?: number;
-}): ReturnType<typeof useQuery> {
+}): ReturnType<typeof useQuery<PaginatedPatientSummaryCards | undefined, Error>> {
 	return useQuery({
-		queryKey: ["assignedPatients", parameters],
+		queryKey: patientQueryKeys.assignedWithParams(parameters),
 		queryFn: () => getAssignedPatients(parameters),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
+		select: (data: PaginatedPatientSummaryCards | undefined) => data,
 	});
 }
 
 /**
  * Hook to get detailed information for a specific patient
  */
-export function usePatientDetails(patientId: string): ReturnType<typeof useQuery> {
+export function usePatientDetails(patientId: string): ReturnType<typeof useQuery<PatientDetail | undefined, Error>> {
 	return useQuery({
-		queryKey: ["patientDetails", patientId],
+		queryKey: patientQueryKeys.detailsById(patientId),
 		queryFn: () => getPatientDetails(patientId),
 		enabled: !!patientId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
+		select: (data: PatientDetail | undefined) => data,
 	});
 }
 
@@ -307,13 +234,14 @@ export function usePatientHandoverTimeline(
 		page?: number;
 		pageSize?: number;
 	}
-): ReturnType<typeof useQuery> {
+): ReturnType<typeof useQuery<PaginatedPatientHandoverTimeline | undefined, Error>> {
 	return useQuery({
-		queryKey: ["patientHandoverTimeline", patientId, parameters],
+		queryKey: patientQueryKeys.handoverTimelineById(patientId, parameters),
 		queryFn: () => getPatientHandoverTimeline(patientId, parameters),
 		enabled: !!patientId,
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000, // 5 minutes
+		select: (data: PaginatedPatientHandoverTimeline | undefined) => data,
 	});
 }
 
@@ -354,24 +282,26 @@ export function useRefreshPatientDetails(): ReturnType<typeof useMutation<Patien
 /**
  * Hook to get hospital units
  */
-export function useUnits(): ReturnType<typeof useQuery> {
+export function useUnits(): ReturnType<typeof useQuery<Array<Unit> | undefined, Error>> {
 	return useQuery({
 		queryKey: patientQueryKeys.units(),
 		queryFn: () => getUnits(),
 		staleTime: 10 * 60 * 1000, // 10 minutes
 		gcTime: 30 * 60 * 1000, // 30 minutes
+		select: (data: Array<Unit> | undefined) => data,
 	});
 }
 
 /**
  * Hook to get available shifts
  */
-export function useShifts(): ReturnType<typeof useQuery> {
+export function useShifts(): ReturnType<typeof useQuery<Array<Shift> | undefined, Error>> {
 	return useQuery({
 		queryKey: patientQueryKeys.shifts(),
 		queryFn: () => getShifts(),
 		staleTime: 10 * 60 * 1000, // 10 minutes
 		gcTime: 30 * 60 * 1000, // 30 minutes
+		select: (data: Array<Shift> | undefined) => data,
 	});
 }
 
@@ -384,20 +314,21 @@ export function usePatientsByUnit(
 		page?: number;
 		pageSize?: number;
 	}
-): ReturnType<typeof useQuery> {
+): ReturnType<typeof useQuery<Array<SetupPatient> | undefined, Error>> {
 	return useQuery({
 		queryKey: patientQueryKeys.patientsByUnit(unitId ?? ""),
 		queryFn: () => getPatientsByUnit(unitId ?? "", parameters),
 		enabled: Boolean(unitId),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 15 * 60 * 1000, // 15 minutes
+		select: (data: Array<SetupPatient> | undefined) => data,
 	});
 }
 
 /**
  * Hook to assign patients to a shift
  */
-export function useAssignPatients(): ReturnType<typeof useMutation<void, unknown, AssignPatientsPayload, unknown>> {
+export function useAssignPatients(): ReturnType<typeof useMutation<void, Error, AssignPatientsPayload>> {
 	return useMutation({
 		mutationFn: assignPatients,
 	});

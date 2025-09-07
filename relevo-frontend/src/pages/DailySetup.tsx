@@ -67,15 +67,11 @@ export function DailySetup(): ReactElement {
 	const [selectedIndexes, setSelectedIndexes] = useState<Array<number>>([]);
 	const [showValidationError, setShowValidationError] = useState(false);
 
-	// Fetch from API with ES fallbacks
-	const unitsQuery = useUnits();
-	const shiftsQuery = useShifts();
-	const patientsQuery = usePatientsByUnit(unit || undefined);
+	// Fetch from API - using standard React Query destructuring pattern
+	const { data: apiUnits	 } = useUnits();
+	const { data: apiShifts } = useShifts();
+	const { data: apiPatients } = usePatientsByUnit(unit || undefined);
 	const assignMutation = useAssignPatients();
-
-	const apiUnits: Array<Unit> | undefined = unitsQuery.data as Array<Unit> | undefined;
-	const apiShifts: Array<Shift> | undefined = shiftsQuery.data as Array<Shift> | undefined;
-	const apiPatients: Array<SetupPatient> | undefined = patientsQuery.data as Array<SetupPatient> | undefined;
 
 	const currentUnitsConfig: Array<UnitConfig> = (apiUnits ?? []).map((u) => ({
 		id: u.id,
