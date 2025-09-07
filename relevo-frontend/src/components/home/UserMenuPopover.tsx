@@ -9,6 +9,7 @@ import {
 import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUserStore } from "@/store/user.store";
 
 type UserMenuPopoverProps = {
   onOpenMobileMenu?: () => void;
@@ -16,10 +17,13 @@ type UserMenuPopoverProps = {
 
 export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) => {
   const { t } = useTranslation("home");
-  const { user } = useUser();
+  const { user: clerkUser } = useUser();
   const { signOut } = useClerk();
-  const displayName = user?.fullName ?? "";
-  const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
+  const { fullName, email } = useUserStore();
+
+  // Use store data if available, fallback to Clerk data
+  const displayName = fullName || clerkUser?.fullName || "";
+  const primaryEmail = email || clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || "";
 
   return (
     <>
@@ -41,8 +45,8 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
       <Popover>
       <PopoverTrigger asChild>
         <Avatar className="h-8 w-8 cursor-pointer hidden md:block">
-          <AvatarImage src={user?.imageUrl} />
-          <AvatarFallback>{user?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
+          <AvatarImage src={clerkUser?.imageUrl} />
+          <AvatarFallback>{clerkUser?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 z-50">

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../client";
+import { api, type createAuthenticatedApiCall } from "../client";
+import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type {
 	PaginatedPatientSummaryCards,
 	PatientDetail,
@@ -24,12 +25,18 @@ export const patientQueryKeys = {
 /**
  * Get assigned patients for the current user
  */
-export async function getAssignedPatients(parameters?: {
-	page?: number;
-	pageSize?: number;
-}): Promise<PaginatedPatientSummaryCards> {
-	const { data } = await api.get<PaginatedPatientSummaryCards>("/me/patients", { params: parameters });
-	return data;
+export async function getAssignedPatients(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): Promise<PaginatedPatientSummaryCards> {
+	return authenticatedApiCall<PaginatedPatientSummaryCards>({
+		method: "GET",
+		url: "/me/patients",
+		params: parameters,
+	});
 }
 
 /**
@@ -61,9 +68,11 @@ export function useAssignedPatients(parameters?: {
 	page?: number;
 	pageSize?: number;
 }): ReturnType<typeof useQuery<PaginatedPatientSummaryCards | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useQuery({
 		queryKey: patientQueryKeys.assignedWithParams(parameters),
-		queryFn: () => getAssignedPatients(parameters),
+		queryFn: () => getAssignedPatients(authenticatedApiCall, parameters),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		select: (data: PaginatedPatientSummaryCards | undefined) => data,

@@ -9,11 +9,26 @@ export const api = axios.create({
 	},
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use((config) => {
-	const token = localStorage.getItem("authToken");
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
-	return config;
-});
+// Helper function to create authenticated API calls
+export const createAuthenticatedApiCall = (getToken: () => Promise<string | null>) => {
+	return async <T = unknown>(config: Parameters<typeof api.request>[0]): Promise<T> => {
+		try {
+			const token = await getToken();
+
+			if (token) {
+				// Use Clerk's preferred header format that matches our backend middleware
+				config.headers = {
+					...config.headers,
+					"x-clerk-user-token": token,
+					Authorization: `Bearer ${token}`,
+				} as Record<string, string>;
+			}
+
+			const response = await api.request<T>(config);
+			return response.data;
+		} catch (error) {
+			console.error("API call failed:", error);
+			throw error;
+		}
+	};
+};
