@@ -24,16 +24,6 @@ export const PatientDirectoryList: FC = () => {
 		}
 	};
 
-	const getActionText = (status: string): string => {
-		if (status.includes("traspaso")) {
-			return "Continuar traspaso";
-		}
-		if (status.includes("Notas")) {
-			return "Notas clínicas";
-		}
-		return "Iniciar traspaso";
-	};
-
 	const formatDate = (dateString: string): string => {
 		if (!/^[a-zA-Z]{3}\s\d{1,2}$/.test(dateString)) {
 			return dateString;
@@ -72,7 +62,7 @@ export const PatientDirectoryList: FC = () => {
 
 								<div className="min-w-0 flex-1">
 									<a className="block text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline truncate">
-										{getActionText(getStatusText(patient.status))}
+										Iniciar traspaso
 									</a>
 									<div className="mt-1 text-xs text-gray-600 flex items-center gap-2">
 										<time>{formatDate(patient.date)}</time>
@@ -119,7 +109,7 @@ export const PatientDirectoryList: FC = () => {
 											<DropdownMenuItem>Abrir</DropdownMenuItem>
 											<DropdownMenuItem>Ver notas</DropdownMenuItem>
 											<DropdownMenuItem>
-												{getActionText(getStatusText(patient.status))}
+												Iniciar traspaso
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>

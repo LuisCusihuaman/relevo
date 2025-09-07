@@ -18,30 +18,6 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 	setSearchQuery,
 	searchResults,
 }) => {
-	const getCategoryText = (category: string): string => {
-		switch (category) {
-			case "Patients":
-			case "Patient":
-				return "Pacientes";
-			case "Deployments":
-			case "Latest Deployment":
-				return "Pacientes";
-			case "Team":
-				return "Equipo";
-			case "Actions":
-			case "Navigation Assistant":
-				return "Acciones rápidas";
-			case "Notas clínicas":
-				return "Notas clínicas";
-			case "Unidades/Servicios":
-				return "Unidades/Servicios";
-			case "Personas/Equipo":
-				return "Personas/Equipo";
-			default:
-				return category;
-		}
-	};
-
 	const filteredResults = searchResults.filter(
 		(result) =>
 			searchQuery === "" ||
@@ -156,7 +132,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 										{result.name}
 									</div>
 									<div className="text-sm text-gray-500 truncate">
-										{getCategoryText(result.category)}
+										{result.category}
 									</div>
 								</div>
 							</div>

@@ -3,6 +3,21 @@ import { GitBranch, MoreHorizontal } from "lucide-react";
 import { handovers } from "../../pages/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+const monthMap: Record<string, string> = {
+	Jan: "Ene",
+	Feb: "Feb",
+	Mar: "Mar",
+	Apr: "Abr",
+	May: "May",
+	Jun: "Jun",
+	Jul: "Jul",
+	Aug: "Ago",
+	Sep: "Sep",
+	Oct: "Oct",
+	Nov: "Nov",
+	Dec: "Dic",
+};
+
 type EntityListMobileProps = {
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
 };
@@ -10,53 +25,10 @@ type EntityListMobileProps = {
 export const EntityListMobile: FC<EntityListMobileProps> = ({
 	handleHandoverClick,
 }) => {
-	const mapStatusText = (status: string): string => {
-		if (status === "Error") return "Crítico";
-		if (status === "Ready") return "Completado";
-		if (status === "Promoted") return "Completado";
-		if (status === "Staged") return "Completado";
-		switch (status) {
-			case "Queued":
-			case "Pending":
-				return "No iniciado";
-			case "Running":
-			case "In progress":
-				return "En progreso";
-			case "Succeeded":
-			case "Completed":
-				return "Completado";
-			case "Failed":
-				return "Fallido";
-			default:
-				return status;
-		}
-	};
-
-	const mapEnvType = (type: string): string => {
-		if (type === "Preview") return "Tipo: Vista";
-		if (type === "Production") return "Tipo: Actual";
-		return `Tipo: ${type}`;
-	};
-
 	const mapEnvironment = (env: string): string => {
 		if (env === "Unexpected Error") return "Evento crítico";
 		if (env === "Promoted" || env === "Staged") return "Completado";
 		return env;
-	};
-
-	const monthMap: Record<string, string> = {
-		Jan: "Ene",
-		Feb: "Feb",
-		Mar: "Mar",
-		Apr: "Abr",
-		May: "May",
-		Jun: "Jun",
-		Jul: "Jul",
-		Aug: "Ago",
-		Sep: "Sep",
-		Oct: "Oct",
-		Nov: "Nov",
-		Dec: "Dic",
 	};
 
 	const formatRelative = (value: string): string => {
@@ -111,7 +83,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								{getTitleLine(handover)}
 							</h3>
 							<p className="text-sm text-gray-500" title="Tipo de sesión de traspaso">
-								{mapEnvType(handover.environmentType)}
+								{handover.environmentType}
 							</p>
 						</div>
 						<DropdownMenu>
@@ -133,7 +105,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 							title="Estado del traspaso"
 						></span>
 						<span className="text-sm font-medium text-gray-900">
-							{mapStatusText(handover.status)}
+							{handover.status}
 						</span>
 						<span className="text-sm text-gray-500">
 							{formatRelative(handover.statusTime)}

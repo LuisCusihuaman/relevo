@@ -4,6 +4,21 @@ import { handovers } from "../../pages/data";
 import type { Handover } from "./types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+const monthMap: Record<string, string> = {
+	Jan: "Ene",
+	Feb: "Feb",
+	Mar: "Mar",
+	Apr: "Abr",
+	May: "May",
+	Jun: "Jun",
+	Jul: "Jul",
+	Aug: "Ago",
+	Sep: "Sep",
+	Oct: "Oct",
+	Nov: "Nov",
+	Dec: "Dic",
+};
+
 type EntityTableProps = {
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
 };
@@ -11,50 +26,7 @@ type EntityTableProps = {
 export const EntityTable: FC<EntityTableProps> = ({
 	handleHandoverClick,
 }) => {
-	const mapStatusText = (status: string): string => {
-		if (status === "Error") return "Crítico";
-		if (status === "Ready") return "Completado";
-		if (status === "Promoted") return "Completado"; // verde → Completado
-		if (status === "Staged") return "Completado"; // verde → Completado
-		switch (status) {
-			case "Queued":
-			case "Pending":
-				return "No iniciado";
-			case "Running":
-			case "In progress":
-				return "En progreso";
-			case "Succeeded":
-			case "Completed":
-				return "Completado";
-			case "Failed":
-				return "Fallido";
-			default:
-				return status;
-		}
-	};
-
-	const mapEnvType = (type: string): string => {
-		if (type === "Preview") return "Tipo: Vista";
-		if (type === "Production") return "Tipo: Actual";
-		return `Tipo: ${type}`;
-	};
-
 	// environment label now shown only via status/time; keep mapping if needed later
-
-	const monthMap: Record<string, string> = {
-		Jan: "Ene",
-		Feb: "Feb",
-		Mar: "Mar",
-		Apr: "Abr",
-		May: "May",
-		Jun: "Jun",
-		Jul: "Jul",
-		Aug: "Ago",
-		Sep: "Sep",
-		Oct: "Oct",
-		Nov: "Nov",
-		Dec: "Dic",
-	};
 
 	const formatRelative = (value: string): string => {
 		let s = value;
@@ -115,7 +87,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 							{getTitleLine(handover)}
 						</div>
 						<div className="text-xs text-gray-500 mt-0.5" title="Tipo de sesión de traspaso">
-							{mapEnvType(handover.environmentType)}
+							{handover.environmentType}
 						</div>
 					</div>
 
@@ -127,7 +99,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 								title="Estado del traspaso"
 							></span>
 							<span className="text-sm font-medium text-gray-900">
-								{mapStatusText(handover.status)}
+								{handover.status}
 							</span>
 						</div>
 						<div className="text-xs text-gray-500">
