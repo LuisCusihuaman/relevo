@@ -42,9 +42,9 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 					{patients.length > 0 ? (
 						patients.map((patient, index) => (
 							<li
-								key={index}
+								key={patient.id}
 								className="grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 hover:bg-gray-50 cursor-pointer transition-colors"
-								onClick={() => (window.location.href = `/${patient.name}`)}
+								onClick={() => (window.location.href = `/${patient.url}`)}
 							>
 								<div className="flex items-center gap-3 min-w-0">
 									<span className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">

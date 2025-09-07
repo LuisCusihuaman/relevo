@@ -129,14 +129,14 @@ public class SqliteSetupRepository : ISetupRepository
         // For tests, return hardcoded data since we're using SQLite
         var allPatients = new List<(string UnitId, PatientRecord Patient)>
         {
-          ("unit-1", new PatientRecord("pat-123", "John Doe")),
-          ("unit-1", new PatientRecord("pat-456", "Jane Smith")),
-          ("unit-1", new PatientRecord("pat-789", "Alex Johnson")),
-          ("unit-2", new PatientRecord("pat-210", "Ava Thompson")),
-          ("unit-2", new PatientRecord("pat-220", "Liam Rodríguez")),
-          ("unit-2", new PatientRecord("pat-230", "Mia Patel")),
-          ("unit-3", new PatientRecord("pat-310", "Pat Taylor")),
-          ("unit-3", new PatientRecord("pat-320", "Jordan White"))
+          ("unit-1", new PatientRecord("pat-123", "John Doe", "NotStarted", null)),
+          ("unit-1", new PatientRecord("pat-456", "Jane Smith", "NotStarted", null)),
+          ("unit-1", new PatientRecord("pat-789", "Alex Johnson", "NotStarted", null)),
+          ("unit-2", new PatientRecord("pat-210", "Ava Thompson", "NotStarted", null)),
+          ("unit-2", new PatientRecord("pat-220", "Liam Rodríguez", "NotStarted", null)),
+          ("unit-2", new PatientRecord("pat-230", "Mia Patel", "NotStarted", null)),
+          ("unit-3", new PatientRecord("pat-310", "Pat Taylor", "NotStarted", null)),
+          ("unit-3", new PatientRecord("pat-320", "Jordan White", "NotStarted", null))
         };
 
         var unitPatients = allPatients
@@ -207,7 +207,7 @@ public class SqliteSetupRepository : ISetupRepository
         var offset = (p - 1) * ps;
 
         var patients = _connection.Query<PatientRecord>(@"
-          SELECT p.ID, p.NAME
+          SELECT p.ID, p.NAME, 'NotStarted' AS HandoverStatus, NULL AS HandoverId
           FROM PATIENTS p
           INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
           WHERE ua.USER_ID = @UserId

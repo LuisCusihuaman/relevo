@@ -26,9 +26,11 @@ public class PostAssignments(
       return;
     }
 
-    // Debug logging
-    _logger.LogInformation("AssignPatients - User ID: {UserId}, Shift: {ShiftId}, Patients: {PatientIds}",
-        user.Id, req.ShiftId, string.Join(",", req.PatientIds ?? []));
+    // Debug logging - Enhanced to show more user details
+    _logger.LogInformation("🚀 AssignPatients - User: {UserId} ({UserEmail}), Shift: {ShiftId}, Patients: {PatientIds}",
+        user.Id, user.Email ?? "no-email", req.ShiftId, string.Join(",", req.PatientIds ?? []));
+    _logger.LogInformation("👤 User Context Details - ID: {UserId}, Email: {Email}, Name: {FirstName} {LastName}",
+        user.Id, user.Email ?? "no-email", user.FirstName ?? "no-first", user.LastName ?? "no-last");
 
     await _setupService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
 

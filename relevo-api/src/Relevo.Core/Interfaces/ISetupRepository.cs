@@ -13,7 +13,12 @@ public interface ISetupRepository
 // Domain Records
 public record UnitRecord(string Id, string Name);
 public record ShiftRecord(string Id, string Name, string StartTime, string EndTime);
-public record PatientRecord(string Id, string Name);
+public record PatientRecord(
+    string Id, 
+    string Name, 
+    string HandoverStatus, 
+    string? HandoverId
+);
 public record HandoverRecord(
     string Id,
     string PatientId,

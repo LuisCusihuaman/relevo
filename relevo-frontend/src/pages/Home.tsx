@@ -34,6 +34,7 @@ function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
 	const patientSlug = patientCard.name.toLowerCase().replace(/\s+/g, "-");
 
 	return {
+		id: patientCard.id, // <-- AÑADIDO: Incluir el ID del paciente
 		name: patientCard.name,
 		url: patientSlug,
 		status: getStatusFromHandoverStatus(patientCard.handoverStatus),

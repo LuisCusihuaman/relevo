@@ -38,10 +38,18 @@ public class GetMyPatients(
 
     Response = new GetMyPatientsResponse
     {
-      Patients = patients.ToList(),
-      TotalCount = total,
-      Page = req.Page,
-      PageSize = req.PageSize
+        Items = patients.Select(p => new PatientSummaryCard
+        {
+            Id = p.Id,
+            Name = p.Name
+            // HandoverStatus and HandoverId will use default values for now
+        }).ToList(),
+        Pagination = new PaginationInfo
+        {
+            TotalCount = total,
+            Page = req.Page,
+            PageSize = req.PageSize
+        }
     };
 
     // Add debug info to response headers
@@ -61,10 +69,24 @@ public class GetMyPatientsRequest
 
 public class GetMyPatientsResponse
 {
-  public List<DomainPatientRecord> Patients { get; set; } = [];
+  public List<PatientSummaryCard> Items { get; set; } = [];
+  public PaginationInfo Pagination { get; set; } = new();
+}
+
+public class PatientSummaryCard
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string HandoverStatus { get; set; } = "NotStarted"; // Default value
+    public string? HandoverId { get; set; }
+}
+
+public class PaginationInfo
+{
   public int TotalCount { get; set; }
   public int Page { get; set; }
   public int PageSize { get; set; }
+  public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
 }
 
 

@@ -46,12 +46,19 @@ public class ClerkAuthenticationMiddleware
             if (!string.IsNullOrEmpty(token))
             {
                 // Try to authenticate with the provided token
+                _logger.LogInformation("🔐 Attempting authentication with token for {Path}", context.Request.Path);
                 var authResult = await authenticationService.AuthenticateAsync(token);
+                _logger.LogInformation("🔐 Authentication result for {Path}: IsAuthenticated={IsAuth}, HasUser={HasUser}, Error={Error}",
+                    context.Request.Path, authResult.IsAuthenticated, authResult.User != null, authResult.Error ?? "none");
 
                 if (authResult.IsAuthenticated && authResult.User != null)
                 {
                     // Use the authenticated user
                     await userContext.SetUserAsync(authResult.User);
+
+                    // Log authenticated user details
+                    _logger.LogInformation("Authenticated user {UserId} ({UserEmail}) for anonymous endpoint {Path}",
+                        authResult.User.Id, authResult.User.Email, context.Request.Path);
 
                     // Add user info to response headers
                     context.Response.Headers["X-User-Id"] = authResult.User.Id;
@@ -77,7 +84,9 @@ public class ClerkAuthenticationMiddleware
 
             // Ensure AsyncLocal flows to the current execution context
             var currentUser = userContext.CurrentUser;
-            _logger.LogInformation("Set fallback demo user in context: {UserId}, Retrieved: {RetrievedId}", demoUser.Id, currentUser?.Id);
+            _logger.LogInformation("Using fallback demo user {UserId} ({UserEmail}) for anonymous endpoint {Path}",
+                demoUser.Id, demoUser.Email, context.Request.Path);
+            _logger.LogInformation("Set demo user in context: {UserId}, Retrieved: {RetrievedId}", demoUser.Id, currentUser?.Id);
 
             // Add user info to response headers for debugging (even for anonymous/demo users)
             context.Response.Headers["X-User-Id"] = demoUser.Id;
@@ -124,6 +133,8 @@ public class ClerkAuthenticationMiddleware
 
                     // Ensure AsyncLocal flows to the current execution context
                     var retrievedUser = userContext.CurrentUser;
+                    _logger.LogInformation("Using development demo user {UserId} ({UserEmail}) for {Path}",
+                        demoUser.Id, demoUser.Email, context.Request.Path);
                     _logger.LogInformation("Set demo user in context: {UserId}, Retrieved: {RetrievedId}", demoUser.Id, retrievedUser?.Id);
 
                     // Add user info to response headers for debugging (even for anonymous/demo users)
@@ -153,8 +164,8 @@ public class ClerkAuthenticationMiddleware
 
             if (!authResult.IsAuthenticated || authResult.User == null)
             {
-                _logger.LogWarning("Authentication failed for {Path}: {Error}",
-                    context.Request.Path, authResult.Error);
+                _logger.LogWarning("❌ Authentication failed for {Path}: {Error}. Token length: {TokenLength}",
+                    context.Request.Path, authResult.Error ?? "Unknown error", token?.Length ?? 0);
 
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsJsonAsync(new
@@ -177,8 +188,10 @@ public class ClerkAuthenticationMiddleware
             context.Response.Headers["X-User-Id"] = authResult.User.Id;
             context.Response.Headers["X-User-Email"] = authResult.User.Email;
 
-            _logger.LogInformation("Authenticated user {UserId} for {Path}",
-                authResult.User.Id, context.Request.Path);
+            // Log comprehensive user authentication details
+            var userName = $"{authResult.User.FirstName} {authResult.User.LastName}".Trim();
+            _logger.LogInformation("✅ Authenticated user {UserId} ({UserEmail}) '{UserName}' for {Path}",
+                authResult.User.Id, authResult.User.Email, userName, context.Request.Path);
 
             await _next(context);
         }

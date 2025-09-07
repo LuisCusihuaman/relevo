@@ -49,7 +49,18 @@ public class ClerkAuthenticationService : IAuthenticationService
 
             if (!isValid)
             {
+                _logger.LogWarning("Token validation failed for user {UserId}, falling back to demo user", user.Id);
                 return AuthenticationResult.Failure("Invalid token");
+            }
+
+            // If user details are missing, try to enrich with Clerk user info
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.FirstName))
+            {
+                var enrichedUser = await EnrichUserWithClerkDataAsync(user.Id, user);
+                if (enrichedUser != null)
+                {
+                    user = enrichedUser;
+                }
             }
 
             return AuthenticationResult.Success(user);
@@ -70,6 +81,10 @@ public class ClerkAuthenticationService : IAuthenticationService
     private User ExtractUserFromToken(JwtSecurityToken jwtToken)
     {
         var claims = jwtToken.Claims;
+
+        // Debug: Log all available claims
+        _logger.LogInformation("JWT Claims: {Claims}",
+            string.Join(", ", claims.Select(c => $"{c.Type}: {c.Value}")));
 
         return new User
         {
@@ -143,14 +158,27 @@ public class ClerkAuthenticationService : IAuthenticationService
             // Check if token is expired
             if (jwtToken.ValidTo < DateTime.UtcNow)
             {
+                _logger.LogWarning("Token expired for user {UserId}. ValidTo: {ValidTo}, Current: {Current}",
+                    userId, jwtToken.ValidTo, DateTime.UtcNow);
                 return Task.FromResult(false);
             }
 
             // Check if token has required claims
             if (string.IsNullOrEmpty(userId))
             {
+                _logger.LogWarning("Token missing user ID claim");
                 return Task.FromResult(false);
             }
+
+            // Check issuer
+            var issuer = jwtToken.Issuer;
+            if (string.IsNullOrEmpty(issuer) || !issuer.Contains("clerk"))
+            {
+                _logger.LogWarning("Token has invalid issuer: {Issuer}", issuer);
+                return Task.FromResult(false);
+            }
+
+            _logger.LogInformation("Token validation successful for user {UserId}", userId);
 
             // TODO: Validate with Clerk's public keys
             // This would involve:
@@ -162,8 +190,74 @@ public class ClerkAuthenticationService : IAuthenticationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Token validation failed");
+            _logger.LogError(ex, "Token validation failed for user {UserId}", userId);
             return Task.FromResult(false);
         }
     }
+
+    private async Task<User?> EnrichUserWithClerkDataAsync(string userId, User existingUser)
+    {
+        try
+        {
+            // Get Clerk API key from configuration
+            var clerkApiKey = _configuration?["Clerk:ApiKey"] ?? _configuration?["CLERK_SECRET_KEY"];
+
+            if (string.IsNullOrEmpty(clerkApiKey))
+            {
+                _logger.LogWarning("Clerk API key not configured, skipping user enrichment");
+                return null;
+            }
+
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {clerkApiKey}");
+
+            // Call Clerk's users endpoint to get full user data
+            var response = await httpClient.GetAsync($"https://api.clerk.dev/v1/users/{userId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to fetch user data from Clerk: {StatusCode}", response.StatusCode);
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var clerkUserData = JsonSerializer.Deserialize<ClerkUserResponse>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (clerkUserData != null)
+            {
+                // Update user with Clerk data
+                existingUser.Email = clerkUserData.EmailAddresses?.FirstOrDefault()?.EmailAddress ?? existingUser.Email;
+                existingUser.FirstName = clerkUserData.FirstName ?? existingUser.FirstName;
+                existingUser.LastName = clerkUserData.LastName ?? existingUser.LastName;
+
+                _logger.LogInformation("Enriched user {UserId} with Clerk data: {Email}, {FirstName} {LastName}",
+                    userId, existingUser.Email, existingUser.FirstName, existingUser.LastName);
+
+                return existingUser;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enrich user data from Clerk for user {UserId}", userId);
+        }
+
+        return null;
+    }
+}
+
+// DTOs for Clerk API response
+public class ClerkUserResponse
+{
+    public string? Id { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public List<ClerkEmailAddress>? EmailAddresses { get; set; }
+}
+
+public class ClerkEmailAddress
+{
+    public string? EmailAddress { get; set; }
 }

@@ -37,7 +37,7 @@ public class OracleSetupRepository : ISetupRepository
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
         const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = :unitId";
-        const string pageSql = @"SELECT ID AS Id, NAME AS Name FROM (
+        const string pageSql = @"SELECT ID AS Id, NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId FROM (
           SELECT ID, NAME, ROW_NUMBER() OVER (ORDER BY ID) AS RN
           FROM PATIENTS WHERE UNIT_ID = :unitId
         ) WHERE RN BETWEEN :startRow AND :endRow";
@@ -100,7 +100,7 @@ public class OracleSetupRepository : ISetupRepository
 
             // Get assigned patients (ultra simplified)
             const string patientsSql = @"
-              SELECT p.ID AS Id, p.NAME AS Name
+              SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId
               FROM PATIENTS p
               INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
               WHERE ua.USER_ID = :userId";

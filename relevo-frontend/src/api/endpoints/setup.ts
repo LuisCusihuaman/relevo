@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { api } from "../client";
+import { api, type createAuthenticatedApiCall } from "../client";
+import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type { Unit, Shift, AssignPatientsPayload, SetupPatientsResponse } from "../types";
 import type { SetupPatient } from "@/common/types";
 import { patientQueryKeys } from "./patients";
@@ -43,8 +44,15 @@ export async function getPatientsByUnit(unitId: string, parameters?: {
 /**
  * Assign patients to a shift
  */
-export async function assignPatients(payload: AssignPatientsPayload): Promise<void> {
-	await api.post("/me/assignments", payload);
+export async function assignPatients(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	payload: AssignPatientsPayload
+): Promise<void> {
+	await authenticatedApiCall({
+		method: "POST",
+		url: "/me/assignments",
+		data: payload,
+	});
 }
 
 /**
@@ -97,7 +105,9 @@ export function usePatientsByUnit(
  * Hook to assign patients to a shift
  */
 export function useAssignPatients(): ReturnType<typeof useMutation<void, Error, AssignPatientsPayload>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useMutation({
-		mutationFn: assignPatients,
+		mutationFn: (payload: AssignPatientsPayload) => assignPatients(authenticatedApiCall, payload),
 	});
 }

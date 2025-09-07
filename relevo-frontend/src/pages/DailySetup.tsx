@@ -92,7 +92,7 @@ export function DailySetup(): ReactElement {
 
 	const currentPatientsSource: Array<SetupPatient> = (apiPatients ?? []).map(
 		(p) => ({
-			id: Number(p.id),
+			id: p.id, // Keep as string from API
 			name: p.name,
 			age: p.age,
 			room: p.room ?? "",
@@ -198,12 +198,18 @@ export function DailySetup(): ReactElement {
 		if (canProceedToNextStep()) {
 			if (currentStep === 3) {
 				const shiftId = shift; // shift is guaranteed by canProceedToNextStep
-				const selected = selectedIndexes.map((index) => currentPatients[index]?.id).filter(Boolean) as Array<string | number>;
-				const payload = { shiftId, patientIds: selected.map(String) };
+				const selectedPatientIds = selectedIndexes
+					.map((index) => currentPatients[index]?.id)
+					.filter((id): id is string => Boolean(id) && typeof id === 'string');
+
+				const payload = { shiftId, patientIds: selectedPatientIds };
 				assignMutation.mutate(payload, {
-					onSettled: () => {
+					onSuccess: () => {
 						window.localStorage.setItem("dailySetupCompleted", "true");
 						void navigate({ to: "/" });
+					},
+					onError: (error) => {
+						console.error('Assignment failed:', error);
 					},
 				});
 			} else {
