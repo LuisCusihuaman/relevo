@@ -1,14 +1,14 @@
 import type { FC } from "react";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import { deployments, projectToPatientName } from "../../pages/data";
+import { handovers, projectToPatientName } from "../../pages/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type EntityListMobileProps = {
-	handleDeploymentClick: (deploymentId: string, projectName: string) => void;
+	handleHandoverClick: (handoverId: string, projectName: string) => void;
 };
 
 export const EntityListMobile: FC<EntityListMobileProps> = ({
-	handleDeploymentClick,
+	handleHandoverClick,
 }) => {
 	const mapStatusText = (status: string): string => {
 		if (status === "Error") return "Crítico";
@@ -87,7 +87,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 		return result.toUpperCase();
 	};
 
-	const getTitleLine = (d: typeof deployments[number]): string => {
+	const getTitleLine = (d: typeof handovers[number]): string => {
 		if (d.bedLabel) return `Cama ${d.bedLabel}`;
 		if (typeof d.mrn === "string" && d.mrn.length > 0) {
 			const mrn: string = d.mrn;
@@ -99,22 +99,22 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 
 	return (
 		<div className="md:hidden space-y-4">
-			{deployments.map((deployment) => (
+			{handovers.map((handover) => (
 				<div
-					key={deployment.id}
+					key={handover.id}
 					className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 cursor-pointer hover:border-gray-300 transition-colors"
 					onClick={() => {
-						handleDeploymentClick(deployment.id, deployment.project);
+						handleHandoverClick(handover.id, handover.project);
 					}}
 				>
 					{/* Card Header */}
 					<div className="flex items-center justify-between">
 						<div>
 							<h3 className="font-medium text-gray-900 text-base hover:underline cursor-pointer" title="Ubicación del paciente">
-								{getTitleLine(deployment)}
+								{getTitleLine(handover)}
 							</h3>
 							<p className="text-sm text-gray-500" title="Tipo de sesión de traspaso">
-								{mapEnvType(deployment.environmentType)}
+								{mapEnvType(handover.environmentType)}
 							</p>
 						</div>
 						<DropdownMenu>
@@ -124,7 +124,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								</button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={(e) => { e.stopPropagation(); void navigator.clipboard.writeText(deployment.id); }}>Copiar ID</DropdownMenuItem>
+								<DropdownMenuItem onClick={(e) => { e.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>Copiar ID</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -132,38 +132,38 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					{/* Status */}
 					<div className="flex items-center gap-2">
 						<span
-							className={`h-2 w-2 rounded-full ${deployment.statusColor}`}
+							className={`h-2 w-2 rounded-full ${handover.statusColor}`}
 							title="Estado del traspaso"
 						></span>
 						<span className="text-sm font-medium text-gray-900">
-							{mapStatusText(deployment.status)}
+							{mapStatusText(handover.status)}
 						</span>
 						<span className="text-sm text-gray-500">
-							{formatRelative(deployment.statusTime)}
+							{formatRelative(handover.statusTime)}
 						</span>
 					</div>
 
 					{/* Environment */}
 					<div>
 						<div
-							className={`text-sm font-medium ${deployment.environmentColor}`}
+							className={`text-sm font-medium ${handover.environmentColor}`}
 						>
-							{mapEnvironment(deployment.environment)}
+							{mapEnvironment(handover.environment)}
 						</div>
 						<div className="text-sm text-gray-500">
-							{formatRelative(deployment.time)}
+							{formatRelative(handover.time)}
 						</div>
 					</div>
 
 					{/* Project Info */}
 					<div className="flex items-center gap-2">
 						<div
-							className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${deployment.projectIcon.bg} ${deployment.projectIcon.text || "text-gray-700"}`}
+							className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${handover.projectIcon.bg} ${handover.projectIcon.text || "text-gray-700"}`}
 						>
-							{getInitials(mapPatientName(deployment.project))}
+							{getInitials(mapPatientName(handover.project))}
 						</div>
 						<span className="font-medium text-gray-900 text-sm hover:underline cursor-pointer">
-							{mapPatientName(deployment.project)}
+							{mapPatientName(handover.project)}
 						</span>
 					</div>
 
@@ -179,10 +179,10 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					<div className="flex items-center justify-between pt-2 border-t border-gray-100">
 						<div className="flex items-center gap-2">
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
-								{deployment.avatar}
+								{handover.avatar}
 							</div>
 							<span className="text-sm text-gray-600">
-								{formatRelative(deployment.time)} por {formatAuthor(deployment.author)}
+								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
 							</span>
 						</div>
 					</div>

@@ -15,7 +15,7 @@ import {
 	VersionNotice,
 } from "@/components/home";
 import {
-	projects,
+	patients,
 	recentPreviews,
 	searchResults,
 } from "@/pages/data";
@@ -39,7 +39,7 @@ export function Home({
 	}, [initialTab]);
 
 	const currentProject =
-		(projectSlug && projects.find((p) => p.name === projectSlug)) || null;
+		(projectSlug && patients.find((p) => p.name === projectSlug)) || null;
 	const isProjectView = Boolean(currentProject);
 
 	useEffect(() => {
@@ -69,8 +69,8 @@ export function Home({
 		};
 	}, [isMobileMenuOpen]);
 
-	const handleDeploymentClick = (
-		deploymentId: string,
+	const handleHandoverClick = (
+		handoverId: string,
 		projectName: string
 	): void => {
 		const projectSlugMap: { [key: string]: string } = {
@@ -83,7 +83,7 @@ export function Home({
 		const projectSlug =
 			projectSlugMap[projectName] ||
 			projectName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-		window.location.href = `/${projectSlug}/${deploymentId}`;
+		window.location.href = `/${projectSlug}/${handoverId}`;
 	};
 
 	return (
@@ -137,9 +137,9 @@ export function Home({
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 						<ListHeader />
 						<FilterToolbar />
-						<EntityTable handleDeploymentClick={handleDeploymentClick} />
+						<EntityTable handleHandoverClick={handleHandoverClick} />
 						<EntityListMobile
-							handleDeploymentClick={handleDeploymentClick}
+							handleHandoverClick={handleHandoverClick}
 						/>
 					</div>
 				)}

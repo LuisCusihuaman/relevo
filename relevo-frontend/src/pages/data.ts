@@ -1,12 +1,12 @@
 
 import type {
-	Deployment,
+	Handover,
 	Project,
 	RecentPreview,
 	SearchResult,
 } from "../components/home/types";
 
-export const projects: Array<Project> = [
+export const patients: Array<Project> = [
 	{
 		name: "Ana Pérez",
 		url: "relevo-app.vercel.app",
@@ -27,7 +27,7 @@ export const projects: Array<Project> = [
 	},
 	{
 		name: "Carlos Gómez",
-		url: "No Production Deployment",
+		url: "Sin traspaso activo",
 		status: "Create deploy.yml",
 		date: "2/22/21",
 		branch: "master",
@@ -38,7 +38,7 @@ export const projects: Array<Project> = [
 	},
 	{
 		name: "María García",
-		url: "No Production Deployment",
+		url: "Sin traspaso activo",
 		status: "docs: README.md",
 		date: "8/8/20",
 		branch: "master",
@@ -139,7 +139,7 @@ export const recentPreviews: Array<RecentPreview> = [
 	},
 ];
 
-export const deployments: Array<Deployment> = [
+export const handovers: Array<Handover> = [
 	{
 		id: "CDMFQKRs",
 		status: "Error",
@@ -148,9 +148,10 @@ export const deployments: Array<Deployment> = [
 		environmentColor: "text-red-600",
 		project: "calendar-app",
 		projectIcon: {
-			type: "emoji",
-			value: "❄️",
+			type: "text",
+			value: "A",
 			bg: "bg-blue-100",
+			text: "text-gray-700",
 		},
 		branch: "dependabot/npm_and_yarn",
 		commit: "c5b235d",
@@ -171,9 +172,10 @@ export const deployments: Array<Deployment> = [
 		environmentColor: "text-red-600",
 		project: "calendar-app",
 		projectIcon: {
-			type: "emoji",
-			value: "❄️",
+			type: "text",
+			value: "A",
 			bg: "bg-blue-100",
+			text: "text-gray-700",
 		},
 		branch: "dependabot/npm_and_yarn",
 		commit: "7d4dbb5",
@@ -193,9 +195,10 @@ export const deployments: Array<Deployment> = [
 		environmentColor: "text-red-600",
 		project: "heroes-app",
 		projectIcon: {
-			type: "emoji",
-			value: "❄️",
+			type: "text",
+			value: "C",
 			bg: "bg-blue-100",
+			text: "text-gray-700",
 		},
 		branch: "dependabot/npm_and_yarn",
 		commit: "7a50c77",
@@ -215,9 +218,10 @@ export const deployments: Array<Deployment> = [
 		environmentColor: "text-red-600",
 		project: "calendar-app",
 		projectIcon: {
-			type: "emoji",
-			value: "❄️",
+			type: "text",
+			value: "A",
 			bg: "bg-blue-100",
+			text: "text-gray-700",
 		},
 		branch: "dependabot/npm_and_yarn",
 		commit: "1348002",
@@ -285,8 +289,8 @@ export const searchResults: Array<SearchResult> = [
 	{ name: "Carlos Gómez", category: "Pacientes", type: "project" },
 
 	// Traspasos (mantiene el tipo 'deployment' para el punto verde)
-	{ name: "Ana Pérez", category: "Traspasos", type: "deployment" },
-	{ name: "Laura Schmidt", category: "Traspasos", type: "deployment" },
+	{ name: "Ana Pérez", category: "Traspasos", type: "handover" },
+	{ name: "Laura Schmidt", category: "Traspasos", type: "handover" },
 
 	// Acciones rápidas (acciones de comando)
 	{ name: "Iniciar traspaso", category: "Acciones rápidas", type: "assistant" },

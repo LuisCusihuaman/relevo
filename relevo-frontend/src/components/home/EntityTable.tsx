@@ -1,15 +1,15 @@
 import type { FC } from "react";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import { deployments, projectToPatientName } from "../../pages/data";
-import type { Deployment } from "./types";
+import { handovers, projectToPatientName } from "../../pages/data";
+import type { Handover } from "./types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type EntityTableProps = {
-	handleDeploymentClick: (deploymentId: string, projectName: string) => void;
+	handleHandoverClick: (handoverId: string, projectName: string) => void;
 };
 
 export const EntityTable: FC<EntityTableProps> = ({
-	handleDeploymentClick,
+	handleHandoverClick,
 }) => {
 	const mapStatusText = (status: string): string => {
 		if (status === "Error") return "Crítico";
@@ -86,7 +86,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 
 	const isString = (v: unknown): v is string => typeof v === "string";
 
-	const getTitleLine = (d: Deployment): string => {
+	const getTitleLine = (d: Handover): string => {
 		const bed = isString(d.bedLabel) ? String(d.bedLabel) : undefined;
 		if (bed && bed !== "") return `Cama ${bed}`;
 
@@ -98,25 +98,27 @@ export const EntityTable: FC<EntityTableProps> = ({
 		return "Sin ubicación";
 	};
 
+	const handoversList: ReadonlyArray<Handover> = handovers as ReadonlyArray<Handover>;
+
 	return (
 		<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">
-			{deployments.map((deployment, index) => (
+			{handoversList.map((handover, index) => (
 				<div
-					key={deployment.id}
+					key={handover.id}
 					className={`grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 hover:bg-gray-50 transition-colors cursor-pointer ${
 						index < 5 ? "border-b border-gray-100" : ""
 					}`}
 					onClick={() => {
-						handleDeploymentClick(deployment.id, deployment.project);
+						handleHandoverClick(handover.id, handover.project);
 					}}
 				>
 					{/* Left Column: Location/MRN instead of technical ID */}
 					<div className="min-w-0">
 						<div className="font-medium text-gray-900 text-sm hover:underline cursor-pointer truncate" title="Ubicación del paciente">
-							{getTitleLine(deployment)}
+							{getTitleLine(handover)}
 						</div>
 						<div className="text-xs text-gray-500 mt-0.5" title="Tipo de sesión de traspaso">
-							{mapEnvType(deployment.environmentType)}
+							{mapEnvType(handover.environmentType)}
 						</div>
 					</div>
 
@@ -124,15 +126,15 @@ export const EntityTable: FC<EntityTableProps> = ({
 					<div className="min-w-0">
 						<div className="flex items-center gap-2 mb-1">
 							<span
-								className={`h-2 w-2 rounded-full ${deployment.statusColor}`}
+								className={`h-2 w-2 rounded-full ${handover.statusColor}`}
 								title="Estado del traspaso"
 							></span>
 							<span className="text-sm font-medium text-gray-900">
-								{mapStatusText(deployment.status)}
+								{mapStatusText(handover.status)}
 							</span>
 						</div>
 						<div className="text-xs text-gray-500">
-							{formatRelative(deployment.statusTime)}
+							{formatRelative(handover.statusTime)}
 						</div>
 					</div>
 
@@ -140,12 +142,12 @@ export const EntityTable: FC<EntityTableProps> = ({
 					<div className="min-w-0">
 						<div className="flex items-center gap-2 mb-1">
 							<div
-								className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${deployment.projectIcon.bg} ${deployment.projectIcon.text || "text-gray-700"}`}
+								className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${handover.projectIcon.bg} ${handover.projectIcon.text || "text-gray-700"}`}
 							>
-								{getInitials(mapPatientName(deployment.project))}
+								{getInitials(mapPatientName(handover.project))}
 							</div>
 							<span className="font-medium text-gray-900 text-sm hover:underline cursor-pointer truncate">
-								{mapPatientName(deployment.project)}
+								{mapPatientName(handover.project)}
 							</span>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
@@ -154,7 +156,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 									</button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
-									<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(deployment.id); }}>Copiar ID</DropdownMenuItem>
+									<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>Copiar ID</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
@@ -169,10 +171,10 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="flex items-center justify-end gap-2">
 							<GitBranch className="h-3 w-3 text-gray-400" />
 							<span className="text-xs text-gray-500">
-								{formatRelative(deployment.time)} por {formatAuthor(deployment.author)}
+								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
 							</span>
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
-								{deployment.avatar}
+								{handover.avatar}
 							</div>
 						</div>
 					</div>

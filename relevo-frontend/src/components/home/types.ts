@@ -21,10 +21,10 @@ export type RecentPreview = {
 export type SearchResult = {
 	name: string;
 	category: string;
-	type: "deployment" | "team" | "project" | "assistant";
+	type: "handover" | "team" | "project" | "assistant";
 };
 
-export type Deployment = {
+export type Handover = {
 	id: string;
 	status: "Error" | "Ready";
 	statusColor: string;
@@ -32,7 +32,7 @@ export type Deployment = {
 	environmentColor: string;
 	project: string;
 	projectIcon: {
-		type: "emoji" | "text";
+		type: "text";
 		value: string;
 		bg: string;
 		text?: string;

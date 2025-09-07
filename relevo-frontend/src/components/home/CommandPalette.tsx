@@ -97,7 +97,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 								className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 cursor-pointer"
 							>
 								<div className="flex-shrink-0">
-									{result.type === "deployment" && (
+									{result.type === "handover" && (
 										<div className="w-2 h-2 bg-green-500 rounded-full"></div>
 									)}
 									{result.type === "team" && (

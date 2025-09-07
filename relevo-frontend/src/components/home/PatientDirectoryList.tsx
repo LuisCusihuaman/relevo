@@ -6,7 +6,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
-import { projects } from "../../pages/data";
+import { patients as projects } from "../../pages/data";
 
 export const PatientDirectoryList: FC = () => {
 	const getStatusText = (status: string): string => {
