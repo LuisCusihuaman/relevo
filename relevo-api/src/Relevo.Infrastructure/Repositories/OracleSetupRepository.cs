@@ -98,21 +98,20 @@ public class OracleSetupRepository : ISetupRepository
             if (total == 0)
                 return (Array.Empty<PatientRecord>(), 0);
 
-            // Get assigned patients with pagination
-            int p = Math.Max(page, 1);
-            int ps = Math.Max(pageSize, 1);
-            int offset = (p - 1) * ps;
-
+            // Get assigned patients (ultra simplified)
             const string patientsSql = @"
               SELECT p.ID AS Id, p.NAME AS Name
               FROM PATIENTS p
               INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
-              WHERE ua.USER_ID = :userId
-              ORDER BY p.ID
-              OFFSET :offset ROWS FETCH NEXT :fetchSize ROWS ONLY";
+              WHERE ua.USER_ID = :userId";
 
-            var patients = conn.Query<PatientRecord>(patientsSql,
-                new { userId, offset, fetchSize = pageSize }).ToList();
+            var allPatients = conn.Query<PatientRecord>(patientsSql, new { userId }).ToList();
+
+            // Simple pagination in memory (temporary solution)
+            int p = Math.Max(page, 1);
+            int ps = Math.Max(pageSize, 1);
+            int skip = (p - 1) * ps;
+            var patients = allPatients.Skip(skip).Take(ps).ToList();
 
             _logger.LogDebug("Retrieved {Count} patients from database", patients.Count);
 

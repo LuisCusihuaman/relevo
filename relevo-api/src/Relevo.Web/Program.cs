@@ -4,6 +4,7 @@ using FastEndpoints;
 using FastEndpoints.Swagger;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,20 @@ builder.Services.AddFastEndpoints()
                 {
                   o.ShortSchemaNames = true;
                 });
+
+// Configure Kestrel for development to avoid SSL issues with HTTP/2
+if (builder.Environment.IsDevelopment())
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenLocalhost(57679, listenOptions =>
+        {
+            listenOptions.UseHttps();
+            // Disable HTTP/2 for development to avoid SSL connection issues
+            listenOptions.Protocols = HttpProtocols.Http1;
+        });
+    });
+}
 
 var app = builder.Build();
 
