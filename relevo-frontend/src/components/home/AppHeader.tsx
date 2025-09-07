@@ -10,8 +10,6 @@ import {
 import {
 	Search,
 	ChevronRight,
-	AlertTriangle,
-	Bell,
 	Grid2X2,
 	User,
 	Settings,
@@ -27,6 +25,7 @@ import {
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
 import { useTranslation } from "react-i18next";
+import { NotificationsPopover } from "@/components/home/NotificationsPopover";
 
 type AppHeaderProps = {
 	isPatientView: boolean;
@@ -133,204 +132,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 				</Button>
 
 				{/* Notification Bell */}
-				<Popover>
-					<PopoverTrigger asChild>
-						<div className={`relative ${isMobileMenuOpen ? "hidden" : ""}`}>
-							<Button
-								className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900"
-								size="sm"
-								variant="ghost"
-							>
-								<Bell className="h-4 w-4" />
-							</Button>
-							<div className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full"></div>
-						</div>
-					</PopoverTrigger>
-					<PopoverContent align="end" className="w-96 p-0 z-50">
-						<div className="border-b border-gray-100">
-							<div className="flex items-center justify-between px-4 py-3">
-								<div className="flex items-center gap-6">
-									<button className="text-sm font-medium text-gray-900 border-b-2 border-black pb-1">
-										{t("notifications.inbox")}
-									</button>
-									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										{t("notifications.archived")}
-									</button>
-									<button className="text-sm text-gray-600 hover:text-gray-900 pb-1">
-										{t("notifications.comments")}
-									</button>
-								</div>
-								<Button
-									className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-									size="sm"
-									variant="ghost"
-								>
-									<Settings className="h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-
-						<div className="max-h-96 overflow-y-auto">
-							<div className="px-4 py-3 border-b border-gray-100">
-								<div className="flex items-center gap-3">
-									<div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-										<AlertTriangle className="h-4 w-4 text-orange-600" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 font-medium">
-											Falló el traspaso de{" "}
-											<span className="font-semibold">Ana Pérez</span> en el
-											entorno de <span className="font-semibold">Pruebas</span>
-										</p>
-										<p className="text-xs text-gray-500 mt-1">hace 2d</p>
-									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
-										size="sm"
-										variant="ghost"
-									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									</Button>
-								</div>
-							</div>
-
-							<div className="px-4 py-3 border-b border-gray-100">
-								<div className="flex items-center gap-3">
-									<div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-										<AlertTriangle className="h-4 w-4 text-orange-600" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 font-medium">
-											Falló el traspaso de{" "}
-											<span className="font-semibold">Carlos Gómez</span> en el
-											entorno de <span className="font-semibold">Pruebas</span>
-										</p>
-										<p className="text-xs text-gray-500 mt-1">hace 2d</p>
-									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
-										size="sm"
-										variant="ghost"
-									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									</Button>
-								</div>
-							</div>
-
-							<div className="px-4 py-3 border-b border-gray-100">
-								<div className="flex items-center gap-3">
-									<Avatar className="h-8 w-8 flex-shrink-0">
-										<AvatarImage src="/placeholder.svg?height=32&width=32" />
-										<AvatarFallback>LC</AvatarFallback>
-									</Avatar>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 font-medium">
-											El paciente{" "}
-											<span className="font-semibold">Juan Rodríguez</span>{" "}
-											requiere atención antes del 1 de Septiembre de 2025
-										</p>
-										<p className="text-sm text-gray-600 mt-1">
-											Por favor, actualice el plan de traspaso para prevenir
-											errores. Haga click para más información.
-										</p>
-										<p className="text-xs text-gray-500 mt-2">7 Ago</p>
-									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
-										size="sm"
-										variant="ghost"
-									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									</Button>
-								</div>
-							</div>
-
-							<div className="px-4 py-3">
-								<div className="flex items-center gap-3">
-									<Avatar className="h-8 w-8 flex-shrink-0">
-										<AvatarImage src="/placeholder.svg?height=32&width=32" />
-										<AvatarFallback>LC</AvatarFallback>
-									</Avatar>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 font-medium">
-											El paciente{" "}
-											<span className="font-semibold">Pedro Martinez</span>{" "}
-											requiere atención antes del 1 de Septiembre de 2025
-										</p>
-										<p className="text-sm text-gray-600 mt-1">
-											Por favor, actualice el plan de traspaso para prevenir
-											errores. Haga click para más información.
-										</p>
-									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 flex-shrink-0"
-										size="sm"
-										variant="ghost"
-									>
-										<svg
-											className="h-4 w-4"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-											/>
-										</svg>
-									</Button>
-								</div>
-							</div>
-
-							<div className="border-t border-gray-100 px-4 py-2">
-								<Button
-									className="w-full text-sm text-gray-600 hover:text-gray-900 justify-center"
-									variant="ghost"
-								>
-									Archivar todo
-								</Button>
-							</div>
-						</div>
-					</PopoverContent>
-				</Popover>
+				<NotificationsPopover isMobileMenuOpen={isMobileMenuOpen} />
 
 				{/* Grid Icon */}
 				<Button
