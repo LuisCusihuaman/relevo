@@ -11,7 +11,11 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 	setActiveTab,
 }) => {
 	const { t } = useTranslation("home");
-	const tabs = [t("subnav.summary"), t("subnav.patients"), t("subnav.settings")];
+	const tabs: Array<{ key: string; label: string }> = [
+		{ key: "summary", label: t("subnav.summary") as string },
+		{ key: "patients", label: t("subnav.patients") as string },
+		{ key: "settings", label: t("subnav.settings") as string },
+	];
 
 	return (
 		<div className="sticky top-0 z-50 border-b border-gray-200 bg-white">
@@ -23,26 +27,20 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 						msOverflowStyle: "none",
 					}}
 				>
-					{/* Tailwind-v4: Hide scrollbar cross-browser */}
-					{/* Readable-JSX: Use Tailwind utilities instead of <style jsx> */}
-					{/* 
-                     - 'scrollbar-none' is a Tailwind v4 utility for hiding scrollbars.
-                     - If not available, fallback to 'scrollbar-hide' from a plugin or custom CSS.
-                 */}
 					{tabs.map((tab) => (
 						<button
-							key={tab}
+							key={tab.key}
 							className={`text-sm transition-colors relative py-3 whitespace-nowrap flex-shrink-0 ${
-								activeTab === tab
+								activeTab === tab.key
 									? "text-gray-900 font-medium"
 									: "text-gray-600 hover:text-gray-900 font-normal"
 							}`}
 							onClick={() => {
-								setActiveTab(tab);
+								setActiveTab(tab.key);
 							}}
 						>
-							{tab}
-							{activeTab === tab && (
+							{tab.label}
+							{activeTab === tab.key && (
 								<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black" />
 							)}
 						</button>

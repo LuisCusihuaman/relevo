@@ -28,7 +28,7 @@ export type HomeProps = {
 
 export function Home({
 	patientSlug,
-	initialTab = "Resumen",
+	initialTab = "summary",
 }: HomeProps): ReactElement {
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
@@ -36,7 +36,11 @@ export function Home({
 	const [activeTab, setActiveTab] = useState<string>(initialTab);
 
 	useEffect(() => {
-		setActiveTab(initialTab === "Traspasos" ? "Pacientes" : initialTab);
+		// Normalize legacy Spanish labels to new keys
+		if (initialTab === "Traspasos" || initialTab === "Pacientes") setActiveTab("patients");
+		else if (initialTab === "Resumen") setActiveTab("summary");
+		else if (initialTab === "Ajustes") setActiveTab("settings");
+		else setActiveTab(initialTab);
 	}, [initialTab]);
 
 	const patientsList: ReadonlyArray<Patient> = patients as ReadonlyArray<Patient>;
@@ -118,7 +122,7 @@ export function Home({
 			<SubNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
 			<div className="flex-1 p-6">
-				{!isPatientView && activeTab === "Resumen" && (
+				{!isPatientView && activeTab === "summary" && (
 					<div className="space-y-6">
 						<VersionNotice />
 						<div className="max-w-7xl mx-auto px-6 py-6">
@@ -132,7 +136,7 @@ export function Home({
 					</div>
 				)}
 
-				{!isPatientView && activeTab === "Pacientes" && (
+				{!isPatientView && activeTab === "patients" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 						<ListHeader />
 						<FilterToolbar />
@@ -143,7 +147,7 @@ export function Home({
 
 				{isPatientView && currentPatient ? (
 					<div className="space-y-6">
-						{activeTab === "Resumen" && (
+						{activeTab === "summary" && (
 							<PatientProfileHeader currentPatient={currentPatient} />
 						)}
 					</div>
