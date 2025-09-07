@@ -4,6 +4,7 @@ using Relevo.Core.Interfaces;
 using Relevo.Core.Services;
 using Relevo.Infrastructure.Data;
 using Relevo.Infrastructure.Data.Queries;
+using Relevo.Infrastructure.Data.Sqlite;
 using Relevo.UseCases.Contributors.List;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,8 +37,15 @@ public static class InfrastructureServiceExtensions
       services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
     }
 
-    // Register Dapper-based services
-    services.AddScoped<Relevo.Core.Interfaces.IContributorService, ContributorService>();
+    // Register database-specific ContributorService implementations
+    if (useOracle)
+    {
+      services.AddScoped<Relevo.Core.Interfaces.IContributorService, OracleContributorService>();
+    }
+    else
+    {
+      services.AddScoped<Relevo.Core.Interfaces.IContributorService, SqliteContributorService>();
+    }
 
     if (useOracle)
     {

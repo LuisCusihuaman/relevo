@@ -32,8 +32,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     int p = Math.Max(page, 1);
     int ps = Math.Max(pageSize, 1);
     const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = :unitId";
-    const string pageSql = @"SELECT * FROM (
-      SELECT ID AS Id, NAME AS Name, ROW_NUMBER() OVER (ORDER BY ID) AS RN
+    const string pageSql = @"SELECT ID AS Id, NAME AS Name FROM (
+      SELECT ID, NAME, ROW_NUMBER() OVER (ORDER BY ID) AS RN
       FROM PATIENTS WHERE UNIT_ID = :unitId
     ) WHERE RN BETWEEN :startRow AND :endRow";
 

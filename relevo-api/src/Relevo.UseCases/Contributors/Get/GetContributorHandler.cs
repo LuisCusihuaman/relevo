@@ -16,6 +16,16 @@ public class GetContributorHandler(IContributorService _service)
     var entity = await _service.GetByIdAsync(request.ContributorId);
     if (entity == null) return Result.NotFound();
 
-    return new ContributorDTO(entity.Id, entity.Name, entity.PhoneNumber?.Number ?? "");
+    string? phoneNumber = null;
+    if (entity.PhoneNumber is not null)
+    {
+      phoneNumber = $"{entity.PhoneNumber.CountryCode}{entity.PhoneNumber.Number}";
+      if (!string.IsNullOrEmpty(entity.PhoneNumber.Extension))
+      {
+        phoneNumber += $" ext {entity.PhoneNumber.Extension}";
+      }
+    }
+
+    return new ContributorDTO(entity.Id, entity.Name, phoneNumber);
   }
 }

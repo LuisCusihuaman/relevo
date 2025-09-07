@@ -115,7 +115,7 @@ public class SetupDataStore : ISetupDataProvider
     int page,
     int pageSize)
   {
-    // Return hardcoded test data for now to avoid SQLite issues
+    // For tests, return hardcoded data since we're using SQLite
     var allPatients = new List<(string UnitId, PatientRecord Patient)>
     {
       ("unit-1", new PatientRecord("pat-123", "John Doe")),

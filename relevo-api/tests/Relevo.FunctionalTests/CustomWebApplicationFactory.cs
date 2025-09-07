@@ -1,28 +1,42 @@
 ﻿using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
+using Relevo.Infrastructure;
 using Relevo.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System;
 
 namespace Relevo.FunctionalTests;
 
 public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
-  /// <summary>
-  /// Overriding CreateHost to avoid creating a separate ServiceProvider per this thread:
-  /// https://github.com/dotnet-architecture/eShopOnWeb/issues/465
-  /// </summary>
-  /// <param name="builder"></param>
-  /// <returns></returns>
-  protected override IHost CreateHost(IHostBuilder builder)
-  {
-    builder.UseEnvironment("Development"); // will not send real emails
-    var host = builder.Build();
-    host.Start();
+  private string? _testDbFile;
+
+    /// <summary>
+    /// Overriding CreateHost to avoid creating a separate ServiceProvider per this thread:
+    /// https://github.com/dotnet-architecture/eShopOnWeb/issues/465
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+      builder.UseEnvironment("Development"); // will not send real emails
+
+      // Clean up any existing test database
+      if (!string.IsNullOrEmpty(_testDbFile) && File.Exists(_testDbFile))
+      {
+        File.Delete(_testDbFile);
+      }
+
+      var host = builder.Build();
+      host.Start();
 
     // Get service provider.
     var serviceProvider = host.Services;
@@ -41,17 +55,16 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
       // If using a real database, you'll likely want to remove this step.
       db.Database.EnsureDeleted();
 
-      // Ensure the database is created.
+      // Ensure the database is created with default schema
       db.Database.EnsureCreated();
+
+      // Seed test data directly using Dapper for predictable results
+      SeedTestContributorsAsync(db);
 
       try
       {
-        // Can also skip creating the items
-        //if (!db.ToDoItems.Any())
-        //{
-        // Seed the database with test data.
-        SeedData.PopulateTestDataAsync(db).Wait();
-        //}
+        // Additional seeding if needed
+        // SeedData.PopulateTestDataAsync(db).Wait();
       }
       catch (Exception ex)
       {
@@ -63,21 +76,65 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     return host;
   }
 
-  protected override void ConfigureWebHost(IWebHostBuilder builder)
+  /// <summary>
+  /// Seed test contributors directly using Dapper
+  /// </summary>
+  private static void SeedTestContributorsAsync(AppDbContext db)
   {
-    builder
+    var connection = db.Database.GetDbConnection();
+    if (connection.State != ConnectionState.Open)
+    {
+      connection.Open();
+    }
+
+    using var command = connection.CreateCommand();
+
+    // Clear existing data
+    command.CommandText = "DELETE FROM Contributors";
+    command.ExecuteNonQuery();
+
+    // Insert test data with the correct column names for EF Core schema
+    var insertCommands = new[]
+    {
+      "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (1, 'Ardalis', 0, '', '+1-555-0101', '')",
+      "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (2, 'Snowfrog', 0, '', '+1-555-0102', '')"
+    };
+
+    foreach (var insertCmd in insertCommands)
+    {
+      command.CommandText = insertCmd;
+      command.ExecuteNonQuery();
+    }
+  }
+
+  protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+      // Generate unique database file name for this test run
+      _testDbFile = $"test_{Guid.NewGuid()}.db";
+
+      builder
         .ConfigureAppConfiguration(config =>
         {
           // Override configuration for tests to use SQLite instead of Oracle
           config.AddInMemoryCollection(new Dictionary<string, string?>
           {
             ["UseOracle"] = "false",
-            ["UseOracleForSetup"] = "false"
+            ["UseOracleForSetup"] = "false",
+            ["ConnectionStrings:SqliteConnection"] = $"Data Source={_testDbFile}"
           });
         })
-        .ConfigureServices(services =>
+        .ConfigureServices((context, services) =>
         {
           // Configure test dependencies here
+
+          // Add infrastructure services (this should register the AppDbContext for SQLite)
+          // Create a ConfigurationManager with test settings
+          var configManager = new Microsoft.Extensions.Configuration.ConfigurationManager();
+          configManager.AddConfiguration(context.Configuration);
+          // Create a simple logger for the infrastructure services registration
+          using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+          var logger = loggerFactory.CreateLogger<CustomWebApplicationFactory<TProgram>>();
+          services.AddInfrastructureServices(configManager, logger);
 
           // Replace the authentication service with a test implementation
           var authServiceDescriptor = services.FirstOrDefault(
@@ -89,25 +146,6 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           }
 
           services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, TestAuthenticationService>();
-
-          //// Remove the app's ApplicationDbContext registration.
-          //var descriptor = services.SingleOrDefault(
-          //d => d.ServiceType ==
-          //    typeof(DbContextOptions<AppDbContext>));
-
-          //if (descriptor != null)
-          //{
-          //  services.Remove(descriptor);
-          //}
-
-          //// This should be set for each individual test run
-          //string inMemoryCollectionName = Guid.NewGuid().ToString();
-
-          //// Add ApplicationDbContext using an in-memory database for testing.
-          //services.AddDbContext<AppDbContext>(options =>
-          //{
-          //  options.UseInMemoryDatabase(inMemoryCollectionName);
-          //});
         });
   }
 }

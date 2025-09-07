@@ -4,8 +4,8 @@ using System.Data;
 
 namespace Relevo.Infrastructure.Data;
 
-// Simple service for Contributor operations using Dapper
-public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Interfaces.IContributorService
+// Oracle-specific implementation using Oracle syntax
+public class OracleContributorService(IDbConnectionFactory factory) : Relevo.Core.Interfaces.IContributorService
 {
     private readonly IDbConnectionFactory _factory = factory;
 
@@ -14,64 +14,57 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
         var conn = _factory.CreateConnection();
 
         const string sql = @"
-            INSERT INTO Contributors (Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension)
-            VALUES (@Name, @Status, @CountryCode, @Number, @Extension);
-            SELECT last_insert_rowid();";
+            INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER)
+            VALUES (@Name, @Email, @PhoneNumber)";
 
         var phone = contributor.PhoneNumber;
         var parameters = new
         {
             Name = contributor.Name,
-            Status = contributor.Status.Value,
-            CountryCode = phone?.CountryCode ?? string.Empty,
-            Number = phone?.Number ?? string.Empty,
-            Extension = phone?.Extension ?? string.Empty
+            Email = $"{contributor.Name.ToLower().Replace(" ", ".")}@hospital.com.ar",
+            PhoneNumber = phone?.ToString() ?? string.Empty
         };
 
-        var newId = await conn.ExecuteScalarAsync<int>(sql, parameters);
-        return newId;
+        await conn.ExecuteAsync(sql, parameters);
+        return 0; // Oracle auto-increment will handle the ID
     }
 
     public async Task<Contributor?> GetByIdAsync(int id)
     {
         var conn = _factory.CreateConnection();
 
-        const string sql = @"
-            SELECT Id, Name, Status,
-                   PhoneNumber_CountryCode as CountryCode,
-                   PhoneNumber_Number as Number,
-                   PhoneNumber_Extension as Extension
-            FROM Contributors WHERE Id = @Id";
-
+        // Oracle syntax: uppercase columns
+        const string sql = @"SELECT ID, NAME, EMAIL, PHONE_NUMBER FROM CONTRIBUTORS WHERE ID = @Id";
         var result = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id });
+
         if (result == null) return null;
 
-        var contributor = new Contributor((string)result.Name);
+        var nameValue = (string?)result.NAME ?? "";
+        if (string.IsNullOrEmpty(nameValue))
+        {
+            return null;
+        }
 
-        // Try to set the Id using reflection (for testing purposes)
+        var contributor = new Contributor(nameValue);
+
+        // Set the Id using reflection
         try
         {
             var idProperty = contributor.GetType().GetProperty("Id");
             if (idProperty != null && idProperty.CanWrite)
             {
-                idProperty.SetValue(contributor, (int)result.Id);
+                idProperty.SetValue(contributor, (int)result.ID);
             }
         }
         catch (Exception)
         {
-            // If we can't set the Id, that's okay for now
-            // The important thing is the contributor data is correct
+            // If we can't set the Id, that's okay
         }
 
-        // Set phone number if exists
-        if (!string.IsNullOrEmpty((string?)result.Number))
+        // Set phone number (Oracle single column)
+        if (!string.IsNullOrEmpty((string?)result.PHONE_NUMBER))
         {
-            var phoneNumber = $"{result.CountryCode}{result.Number}";
-            if (!string.IsNullOrEmpty((string?)result.Extension))
-            {
-                phoneNumber += $" ext {result.Extension}";
-            }
-            contributor.SetPhoneNumber(phoneNumber);
+            contributor.SetPhoneNumber((string)result.PHONE_NUMBER);
         }
 
         return contributor;
@@ -82,30 +75,26 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
         var conn = _factory.CreateConnection();
 
         const string sql = @"
-            UPDATE Contributors
-            SET Name = @Name,
-                Status = @Status,
-                PhoneNumber_CountryCode = @CountryCode,
-                PhoneNumber_Number = @Number,
-                PhoneNumber_Extension = @Extension
-            WHERE Id = @Id";
+            UPDATE CONTRIBUTORS
+            SET NAME = @Name,
+                EMAIL = @Email,
+                PHONE_NUMBER = @PhoneNumber
+            WHERE ID = @Id";
 
         var phone = contributor.PhoneNumber;
         await conn.ExecuteAsync(sql, new
         {
             contributor.Id,
             contributor.Name,
-            Status = contributor.Status.ToString(),
-            CountryCode = phone?.CountryCode ?? string.Empty,
-            Number = phone?.Number ?? string.Empty,
-            Extension = phone?.Extension ?? string.Empty
+            Email = $"{contributor.Name.ToLower().Replace(" ", ".")}@hospital.com.ar",
+            PhoneNumber = phone?.ToString() ?? string.Empty
         });
     }
 
     public async Task DeleteAsync(int id)
     {
         var conn = _factory.CreateConnection();
-        const string sql = "DELETE FROM Contributors WHERE Id = @Id";
+        const string sql = "DELETE FROM CONTRIBUTORS WHERE ID = @Id";
         await conn.ExecuteAsync(sql, new { Id = id });
     }
 
@@ -113,29 +102,25 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
     {
         var conn = _factory.CreateConnection();
 
-        const string sql = @"
-            SELECT Id, Name, Status,
-                   PhoneNumber_CountryCode as CountryCode,
-                   PhoneNumber_Number as Number,
-                   PhoneNumber_Extension as Extension
-            FROM Contributors";
-
+        // Oracle syntax: uppercase columns
+        const string sql = @"SELECT ID, NAME, EMAIL, PHONE_NUMBER FROM CONTRIBUTORS";
         var results = await conn.QueryAsync<dynamic>(sql);
         var contributors = new List<Contributor>();
 
         foreach (var result in results)
         {
-            var contributor = new Contributor((string)result.Name);
-
-            // Set phone number if exists
-            if (!string.IsNullOrEmpty((string?)result.Number))
+            var nameValue = (string)result.NAME;
+            if (string.IsNullOrEmpty(nameValue))
             {
-                var phoneNumber = $"{result.CountryCode}{result.Number}";
-                if (!string.IsNullOrEmpty((string?)result.Extension))
-                {
-                    phoneNumber += $" ext {result.Extension}";
-                }
-                contributor.SetPhoneNumber(phoneNumber);
+                continue; // Skip records with empty names
+            }
+
+            var contributor = new Contributor(nameValue);
+
+            // Set phone number (Oracle single column)
+            if (!string.IsNullOrEmpty((string?)result.PHONE_NUMBER))
+            {
+                contributor.SetPhoneNumber((string)result.PHONE_NUMBER);
             }
 
             contributors.Add(contributor);
