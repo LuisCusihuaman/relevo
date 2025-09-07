@@ -14,6 +14,7 @@ import {
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
 import { useTranslation } from "react-i18next";
+import { useUser } from "@clerk/clerk-react";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
@@ -28,6 +29,9 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 }) => {
     const { doctorName, unitName } = useUserStore();
     const { t } = useTranslation("home");
+    const { user } = useUser();
+    const displayName = user?.fullName ?? doctorName ?? "";
+    const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 	return (
 		<div className="fixed inset-0 z-[9999] bg-white md:hidden">
 			{/* Mobile Menu Header */}
@@ -108,8 +112,8 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 					{/* User Profile Section */}
 					<div className="flex items-center justify-between py-4 border-b border-gray-200">
 						<div>
-							<div className="font-medium text-gray-900">Luis Cusihuaman</div>
-							<div className="text-sm text-gray-600">luiscusihuaman88@gmail.com</div>
+							<div className="font-medium text-gray-900">{displayName}</div>
+							<div className="text-sm text-gray-600">{primaryEmail}</div>
 						</div>
 						<Avatar className="h-10 w-10">
 							<AvatarImage src="/placeholder.svg?height=40&width=40" />

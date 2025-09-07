@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useUser } from "@clerk/clerk-react";
 
 type UserMenuPopoverProps = {
   onOpenMobileMenu?: () => void;
@@ -15,6 +16,9 @@ type UserMenuPopoverProps = {
 
 export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) => {
   const { t } = useTranslation("home");
+  const { user } = useUser();
+  const displayName = user?.fullName ?? "";
+  const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 
   return (
     <>
@@ -42,8 +46,8 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 z-50">
         <div className="p-4 border-b border-gray-100">
-          <div className="font-medium text-gray-900">Luis Cusihuaman</div>
-          <div className="text-sm text-gray-600">luiscusihuaman88@gmail.com</div>
+          <div className="font-medium text-gray-900">{displayName}</div>
+          <div className="text-sm text-gray-600">{primaryEmail}</div>
         </div>
         <div className="p-2">
           <button className="flex items-center gap-3 px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
