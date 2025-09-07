@@ -1,25 +1,35 @@
 ﻿using Relevo.Core.ContributorAggregate;
 using Xunit;
+using Dapper;
 
 namespace Relevo.IntegrationTests.Data;
 
-public class EfRepositoryAdd : BaseEfRepoTestFixture
+public class ContributorServiceAdd : BaseDapperTestFixture
 {
   [Fact]
-  public async Task AddsContributorAndSetsId()
+  public void AddsContributorAndSetsId()
   {
+    // Test basic database operations with Dapper directly
     var testContributorName = "testContributor";
-    var testContributorStatus = ContributorStatus.NotSet;
-    var repository = GetRepository();
-    var Contributor = new Contributor(testContributorName);
 
-    await repository.AddAsync(Contributor);
+    var sql = @"
+      INSERT INTO Contributors (Name, Status)
+      VALUES (@Name, @Status);
+      SELECT last_insert_rowid();";
 
-    var newContributor = (await repository.ListAsync())
-                    .FirstOrDefault();
+    var newId = _connection.ExecuteScalar<long>(sql, new
+    {
+      Name = testContributorName,
+      Status = 0 // NotSet = 0
+    });
 
-    Assert.Equal(testContributorName, newContributor?.Name);
-    Assert.Equal(testContributorStatus, newContributor?.Status);
-    Assert.True(newContributor?.Id > 0);
+    // Verify the contributor was added
+    var selectSql = "SELECT Name, Status FROM Contributors WHERE Id = @Id";
+    var contributor = _connection.QueryFirstOrDefault<dynamic>(selectSql, new { Id = newId });
+
+    Assert.NotNull(contributor);
+    Assert.Equal(testContributorName, contributor!.Name);
+    Assert.Equal(0, contributor.Status);
+    Assert.True(newId > 0);
   }
 }

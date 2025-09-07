@@ -11,20 +11,22 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
 
     public async Task<int> CreateAsync(Contributor contributor)
     {
-        using IDbConnection conn = _factory.CreateConnection();
+        var conn = _factory.CreateConnection();
 
         const string sql = @"
             INSERT INTO Contributors (Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension)
-            VALUES (:Name, :Status, :CountryCode, :Number, :Extension)
-            RETURNING Id";
+            VALUES (@Name, @Status, @CountryCode, @Number, @Extension);
+            SELECT last_insert_rowid();";
 
         var phone = contributor.PhoneNumber;
-        var parameters = new DynamicParameters();
-        parameters.Add("Name", contributor.Name);
-        parameters.Add("Status", contributor.Status.ToString());
-        parameters.Add("CountryCode", phone?.CountryCode ?? string.Empty);
-        parameters.Add("Number", phone?.Number ?? string.Empty);
-        parameters.Add("Extension", phone?.Extension ?? string.Empty);
+        var parameters = new
+        {
+            Name = contributor.Name,
+            Status = contributor.Status.Value,
+            CountryCode = phone?.CountryCode ?? string.Empty,
+            Number = phone?.Number ?? string.Empty,
+            Extension = phone?.Extension ?? string.Empty
+        };
 
         var newId = await conn.ExecuteScalarAsync<int>(sql, parameters);
         return newId;
@@ -32,14 +34,14 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
 
     public async Task<Contributor?> GetByIdAsync(int id)
     {
-        using IDbConnection conn = _factory.CreateConnection();
+        var conn = _factory.CreateConnection();
 
         const string sql = @"
             SELECT Id, Name, Status,
                    PhoneNumber_CountryCode as CountryCode,
                    PhoneNumber_Number as Number,
                    PhoneNumber_Extension as Extension
-            FROM Contributors WHERE Id = :Id";
+            FROM Contributors WHERE Id = @Id";
 
         var result = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id });
         if (result == null) return null;
@@ -69,16 +71,16 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
 
     public async Task UpdateAsync(Contributor contributor)
     {
-        using IDbConnection conn = _factory.CreateConnection();
+        var conn = _factory.CreateConnection();
 
         const string sql = @"
             UPDATE Contributors
-            SET Name = :Name,
-                Status = :Status,
-                PhoneNumber_CountryCode = :CountryCode,
-                PhoneNumber_Number = :Number,
-                PhoneNumber_Extension = :Extension
-            WHERE Id = :Id";
+            SET Name = @Name,
+                Status = @Status,
+                PhoneNumber_CountryCode = @CountryCode,
+                PhoneNumber_Number = @Number,
+                PhoneNumber_Extension = @Extension
+            WHERE Id = @Id";
 
         var phone = contributor.PhoneNumber;
         await conn.ExecuteAsync(sql, new
@@ -94,14 +96,14 @@ public class ContributorService(IDbConnectionFactory factory) : Relevo.Core.Inte
 
     public async Task DeleteAsync(int id)
     {
-        using IDbConnection conn = _factory.CreateConnection();
-        const string sql = "DELETE FROM Contributors WHERE Id = :Id";
+        var conn = _factory.CreateConnection();
+        const string sql = "DELETE FROM Contributors WHERE Id = @Id";
         await conn.ExecuteAsync(sql, new { Id = id });
     }
 
     public async Task<List<Contributor>> GetAllAsync()
     {
-        using IDbConnection conn = _factory.CreateConnection();
+        var conn = _factory.CreateConnection();
 
         const string sql = @"
             SELECT Id, Name, Status,
