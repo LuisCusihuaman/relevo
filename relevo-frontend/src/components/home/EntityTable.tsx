@@ -22,11 +22,13 @@ const monthMap: Record<string, string> = {
 type EntityTableProps = {
 	handovers: ReadonlyArray<Handover>;
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
+	loading?: boolean;
 };
 
 export const EntityTable: FC<EntityTableProps> = ({
 	handovers,
 	handleHandoverClick,
+	loading = false,
 }) => {
 	const { t } = useTranslation("home");
 	// environment label now shown only via status/time; keep mapping if needed later
@@ -71,6 +73,60 @@ export const EntityTable: FC<EntityTableProps> = ({
 	};
 
 	const handoversList: ReadonlyArray<Handover> = handovers;
+
+	// Show skeleton during loading
+	if (loading) {
+		const skeletonRows = Array.from({ length: 5 }, (_, index) => index);
+		return (
+			<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">
+				{skeletonRows.map((index) => (
+					<div
+						key={`desktop-${index}`}
+						className={`grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 ${
+							index < 4 ? "border-b border-gray-100" : ""
+						}`}
+					>
+						{/* Left Column: Location/MRN */}
+						<div className="min-w-0 space-y-2">
+							<div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+							<div className="h-3 bg-gray-100 rounded animate-pulse w-1/2"></div>
+						</div>
+
+						{/* Status Column */}
+						<div className="min-w-0 space-y-2">
+							<div className="flex items-center gap-2">
+								<div className="h-2 w-2 bg-gray-200 rounded-full animate-pulse"></div>
+								<div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+							</div>
+							<div className="h-3 bg-gray-100 rounded animate-pulse w-12"></div>
+						</div>
+
+						{/* Patient/Source Column */}
+						<div className="min-w-0 space-y-2">
+							<div className="flex items-center gap-2">
+								<div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div>
+								<div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+								<div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+							</div>
+							<div className="flex items-center gap-1">
+								<div className="h-3 w-3 bg-gray-200 rounded animate-pulse"></div>
+								<div className="h-3 bg-gray-200 rounded animate-pulse w-24"></div>
+							</div>
+						</div>
+
+						{/* Created Column */}
+						<div className="min-w-0 text-right space-y-2">
+							<div className="flex items-center justify-end gap-2">
+								<div className="h-3 w-3 bg-gray-200 rounded animate-pulse"></div>
+								<div className="h-3 bg-gray-200 rounded animate-pulse w-16"></div>
+								<div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">

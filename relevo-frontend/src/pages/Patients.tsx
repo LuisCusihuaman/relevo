@@ -40,11 +40,11 @@ export function Patients(): ReactElement {
 	if (isLoading) {
 		return (
 			<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
-				<div className="flex items-center justify-center h-64">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-						<p className="mt-4 text-gray-600">Cargando traspasos...</p>
-					</div>
+				<ListHeader />
+				<FilterToolbar />
+				<EntityTable loading handleHandoverClick={() => {}} handovers={[]} />
+				<div className="mt-6">
+					<EntityListMobile loading handleHandoverClick={() => {}} handovers={[]} />
 				</div>
 			</div>
 		);

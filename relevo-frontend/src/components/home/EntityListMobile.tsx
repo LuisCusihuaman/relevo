@@ -22,11 +22,13 @@ const monthMap: Record<string, string> = {
 type EntityListMobileProps = {
 	handovers: ReadonlyArray<Handover>;
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
+	loading?: boolean;
 };
 
 export const EntityListMobile: FC<EntityListMobileProps> = ({
 	handovers,
 	handleHandoverClick,
+	loading = false,
 }) => {
 	const { t } = useTranslation("home");
 	const mapEnvironment = (env: string): string => {
@@ -69,6 +71,63 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 		}
 		return String(t("table.noLocation"));
 	};
+
+	// Show skeleton during loading
+	if (loading) {
+		const skeletonRows = Array.from({ length: 5 }, (_, index) => index);
+		return (
+			<div className="md:hidden space-y-4">
+				{skeletonRows.map((index) => (
+					<div
+						key={`mobile-${index}`}
+						className="bg-white border border-gray-200 rounded-lg p-4 space-y-3"
+					>
+						{/* Card Header */}
+						<div className="flex items-center justify-between">
+							<div className="space-y-1">
+								<div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
+								<div className="h-4 bg-gray-100 rounded animate-pulse w-20"></div>
+							</div>
+							<div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+						</div>
+
+						{/* Status */}
+						<div className="flex items-center gap-2">
+							<div className="h-2 w-2 bg-gray-200 rounded-full animate-pulse"></div>
+							<div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+							<div className="h-3 bg-gray-100 rounded animate-pulse w-12"></div>
+						</div>
+
+						{/* Environment */}
+						<div className="space-y-1">
+							<div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+							<div className="h-3 bg-gray-100 rounded animate-pulse w-16"></div>
+						</div>
+
+						{/* Patient Info */}
+						<div className="flex items-center gap-2">
+							<div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+							<div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+						</div>
+
+						{/* Clinical Meta */}
+						<div className="flex items-center gap-1">
+							<div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+							<div className="h-3 bg-gray-200 rounded animate-pulse w-28"></div>
+						</div>
+
+						{/* Author */}
+						<div className="flex items-center justify-between pt-2 border-t border-gray-100">
+							<div className="flex items-center gap-2">
+								<div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
+								<div className="h-3 bg-gray-200 rounded animate-pulse w-20"></div>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<div className="md:hidden space-y-4">
