@@ -117,8 +117,8 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 							<div className="text-sm text-gray-600">{primaryEmail}</div>
 						</div>
 						<Avatar className="h-10 w-10">
-							<AvatarImage src="/placeholder.svg?height=40&width=40" />
-							<AvatarFallback>LC</AvatarFallback>
+							<AvatarImage src={user?.imageUrl} />
+							<AvatarFallback>{user?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
 						</Avatar>
 					</div>
 

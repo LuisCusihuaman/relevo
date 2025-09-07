@@ -41,8 +41,8 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
       <Popover>
       <PopoverTrigger asChild>
         <Avatar className="h-8 w-8 cursor-pointer hidden md:block">
-          <AvatarImage src="/placeholder.svg?height=32&width=32" />
-          <AvatarFallback>LC</AvatarFallback>
+          <AvatarImage src={user?.imageUrl} />
+          <AvatarFallback>{user?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 z-50">
