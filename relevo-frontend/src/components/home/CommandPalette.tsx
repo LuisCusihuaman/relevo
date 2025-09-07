@@ -25,7 +25,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 				return "Pacientes";
 			case "Deployments":
 			case "Latest Deployment":
-				return "Traspasos";
+				return "Pacientes";
 			case "Team":
 				return "Equipo";
 			case "Actions":

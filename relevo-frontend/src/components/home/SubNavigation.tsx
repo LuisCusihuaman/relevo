@@ -9,7 +9,7 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 	activeTab,
 	setActiveTab,
 }) => {
-	const tabs = ["Resumen", "Traspasos", "Pacientes", "Ajustes"];
+	const tabs = ["Resumen", "Pacientes", "Ajustes"];
 
 	return (
 		<div className="sticky top-0 z-50 border-b border-gray-200 bg-white">

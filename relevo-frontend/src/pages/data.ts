@@ -289,9 +289,10 @@ export const searchResults: Array<SearchResult> = [
 	{ name: "Juan Rodríguez", category: "Pacientes", type: "patient" },
 	{ name: "Carlos Gómez", category: "Pacientes", type: "patient" },
 
-	// Traspasos
-	{ name: "Ana Pérez", category: "Traspasos", type: "handover" },
-	{ name: "Laura Schmidt", category: "Traspasos", type: "handover" },
+
+	// Pacientes (antes Traspasos)
+	{ name: "Ana Pérez", category: "Pacientes", type: "handover" },
+	{ name: "Laura Schmidt", category: "Pacientes", type: "handover" },
 
 	// Acciones rápidas (acciones de comando)
 	{ name: "Iniciar traspaso", category: "Acciones rápidas", type: "assistant" },

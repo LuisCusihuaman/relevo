@@ -36,7 +36,7 @@ export function Home({
 	const [activeTab, setActiveTab] = useState<string>(initialTab);
 
 	useEffect(() => {
-		setActiveTab(initialTab);
+		setActiveTab(initialTab === "Traspasos" ? "Pacientes" : initialTab);
 	}, [initialTab]);
 
 	const patientsList: ReadonlyArray<Patient> = patients as ReadonlyArray<Patient>;
@@ -132,7 +132,7 @@ export function Home({
 					</div>
 				)}
 
-				{!isPatientView && activeTab === "Traspasos" && (
+				{!isPatientView && activeTab === "Pacientes" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 						<ListHeader />
 						<FilterToolbar />
