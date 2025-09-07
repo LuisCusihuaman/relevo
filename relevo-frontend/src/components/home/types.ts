@@ -4,9 +4,6 @@ export type Patient = {
 	status: string;
 	date: string;
 	icon: string;
-	hasGithub: boolean;
-	branch?: string;
-	github?: string;
 	unit?: string;
 };
 
@@ -38,14 +35,9 @@ export type Handover = {
 		bg: string;
 		text?: string;
 	};
-	branch: string;
-	commit: string;
-	message: string;
 	time: string;
-	author: string;
 	statusTime: string;
 	environmentType: "Preview" | "Production";
-	avatar: string;
 	current?: boolean;
 	bedLabel?: string;
 	mrn?: string;

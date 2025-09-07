@@ -1,27 +1,32 @@
 import type { ReactElement } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
 	EntityListMobile,
 	EntityTable,
 	FilterToolbar,
 	ListHeader,
 } from "@/components/home";
+import { handovers } from "@/pages/data";
+import type { Handover } from "@/components/home/types";
 
 export function Patients(): ReactElement {
+	const navigate = useNavigate();
+
 	const handleHandoverClick = (
 		handoverId: string,
 		patientName: string,
 	): void => {
-		const patientSlugMap: { [key: string]: string } = {
-			"calendar-app": "calendar-app",
-			"heroes-app": "heroes-app",
-			"relevo-app": "relevo-app",
-			"eduardoc/spanish": "eduardoc-spanish",
-		};
+		// Find the handover by ID to get the patient information
+		const handover: Handover | undefined = handovers.find((h: Handover): boolean => h.id === handoverId);
 
-		const newPatientSlug =
-			patientSlugMap[patientName] ||
-			patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-		window.location.href = `/${newPatientSlug}/${handoverId}`;
+		if (handover) {
+			const patientSlug: string = handover.patientKey || patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
+			void navigate({ to: `/${patientSlug}/${handoverId}` });
+		} else {
+			// Fallback to patient name if handover not found
+			const patientSlug: string = patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
+			void navigate({ to: `/${patientSlug}/${handoverId}` });
+		}
 	};
 
 	return (
