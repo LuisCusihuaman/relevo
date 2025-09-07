@@ -72,7 +72,7 @@ public class ClerkAuthenticationMiddleware
             // Fall back to demo user if no valid token
             var demoUser = new Relevo.Core.Models.User
             {
-                Id = "demo-user",
+                Id = "user_2demo12345678901234567890123456", // Clerk-like format for consistency
                 Email = "demo@example.com",
                 FirstName = "Demo",
                 LastName = "User",
@@ -91,6 +91,8 @@ public class ClerkAuthenticationMiddleware
             // Add user info to response headers for debugging (even for anonymous/demo users)
             context.Response.Headers["X-User-Id"] = demoUser.Id;
             context.Response.Headers["X-User-Email"] = demoUser.Email;
+            context.Response.Headers["X-User-Id-Consistent"] = "true";
+            context.Response.Headers["X-User-Id-Source"] = "demo-fallback";
 
             await _next(context);
             return;
@@ -121,7 +123,7 @@ public class ClerkAuthenticationMiddleware
                     // Create a demo user for development
                     var demoUser = new Relevo.Core.Models.User
                     {
-                        Id = "demo-user",
+                        Id = "user_2demo12345678901234567890123456", // Clerk-like format for consistency
                         Email = "demo@example.com",
                         FirstName = "Demo",
                         LastName = "User",
@@ -140,6 +142,8 @@ public class ClerkAuthenticationMiddleware
                     // Add user info to response headers for debugging (even for anonymous/demo users)
                     context.Response.Headers["X-User-Id"] = demoUser.Id;
                     context.Response.Headers["X-User-Email"] = demoUser.Email;
+                    context.Response.Headers["X-User-Id-Consistent"] = "true";
+                    context.Response.Headers["X-User-Id-Source"] = "development-fallback";
 
                     await _next(context);
                     return;
@@ -192,6 +196,10 @@ public class ClerkAuthenticationMiddleware
             var userName = $"{authResult.User.FirstName} {authResult.User.LastName}".Trim();
             _logger.LogInformation("✅ Authenticated user {UserId} ({UserEmail}) '{UserName}' for {Path}",
                 authResult.User.Id, authResult.User.Email, userName, context.Request.Path);
+
+            // Add debug headers for user ID consistency tracking
+            context.Response.Headers["X-User-Id-Consistent"] = "true";
+            context.Response.Headers["X-User-Id-Source"] = "jwt-token";
 
             await _next(context);
         }

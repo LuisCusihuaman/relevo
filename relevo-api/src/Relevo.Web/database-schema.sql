@@ -362,6 +362,40 @@ VALUES ('act-006', 'hvo-003', 'Monitorear signos de infección', 0);
 COMMIT;
 
 -- ========================================
+-- MIGRATION/CLEANUP SCRIPTS FOR USER ASSIGNMENTS
+-- ========================================
+
+-- Script to clean up inconsistent user assignments (run if needed)
+-- This removes assignments where the user_id format is inconsistent
+/*
+DELETE FROM USER_ASSIGNMENTS
+WHERE USER_ID NOT LIKE 'user_%'  -- Remove non-Clerk format user IDs
+   OR LENGTH(USER_ID) < 10;     -- Remove suspiciously short user IDs
+*/
+
+-- Script to update old demo user assignments to use consistent format
+/*
+UPDATE USER_ASSIGNMENTS
+SET USER_ID = 'user_2demo12345678901234567890123456'
+WHERE USER_ID = 'demo-user';
+*/
+
+-- Script to verify user assignment consistency
+/*
+SELECT
+    USER_ID,
+    COUNT(*) as ASSIGNMENT_COUNT,
+    CASE
+        WHEN USER_ID LIKE 'user_%' THEN 'Clerk Format'
+        ELSE 'Other Format'
+    END as USER_ID_FORMAT,
+    LENGTH(USER_ID) as USER_ID_LENGTH
+FROM USER_ASSIGNMENTS
+GROUP BY USER_ID
+ORDER BY USER_ID;
+*/
+
+-- ========================================
 -- CONSULTAS DE VERIFICACIÓN
 -- ========================================
 

@@ -70,6 +70,16 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           .Build();
 
         config.AddConfiguration(integrationConfig);
+      })
+      .ConfigureServices(services =>
+      {
+        // Replace the real authentication service with our test version
+        var authenticationServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IAuthenticationService));
+        if (authenticationServiceDescriptor != null)
+        {
+          services.Remove(authenticationServiceDescriptor);
+        }
+        services.AddSingleton<IAuthenticationService, TestAuthenticationService>();
       });
   }
 
@@ -125,10 +135,13 @@ public class TestAuthenticationService : IAuthenticationService
       return Task.FromResult(AuthenticationResult.Failure("Token is required"));
     }
 
+    // Extract user ID from token if it contains one, otherwise use a consistent test ID
+    var userId = ExtractUserIdFromToken(token) ?? "user_2abcdefghijklmnop123456789"; // Clerk-like format
+
     // Create a test user for functional tests
     var user = new User
     {
-      Id = "test-user-id",
+      Id = userId,
       Email = "test@example.com",
       FirstName = "Test",
       LastName = "User",
@@ -145,5 +158,30 @@ public class TestAuthenticationService : IAuthenticationService
   {
     // For functional tests, any non-empty token is considered valid
     return Task.FromResult(!string.IsNullOrEmpty(token));
+  }
+
+  private string? ExtractUserIdFromToken(string token)
+  {
+    // Try to extract user ID from token if it's encoded
+    // This simulates Clerk's JWT structure where user_id might be in the payload
+    try
+    {
+      // Simple check for test-token- pattern
+      if (token.StartsWith("test-token-"))
+      {
+        // Extract user ID from test token format like "test-token-user_123"
+        var parts = token.Split('-');
+        if (parts.Length >= 3)
+        {
+          return parts[2]; // e.g., "user_123" from "test-token-user_123"
+        }
+      }
+    }
+    catch
+    {
+      // If extraction fails, return null and use default
+    }
+
+    return null;
   }
 }

@@ -86,11 +86,19 @@ public class ClerkAuthenticationService : IAuthenticationService
         _logger.LogInformation("JWT Claims: {Claims}",
             string.Join(", ", claims.Select(c => $"{c.Type}: {c.Value}")));
 
+        // Extract user ID with priority: sub (standard JWT) -> user_id (Clerk specific) -> nameidentifier -> fallback
+        var userId = claims.FirstOrDefault(c => c.Type == "sub")?.Value
+                   ?? claims.FirstOrDefault(c => c.Type == "user_id")?.Value  // Clerk specific
+                   ?? claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                   ?? string.Empty;
+
+        // Log user ID extraction for debugging consistency issues
+        _logger.LogDebug("Extracted user ID '{UserId}' from JWT claims for email '{Email}'",
+            userId, claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "no-email");
+
         return new User
         {
-            Id = claims.FirstOrDefault(c => c.Type == "sub")?.Value
-                 ?? claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
-                 ?? string.Empty,
+            Id = userId,
             Email = claims.FirstOrDefault(c => c.Type == "email")?.Value
                    ?? claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
                    ?? string.Empty,

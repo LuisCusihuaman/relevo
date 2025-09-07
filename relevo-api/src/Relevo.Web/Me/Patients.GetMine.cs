@@ -31,6 +31,8 @@ public class GetMyPatients(
 
     // Debug logging
     _logger.LogInformation("GetMyPatients - User ID: {UserId}, Email: {Email}", user.Id, user.Email);
+    _logger.LogInformation("🔍 Retrieval Debug - User ID format check: {UserIdFormat}, Length: {UserIdLength}",
+        user.Id.Contains("user_") ? "Clerk-like" : "Other", user.Id.Length);
 
     var (patients, total) = await _setupService.GetMyPatientsAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
 

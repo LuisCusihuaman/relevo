@@ -55,6 +55,9 @@ public class OracleSetupRepository : ISetupRepository
         {
             using IDbConnection conn = _factory.CreateConnection();
 
+            _logger.LogInformation("🔍 Assignment Debug - Storing assignment for UserId: {UserId}, ShiftId: {ShiftId}, PatientCount: {PatientCount}",
+                userId, shiftId, patientIds.Count());
+
             // Remove existing assignments for this user
             await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
                 new { userId });
@@ -87,7 +90,8 @@ public class OracleSetupRepository : ISetupRepository
         {
             using IDbConnection conn = _factory.CreateConnection();
 
-            _logger.LogDebug("Getting patients for user {UserId}, page {Page}, pageSize {PageSize}", userId, page, pageSize);
+            _logger.LogInformation("🔍 Retrieval Debug - Getting patients for UserId: {UserId}, page {Page}, pageSize {PageSize}",
+                userId, page, pageSize);
 
             // Get total count of assigned patients
             const string countSql = "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = :userId";

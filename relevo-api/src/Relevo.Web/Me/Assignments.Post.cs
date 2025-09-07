@@ -31,6 +31,8 @@ public class PostAssignments(
         user.Id, user.Email ?? "no-email", req.ShiftId, string.Join(",", req.PatientIds ?? []));
     _logger.LogInformation("👤 User Context Details - ID: {UserId}, Email: {Email}, Name: {FirstName} {LastName}",
         user.Id, user.Email ?? "no-email", user.FirstName ?? "no-first", user.LastName ?? "no-last");
+    _logger.LogInformation("🔍 Assignment Debug - User ID format check: {UserIdFormat}, Length: {UserIdLength}",
+        user.Id.Contains("user_") ? "Clerk-like" : "Other", user.Id.Length);
 
     await _setupService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
 
