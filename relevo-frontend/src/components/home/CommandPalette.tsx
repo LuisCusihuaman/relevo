@@ -20,8 +20,8 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 }) => {
 	const getCategoryText = (category: string): string => {
 		switch (category) {
-			case "Projects":
-			case "Project":
+			case "Patients":
+			case "Patient":
 				return "Pacientes";
 			case "Deployments":
 			case "Latest Deployment":
@@ -107,7 +107,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 											src="/placeholder.svg?height=20&width=20"
 										/>
 									)}
-									{result.type === "project" &&
+									{result.type === "patient" &&
 										result.name === "relevo-app" && (
 											<div className="w-5 h-5 bg-purple-500 rounded flex items-center justify-center">
 												<span className="text-white text-sm font-bold">
@@ -115,7 +115,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 												</span>
 											</div>
 										)}
-									{result.type === "project" &&
+									{result.type === "patient" &&
 										result.name === "Analytics" && (
 											<div className="w-5 h-5 flex items-center justify-center">
 												<svg

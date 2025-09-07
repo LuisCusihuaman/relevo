@@ -6,7 +6,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activity, GitBranch, Github, MoreHorizontal } from "lucide-react";
-import { patients as projects } from "../../pages/data";
+import { patients as patients } from "../../pages/data";
 
 export const PatientDirectoryList: FC = () => {
 	const getStatusText = (status: string): string => {
@@ -49,39 +49,39 @@ export const PatientDirectoryList: FC = () => {
 			</div>
 			<div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 				<ul className="divide-y divide-gray-200">
-					{projects.length > 0 ? (
-						projects.map((project, index) => (
+					{patients.length > 0 ? (
+						patients.map((patient, index) => (
 							<li
 								key={index}
 								className="grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 hover:bg-gray-50 cursor-pointer transition-colors"
-								onClick={() => (window.location.href = `/${project.name}`)}
+								onClick={() => (window.location.href = `/${patient.name}`)}
 							>
 								<div className="flex items-center gap-3 min-w-0">
 									<span className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-										{project.icon}
+										{patient.icon}
 									</span>
 									<div className="min-w-0 flex-1">
 										<div className="text-sm font-medium text-gray-900 truncate">
-											{project.name}
+											{patient.name}
 										</div>
 										<div className="text-xs text-gray-600 truncate">
-											{getStatusText(project.status)}
+											{getStatusText(patient.status)}
 										</div>
 									</div>
 								</div>
 
 								<div className="min-w-0 flex-1">
 									<a className="block text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline truncate">
-										{getActionText(getStatusText(project.status))}
+										{getActionText(getStatusText(patient.status))}
 									</a>
 									<div className="mt-1 text-xs text-gray-600 flex items-center gap-2">
-										<time>{formatDate(project.date)}</time>
-										{project.unit && (
+										<time>{formatDate(patient.date)}</time>
+										{patient.unit && (
 											<>
 												<span>en</span>
 												<span className="inline-flex items-center gap-1">
 													<GitBranch className="h-3.5 w-3.5" />
-													{project.unit}
+													{patient.unit}
 												</span>
 											</>
 										)}
@@ -89,13 +89,13 @@ export const PatientDirectoryList: FC = () => {
 								</div>
 
 								<div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
-									{project.hasGithub ? (
+									{patient.hasGithub ? (
 										<a
 											className="inline-flex items-center h-7 px-2.5 rounded-full border border-gray-200 bg-gray-50 text-gray-700 text-xs min-w-0 max-w-[120px] truncate"
 											title="Severidad y signos"
 										>
 											<Github className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-											<span className="truncate">{project.github}</span>
+											<span className="truncate">{patient.github}</span>
 										</a>
 									) : (
 										<div className="w-[120px]"></div>
@@ -119,7 +119,7 @@ export const PatientDirectoryList: FC = () => {
 											<DropdownMenuItem>Abrir</DropdownMenuItem>
 											<DropdownMenuItem>Ver notas</DropdownMenuItem>
 											<DropdownMenuItem>
-												{getActionText(getStatusText(project.status))}
+												{getActionText(getStatusText(patient.status))}
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>

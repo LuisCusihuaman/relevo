@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import { handovers, projectToPatientName } from "../../pages/data";
+import { handovers } from "../../pages/data";
 import type { Handover } from "./types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -71,9 +71,6 @@ export const EntityTable: FC<EntityTableProps> = ({
 		return name;
 	};
 
-	const mapPatientName = (techName: string): string =>
-		projectToPatientName[techName] || techName;
-
 	const getInitials = (fullName: string): string => {
 		const cleaned = typeof fullName === "string" ? fullName.trim() : "";
 		const parts = cleaned.split(/\s+/).filter(Boolean);
@@ -109,7 +106,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						index < 5 ? "border-b border-gray-100" : ""
 					}`}
 					onClick={() => {
-						handleHandoverClick(handover.id, handover.project);
+						handleHandoverClick(handover.id, handover.patientKey);
 					}}
 				>
 					{/* Left Column: Location/MRN instead of technical ID */}
@@ -142,12 +139,12 @@ export const EntityTable: FC<EntityTableProps> = ({
 					<div className="min-w-0">
 						<div className="flex items-center gap-2 mb-1">
 							<div
-								className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${handover.projectIcon.bg} ${handover.projectIcon.text || "text-gray-700"}`}
+								className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${handover.patientIcon.bg} ${handover.patientIcon.text || "text-gray-700"}`}
 							>
-								{getInitials(mapPatientName(handover.project))}
+								{getInitials(handover.patientName)}
 							</div>
 							<span className="font-medium text-gray-900 text-sm hover:underline cursor-pointer truncate">
-								{mapPatientName(handover.project)}
+								{handover.patientName}
 							</span>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>

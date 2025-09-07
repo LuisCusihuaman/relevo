@@ -1,18 +1,18 @@
 import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
-import type { Project } from "./types";
+import type { Patient } from "./types";
 
 type PatientProfileHeaderProps = {
-	currentProject: Project;
+	currentPatient: Patient;
 };
 
 export const PatientProfileHeader: FC<PatientProfileHeaderProps> = ({
-	currentProject,
+	currentPatient,
 }) => {
 	return (
 		<div>
 			<h1 className="text-2xl font-semibold text-gray-900 mb-8">
-				{currentProject.name}
+				{currentPatient.name}
 			</h1>
 
 			<div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -56,8 +56,8 @@ export const PatientProfileHeader: FC<PatientProfileHeaderProps> = ({
 								Deployment
 							</h3>
 							<p className="text-sm text-gray-900">
-								{currentProject?.name}
-								-1a70w6d3y-luis-cusihuamans-projects.vercel.app
+								{currentPatient?.name}
+								-1a70w6d3y-luis-cusihuamans-patients.vercel.app
 							</p>
 						</div>
 					</div>

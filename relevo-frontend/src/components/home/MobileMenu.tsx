@@ -11,17 +11,17 @@ import {
 	LogOut,
 } from "lucide-react";
 
-import type { Project } from "./types";
+import type { Patient } from "./types";
 
 type MobileMenuProps = {
-	isProjectView: boolean;
-	currentProject: Project | null;
+	isPatientView: boolean;
+	currentPatient: Patient | null;
 	setIsMobileMenuOpen: (isOpen: boolean) => void;
 };
 
 export const MobileMenu: FC<MobileMenuProps> = ({
-	isProjectView,
-	currentProject,
+	isPatientView,
+	currentPatient,
 	setIsMobileMenuOpen,
 }) => {
 	return (
@@ -43,9 +43,9 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 							<AvatarImage src="/placeholder.svg?height=28&width=28" />
 							<AvatarFallback>LC</AvatarFallback>
 						</Avatar>
-						{isProjectView ? (
+						{isPatientView ? (
 							<div className="flex items-center gap-2">
-								{currentProject?.name === "relevo-app" ? (
+								{currentPatient?.name === "relevo-app" ? (
 									<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
 										<span className="text-white text-xs font-bold">V</span>
 									</div>
@@ -53,12 +53,12 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 									<div className="w-5 h-5 bg-gray-400 rounded-full"></div>
 								)}
 								<span className="font-medium text-base text-gray-900">
-									{currentProject?.name}
+									{currentPatient?.name}
 								</span>
 							</div>
 						) : (
 							<span className="font-medium text-base text-gray-900">
-								Luis Cusihuaman's projects
+								Pacientes de Luis Cusihuaman
 							</span>
 						)}
 						<ChevronDown className="h-4 w-4 text-gray-500" />

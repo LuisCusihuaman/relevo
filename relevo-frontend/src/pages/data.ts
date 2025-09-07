@@ -1,12 +1,12 @@
 
 import type {
 	Handover,
-	Project,
+	Patient,
 	RecentPreview,
 	SearchResult,
 } from "../components/home/types";
 
-export const patients: Array<Project> = [
+export const patients: Array<Patient> = [
 	{
 		name: "Ana Pérez",
 		url: "relevo-app.vercel.app",
@@ -89,12 +89,7 @@ export const patients: Array<Project> = [
 	},
 ];
 
-// Map de nombre técnico de app/repositorio a nombre del paciente
-export const projectToPatientName: Record<string, string> = {
-	"calendar-app": "Ana Pérez",
-	"heroes-app": "Carlos Gómez",
-	"relevo-app": "Laura Schmidt",
-};
+// Removed mapping; names are stored per handover as patientName.
 
 export const recentPreviews: Array<RecentPreview> = [
 	{
@@ -146,8 +141,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-red-500",
 		environment: "Unexpected Error",
 		environmentColor: "text-red-600",
-		project: "calendar-app",
-		projectIcon: {
+		patientKey: "calendar-app",
+		patientName: "Ana Pérez",
+		patientIcon: {
 			type: "text",
 			value: "A",
 			bg: "bg-blue-100",
@@ -170,8 +166,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-red-500",
 		environment: "Unexpected Error",
 		environmentColor: "text-red-600",
-		project: "calendar-app",
-		projectIcon: {
+		patientKey: "calendar-app",
+		patientName: "Ana Pérez",
+		patientIcon: {
 			type: "text",
 			value: "A",
 			bg: "bg-blue-100",
@@ -193,8 +190,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-red-500",
 		environment: "Unexpected Error",
 		environmentColor: "text-red-600",
-		project: "heroes-app",
-		projectIcon: {
+		patientKey: "heroes-app",
+		patientName: "Carlos Gómez",
+		patientIcon: {
 			type: "text",
 			value: "C",
 			bg: "bg-blue-100",
@@ -216,8 +214,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-red-500",
 		environment: "Unexpected Error",
 		environmentColor: "text-red-600",
-		project: "calendar-app",
-		projectIcon: {
+		patientKey: "calendar-app",
+		patientName: "Ana Pérez",
+		patientIcon: {
 			type: "text",
 			value: "A",
 			bg: "bg-blue-100",
@@ -239,8 +238,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-green-500",
 		environment: "Promoted",
 		environmentColor: "text-gray-600",
-		project: "relevo-app",
-		projectIcon: {
+		patientKey: "relevo-app",
+		patientName: "Laura Schmidt",
+		patientIcon: {
 			type: "text",
 			value: "V",
 			bg: "bg-purple-500",
@@ -263,8 +263,9 @@ export const handovers: Array<Handover> = [
 		statusColor: "bg-green-500",
 		environment: "Staged",
 		environmentColor: "text-gray-600",
-		project: "relevo-app",
-		projectIcon: {
+		patientKey: "relevo-app",
+		patientName: "Laura Schmidt",
+		patientIcon: {
 			type: "text",
 			value: "V",
 			bg: "bg-purple-500",
@@ -284,11 +285,11 @@ export const handovers: Array<Handover> = [
 
 export const searchResults: Array<SearchResult> = [
 	// Pacientes
-	{ name: "Ana Pérez", category: "Pacientes", type: "project" },
-	{ name: "Juan Rodríguez", category: "Pacientes", type: "project" },
-	{ name: "Carlos Gómez", category: "Pacientes", type: "project" },
+	{ name: "Ana Pérez", category: "Pacientes", type: "patient" },
+	{ name: "Juan Rodríguez", category: "Pacientes", type: "patient" },
+	{ name: "Carlos Gómez", category: "Pacientes", type: "patient" },
 
-	// Traspasos (mantiene el tipo 'deployment' para el punto verde)
+	// Traspasos
 	{ name: "Ana Pérez", category: "Traspasos", type: "handover" },
 	{ name: "Laura Schmidt", category: "Traspasos", type: "handover" },
 

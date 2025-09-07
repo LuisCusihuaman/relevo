@@ -19,14 +19,15 @@ import {
 	recentPreviews,
 	searchResults,
 } from "@/pages/data";
+import type { Patient } from "@/components/home/types";
 
 export type HomeProps = {
-	projectSlug?: string;
+	patientSlug?: string;
 	initialTab?: string;
 };
 
 export function Home({
-	projectSlug,
+	patientSlug,
 	initialTab = "Resumen",
 }: HomeProps): ReactElement {
 	const [searchQuery, setSearchQuery] = useState<string>("");
@@ -38,9 +39,10 @@ export function Home({
 		setActiveTab(initialTab);
 	}, [initialTab]);
 
-	const currentProject =
-		(projectSlug && patients.find((p) => p.name === projectSlug)) || null;
-	const isProjectView = Boolean(currentProject);
+	const patientsList: ReadonlyArray<Patient> = patients as ReadonlyArray<Patient>;
+	const currentPatient: Patient | null =
+		patientSlug ? (patientsList.find((p: Patient): boolean => p.name === patientSlug) ?? null) : null;
+	const isPatientView: boolean = Boolean(currentPatient);
 
 	useEffect(() => {
 		const handleKeyDown = (event_: KeyboardEvent): void => {
@@ -71,35 +73,35 @@ export function Home({
 
 	const handleHandoverClick = (
 		handoverId: string,
-		projectName: string
+		patientName: string
 	): void => {
-		const projectSlugMap: { [key: string]: string } = {
+		const patientSlugMap: { [key: string]: string } = {
 			"calendar-app": "calendar-app",
 			"heroes-app": "heroes-app",
 			"relevo-app": "relevo-app",
 			"eduardoc/spanish": "eduardoc-spanish",
 		};
 
-		const projectSlug =
-			projectSlugMap[projectName] ||
-			projectName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-		window.location.href = `/${projectSlug}/${handoverId}`;
+		const patientSlug =
+			patientSlugMap[patientName] ||
+			patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
+		window.location.href = `/${patientSlug}/${handoverId}`;
 	};
 
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<AppHeader
-				currentProject={currentProject}
+				currentPatient={currentPatient}
 				isMobileMenuOpen={isMobileMenuOpen}
-				isProjectView={isProjectView}
+				isPatientView={isPatientView}
 				setIsMobileMenuOpen={setIsMobileMenuOpen}
 				setIsSearchOpen={setIsSearchOpen}
 			/>
 
 			{isMobileMenuOpen && (
 				<MobileMenu
-					currentProject={currentProject}
-					isProjectView={isProjectView}
+					currentPatient={currentPatient}
+					isPatientView={isPatientView}
 					setIsMobileMenuOpen={setIsMobileMenuOpen}
 				/>
 			)}
@@ -113,13 +115,10 @@ export function Home({
 				/>
 			)}
 
-			<SubNavigation
-				activeTab={activeTab}
-				setActiveTab={setActiveTab}
-			/>
+			<SubNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
 			<div className="flex-1 p-6">
-				{!isProjectView && activeTab === "Resumen" && (
+				{!isPatientView && activeTab === "Resumen" && (
 					<div className="space-y-6">
 						<VersionNotice />
 						<div className="max-w-7xl mx-auto px-6 py-6">
@@ -133,21 +132,19 @@ export function Home({
 					</div>
 				)}
 
-				{!isProjectView && activeTab === "Traspasos" && (
+				{!isPatientView && activeTab === "Traspasos" && (
 					<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 						<ListHeader />
 						<FilterToolbar />
 						<EntityTable handleHandoverClick={handleHandoverClick} />
-						<EntityListMobile
-							handleHandoverClick={handleHandoverClick}
-						/>
+						<EntityListMobile handleHandoverClick={handleHandoverClick} />
 					</div>
 				)}
 
-				{isProjectView && currentProject ? (
+				{isPatientView && currentPatient ? (
 					<div className="space-y-6">
 						{activeTab === "Resumen" && (
-							<PatientProfileHeader currentProject={currentProject} />
+							<PatientProfileHeader currentPatient={currentPatient} />
 						)}
 					</div>
 				) : null}

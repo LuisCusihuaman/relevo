@@ -24,19 +24,19 @@ import {
 	HomeIcon,
 } from "lucide-react";
 
-import type { Project } from "./types";
+import type { Patient } from "./types";
 
 type AppHeaderProps = {
-	isProjectView: boolean;
-	currentProject: Project | null;
+	isPatientView: boolean;
+	currentPatient: Patient | null;
 	setIsSearchOpen: (isOpen: boolean) => void;
 	isMobileMenuOpen: boolean;
 	setIsMobileMenuOpen: (isOpen: boolean) => void;
 };
 
 export const AppHeader: FC<AppHeaderProps> = ({
-	isProjectView,
-	currentProject,
+	isPatientView,
+	currentPatient,
 	setIsSearchOpen,
 	isMobileMenuOpen,
 	setIsMobileMenuOpen,
@@ -51,7 +51,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					</svg>
 
 					<div className="flex items-center gap-2">
-						{isProjectView ? (
+						{isPatientView ? (
 							<div className="flex items-center gap-2">
 								<Avatar className="h-7 w-7 md:hidden">
 									<AvatarImage src="/placeholder.svg?height=28&width=28" />
@@ -69,7 +69,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 								</button>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
-									{currentProject?.name === "relevo-app" ? (
+									{currentPatient?.name === "relevo-app" ? (
 										<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
 											<span className="text-white text-xs font-bold">V</span>
 										</div>
@@ -77,7 +77,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 										<div className="w-5 h-5 bg-gray-400 rounded-full"></div>
 									)}
 									<span className="text-base font-medium text-gray-900">
-										{currentProject?.name}
+										{currentPatient?.name}
 									</span>
 								</div>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
@@ -359,15 +359,15 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									</Button>
 								</div>
 							</div>
-						</div>
 
-						<div className="border-t border-gray-100 px-4 py-2">
-							<Button
-								className="w-full text-sm text-gray-600 hover:text-gray-900 justify-center"
-								variant="ghost"
-							>
-								Archivar todo
-							</Button>
+							<div className="border-t border-gray-100 px-4 py-2">
+								<Button
+									className="w-full text-sm text-gray-600 hover:text-gray-900 justify-center"
+									variant="ghost"
+								>
+									Archivar todo
+								</Button>
+							</div>
 						</div>
 					</PopoverContent>
 				</Popover>

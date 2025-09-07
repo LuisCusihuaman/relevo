@@ -1,4 +1,4 @@
-export type Project = {
+export type Patient = {
 	name: string;
 	url: string;
 	status: string;
@@ -21,7 +21,7 @@ export type RecentPreview = {
 export type SearchResult = {
 	name: string;
 	category: string;
-	type: "handover" | "team" | "project" | "assistant";
+	type: "handover" | "team" | "patient" | "assistant";
 };
 
 export type Handover = {
@@ -30,8 +30,9 @@ export type Handover = {
 	statusColor: string;
 	environment: string;
 	environmentColor: string;
-	project: string;
-	projectIcon: {
+	patientKey: string;
+	patientName: string;
+	patientIcon: {
 		type: "text";
 		value: string;
 		bg: string;

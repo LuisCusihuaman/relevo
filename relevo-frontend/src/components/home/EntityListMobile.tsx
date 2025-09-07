@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import { handovers, projectToPatientName } from "../../pages/data";
+import { handovers } from "../../pages/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type EntityListMobileProps = {
@@ -74,9 +74,6 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 		return name;
 	};
 
-	const mapPatientName = (techName: string): string =>
-		projectToPatientName[techName] || techName;
-
 	const getInitials = (fullName: string): string => {
 		const cleaned = typeof fullName === "string" ? fullName.trim() : "";
 		const parts = cleaned.split(/\s+/).filter(Boolean);
@@ -104,7 +101,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					key={handover.id}
 					className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 cursor-pointer hover:border-gray-300 transition-colors"
 					onClick={() => {
-						handleHandoverClick(handover.id, handover.project);
+						handleHandoverClick(handover.id, handover.patientKey);
 					}}
 				>
 					{/* Card Header */}
@@ -119,12 +116,12 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 						</div>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title="Más" onClick={(e) => e.stopPropagation()}>
+								<button className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center" title="Más" onClick={(event_) => { event_.stopPropagation(); }}>
 									<MoreHorizontal className="h-4 w-4" />
 								</button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={(e) => { e.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>Copiar ID</DropdownMenuItem>
+								<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>Copiar ID</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -155,15 +152,15 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 						</div>
 					</div>
 
-					{/* Project Info */}
+					{/* Patient Info */}
 					<div className="flex items-center gap-2">
 						<div
-							className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${handover.projectIcon.bg} ${handover.projectIcon.text || "text-gray-700"}`}
+							className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${handover.patientIcon.bg} ${handover.patientIcon.text || "text-gray-700"}`}
 						>
-							{getInitials(mapPatientName(handover.project))}
+							{getInitials(handover.patientName)}
 						</div>
 						<span className="font-medium text-gray-900 text-sm hover:underline cursor-pointer">
-							{mapPatientName(handover.project)}
+							{handover.patientName}
 						</span>
 					</div>
 
