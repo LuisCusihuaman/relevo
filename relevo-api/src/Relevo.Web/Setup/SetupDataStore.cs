@@ -79,20 +79,52 @@ public class SetupDataStore : ISetupDataProvider
         new { Id = "shift-night", Name = "Noche", StartTime = "19:00", EndTime = "07:00" }
       });
 
-    // Seed patients
+    // Seed patients - 35 patients distributed across units
     _connection.Execute(@"
       INSERT INTO PATIENTS (ID, NAME, UNIT_ID) VALUES
       (@Id, @Name, @UnitId);",
       new[]
       {
-        new { Id = "pat-123", Name = "John Doe", UnitId = "unit-1" },
-        new { Id = "pat-456", Name = "Jane Smith", UnitId = "unit-1" },
-        new { Id = "pat-789", Name = "Alex Johnson", UnitId = "unit-1" },
-        new { Id = "pat-210", Name = "Ava Thompson", UnitId = "unit-2" },
-        new { Id = "pat-220", Name = "Liam Rodríguez", UnitId = "unit-2" },
-        new { Id = "pat-230", Name = "Mia Patel", UnitId = "unit-2" },
-        new { Id = "pat-310", Name = "Pat Taylor", UnitId = "unit-3" },
-        new { Id = "pat-320", Name = "Jordan White", UnitId = "unit-3" }
+        // UCI (unit-1) - 12 patients
+        new { Id = "pat-001", Name = "María García", UnitId = "unit-1" },
+        new { Id = "pat-002", Name = "Carlos Rodríguez", UnitId = "unit-1" },
+        new { Id = "pat-003", Name = "Ana López", UnitId = "unit-1" },
+        new { Id = "pat-004", Name = "Miguel Hernández", UnitId = "unit-1" },
+        new { Id = "pat-005", Name = "Isabella González", UnitId = "unit-1" },
+        new { Id = "pat-006", Name = "David Pérez", UnitId = "unit-1" },
+        new { Id = "pat-007", Name = "Sofia Martínez", UnitId = "unit-1" },
+        new { Id = "pat-008", Name = "José Sánchez", UnitId = "unit-1" },
+        new { Id = "pat-009", Name = "Carmen Díaz", UnitId = "unit-1" },
+        new { Id = "pat-010", Name = "Antonio Moreno", UnitId = "unit-1" },
+        new { Id = "pat-011", Name = "Elena Jiménez", UnitId = "unit-1" },
+        new { Id = "pat-012", Name = "Francisco Ruiz", UnitId = "unit-1" },
+
+        // Pediatría General (unit-2) - 12 patients
+        new { Id = "pat-013", Name = "Lucía Álvarez", UnitId = "unit-2" },
+        new { Id = "pat-014", Name = "Pablo Romero", UnitId = "unit-2" },
+        new { Id = "pat-015", Name = "Valentina Navarro", UnitId = "unit-2" },
+        new { Id = "pat-016", Name = "Diego Torres", UnitId = "unit-2" },
+        new { Id = "pat-017", Name = "Marta Ramírez", UnitId = "unit-2" },
+        new { Id = "pat-018", Name = "Adrián Gil", UnitId = "unit-2" },
+        new { Id = "pat-019", Name = "Clara Serrano", UnitId = "unit-2" },
+        new { Id = "pat-020", Name = "Hugo Castro", UnitId = "unit-2" },
+        new { Id = "pat-021", Name = "Natalia Rubio", UnitId = "unit-2" },
+        new { Id = "pat-022", Name = "Iván Ortega", UnitId = "unit-2" },
+        new { Id = "pat-023", Name = "Paula Delgado", UnitId = "unit-2" },
+        new { Id = "pat-024", Name = "Mario Guerrero", UnitId = "unit-2" },
+
+        // Pediatría Especializada (unit-3) - 11 patients
+        new { Id = "pat-025", Name = "Laura Flores", UnitId = "unit-3" },
+        new { Id = "pat-026", Name = "Álvaro Vargas", UnitId = "unit-3" },
+        new { Id = "pat-027", Name = "Cristina Medina", UnitId = "unit-3" },
+        new { Id = "pat-028", Name = "Sergio Herrera", UnitId = "unit-3" },
+        new { Id = "pat-029", Name = "Alicia Castro", UnitId = "unit-3" },
+        new { Id = "pat-030", Name = "Roberto Vega", UnitId = "unit-3" },
+        new { Id = "pat-031", Name = "Beatriz León", UnitId = "unit-3" },
+        new { Id = "pat-032", Name = "Manuel Peña", UnitId = "unit-3" },
+        new { Id = "pat-033", Name = "Silvia Cortés", UnitId = "unit-3" },
+        new { Id = "pat-034", Name = "Fernando Aguilar", UnitId = "unit-3" },
+        new { Id = "pat-035", Name = "Teresa Santana", UnitId = "unit-3" }
       });
   }
 
@@ -125,14 +157,46 @@ public class SetupDataStore : ISetupDataProvider
     // For tests, return hardcoded data since we're using SQLite
     var allPatients = new List<(string UnitId, PatientRecord Patient)>
     {
-      ("unit-1", new PatientRecord("pat-123", "John Doe")),
-      ("unit-1", new PatientRecord("pat-456", "Jane Smith")),
-      ("unit-1", new PatientRecord("pat-789", "Alex Johnson")),
-      ("unit-2", new PatientRecord("pat-210", "Ava Thompson")),
-      ("unit-2", new PatientRecord("pat-220", "Liam Rodríguez")),
-      ("unit-2", new PatientRecord("pat-230", "Mia Patel")),
-      ("unit-3", new PatientRecord("pat-310", "Pat Taylor")),
-      ("unit-3", new PatientRecord("pat-320", "Jordan White"))
+      // UCI (unit-1) - 12 patients
+      ("unit-1", new PatientRecord("pat-001", "María García")),
+      ("unit-1", new PatientRecord("pat-002", "Carlos Rodríguez")),
+      ("unit-1", new PatientRecord("pat-003", "Ana López")),
+      ("unit-1", new PatientRecord("pat-004", "Miguel Hernández")),
+      ("unit-1", new PatientRecord("pat-005", "Isabella González")),
+      ("unit-1", new PatientRecord("pat-006", "David Pérez")),
+      ("unit-1", new PatientRecord("pat-007", "Sofia Martínez")),
+      ("unit-1", new PatientRecord("pat-008", "José Sánchez")),
+      ("unit-1", new PatientRecord("pat-009", "Carmen Díaz")),
+      ("unit-1", new PatientRecord("pat-010", "Antonio Moreno")),
+      ("unit-1", new PatientRecord("pat-011", "Elena Jiménez")),
+      ("unit-1", new PatientRecord("pat-012", "Francisco Ruiz")),
+
+      // Pediatría General (unit-2) - 12 patients
+      ("unit-2", new PatientRecord("pat-013", "Lucía Álvarez")),
+      ("unit-2", new PatientRecord("pat-014", "Pablo Romero")),
+      ("unit-2", new PatientRecord("pat-015", "Valentina Navarro")),
+      ("unit-2", new PatientRecord("pat-016", "Diego Torres")),
+      ("unit-2", new PatientRecord("pat-017", "Marta Ramírez")),
+      ("unit-2", new PatientRecord("pat-018", "Adrián Gil")),
+      ("unit-2", new PatientRecord("pat-019", "Clara Serrano")),
+      ("unit-2", new PatientRecord("pat-020", "Hugo Castro")),
+      ("unit-2", new PatientRecord("pat-021", "Natalia Rubio")),
+      ("unit-2", new PatientRecord("pat-022", "Iván Ortega")),
+      ("unit-2", new PatientRecord("pat-023", "Paula Delgado")),
+      ("unit-2", new PatientRecord("pat-024", "Mario Guerrero")),
+
+      // Pediatría Especializada (unit-3) - 11 patients
+      ("unit-3", new PatientRecord("pat-025", "Laura Flores")),
+      ("unit-3", new PatientRecord("pat-026", "Álvaro Vargas")),
+      ("unit-3", new PatientRecord("pat-027", "Cristina Medina")),
+      ("unit-3", new PatientRecord("pat-028", "Sergio Herrera")),
+      ("unit-3", new PatientRecord("pat-029", "Alicia Castro")),
+      ("unit-3", new PatientRecord("pat-030", "Roberto Vega")),
+      ("unit-3", new PatientRecord("pat-031", "Beatriz León")),
+      ("unit-3", new PatientRecord("pat-032", "Manuel Peña")),
+      ("unit-3", new PatientRecord("pat-033", "Silvia Cortés")),
+      ("unit-3", new PatientRecord("pat-034", "Fernando Aguilar")),
+      ("unit-3", new PatientRecord("pat-035", "Teresa Santana"))
     };
 
     var unitPatients = allPatients
@@ -206,7 +270,7 @@ public class SetupDataStore : ISetupDataProvider
     {
       new HandoverRecord(
         Id: "hvo-001",
-        PatientId: "pat-123",
+        PatientId: "pat-001",
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient is stable post-surgery with good vital signs."),
@@ -220,7 +284,7 @@ public class SetupDataStore : ISetupDataProvider
       ),
       new HandoverRecord(
         Id: "hvo-002",
-        PatientId: "pat-456",
+        PatientId: "pat-013",
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
         PatientSummary: new HandoverPatientSummary("Patient showing signs of improvement with reduced oxygen requirements."),
@@ -231,6 +295,20 @@ public class SetupDataStore : ISetupDataProvider
         },
         SituationAwarenessDocId: "hvo-002-sa",
         Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status.")
+      ),
+      new HandoverRecord(
+        Id: "hvo-003",
+        PatientId: "pat-025",
+        Status: "InProgress",
+        IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
+        PatientSummary: new HandoverPatientSummary("Patient requires close monitoring due to fluctuating vital signs."),
+        ActionItems: new List<HandoverActionItem>
+        {
+          new HandoverActionItem("act-005", "Continuous vital signs monitoring", false),
+          new HandoverActionItem("act-006", "Prepare emergency medications", false)
+        },
+        SituationAwarenessDocId: "hvo-003-sa",
+        Synthesis: null
       )
     };
 
