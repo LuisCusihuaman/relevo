@@ -3,15 +3,16 @@ using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Relevo.Web;
+using Relevo.FunctionalTests;
 using Xunit;
 
 namespace Relevo.FunctionalTests.Auth;
 
-public class ClerkAuthenticationMiddlewareTests : IClassFixture<WebApplicationFactory<Program>>
+public class ClerkAuthenticationMiddlewareTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly CustomWebApplicationFactory<Program> _factory;
 
-    public ClerkAuthenticationMiddlewareTests(WebApplicationFactory<Program> factory)
+    public ClerkAuthenticationMiddlewareTests(CustomWebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }

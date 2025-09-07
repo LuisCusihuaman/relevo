@@ -4,7 +4,7 @@ using Relevo.Core.Interfaces;
 namespace Relevo.Web.Me;
 
 public class PostAssignments(
-    Relevo.Web.Setup.ISetupDataProvider _dataProvider,
+    ISetupService _setupService,
     IUserContext _userContext)
   : Endpoint<PostAssignmentsRequest>
 {
@@ -24,7 +24,7 @@ public class PostAssignments(
       return;
     }
 
-    _dataProvider.Assign(user.Id, req.ShiftId, req.PatientIds ?? []);
+    await _setupService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
     await SendNoContentAsync(ct);
   }
 }

@@ -1,9 +1,11 @@
 using FastEndpoints;
+using Relevo.Core.Interfaces;
 using Relevo.Web.Patients;
+using DomainPatientRecord = Relevo.Core.Interfaces.PatientRecord;
 
 namespace Relevo.Web.Units;
 
-public class GetPatientsByUnit(Relevo.Web.Setup.ISetupDataProvider _dataProvider)
+public class GetPatientsByUnit(ISetupService _setupService)
   : Endpoint<GetPatientsByUnitRequest, GetPatientsByUnitResponse>
 {
   public override void Configure()
@@ -14,7 +16,7 @@ public class GetPatientsByUnit(Relevo.Web.Setup.ISetupDataProvider _dataProvider
 
   public override async Task HandleAsync(GetPatientsByUnitRequest req, CancellationToken ct)
   {
-    var (patients, total) = _dataProvider.GetPatientsByUnit(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = await _setupService.GetPatientsByUnitAsync(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetPatientsByUnitResponse
     {
       Patients = patients.ToList(),
@@ -35,7 +37,7 @@ public class GetPatientsByUnitRequest
 
 public class GetPatientsByUnitResponse
 {
-  public List<PatientRecord> Patients { get; set; } = [];
+  public List<DomainPatientRecord> Patients { get; set; } = [];
   public int TotalCount { get; set; }
   public int Page { get; set; }
   public int PageSize { get; set; }

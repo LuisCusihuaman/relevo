@@ -7,7 +7,9 @@ public static class SetupServiceRegistration
 {
   public static IServiceCollection AddSetupProvider(this IServiceCollection services, ConfigurationManager config)
   {
-    bool useOracleForSetup = config.GetValue("UseOracleForSetup", false) || config.GetValue("UseOracle", false);
+    var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+    bool useOracleForSetup = environmentName == "Testing" ? false : config.GetValue("UseOracleForSetup", false);
+    
     if (useOracleForSetup)
     {
       services.AddSingleton<ISetupDataProvider, OracleSetupDataProvider>();

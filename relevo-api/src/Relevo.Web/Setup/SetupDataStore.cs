@@ -42,6 +42,16 @@ public class SetupDataStore : ISetupDataProvider
         NAME TEXT NOT NULL,
         UNIT_ID TEXT,
         FOREIGN KEY (UNIT_ID) REFERENCES UNITS(ID)
+      );
+
+      CREATE TABLE USER_ASSIGNMENTS (
+        USER_ID TEXT NOT NULL,
+        SHIFT_ID TEXT NOT NULL,
+        PATIENT_ID TEXT NOT NULL,
+        ASSIGNED_AT DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (USER_ID, PATIENT_ID),
+        FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
+        FOREIGN KEY (SHIFT_ID) REFERENCES SHIFTS(ID)
       );";
     cmd.ExecuteNonQuery();
   }
@@ -85,9 +95,6 @@ public class SetupDataStore : ISetupDataProvider
         new { Id = "pat-320", Name = "Jordan White", UnitId = "unit-3" }
       });
   }
-
-  // In-memory assignments (not persisted to maintain demo functionality)
-  private readonly Dictionary<string, (string ShiftId, HashSet<string> PatientIds)> _assignments = new();
 
   public IReadOnlyList<UnitRecord> GetUnits()
   {
@@ -146,14 +153,18 @@ public class SetupDataStore : ISetupDataProvider
 
   public void Assign(string userId, string shiftId, IEnumerable<string> patientIds)
   {
-    if (!_assignments.TryGetValue(userId, out var existing))
-    {
-      existing = (shiftId, new HashSet<string>());
-    }
+    // Remove existing assignments for this user
+    _connection.Execute("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = @UserId",
+        new { UserId = userId });
 
-    existing.ShiftId = shiftId;
-    existing.PatientIds = new HashSet<string>(patientIds);
-    _assignments[userId] = existing;
+    // Insert new assignments
+    foreach (var patientId in patientIds)
+    {
+      _connection.Execute(@"
+        INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
+        VALUES (@UserId, @ShiftId, @PatientId)",
+        new { UserId = userId, ShiftId = shiftId, PatientId = patientId });
+    }
   }
 
   public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(
@@ -161,39 +172,29 @@ public class SetupDataStore : ISetupDataProvider
     int page,
     int pageSize)
   {
-    if (!_assignments.TryGetValue(userId, out var assignment) || assignment.PatientIds.Count == 0)
-    {
+    // Get total count of assigned patients
+    var total = _connection.ExecuteScalar<int>(
+      "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = @UserId",
+      new { UserId = userId });
+
+    if (total == 0)
       return (Array.Empty<PatientRecord>(), 0);
-    }
 
-    var ids = assignment.PatientIds.ToArray();
-    if (ids.Length == 0)
-      return (Array.Empty<PatientRecord>(), 0);
-
-    // Use hardcoded patient data instead of database query
-    var allPatients = new List<PatientRecord>
-    {
-      new PatientRecord("pat-123", "John Doe"),
-      new PatientRecord("pat-456", "Jane Smith"),
-      new PatientRecord("pat-789", "Alex Johnson"),
-      new PatientRecord("pat-210", "Ava Thompson"),
-      new PatientRecord("pat-220", "Liam Rodríguez"),
-      new PatientRecord("pat-230", "Mia Patel"),
-      new PatientRecord("pat-310", "Pat Taylor"),
-      new PatientRecord("pat-320", "Jordan White")
-    };
-
-    var selected = allPatients.Where(p => ids.Contains(p.Id)).ToList();
-
-    var total = selected.Count;
+    // Get assigned patients with pagination
     var p = Math.Max(page, 1);
     var ps = Math.Max(pageSize, 1);
-    var items = selected
-      .Skip((p - 1) * ps)
-      .Take(ps)
-      .ToList();
+    var offset = (p - 1) * ps;
 
-    return (items, total);
+    var patients = _connection.Query<PatientRecord>(@"
+      SELECT p.ID, p.NAME
+      FROM PATIENTS p
+      INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+      WHERE ua.USER_ID = @UserId
+      ORDER BY p.ID
+      LIMIT @PageSize OFFSET @Offset",
+      new { UserId = userId, PageSize = ps, Offset = offset });
+
+    return (patients.ToList(), total);
   }
 
   public (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize)

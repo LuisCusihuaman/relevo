@@ -49,17 +49,19 @@ if (!rootElement.innerHTML) {
 	root.render(
 		<React.StrictMode>
 			<React.Suspense fallback="loading">
-				<div className="min-h-screen flex items-center justify-center">
-					<ClerkProvider
-						afterSignOutUrl="/login"
-						publishableKey={PUBLISHABLE_KEY}
-						appearance={{
-							baseTheme: shadcn,
-						}}
-					>
-						<RouterWithAuth />
-					</ClerkProvider>
-				</div>
+				<ClerkProvider
+					afterSignOutUrl="/login"
+					publishableKey={PUBLISHABLE_KEY}
+					appearance={{
+						baseTheme: shadcn,
+						elements: {
+							// Center only Clerk components (SignIn/SignUp) without affecting the whole app
+							rootBox: "flex min-h-screen w-full items-center justify-center",
+						},
+					}}
+				>
+					<RouterWithAuth />
+				</ClerkProvider>
 			</React.Suspense>
 		</React.StrictMode>
 	);

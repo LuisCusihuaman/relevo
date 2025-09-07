@@ -9,6 +9,7 @@ using Relevo.UseCases.Contributors.List;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Relevo.Infrastructure;
@@ -16,10 +17,25 @@ public static class InfrastructureServiceExtensions
 {
   public static IServiceCollection AddInfrastructureServices(
     this IServiceCollection services,
-    ConfigurationManager config,
+    IConfiguration config,
     ILogger logger)
   {
-    bool useOracle = config.GetValue("UseOracle", false);
+            // Force SQLite for testing environment by checking environment variables
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+
+            // Debug specific environment variables
+            logger.LogInformation("Infrastructure: ASPNETCORE_ENVIRONMENT = {AspNetCore}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+            logger.LogInformation("Infrastructure: DOTNET_ENVIRONMENT = {DotNet}", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
+            logger.LogInformation("Infrastructure: Environment = {Environment}", environmentName);
+
+            bool useOracle = environmentName == "Testing" ? false : config.GetValue("UseOracle", false);
+            bool useOracleForSetup = environmentName == "Testing" ? false : config.GetValue("UseOracleForSetup", false);
+
+            logger.LogInformation("Infrastructure: UseOracle = {UseOracle}", useOracle);
+            logger.LogInformation("Infrastructure: UseOracleForSetup = {UseOracleForSetup}", useOracleForSetup);
+            logger.LogInformation("Infrastructure: ConnectionString = {ConnectionString}", config.GetConnectionString("SqliteConnection"));
+
+    string? connectionString = config.GetConnectionString("SqliteConnection");
 
     if (useOracle)
     {
@@ -32,7 +48,6 @@ public static class InfrastructureServiceExtensions
       services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Sqlite.ISqliteConnectionFactory>());
 
       // Keep EF DbContext only for seeding in SQLite mode
-      string? connectionString = config.GetConnectionString("SqliteConnection");
       Guard.Against.Null(connectionString);
       services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
     }
@@ -57,6 +72,28 @@ public static class InfrastructureServiceExtensions
     }
 
     services.AddScoped<IDeleteContributorService, DeleteContributorService>();
+
+    // Setup Repository Services (Hexagonal Architecture)
+    if (useOracleForSetup)
+    {
+      services.AddScoped<ISetupRepository, Repositories.OracleSetupRepository>();
+    }
+    else
+    {
+      Guard.Against.Null(connectionString);
+      services.AddScoped<ISetupRepository>(sp => new Repositories.SqliteSetupRepository(connectionString));
+    }
+
+    // Setup Use Cases
+    services.AddScoped<Relevo.UseCases.Setup.AssignPatientsUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetMyPatientsUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetMyHandoversUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetUnitsUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetShiftsUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetPatientsByUnitUseCase>();
+
+    // Setup Application Service
+    services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();
 
     // Authentication and Authorization Services
     services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, Auth.ClerkAuthenticationService>();

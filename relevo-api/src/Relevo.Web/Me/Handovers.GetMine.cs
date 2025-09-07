@@ -1,11 +1,12 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
 using Relevo.Web.Setup;
+using DomainHandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Me;
 
 public class GetMyHandoversEndpoint(
-    ISetupDataProvider _dataProvider,
+    ISetupService _setupService,
     IUserContext _userContext)
   : Endpoint<GetMyHandoversRequest, GetMyHandoversResponse>
 {
@@ -25,7 +26,7 @@ public class GetMyHandoversEndpoint(
       return;
     }
 
-    var (handovers, total) = _dataProvider.GetMyHandovers(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (handovers, total) = await _setupService.GetMyHandoversAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetMyHandoversResponse
     {
       Items = handovers.ToList(),
@@ -49,7 +50,7 @@ public class GetMyHandoversRequest
 
 public class GetMyHandoversResponse
 {
-  public List<HandoverRecord> Items { get; set; } = [];
+  public List<DomainHandoverRecord> Items { get; set; } = [];
   public PaginationInfo Pagination { get; set; } = new();
 }
 

@@ -19,134 +19,94 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 {
   private string? _testDbFile;
 
-    /// <summary>
-    /// Overriding CreateHost to avoid creating a separate ServiceProvider per this thread:
-    /// https://github.com/dotnet-architecture/eShopOnWeb/issues/465
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
-    protected override IHost CreateHost(IHostBuilder builder)
-    {
-      builder.UseEnvironment("Development"); // will not send real emails
+  public CustomWebApplicationFactory()
+  {
+    // Set environment variable before any host building occurs to ensure it's picked up by all parts of the application
+    Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+  }
 
-      // Clean up any existing test database
-      if (!string.IsNullOrEmpty(_testDbFile) && File.Exists(_testDbFile))
-      {
-        File.Delete(_testDbFile);
-      }
+  protected override IHost CreateHost(IHostBuilder builder)
+  {
+    var host = builder.Build();
+    host.Start();
 
-      var host = builder.Build();
-      host.Start();
-
-    // Get service provider.
     var serviceProvider = host.Services;
-
-    // Create a scope to obtain a reference to the database
-    // context (AppDbContext).
     using (var scope = serviceProvider.CreateScope())
     {
       var scopedServices = scope.ServiceProvider;
       var db = scopedServices.GetRequiredService<AppDbContext>();
+      var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
 
-      var logger = scopedServices
-          .GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
-
-      // Reset Sqlite database for each test run
-      // If using a real database, you'll likely want to remove this step.
       db.Database.EnsureDeleted();
-
-      // Ensure the database is created with default schema
       db.Database.EnsureCreated();
-
-      // Seed test data directly using Dapper for predictable results
-      SeedTestContributorsAsync(db);
 
       try
       {
-        // Additional seeding if needed
-        // SeedData.PopulateTestDataAsync(db).Wait();
+        SeedTestContributors(db);
       }
       catch (Exception ex)
       {
-        logger.LogError(ex, "An error occurred seeding the " +
-                            "database with test messages. Error: {exceptionMessage}", ex.Message);
+        logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
       }
     }
 
     return host;
   }
-
-  /// <summary>
-  /// Seed test contributors directly using Dapper
-  /// </summary>
-  private static void SeedTestContributorsAsync(AppDbContext db)
+  
+  protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
-    var connection = db.Database.GetDbConnection();
-    if (connection.State != ConnectionState.Open)
-    {
-      connection.Open();
-    }
+    _testDbFile = $"test_{Guid.NewGuid()}.db";
 
-    using var command = connection.CreateCommand();
+    builder
+      .UseEnvironment("Testing")
+      .ConfigureAppConfiguration(config =>
+      {
+        var integrationConfig = new ConfigurationBuilder()
+          .AddInMemoryCollection(new Dictionary<string, string?>
+          {
+            { "UseOracle", "false" },
+            { "UseOracleForSetup", "false" },
+            { "ConnectionStrings:SqliteConnection", $"Data Source={_testDbFile}" }
+          })
+          .Build();
 
-    // Clear existing data
-    command.CommandText = "DELETE FROM Contributors";
-    command.ExecuteNonQuery();
-
-    // Insert test data with the correct column names for EF Core schema
-    var insertCommands = new[]
-    {
-      "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (1, 'Ardalis', 0, '', '+1-555-0101', '')",
-      "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (2, 'Snowfrog', 0, '', '+1-555-0102', '')"
-    };
-
-    foreach (var insertCmd in insertCommands)
-    {
-      command.CommandText = insertCmd;
-      command.ExecuteNonQuery();
-    }
+        config.AddConfiguration(integrationConfig);
+      })
+      .ConfigureServices((builderContext, services) =>
+       {
+         var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+         if (descriptor != null)
+         {
+           services.Remove(descriptor);
+         }
+         services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={_testDbFile}"));
+       });
   }
 
-  protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-      // Generate unique database file name for this test run
-      _testDbFile = $"test_{Guid.NewGuid()}.db";
+  private static void SeedTestContributors(AppDbContext db)
+  {
+      var connection = db.Database.GetDbConnection();
+      if (connection.State != ConnectionState.Open)
+      {
+        connection.Open();
+      }
 
-      builder
-        .ConfigureAppConfiguration(config =>
-        {
-          // Override configuration for tests to use SQLite instead of Oracle
-          config.AddInMemoryCollection(new Dictionary<string, string?>
-          {
-            ["UseOracle"] = "false",
-            ["UseOracleForSetup"] = "false",
-            ["ConnectionStrings:SqliteConnection"] = $"Data Source={_testDbFile}"
-          });
-        })
-        .ConfigureServices((context, services) =>
-        {
-          // Configure test dependencies here
+      using var command = connection.CreateCommand();
 
-          // Add infrastructure services (this should register the AppDbContext for SQLite)
-          // Create a ConfigurationManager with test settings
-          var configManager = new Microsoft.Extensions.Configuration.ConfigurationManager();
-          configManager.AddConfiguration(context.Configuration);
-          // Create a simple logger for the infrastructure services registration
-          using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-          var logger = loggerFactory.CreateLogger<CustomWebApplicationFactory<TProgram>>();
-          services.AddInfrastructureServices(configManager, logger);
+      command.CommandText = "DELETE FROM Contributors";
+      command.ExecuteNonQuery();
 
-          // Replace the authentication service with a test implementation
-          var authServiceDescriptor = services.FirstOrDefault(
-            d => d.ServiceType == typeof(Relevo.Core.Interfaces.IAuthenticationService));
+      var insertCommands = new[]
+      {
+        "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (1, 'Ardalis', 0, '', '+1-555-0101', '')",
+        "INSERT INTO Contributors (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) VALUES (2, 'Snowfrog', 0, '', '+1-555-0102', '')"
+      };
 
-          if (authServiceDescriptor != null)
-          {
-            services.Remove(authServiceDescriptor);
-          }
-
-          services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, TestAuthenticationService>();
-        });
+      foreach (var insertCmd in insertCommands)
+      {
+        command.CommandText = insertCmd;
+        command.ExecuteNonQuery();
+      }
   }
 }
 

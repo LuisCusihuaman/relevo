@@ -1,8 +1,9 @@
 using FastEndpoints;
+using Relevo.Core.Interfaces;
 
 namespace Relevo.Web.Setup;
 
-public class GetUnits(ISetupDataProvider _dataProvider) : EndpointWithoutRequest<UnitListResponse>
+public class GetUnits(ISetupService _setupService) : EndpointWithoutRequest<UnitListResponse>
 {
   public override void Configure()
   {
@@ -12,7 +13,7 @@ public class GetUnits(ISetupDataProvider _dataProvider) : EndpointWithoutRequest
 
   public override async Task HandleAsync(CancellationToken ct)
   {
-    var units = _dataProvider.GetUnits();
+    var units = await _setupService.GetUnitsAsync();
     Response = new UnitListResponse
     {
       Units = units.Select(u => new UnitItem { Id = u.Id, Name = u.Name }).ToList()

@@ -33,8 +33,8 @@ public static class ServiceConfigs
 
     logger.LogInformation("{Project} services registered", "Mediatr and Email Sender");
 
-    // Setup/me provider: Oracle-backed or in-memory depending on config
-    services.AddSetupProvider(builder.Configuration);
+    // Setup repository is now registered in InfrastructureServiceExtensions
+    services.AddSetupProvider(builder.Configuration); // Moved to Infrastructure layer
 
     return services;
   }

@@ -8,9 +8,7 @@ namespace Relevo.Web.Setup;
 
 public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetupDataProvider
 {
-  // In Oracle-only context for api.setup.http, we pull units/shifts/patients from DB
-  // Assignments remain in-memory per-process for demo
-  private readonly Dictionary<string, (string ShiftId, HashSet<string> PatientIds)> _assignments = new();
+  // Using Oracle database for persistent assignments
 
   public IReadOnlyList<UnitRecord> GetUnits()
   {
@@ -46,45 +44,60 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
   public void Assign(string userId, string shiftId, IEnumerable<string> patientIds)
   {
-    if (!_assignments.TryGetValue(userId, out var existing))
+    using IDbConnection conn = _factory.CreateConnection();
+
+    // Remove existing assignments for this user
+    conn.Execute("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
+        new { userId });
+
+    // Insert new assignments
+    foreach (var patientId in patientIds)
     {
-      existing = (shiftId, new HashSet<string>());
+      conn.Execute(@"
+        INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
+        VALUES (:userId, :shiftId, :patientId)",
+        new { userId, shiftId, patientId });
     }
-    existing.ShiftId = shiftId;
-    existing.PatientIds = new HashSet<string>(patientIds);
-    _assignments[userId] = existing;
   }
 
   public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize)
   {
-    if (!_assignments.TryGetValue(userId, out var assignment) || assignment.PatientIds.Count == 0)
+    using IDbConnection conn = _factory.CreateConnection();
+
+    // Get total count of assigned patients
+    const string countSql = "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = :userId";
+    int total = conn.ExecuteScalar<int>(countSql, new { userId });
+
+    if (total == 0)
       return (Array.Empty<PatientRecord>(), 0);
 
-    using IDbConnection conn = _factory.CreateConnection();
-    // Fetch subset by ids; to keep simple, perform IN query
-    var ids = assignment.PatientIds.ToArray();
-    if (ids.Length == 0) return (Array.Empty<PatientRecord>(), 0);
-
-    // Build a dynamic IN clause using Dapper parameter expansion
-    const string sql = "SELECT ID AS Id, NAME AS Name FROM PATIENTS WHERE ID IN :ids";
-    var selected = conn.Query<PatientRecord>(sql, new { ids }).ToList();
-
-    int total = selected.Count;
+    // Get assigned patients with pagination
     int p = Math.Max(page, 1);
     int ps = Math.Max(pageSize, 1);
-    var pageItems = selected.Skip((p - 1) * ps).Take(ps).ToList();
-    return (pageItems, total);
+    int offset = (p - 1) * ps;
+
+    const string patientsSql = @"
+      SELECT p.ID AS Id, p.NAME AS Name
+      FROM PATIENTS p
+      INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+      WHERE ua.USER_ID = :userId
+      ORDER BY p.ID
+      OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+
+    var patients = conn.Query<PatientRecord>(patientsSql,
+        new { userId, offset, pageSize });
+
+    return (patients.ToList(), total);
   }
 
   public (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize)
   {
     using IDbConnection conn = _factory.CreateConnection();
 
-    // First, get the patient IDs assigned to this user
-    if (!_assignments.TryGetValue(userId, out var assignment) || assignment.PatientIds.Count == 0)
-      return (Array.Empty<HandoverRecord>(), 0);
+    // First, get the patient IDs assigned to this user from database
+    const string patientIdsSql = "SELECT PATIENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId";
+    var patientIds = conn.Query<string>(patientIdsSql, new { userId }).ToArray();
 
-    var patientIds = assignment.PatientIds.ToArray();
     if (patientIds.Length == 0)
       return (Array.Empty<HandoverRecord>(), 0);
 
