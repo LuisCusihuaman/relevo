@@ -65,25 +65,25 @@ export function PatientSelectionCard({
     switch (status) {
       case "pending":
         return {
-          label: t("status.pending"),
+          label: (t("status.pending") ?? "Pending") as string,
           color: "text-orange-700",
           bgColor: "bg-orange-50",
         };
       case "in-progress":
         return {
-          label: t("status.inProgress"),
+          label: (t("status.inProgress") ?? "In Progress") as string,
           color: "text-blue-700",
           bgColor: "bg-blue-50",
         };
       case "complete":
         return {
-          label: t("status.complete"),
+          label: (t("status.complete") ?? "Complete") as string,
           color: "text-green-700",
           bgColor: "bg-green-50",
         };
       default:
         return {
-          label: t("status.unknown"),
+          label: (t("status.unknown") ?? "Unknown") as string,
           color: "text-gray-700",
           bgColor: "bg-gray-50",
         };
