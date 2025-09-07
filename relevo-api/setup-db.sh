@@ -4,9 +4,10 @@
 # UNIFIED RELEVO Database Setup Script
 # ========================================
 # Supports both Docker and manual Oracle setups
-# Usage: ./setup-db.sh [docker|manual] [container_name] [connection_string]
+# Usage: ./setup-db.sh                          # Complete setup (default)
+#        ./setup-db.sh [docker|init|manual] [container_name] [connection_string]
 
-MODE="${1:-docker}"
+MODE="${1:-}"
 CONTAINER_NAME="${2:-xe11}"
 ORACLE_CONN="${3:-system/TuPass123@localhost:1521/XE}"
 
@@ -34,13 +35,14 @@ show_help() {
     echo "============================================="
     echo ""
     echo "Usage:"
-    echo "  ./setup-db.sh docker [container_name]    # Docker setup (default)"
-    echo "  ./setup-db.sh init [container_name]      # Initialize existing container"
+    echo "  ./setup-db.sh                           # Complete setup (default)"
+    echo "  ./setup-db.sh docker [container_name]   # Docker setup only"
+    echo "  ./setup-db.sh init [container_name]     # Initialize existing container"
     echo "  ./setup-db.sh manual [connection_string] # Manual Oracle setup"
     echo ""
     echo "Examples:"
-    echo "  ./setup-db.sh                           # Docker with default settings"
-    echo "  ./setup-db.sh docker myoracle          # Docker with custom container"
+    echo "  ./setup-db.sh                           # Complete setup: Docker + schema (default)"
+    echo "  ./setup-db.sh docker myoracle          # Docker setup only"
     echo "  ./setup-db.sh init xe11                # Initialize existing container"
     echo "  ./setup-db.sh manual system/pass@host:1521/SID  # Manual setup"
     echo ""
@@ -51,6 +53,8 @@ show_help() {
 
 # Docker setup function
 setup_docker() {
+    local silent_mode="${1:-false}"
+
     echo "🐳 Setting up RELEVO database with Docker..."
     echo ""
 
@@ -75,19 +79,23 @@ setup_docker() {
     fi
 
     log_success "Oracle XE container '$CONTAINER_NAME' started!"
-    echo ""
-    echo "⏳ Oracle database initialization takes 3-5 minutes..."
-    echo ""
-    echo "📋 Next steps:"
-    echo "1. Wait 3-5 minutes for Oracle to fully initialize"
-    echo "2. Initialize the database:"
-    echo "   ./setup-db.sh init $CONTAINER_NAME"
-    echo ""
-    echo "Or check the container status:"
-    echo "  docker logs $CONTAINER_NAME"
-    echo ""
-    echo "🔄 Once Oracle is ready, run:"
-    echo "  ./setup-db.sh init $CONTAINER_NAME"
+
+    # Only show user instructions if not in silent mode
+    if [ "$silent_mode" != "true" ]; then
+        echo ""
+        echo "⏳ Oracle database initialization takes 3-5 minutes..."
+        echo ""
+        echo "📋 Next steps:"
+        echo "1. Wait 3-5 minutes for Oracle to fully initialize"
+        echo "2. Initialize the database:"
+        echo "   ./setup-db.sh init $CONTAINER_NAME"
+        echo ""
+        echo "Or check the container status:"
+        echo "  docker logs $CONTAINER_NAME"
+        echo ""
+        echo "🔄 Once Oracle is ready, run:"
+        echo "  ./setup-db.sh init $CONTAINER_NAME"
+    fi
 }
 
 # Initialize existing container function
@@ -131,13 +139,21 @@ init_container() {
     docker cp "src/Relevo.Web/database-schema.sql" "$CONTAINER_NAME:/tmp/"
 
     log_info "Executing database initialization..."
-    if docker exec -i "$CONTAINER_NAME" bash -c "
+
+    # Retry schema initialization up to 3 times in case of connection issues
+    local retry_count=0
+    local max_retries=3
+
+    while [ $retry_count -lt $max_retries ]; do
+        log_info "Schema initialization attempt $((retry_count + 1))/$max_retries..."
+
+        if docker exec -i "$CONTAINER_NAME" bash -c "
 export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
 export ORACLE_SID=XE
 export PATH=\$ORACLE_HOME/bin:\$PATH
 
 echo 'Executing database schema...'
-sqlplus -s system/TuPass123 << EOF
+sqlplus -s system/TuPass123@localhost:1521/XE << EOF
 SET ECHO ON
 SET FEEDBACK ON
 SET SERVEROUTPUT ON
@@ -146,6 +162,24 @@ WHENEVER SQLERROR EXIT SQL.SQLCODE
 EXIT;
 EOF
 "; then
+            schema_success=true
+            break
+        else
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $max_retries ]; then
+                log_warning "Schema initialization failed, retrying in 10 seconds..."
+                sleep 10
+            fi
+        fi
+    done
+
+    if [ "$schema_success" != "true" ]; then
+        log_error "Schema initialization failed after $max_retries attempts"
+        return 1
+    fi
+
+    # Only continue if schema was successful
+    if [ "$schema_success" = "true" ]; then
         log_success "Database initialization completed!"
 
         # Verify
@@ -155,7 +189,7 @@ EOF
 export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
 export ORACLE_SID=XE
 export PATH=\$ORACLE_HOME/bin:\$PATH
-sqlplus -s system/TuPass123 << 'EOF'
+sqlplus -s system/TuPass123@localhost:1521/XE << 'EOF'
 SET PAGESIZE 0
 SET FEEDBACK OFF
 SELECT 'UNITS: ' || COUNT(*) FROM UNITS
@@ -178,9 +212,6 @@ EOF
         echo "1. Update appsettings.json:"
         echo '   { "UseOracle": true, "Oracle": { "ConnectionString": "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE" } }'
         echo "2. Run: cd src/Relevo.Web && dotnet run --launch-profile https"
-    else
-        log_error "Database initialization failed!"
-        exit 1
     fi
 }
 
@@ -258,6 +289,68 @@ EOF
     fi
 }
 
+# Complete setup function (docker + init)
+setup_complete() {
+    echo "🚀 Starting complete RELEVO database setup..."
+    echo ""
+
+    # Step 1: Setup Docker container (silent mode)
+    setup_docker true
+
+    echo ""
+    echo "⏳ Waiting for Oracle to be fully ready (this may take 4-6 minutes)..."
+    echo "   We'll check every 15 seconds until Oracle is ready."
+    echo ""
+
+    # Step 2: Wait for Oracle to be ready
+    local max_attempts=40  # 40 attempts = ~10 minutes (more time for safety)
+    local attempt=1
+
+    while [ $attempt -le $max_attempts ]; do
+        echo -ne "\r   Checking Oracle status (attempt $attempt/$max_attempts)..."
+
+        if docker exec "$CONTAINER_NAME" bash -c "
+            export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+            export ORACLE_SID=XE
+            export PATH=\$ORACLE_HOME/bin:\$PATH
+            # Try comprehensive check first (ALL_USERS requires full service)
+            if echo 'SELECT COUNT(*) FROM ALL_USERS;' | sqlplus -s system/TuPass123@localhost:1521/XE 2>/dev/null | grep -q '^[0-9]'; then
+                exit 0
+            else
+                # Fallback to basic connectivity check
+                echo 'SELECT 1 FROM DUAL;' | sqlplus -s system/TuPass123 2>/dev/null | grep -q '1'
+            fi
+        " >/dev/null 2>&1; then
+            echo "" # New line after the progress indicator
+            log_success "Oracle is ready!"
+
+            # Give 10 seconds for Oracle to fully stabilize before schema initialization
+            log_info "Waiting 10 seconds for Oracle to fully stabilize..."
+            sleep 10
+            break
+        else
+            if [ $attempt -eq $max_attempts ]; then
+                echo "" # New line after the progress indicator
+                log_error "Oracle failed to start after $max_attempts attempts"
+                log_info "You can try running the initialization manually:"
+                log_info "  ./setup-db.sh init $CONTAINER_NAME"
+                log_info "Or check container logs: docker logs $CONTAINER_NAME"
+                exit 1
+            fi
+
+            sleep 15
+            ((attempt++))
+        fi
+    done
+
+    echo ""
+    echo "🔄 Now initializing database schema..."
+    echo ""
+
+    # Step 3: Initialize database
+    init_container
+}
+
 # Main logic
 case "$MODE" in
     "docker")
@@ -272,6 +365,10 @@ case "$MODE" in
     "help"|"-h"|"--help")
         show_help
         exit 0
+        ;;
+    "")
+        # Default behavior: complete setup
+        setup_complete
         ;;
     *)
         log_error "Invalid mode: $MODE"

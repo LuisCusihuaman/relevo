@@ -1,0 +1,238 @@
+#!/bin/bash
+
+# ========================================
+# RELEVO Database Cleanup Script
+# ========================================
+# Removes Oracle XE container and optionally data volume
+# Usage: ./delete-db.sh [container_name] [--yes] [--data]
+
+CONTAINER_NAME="${1:-xe11}"
+AUTO_CONFIRM="${2:-false}"
+DELETE_DATA="${3:-true}"  # Delete data volume by default
+
+# Parse arguments
+for arg in "$@"; do
+    case $arg in
+        --yes|-y)
+            AUTO_CONFIRM="true"
+            shift
+            ;;
+        --keep-data|-k)
+            DELETE_DATA="false"
+            shift
+            ;;
+        --help|-h)
+            echo "============================================="
+            echo "🗑️  RELEVO Database Cleanup"
+            echo "============================================="
+            echo ""
+            echo "Usage:"
+            echo "  ./delete-db.sh [container_name] [options]"
+            echo ""
+            echo "Options:"
+            echo "  --yes, -y        Skip confirmation prompts"
+            echo "  --keep-data, -k  Preserve data volume (default: delete)"
+            echo "  --help, -h       Show this help"
+            echo ""
+            echo "Examples:"
+            echo "  ./delete-db.sh                    # Delete xe11 container + data"
+            echo "  ./delete-db.sh myoracle          # Delete custom container + data"
+            echo "  ./delete-db.sh --keep-data       # Delete container, keep data"
+            echo "  ./delete-db.sh --yes             # Skip confirmation"
+            echo ""
+            exit 0
+            ;;
+    esac
+done
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# Check if container exists
+check_container() {
+    if docker ps -a --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+        return 0  # Container exists
+    else
+        return 1  # Container doesn't exist
+    fi
+}
+
+# Get container status
+get_container_status() {
+    docker ps -a --filter name="${CONTAINER_NAME}" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+}
+
+# Stop container if running
+stop_container() {
+    log_info "Checking if container '${CONTAINER_NAME}' is running..."
+
+    if docker ps --format "table {{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+        log_warning "Container '${CONTAINER_NAME}' is running. Stopping it..."
+        if docker stop "${CONTAINER_NAME}"; then
+            log_success "Container '${CONTAINER_NAME}' stopped successfully"
+        else
+            log_error "Failed to stop container '${CONTAINER_NAME}'"
+            return 1
+        fi
+    else
+        log_info "Container '${CONTAINER_NAME}' is not running"
+    fi
+
+    return 0
+}
+
+# Remove container
+remove_container() {
+    log_info "Removing container '${CONTAINER_NAME}'..."
+
+    if docker rm "${CONTAINER_NAME}"; then
+        log_success "Container '${CONTAINER_NAME}' removed successfully"
+        return 0
+    else
+        log_error "Failed to remove container '${CONTAINER_NAME}'"
+        return 1
+    fi
+}
+
+# Remove data volume
+remove_data_volume() {
+    local volume_name="${CONTAINER_NAME}_data"
+    log_info "Removing data volume '${volume_name}'..."
+
+    if docker volume ls --format "table {{.Name}}" | grep -q "^${volume_name}$"; then
+        if docker volume rm "${volume_name}"; then
+            log_success "Data volume '${volume_name}' removed successfully"
+            return 0
+        else
+            log_error "Failed to remove data volume '${volume_name}'"
+            return 1
+        fi
+    else
+        log_info "Data volume '${volume_name}' does not exist"
+        return 0
+    fi
+}
+
+# Clean up Docker images (optional)
+cleanup_images() {
+    log_info "Cleaning up unused Docker images..."
+
+    if docker image prune -f > /dev/null 2>&1; then
+        log_success "Docker images cleaned up"
+    else
+        log_warning "Could not clean up Docker images (this is usually fine)"
+    fi
+}
+
+# Confirmation prompt
+confirm_deletion() {
+    if [ "$AUTO_CONFIRM" = "true" ]; then
+        return 0
+    fi
+
+    echo ""
+    echo "============================================="
+    echo "🗑️  RELEVO Database Cleanup Confirmation"
+    echo "============================================="
+    echo ""
+    echo "The following will be removed:"
+    echo "• Container: ${CONTAINER_NAME}"
+
+    if [ "$DELETE_DATA" = "true" ]; then
+        echo "• Data Volume: ${CONTAINER_NAME}_data"
+        echo ""
+        log_warning "⚠️  WARNING: All database data will be permanently lost!"
+        log_info "Use --keep-data to preserve the data volume if needed."
+    else
+        echo ""
+        log_info "Data volume will be preserved (--keep-data specified)"
+    fi
+
+    echo ""
+    read -p "Are you sure you want to continue? (y/N): " -n 1 -r
+    echo ""
+
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Operation cancelled by user"
+        exit 0
+    fi
+}
+
+# Main execution
+main() {
+    echo "============================================="
+    echo "🗑️  RELEVO Database Cleanup"
+    echo "============================================="
+    echo ""
+    log_info "Target container: ${CONTAINER_NAME}"
+
+    # Check if container exists
+    if ! check_container; then
+        log_error "Container '${CONTAINER_NAME}' does not exist"
+        echo ""
+        log_info "Available containers:"
+        docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" | grep -E "(oracle|xe)" || echo "  No Oracle containers found"
+        echo ""
+        log_info "Use: ./delete-db.sh [container_name]"
+        exit 1
+    fi
+
+    # Show current status
+    echo ""
+    log_info "Current container status:"
+    get_container_status
+    echo ""
+
+    # Confirm deletion
+    confirm_deletion
+
+    echo ""
+    log_info "Starting cleanup process..."
+
+    # Stop container
+    if ! stop_container; then
+        exit 1
+    fi
+
+    # Remove container
+    if ! remove_container; then
+        exit 1
+    fi
+
+    # Remove data volume if requested
+    if [ "$DELETE_DATA" = "true" ]; then
+        if ! remove_data_volume; then
+            log_warning "Container was removed but data volume removal failed"
+        fi
+    fi
+
+    # Clean up images
+    cleanup_images
+
+    echo ""
+    log_success "🎉 Database cleanup completed successfully!"
+    echo ""
+    echo "📝 Next steps:"
+    echo "• To recreate the database: ./setup-db.sh"
+    echo "• To start fresh: ./setup-db.sh --yes"
+    echo ""
+
+    if [ "$DELETE_DATA" = "true" ]; then
+        log_success "Data volume '${CONTAINER_NAME}_data' was also removed"
+    else
+        log_info "Note: Data volume '${CONTAINER_NAME}_data' was preserved"
+        log_info "Use './delete-db.sh ${CONTAINER_NAME}' (without --keep-data) to remove it next time"
+    fi
+}
+
+# Run main function
+main "$@"
