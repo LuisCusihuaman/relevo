@@ -45,7 +45,7 @@ export const PatientDirectoryList: FC = () => {
 	return (
 		<div className="flex-1 min-w-0">
 			<div className="mb-4">
-				<h2 className="text-base font-medium leading-tight">Pacientes</h2>
+				<h2 className="text-base font-medium leading-tight">Mis Pacientes</h2>
 			</div>
 			<div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 				<ul className="divide-y divide-gray-200">
