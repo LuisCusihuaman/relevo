@@ -14,7 +14,7 @@ import {
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
 import { useTranslation } from "react-i18next";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
@@ -30,6 +30,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
     const { doctorName, unitName } = useUserStore();
     const { t } = useTranslation("home");
     const { user } = useUser();
+    const { signOut } = useClerk();
     const displayName = user?.fullName ?? doctorName ?? "";
     const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 	return (
@@ -151,7 +152,10 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 							</div>
 						</button>
 
-						<button className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg">
+						<button
+							className="flex items-center w-full px-4 py-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
+							onClick={() => signOut()}
+						>
 							<div className="flex items-center gap-3">
 								<LogOut className="h-5 w-5 text-gray-500" />
 								<span className="text-base">{t("userMenu.logOut")}</span>

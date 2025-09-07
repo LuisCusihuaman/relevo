@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, Grid2X2 } from "lucide-react";
+import { Search, ChevronRight, BookOpen } from "lucide-react";
 
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
@@ -122,7 +122,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					size="sm"
 					variant="ghost"
 				>
-					<Grid2X2 className="h-4 w-4" />
+					<BookOpen className="h-4 w-4" />
 				</Button>
 
 				{/* User Avatar + Mobile Menu */}

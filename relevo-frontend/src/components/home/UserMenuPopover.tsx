@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 type UserMenuPopoverProps = {
   onOpenMobileMenu?: () => void;
@@ -17,6 +17,7 @@ type UserMenuPopoverProps = {
 export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) => {
   const { t } = useTranslation("home");
   const { user } = useUser();
+  const { signOut } = useClerk();
   const displayName = user?.fullName ?? "";
   const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 
@@ -95,7 +96,10 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
               <path d="M37.59.25l36.95 64H.64l36.95-64z" />
             </svg>
           </button>
-          <button className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
+          <button
+            className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none"
+            onClick={() => signOut()}
+          >
             <div className="flex items-center gap-3">
               <LogOut className="h-4 w-4" />
               {t("userMenu.logOut")}
