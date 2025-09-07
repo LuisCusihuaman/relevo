@@ -42,7 +42,7 @@ export function DailySetup(): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
 	const navigate = useNavigate();
 	const { user, isLoaded } = useUser();
-	const { setDoctorName: setDoctorNameInStore } = useUserStore();
+	const { setDoctorName: setDoctorNameInStore, setUnitName } = useUserStore();
 	const { signOut } = useClerk();
 
 	function handleSignOut(): Promise<void> {
@@ -157,6 +157,11 @@ export function DailySetup(): ReactElement {
 			setDoctorNameInStore(fullName);
 		}
 	}, [isLoaded, user, doctorName, setDoctorNameInStore]);
+
+	// Keep global unit in sync
+	useEffect(() => {
+		if (unit) setUnitName(unit);
+	}, [unit, setUnitName]);
 
 	const handlePatientToggle = (rowIndex: number): void => {
 		setSelectedIndexes((previous: Array<number>) =>

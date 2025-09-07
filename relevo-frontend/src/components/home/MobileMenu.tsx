@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import type { Patient } from "./types";
+import { useUserStore } from "@/store/user.store";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
@@ -24,6 +25,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 	currentPatient,
 	setIsMobileMenuOpen,
 }) => {
+    const { doctorName, unitName } = useUserStore();
 	return (
 		<div className="fixed inset-0 z-[9999] bg-white md:hidden">
 			{/* Mobile Menu Header */}
@@ -41,23 +43,25 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 					<div className="flex items-center gap-2">
 						{isPatientView ? (
 							<div className="flex items-center gap-2">
-								{currentPatient?.name === "relevo-app" ? (
-									<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
-										<span className="text-white text-xs font-bold">V</span>
-									</div>
-								) : (
-									<div className="w-5 h-5 bg-gray-400 rounded-full"></div>
-								)}
+								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+									<span className="text-white text-xs font-bold">v</span>
+								</div>
 								<span className="font-medium text-base text-gray-900">
-									{currentPatient?.name}
+									{currentPatient?.unit ?? "UCIP"}
 								</span>
 							</div>
 						) : (
-							<span className="font-medium text-base text-gray-900">
-								Relevo de Luis Cusihuaman
-							</span>
+							<div className="flex items-center gap-2">
+								<span className="font-medium text-base text-gray-900">
+									Relevo de {doctorName || "Luis Cusihuaman"}
+								</span>
+								<ChevronRight className="h-4 w-4 text-gray-500" />
+								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+									<span className="text-white text-xs font-bold">v</span>
+								</div>
+								<span className="font-medium text-base text-gray-900">{unitName || "UCIP"}</span>
+							</div>
 						)}
-						<ChevronRight className="h-4 w-4 text-gray-500" />
 					</div>
 				</div>
 				<div className="flex items-center gap-2">

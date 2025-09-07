@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import type { Patient } from "./types";
+import { useUserStore } from "@/store/user.store";
 
 type AppHeaderProps = {
 	isPatientView: boolean;
@@ -41,6 +42,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 	isMobileMenuOpen,
 	setIsMobileMenuOpen,
 }) => {
+	const { doctorName, unitName } = useUserStore();
 	return (
 		<header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-6">
 			<div className="flex items-center gap-3">
@@ -61,25 +63,28 @@ export const AppHeader: FC<AppHeaderProps> = ({
 								</button>
 								<ChevronRight className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
-									{currentPatient?.name === "relevo-app" ? (
-										<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
-											<span className="text-white text-xs font-bold">V</span>
-										</div>
-									) : (
-										<div className="w-5 h-5 bg-gray-400 rounded-full"></div>
-									)}
+									<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+										<span className="text-white text-xs font-bold">v</span>
+									</div>
 									<span className="text-base font-medium text-gray-900">
-										{currentPatient?.name}
+										{unitName || "UCIP"}
 									</span>
 								</div>
 								<ChevronRight className="h-4 w-4 text-gray-400" />
+								<span className="text-base font-medium text-gray-900">
+									{currentPatient?.name}
+								</span>
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<span className="text-base font-medium text-gray-900">
-									Relevo de Luis Cusihuaman
+									Relevo de {doctorName || "Luis Cusihuaman"}
 								</span>
 								<ChevronRight className="h-4 w-4 text-gray-400" />
+								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+									<span className="text-white text-xs font-bold">v</span>
+								</div>
+								<span className="text-base font-medium text-gray-900">{unitName || "UCIP"}</span>
 							</div>
 						)}
 					</div>
