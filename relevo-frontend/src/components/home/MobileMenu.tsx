@@ -39,10 +39,6 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 						<path d="M37.59.25l36.95 64H.64l36.95-64z" />
 					</svg>
 					<div className="flex items-center gap-2">
-						<Avatar className="h-7 w-7">
-							<AvatarImage src="/placeholder.svg?height=28&width=28" />
-							<AvatarFallback>LC</AvatarFallback>
-						</Avatar>
 						{isPatientView ? (
 							<div className="flex items-center gap-2">
 								{currentPatient?.name === "relevo-app" ? (
@@ -58,7 +54,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 							</div>
 						) : (
 							<span className="font-medium text-base text-gray-900">
-								Pacientes de Luis Cusihuaman
+								Relevo de Luis Cusihuaman
 							</span>
 						)}
 						<ChevronDown className="h-4 w-4 text-gray-500" />

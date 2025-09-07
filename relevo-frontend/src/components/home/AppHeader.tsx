@@ -53,19 +53,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					<div className="flex items-center gap-2">
 						{isPatientView ? (
 							<div className="flex items-center gap-2">
-								<Avatar className="h-7 w-7 md:hidden">
-									<AvatarImage src="/placeholder.svg?height=28&width=28" />
-									<AvatarFallback>LC</AvatarFallback>
-								</Avatar>
-								<Avatar className="h-7 w-7 hidden md:block">
-									<AvatarImage src="/placeholder.svg?height=28&width=28" />
-									<AvatarFallback>LC</AvatarFallback>
-								</Avatar>
 								<button
 									className="text-base font-medium text-gray-900 hover:text-gray-700"
 									onClick={() => (window.location.href = "/")}
 								>
-									Pacientes de Luis Cusihuaman
+									Relevo de Luis Cusihuaman
 								</button>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
@@ -84,12 +76,8 @@ export const AppHeader: FC<AppHeaderProps> = ({
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
-								<Avatar className="h-7 w-7">
-									<AvatarImage src="/placeholder.svg?height=28&width=28" />
-									<AvatarFallback>LC</AvatarFallback>
-								</Avatar>
 								<span className="text-base font-medium text-gray-900">
-									Pacientes de Luis Cusihuaman
+									Relevo de Luis Cusihuaman
 								</span>
 								<ChevronDown className="h-4 w-4 text-gray-400" />
 							</div>
