@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Relevo.Core.Interfaces;
+using System.Threading;
 
 namespace Relevo.Web.Middleware;
 
@@ -28,6 +29,7 @@ public class ClerkAuthenticationMiddleware
         // Skip authentication for certain endpoints
         if (IsPublicEndpoint(context.Request.Path))
         {
+            _logger.LogInformation("Public endpoint detected, skipping auth: {Path}", context.Request.Path);
             await _next(context);
             return;
         }
@@ -35,8 +37,11 @@ public class ClerkAuthenticationMiddleware
         // For anonymous endpoints, try to authenticate with token first, then fall back to demo user
         if (IsAnonymousEndpoint(context))
         {
+            _logger.LogInformation("Anonymous endpoint detected: {Path}", context.Request.Path);
+
             // Extract token from headers
             var token = ExtractToken(context.Request);
+            _logger.LogInformation("Extracted token: {TokenPresent} for {Path}", !string.IsNullOrEmpty(token), context.Request.Path);
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -70,12 +75,20 @@ public class ClerkAuthenticationMiddleware
             };
             await userContext.SetUserAsync(demoUser);
 
+            // Ensure AsyncLocal flows to the current execution context
+            var currentUser = userContext.CurrentUser;
+            _logger.LogInformation("Set fallback demo user in context: {UserId}, Retrieved: {RetrievedId}", demoUser.Id, currentUser?.Id);
+
             // Add user info to response headers for debugging (even for anonymous/demo users)
             context.Response.Headers["X-User-Id"] = demoUser.Id;
             context.Response.Headers["X-User-Email"] = demoUser.Email;
 
             await _next(context);
             return;
+        }
+        else
+        {
+            _logger.LogInformation("Authenticated endpoint detected: {Path}", context.Request.Path);
         }
 
         try
@@ -108,6 +121,10 @@ public class ClerkAuthenticationMiddleware
                         IsActive = true
                     };
                     await userContext.SetUserAsync(demoUser);
+
+                    // Ensure AsyncLocal flows to the current execution context
+                    var retrievedUser = userContext.CurrentUser;
+                    _logger.LogInformation("Set demo user in context: {UserId}, Retrieved: {RetrievedId}", demoUser.Id, retrievedUser?.Id);
 
                     // Add user info to response headers for debugging (even for anonymous/demo users)
                     context.Response.Headers["X-User-Id"] = demoUser.Id;
@@ -150,6 +167,11 @@ public class ClerkAuthenticationMiddleware
 
             // Set the user in the context
             await userContext.SetUserAsync(authResult.User);
+
+            // Ensure AsyncLocal flows to the current execution context
+            var currentUser = userContext.CurrentUser;
+            _logger.LogInformation("Set authenticated user in context: {UserId}, Retrieved: {RetrievedId}",
+                authResult.User.Id, currentUser?.Id);
 
             // Add user info to response headers for debugging
             context.Response.Headers["X-User-Id"] = authResult.User.Id;
@@ -213,11 +235,16 @@ public class ClerkAuthenticationMiddleware
 
     private string? ExtractToken(HttpRequest request)
     {
+        _logger.LogInformation("Headers received for {Path}: {Headers}",
+            request.Path,
+            string.Join(", ", request.Headers.Select(h => $"{h.Key}: {h.Value}")));
+
         // Try to extract from Authorization header first
         var authHeader = request.Headers["Authorization"].FirstOrDefault();
         if (!string.IsNullOrEmpty(authHeader) &&
             authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
+            _logger.LogInformation("Found Bearer token in Authorization header for {Path}", request.Path);
             return authHeader[7..]; // Remove "Bearer " prefix
         }
 
@@ -225,6 +252,7 @@ public class ClerkAuthenticationMiddleware
         var clerkHeader = request.Headers["x-clerk-user-token"].FirstOrDefault();
         if (!string.IsNullOrEmpty(clerkHeader))
         {
+            _logger.LogInformation("Found Clerk token in x-clerk-user-token header for {Path}", request.Path);
             return clerkHeader;
         }
 
@@ -232,9 +260,11 @@ public class ClerkAuthenticationMiddleware
         var tokenParam = request.Query["token"].FirstOrDefault();
         if (!string.IsNullOrEmpty(tokenParam))
         {
+            _logger.LogInformation("Found token in query parameter for {Path}", request.Path);
             return tokenParam;
         }
 
+        _logger.LogWarning("No token found in any location for {Path}", request.Path);
         return null;
     }
 }

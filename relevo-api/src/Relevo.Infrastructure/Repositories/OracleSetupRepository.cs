@@ -1,5 +1,6 @@
 using System.Data;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using Relevo.Core.Interfaces;
 using Relevo.Infrastructure.Data.Oracle;
 
@@ -8,10 +9,12 @@ namespace Relevo.Infrastructure.Repositories;
 public class OracleSetupRepository : ISetupRepository
 {
     private readonly IOracleConnectionFactory _factory;
+    private readonly ILogger<OracleSetupRepository> _logger;
 
-    public OracleSetupRepository(IOracleConnectionFactory factory)
+    public OracleSetupRepository(IOracleConnectionFactory factory, ILogger<OracleSetupRepository> logger)
     {
         _factory = factory;
+        _logger = logger;
     }
 
     public IReadOnlyList<UnitRecord> GetUnits()
@@ -48,50 +51,78 @@ public class OracleSetupRepository : ISetupRepository
 
     public async Task AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
-        using IDbConnection conn = _factory.CreateConnection();
-
-        // Remove existing assignments for this user
-        await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
-            new { userId });
-
-        // Insert new assignments
-        foreach (var patientId in patientIds)
+        try
         {
-            await conn.ExecuteAsync(@"
-            INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
-            VALUES (:userId, :shiftId, :patientId)",
-            new { userId, shiftId, patientId });
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Remove existing assignments for this user
+            await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
+                new { userId });
+
+            _logger.LogInformation("Removed existing assignments for user {UserId}", userId);
+
+            // Insert new assignments
+            foreach (var patientId in patientIds)
+            {
+                await conn.ExecuteAsync(@"
+                INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
+                VALUES (:userId, :shiftId, :patientId)",
+                new { userId, shiftId, patientId });
+
+                _logger.LogDebug("Assigned patient {PatientId} to user {UserId}", patientId, userId);
+            }
+
+            _logger.LogInformation("Successfully assigned {Count} patients to user {UserId}", patientIds.Count(), userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to assign patients to user {UserId}", userId);
+            throw;
         }
     }
 
     public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize)
     {
-        using IDbConnection conn = _factory.CreateConnection();
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
 
-        // Get total count of assigned patients
-        const string countSql = "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = :userId";
-        int total = conn.ExecuteScalar<int>(countSql, new { userId });
+            _logger.LogDebug("Getting patients for user {UserId}, page {Page}, pageSize {PageSize}", userId, page, pageSize);
 
-        if (total == 0)
-            return (Array.Empty<PatientRecord>(), 0);
+            // Get total count of assigned patients
+            const string countSql = "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = :userId";
+            int total = conn.ExecuteScalar<int>(countSql, new { userId });
 
-        // Get assigned patients with pagination
-        int p = Math.Max(page, 1);
-        int ps = Math.Max(pageSize, 1);
-        int offset = (p - 1) * ps;
+            _logger.LogDebug("Found {Total} assigned patients for user {UserId}", total, userId);
 
-        const string patientsSql = @"
-          SELECT p.ID AS Id, p.NAME AS Name
-          FROM PATIENTS p
-          INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
-          WHERE ua.USER_ID = :userId
-          ORDER BY p.ID
-          OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+            if (total == 0)
+                return (Array.Empty<PatientRecord>(), 0);
 
-        var patients = conn.Query<PatientRecord>(patientsSql,
-            new { userId, offset, pageSize });
+            // Get assigned patients with pagination
+            int p = Math.Max(page, 1);
+            int ps = Math.Max(pageSize, 1);
+            int offset = (p - 1) * ps;
 
-        return (patients.ToList(), total);
+            const string patientsSql = @"
+              SELECT p.ID AS Id, p.NAME AS Name
+              FROM PATIENTS p
+              INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+              WHERE ua.USER_ID = :userId
+              ORDER BY p.ID
+              OFFSET :offset ROWS FETCH NEXT :fetchSize ROWS ONLY";
+
+            var patients = conn.Query<PatientRecord>(patientsSql,
+                new { userId, offset, fetchSize = pageSize }).ToList();
+
+            _logger.LogDebug("Retrieved {Count} patients from database", patients.Count);
+
+            return (patients, total);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get patients for user {UserId}", userId);
+            throw;
+        }
     }
 
     public (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize)

@@ -41,3 +41,19 @@ Content-Type: application/json
 @id_to_delete=1
 DELETE {{host}}:{{port}}/Contributors/{{id_to_delete}}
 
+###
+
+// Assign patients to user
+POST {{host}}:{{port}}/me/assignments
+Content-Type: application/json
+
+{
+  "shiftId": "shift-day",
+  "patientIds": ["pat-123", "pat-456"]
+}
+
+###
+
+// Get my patients
+GET {{host}}:{{port}}/me/patients
+

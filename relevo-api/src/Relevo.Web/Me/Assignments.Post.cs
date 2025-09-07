@@ -1,11 +1,13 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Relevo.Web.Me;
 
 public class PostAssignments(
     ISetupService _setupService,
-    IUserContext _userContext)
+    IUserContext _userContext,
+    ILogger<PostAssignments> _logger)
   : Endpoint<PostAssignmentsRequest>
 {
   public override void Configure()
@@ -24,7 +26,17 @@ public class PostAssignments(
       return;
     }
 
+    // Debug logging
+    _logger.LogInformation("AssignPatients - User ID: {UserId}, Shift: {ShiftId}, Patients: {PatientIds}",
+        user.Id, req.ShiftId, string.Join(",", req.PatientIds ?? []));
+
     await _setupService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
+
+    // Add debug info to response headers
+    HttpContext.Response.Headers["X-Debug-UserId"] = user.Id;
+    HttpContext.Response.Headers["X-Debug-ShiftId"] = req.ShiftId;
+    HttpContext.Response.Headers["X-Debug-PatientIds"] = string.Join(",", req.PatientIds ?? []);
+
     await SendNoContentAsync(ct);
   }
 }

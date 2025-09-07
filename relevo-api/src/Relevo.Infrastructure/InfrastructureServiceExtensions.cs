@@ -41,6 +41,8 @@ public static class InfrastructureServiceExtensions
     {
       services.AddSingleton<Data.Oracle.IOracleConnectionFactory, Data.Oracle.OracleConnectionFactory>();
       services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
+
+      logger.LogInformation("Oracle database configured - using Oracle repositories");
     }
     else
     {

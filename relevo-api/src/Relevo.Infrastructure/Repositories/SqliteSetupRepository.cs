@@ -157,9 +157,15 @@ public class SqliteSetupRepository : ISetupRepository
 
     public async Task AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
+        // Debug logging
+        Console.WriteLine($"[DEBUG] AssignAsync DB - UserId: '{userId}', ShiftId: '{shiftId}', Patients: {string.Join(",", patientIds)}");
+
         // Remove existing assignments for this user
-        _connection.Execute("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = @UserId",
+        var deletedCount = _connection.Execute("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = @UserId",
             new { UserId = userId });
+
+        // Debug logging
+        Console.WriteLine($"[DEBUG] AssignAsync DB - Deleted {deletedCount} existing assignments");
 
         // Insert new assignments
         foreach (var patientId in patientIds)
@@ -168,6 +174,9 @@ public class SqliteSetupRepository : ISetupRepository
             INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
             VALUES (@UserId, @ShiftId, @PatientId)",
             new { UserId = userId, ShiftId = shiftId, PatientId = patientId });
+
+            // Debug logging
+            Console.WriteLine($"[DEBUG] AssignAsync DB - Assigned patient {patientId} to user {userId}");
         }
 
         await Task.CompletedTask; // For async compatibility
@@ -178,10 +187,16 @@ public class SqliteSetupRepository : ISetupRepository
         int page,
         int pageSize)
     {
+        // Debug logging
+        Console.WriteLine($"[DEBUG] GetMyPatients DB - UserId: '{userId}', Page: {page}, PageSize: {pageSize}");
+
         // Get total count of assigned patients
         var total = _connection.ExecuteScalar<int>(
           "SELECT COUNT(*) FROM USER_ASSIGNMENTS WHERE USER_ID = @UserId",
           new { UserId = userId });
+
+        // Debug logging
+        Console.WriteLine($"[DEBUG] GetMyPatients DB - Total assignments found: {total}");
 
         if (total == 0)
           return (Array.Empty<PatientRecord>(), 0);
@@ -199,6 +214,9 @@ public class SqliteSetupRepository : ISetupRepository
           ORDER BY p.ID
           LIMIT @PageSize OFFSET @Offset",
           new { UserId = userId, PageSize = ps, Offset = offset });
+
+        // Debug logging
+        Console.WriteLine($"[DEBUG] GetMyPatients DB - Patients returned: {patients.Count()}");
 
         return (patients.ToList(), total);
     }
