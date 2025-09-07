@@ -23,34 +23,32 @@ public static class InfrastructureServiceExtensions
     if (useOracle)
     {
       services.AddSingleton<Data.Oracle.IOracleConnectionFactory, Data.Oracle.OracleConnectionFactory>();
-      // Keep EF for write model if needed; otherwise can be removed later.
-      string? sqlite = config.GetConnectionString("SqliteConnection");
-      if (!string.IsNullOrWhiteSpace(sqlite))
-      {
-        services.AddDbContext<AppDbContext>(options => options.UseSqlite(sqlite));
-      }
+      services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
     }
     else
     {
+      services.AddSingleton<Data.Sqlite.ISqliteConnectionFactory, Data.Sqlite.SqliteConnectionFactory>();
+      services.AddSingleton<IDbConnectionFactory>(sp => (IDbConnectionFactory)sp.GetRequiredService<Data.Sqlite.ISqliteConnectionFactory>());
+
+      // Keep EF DbContext only for seeding in SQLite mode
       string? connectionString = config.GetConnectionString("SqliteConnection");
       Guard.Against.Null(connectionString);
       services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
     }
 
-    services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>))
-           .AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>))
-           .AddScoped<IListContributorsQueryService>(sp =>
-           {
-             var cfg = sp.GetRequiredService<IConfiguration>();
-             bool useOracle = cfg.GetValue("UseOracle", false);
-             if (useOracle)
-             {
-               return new Data.Queries.OracleListContributorsQueryService(
-                 sp.GetRequiredService<Data.Oracle.IOracleConnectionFactory>());
-             }
-             return new ListContributorsQueryService(sp.GetRequiredService<AppDbContext>());
-           })
-           .AddScoped<IDeleteContributorService, DeleteContributorService>();
+    // Register Dapper-based services
+    services.AddScoped<Relevo.Core.Interfaces.IContributorService, ContributorService>();
+
+    if (useOracle)
+    {
+      services.AddScoped<IListContributorsQueryService, Data.Queries.OracleListContributorsQueryService>();
+    }
+    else
+    {
+      services.AddScoped<IListContributorsQueryService, ListContributorsQueryService>();
+    }
+
+    services.AddScoped<IDeleteContributorService, DeleteContributorService>();
 
 
     logger.LogInformation("{Project} services registered", "Infrastructure");

@@ -1,11 +1,12 @@
 ﻿using Ardalis.Result;
-using Ardalis.SharedKernel;
+using MediatR;
 using Relevo.Core.ContributorAggregate;
+using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Contributors.Create;
 
-public class CreateContributorHandler(IRepository<Contributor> _repository)
-  : ICommandHandler<CreateContributorCommand, Result<int>>
+public class CreateContributorHandler(IContributorService _service)
+  : IRequestHandler<CreateContributorCommand, Result<int>>
 {
   public async Task<Result<int>> Handle(CreateContributorCommand request,
     CancellationToken cancellationToken)
@@ -15,8 +16,8 @@ public class CreateContributorHandler(IRepository<Contributor> _repository)
     {
       newContributor.SetPhoneNumber(request.PhoneNumber);
     }
-    var createdItem = await _repository.AddAsync(newContributor, cancellationToken);
+    var newId = await _service.CreateAsync(newContributor);
 
-    return createdItem.Id;
+    return newId;
   }
 }

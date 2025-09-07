@@ -1,20 +1,19 @@
 ﻿using Ardalis.Result;
-using Ardalis.SharedKernel;
+using MediatR;
 using Relevo.Core.ContributorAggregate;
-using Relevo.Core.ContributorAggregate.Specifications;
+using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Contributors.Get;
 
 /// <summary>
-/// Queries don't necessarily need to use repository methods, but they can if it's convenient
+/// Queries use ContributorService directly with Dapper
 /// </summary>
-public class GetContributorHandler(IReadRepository<Contributor> _repository)
-  : IQueryHandler<GetContributorQuery, Result<ContributorDTO>>
+public class GetContributorHandler(IContributorService _service)
+  : IRequestHandler<GetContributorQuery, Result<ContributorDTO>>
 {
   public async Task<Result<ContributorDTO>> Handle(GetContributorQuery request, CancellationToken cancellationToken)
   {
-    var spec = new ContributorByIdSpec(request.ContributorId);
-    var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
+    var entity = await _service.GetByIdAsync(request.ContributorId);
     if (entity == null) return Result.NotFound();
 
     return new ContributorDTO(entity.Id, entity.Name, entity.PhoneNumber?.Number ?? "");

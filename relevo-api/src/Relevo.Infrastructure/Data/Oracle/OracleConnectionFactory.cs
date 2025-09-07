@@ -9,7 +9,7 @@ public interface IOracleConnectionFactory
   IDbConnection CreateConnection();
 }
 
-public class OracleConnectionFactory(IConfiguration _configuration) : IOracleConnectionFactory
+public class OracleConnectionFactory(IConfiguration _configuration) : IOracleConnectionFactory, IDbConnectionFactory
 {
   public IDbConnection CreateConnection()
   {

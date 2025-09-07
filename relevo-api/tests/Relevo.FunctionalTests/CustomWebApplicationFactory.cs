@@ -1,6 +1,7 @@
 ﻿using Relevo.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -63,6 +64,15 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
     builder
+        .ConfigureAppConfiguration(config =>
+        {
+          // Override configuration for tests to use SQLite instead of Oracle
+          config.AddInMemoryCollection(new Dictionary<string, string?>
+          {
+            ["UseOracle"] = "false",
+            ["UseOracleForSetup"] = "false"
+          });
+        })
         .ConfigureServices(services =>
         {
           // Configure test dependencies here

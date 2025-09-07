@@ -1,15 +1,16 @@
 ﻿using Ardalis.Result;
-using Ardalis.SharedKernel;
+using MediatR;
 using Relevo.Core.ContributorAggregate;
+using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Contributors.Update;
 
-public class UpdateContributorHandler(IRepository<Contributor> _repository)
-  : ICommandHandler<UpdateContributorCommand, Result<ContributorDTO>>
+public class UpdateContributorHandler(IContributorService _service)
+  : IRequestHandler<UpdateContributorCommand, Result<ContributorDTO>>
 {
   public async Task<Result<ContributorDTO>> Handle(UpdateContributorCommand request, CancellationToken cancellationToken)
   {
-    var existingContributor = await _repository.GetByIdAsync(request.ContributorId, cancellationToken);
+    var existingContributor = await _service.GetByIdAsync(request.ContributorId);
     if (existingContributor == null)
     {
       return Result.NotFound();
@@ -17,7 +18,7 @@ public class UpdateContributorHandler(IRepository<Contributor> _repository)
 
     existingContributor.UpdateName(request.NewName!);
 
-    await _repository.UpdateAsync(existingContributor, cancellationToken);
+    await _service.UpdateAsync(existingContributor);
 
     return new ContributorDTO(existingContributor.Id,
       existingContributor.Name, existingContributor.PhoneNumber?.Number ?? "");
