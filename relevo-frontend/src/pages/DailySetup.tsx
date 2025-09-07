@@ -21,7 +21,7 @@ import {
 	Stethoscope,
 	User,
 } from "lucide-react";
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -34,6 +34,12 @@ import {
 	usePatientsByUnit,
 	useAssignPatients,
 } from "@/api";
+
+const toStatus = (s?: string): "pending" | "in-progress" | "complete" =>
+	s === "pending" || s === "in-progress" || s === "complete" ? s : "pending";
+
+const toSeverity = (v?: string): "stable" | "watcher" | "unstable" =>
+	v === "stable" || v === "watcher" || v === "unstable" ? v : "watcher";
 
 export function DailySetup(): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
@@ -70,47 +76,39 @@ export function DailySetup(): ReactElement {
 	const { data: apiPatients } = usePatientsByUnit(unit || undefined);
 	const assignMutation = useAssignPatients();
 
-	const currentUnitsConfig: Array<UnitConfig> = (apiUnits ?? []).map((u) => ({
-		id: u.id,
-		name: u.name,
-		description: u.description ?? "",
-	}));
-
-	const currentShiftsConfig: Array<ShiftConfig> = (apiShifts ?? []).map(
-		(s) => ({
-			id: s.id,
-			name: s.name,
-			time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : "",
-		})
+	const currentUnitsConfig: Array<UnitConfig> = useMemo(
+		() =>
+			(apiUnits ?? []).map((u) => ({
+				id: u.id,
+				name: u.name,
+				description: u.description ?? "",
+			})),
+		[apiUnits]
 	);
 
-	const toStatus = (s?: string): "pending" | "in-progress" | "complete" =>
-		s === "pending" || s === "in-progress" || s === "complete" ? s : "pending";
-
-	const toSeverity = (v?: string): "stable" | "watcher" | "unstable" =>
-		v === "stable" || v === "watcher" || v === "unstable" ? v : "watcher";
-
-	const currentPatientsSource: Array<SetupPatient> = (apiPatients ?? []).map(
-		(p) => ({
-			id: p.id, // Keep as string from API
-			name: p.name,
-			age: p.age,
-			room: p.room ?? "",
-			diagnosis: p.diagnosis ? formatDiagnosis(p.diagnosis) : "",
-			status: toStatus(p.status),
-			severity: toSeverity(p.severity),
-		})
+	const currentShiftsConfig: Array<ShiftConfig> = useMemo(
+		() =>
+			(apiShifts ?? []).map((s) => ({
+				id: s.id,
+				name: s.name,
+				time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : "",
+			})),
+		[apiShifts]
 	);
 
-	const currentPatients = currentPatientsSource.map((p: SetupPatient) => ({
-		id: p.id,
-		name: p.name,
-		age: p.age,
-		room: p.room,
-		diagnosis: formatDiagnosis(p.diagnosis),
-		status: p.status,
-		severity: p.severity,
-	}));
+	const currentPatients = useMemo(
+		() =>
+			(apiPatients ?? []).map((p) => ({
+				id: p.id,
+				name: p.name,
+				age: p.age,
+				room: p.room ?? "",
+				diagnosis: p.diagnosis ? formatDiagnosis(p.diagnosis) : "",
+				status: toStatus(p.status),
+				severity: toSeverity(p.severity),
+			})),
+		[apiPatients]
+	);
 
 	// Helper function to get medical icons for different units
 	const getUnitIcon = (unitId: string): typeof Heart => {
