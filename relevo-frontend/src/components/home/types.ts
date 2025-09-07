@@ -50,3 +50,11 @@ export type Handover = {
 	bedLabel?: string;
 	mrn?: string;
 };
+
+export type Metric = {
+	label: string;
+	value: string;
+	tooltip: string;
+	currentValue: string;
+	totalValue: string;
+};

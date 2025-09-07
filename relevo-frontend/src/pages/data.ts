@@ -1,6 +1,7 @@
 
 import type {
 	Handover,
+	Metric,
 	Patient,
 	RecentPreview,
 	SearchResult,
@@ -311,4 +312,35 @@ export const searchResults: Array<SearchResult> = [
 
 	// Personas/Equipo
 	{ name: "Luis Cusihuaman", category: "Personas/Equipo", type: "team" },
+];
+
+export const metrics: Array<Metric> = [
+	{
+		label: "Pacientes asignados",
+		value: "12",
+		tooltip: "Pacientes asignados a ti en el turno actual.",
+		currentValue: "12",
+		totalValue: "15",
+	},
+	{
+		label: "Traspasos en progreso",
+		value: "5",
+		tooltip: "Sesiones de traspaso abiertas sin completar.",
+		currentValue: "5",
+		totalValue: "10",
+	},
+	{
+		label: "Acciones pendientes",
+		value: "18",
+		tooltip: "Tareas con vencimiento hoy.",
+		currentValue: "18",
+		totalValue: "25",
+	},
+	{
+		label: "Alertas críticas",
+		value: "2",
+		tooltip: "Severidad Crítico en últimas 24 h.",
+		currentValue: "2",
+		totalValue: "3",
+	},
 ];

@@ -6,45 +6,9 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import type { Metric } from "./types";
+import { metrics } from "@/pages/data";
 
-type Metric = {
-	label: string;
-	value: string;
-	tooltip: string;
-	currentValue: string;
-	totalValue: string;
-};
-
-const metrics: Array<Metric> = [
-	{
-		label: "Pacientes asignados",
-		value: "12",
-		tooltip: "Pacientes asignados a ti en el turno actual.",
-		currentValue: "12",
-		totalValue: "15",
-	},
-	{
-		label: "Traspasos en progreso",
-		value: "5",
-		tooltip: "Sesiones de traspaso abiertas sin completar.",
-		currentValue: "5",
-		totalValue: "10",
-	},
-	{
-		label: "Acciones pendientes",
-		value: "18",
-		tooltip: "Tareas con vencimiento hoy.",
-		currentValue: "18",
-		totalValue: "25",
-	},
-	{
-		label: "Alertas críticas",
-		value: "2",
-		tooltip: "Severidad Crítico en últimas 24 h.",
-		currentValue: "2",
-		totalValue: "3",
-	},
-];
 
 export const SectionMeta: FC = () => {
 	return (
@@ -72,7 +36,7 @@ export const SectionMeta: FC = () => {
 					</div>
 
 					<div className="space-y-3">
-						{metrics.map((metric) => (
+						{metrics.map((metric: Metric) => (
 							<Popover key={metric.label}>
 								<PopoverTrigger asChild>
 									<div className="flex items-center justify-between py-2 cursor-pointer">
