@@ -1,20 +1,23 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "@tanstack/react-router";
 
-type SubNavigationProps = {
-	activeTab: string;
-	setActiveTab: (tab: string) => void;
-};
-
-export const SubNavigation: FC<SubNavigationProps> = ({
-	activeTab,
-	setActiveTab,
-}) => {
+export const SubNavigation: FC = () => {
 	const { t } = useTranslation("home");
-	const tabs: Array<{ key: string; label: string }> = [
-		{ key: "summary", label: t("subnav.summary") as string },
-		{ key: "patients", label: t("subnav.patients") as string },
-		{ key: "settings", label: t("subnav.settings") as string },
+	const location = useLocation();
+
+	const tabs: Array<{ key: string; label: string; path: string }> = [
+		{ key: "summary", label: t("subnav.summary") as string, path: "/" },
+		{
+			key: "patients",
+			label: t("subnav.patients") as string,
+			path: "/patients",
+		},
+		{
+			key: "settings",
+			label: t("subnav.settings") as string,
+			path: "/settings",
+		},
 	];
 
 	return (
@@ -28,22 +31,20 @@ export const SubNavigation: FC<SubNavigationProps> = ({
 					}}
 				>
 					{tabs.map((tab) => (
-						<button
+						<Link
 							key={tab.key}
+							to={tab.path}
 							className={`text-sm transition-colors relative py-3 whitespace-nowrap flex-shrink-0 ${
-								activeTab === tab.key
+								location.pathname === tab.path
 									? "text-gray-900 font-medium"
 									: "text-gray-600 hover:text-gray-900 font-normal"
 							}`}
-							onClick={() => {
-								setActiveTab(tab.key);
-							}}
 						>
 							{tab.label}
-							{activeTab === tab.key && (
+							{location.pathname === tab.path && (
 								<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black" />
 							)}
-						</button>
+						</Link>
 					))}
 				</nav>
 			</div>

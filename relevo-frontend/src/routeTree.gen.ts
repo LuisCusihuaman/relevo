@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedDailySetupRouteImport } from './routes/_authenticated/daily-setup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
@@ -21,6 +22,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDailySetupRoute = AuthenticatedDailySetupRouteImport.update({
@@ -37,11 +43,13 @@ const authLoginRoute = authLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/patients': typeof AuthenticatedPatientsRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/patients': typeof AuthenticatedPatientsRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
@@ -49,18 +57,20 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/_authenticated/daily-setup': typeof AuthenticatedDailySetupRoute
+  '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/daily-setup' | '/'
+  fullPaths: '/login' | '/daily-setup' | '/patients' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/daily-setup' | '/'
+  to: '/login' | '/daily-setup' | '/patients' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/(auth)/login'
     | '/_authenticated/daily-setup'
+    | '/_authenticated/patients'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -85,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/patients': {
+      id: '/_authenticated/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof AuthenticatedPatientsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/daily-setup': {
       id: '/_authenticated/daily-setup'
       path: '/daily-setup'
@@ -104,11 +121,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDailySetupRoute: typeof AuthenticatedDailySetupRoute
+  AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDailySetupRoute: AuthenticatedDailySetupRoute,
+  AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
