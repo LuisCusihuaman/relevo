@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import { routeTree } from "./routeTree.gen.ts";
 import "./index.css";
 import "./common/i18n";
+import { shadcn } from "@clerk/themes";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 
 // Import your Publishable Key
@@ -17,11 +18,14 @@ export type TanstackRouter = ReturnType<typeof createRouter>;
 let router: TanstackRouter;
 
 // Create a router component that will have access to the auth context
-const RouterWithAuth: React.FC = () => {
+export const RouterWithAuth: React.FC = () => {
 	const auth = useAuth();
 
 	// Create router only once or when auth changes
-	if (!router || (router.options.context as { auth?: typeof auth })?.auth !== auth) {
+	if (
+		!router ||
+		(router.options.context as { auth?: typeof auth })?.auth !== auth
+	) {
 		router = createRouter({ routeTree, context: { auth } });
 	}
 
@@ -45,9 +49,17 @@ if (!rootElement.innerHTML) {
 	root.render(
 		<React.StrictMode>
 			<React.Suspense fallback="loading">
-				<ClerkProvider afterSignOutUrl="/login" publishableKey={PUBLISHABLE_KEY}>
-					<RouterWithAuth />
-				</ClerkProvider>
+				<div className="min-h-screen flex items-center justify-center">
+					<ClerkProvider
+						afterSignOutUrl="/login"
+						publishableKey={PUBLISHABLE_KEY}
+						appearance={{
+							baseTheme: shadcn,
+						}}
+					>
+						<RouterWithAuth />
+					</ClerkProvider>
+				</div>
 			</React.Suspense>
 		</React.StrictMode>
 	);
