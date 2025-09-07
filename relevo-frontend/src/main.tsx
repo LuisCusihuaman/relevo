@@ -5,11 +5,28 @@ import App from "./App.tsx";
 import { routeTree } from "./routeTree.gen.ts";
 import "./index.css";
 import "./common/i18n";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 
-const router = createRouter({ routeTree, context: { auth: undefined } });
+// Import your Publishable Key
+const PUBLISHABLE_KEY = import.meta.env["VITE_CLERK_PUBLISHABLE_KEY"] as string;
 
-export type TanstackRouter = typeof router;
+// Create a type for the router that will be created dynamically
+export type TanstackRouter = ReturnType<typeof createRouter>;
+
+// Create the router with initial context
+let router: TanstackRouter;
+
+// Create a router component that will have access to the auth context
+const RouterWithAuth: React.FC = () => {
+	const auth = useAuth();
+
+	// Create router only once or when auth changes
+	if (!router || (router.options.context as { auth?: typeof auth })?.auth !== auth) {
+		router = createRouter({ routeTree, context: { auth } });
+	}
+
+	return <App router={router} />;
+};
 
 declare module "@tanstack/react-router" {
 	interface Register {
@@ -17,8 +34,6 @@ declare module "@tanstack/react-router" {
 		router: TanstackRouter;
 	}
 }
-// Import your Publishable Key
-const PUBLISHABLE_KEY = import.meta.env["VITE_CLERK_PUBLISHABLE_KEY"] as string;
 
 if (!PUBLISHABLE_KEY) {
 	throw new Error("Add your Clerk Publishable Key to the .env file");
@@ -30,8 +45,8 @@ if (!rootElement.innerHTML) {
 	root.render(
 		<React.StrictMode>
 			<React.Suspense fallback="loading">
-				<ClerkProvider afterSignOutUrl="/" publishableKey={PUBLISHABLE_KEY}>
-					<App router={router} />
+				<ClerkProvider afterSignOutUrl="/login" publishableKey={PUBLISHABLE_KEY}>
+					<RouterWithAuth />
 				</ClerkProvider>
 			</React.Suspense>
 		</React.StrictMode>

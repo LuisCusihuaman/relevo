@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { AppLayout } from "@/components/layout/AppLayout";
 
-export const Route = createFileRoute("/_authenticated")({
+export const Route = createFileRoute("/")({
 	beforeLoad: ({ context }) => {
 		// Check if user is authenticated
 		if (!context.auth?.isLoaded) {
@@ -11,12 +10,16 @@ export const Route = createFileRoute("/_authenticated")({
 
 		if (!context.auth?.isSignedIn) {
 			// User is not authenticated, redirect to login
-			redirect({
+			throw redirect({
 				to: "/login",
 				search: {},
-				throw: true,
 			});
 		}
+
+		// User is authenticated, redirect to dashboard
+		throw redirect({
+			to: "/dashboard",
+			search: {},
+		});
 	},
-	component: AppLayout,
 });

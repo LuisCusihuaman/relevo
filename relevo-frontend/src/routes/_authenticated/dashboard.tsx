@@ -1,7 +1,7 @@
-import { DailySetup } from "@/pages/DailySetup";
+import { Home } from "@/pages/Home";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_setup/daily-setup")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
 	beforeLoad: ({ context }) => {
 		// Check if user is authenticated
 		if (!context.auth?.isLoaded) {
@@ -11,23 +11,20 @@ export const Route = createFileRoute("/_setup/daily-setup")({
 
 		if (!context.auth?.isSignedIn) {
 			// User is not authenticated, redirect to login
-			redirect({
+			throw redirect({
 				to: "/login",
 				search: {},
-				throw: true,
 			});
 		}
 
-		// Check if daily setup is already completed
+		// Check if daily setup is completed
 		const completed = window.localStorage.getItem("dailySetupCompleted") === "true";
-		if (completed) {
-			// Setup already completed, redirect to dashboard
-			redirect({
-				to: "/dashboard",
+		if (!completed) {
+			throw redirect({
+				to: "/daily-setup",
 				search: {},
-				throw: true,
 			});
 		}
 	},
-	component: DailySetup,
+	component: Home,
 });
