@@ -25,18 +25,18 @@ import { useEffect, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 
-import type { UnitConfig, ShiftConfig, SetupPatient } from "@/common/types";
+import type { UnitConfig, ShiftConfig } from "@/common/types";
 import { formatDiagnosis } from "@/lib/formatters";
 import { PatientSelectionCard } from "@/components/PatientSelectionCard";
 import {
-	useUnitsQuery,
-	useShiftsQuery,
-	usePatientsByUnitQuery,
-	useAssignPatientsMutation,
-	type ApiUnit,
-	type ApiShift,
-	type ApiPatient,
-} from "@/api/daily-setup";
+	useUnits,
+	useShifts,
+	usePatientsByUnit,
+	useAssignPatients,
+	type Unit,
+	type Shift,
+	type SetupPatient,
+} from "@/api";
 
 export function DailySetup(): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
@@ -68,14 +68,14 @@ export function DailySetup(): ReactElement {
 	const [showValidationError, setShowValidationError] = useState(false);
 
 	// Fetch from API with ES fallbacks
-	const unitsQuery = useUnitsQuery();
-	const shiftsQuery = useShiftsQuery();
-	const patientsQuery = usePatientsByUnitQuery(unit || undefined);
-	const assignMutation = useAssignPatientsMutation();
+	const unitsQuery = useUnits();
+	const shiftsQuery = useShifts();
+	const patientsQuery = usePatientsByUnit(unit || undefined);
+	const assignMutation = useAssignPatients();
 
-	const apiUnits: Array<ApiUnit> | undefined = unitsQuery.data;
-	const apiShifts: Array<ApiShift> | undefined = shiftsQuery.data;
-	const apiPatients: Array<ApiPatient> | undefined = patientsQuery.data;
+	const apiUnits: Array<Unit> | undefined = unitsQuery.data as Array<Unit> | undefined;
+	const apiShifts: Array<Shift> | undefined = shiftsQuery.data as Array<Shift> | undefined;
+	const apiPatients: Array<SetupPatient> | undefined = patientsQuery.data as Array<SetupPatient> | undefined;
 
 	const currentUnitsConfig: Array<UnitConfig> = (apiUnits ?? []).map((u) => ({
 		id: u.id,
@@ -536,21 +536,23 @@ export function DailySetup(): ReactElement {
 	const getStepTitle = (): string => {
 		switch (currentStep) {
 			case 0:
-				return isEditing ? t("stepTitle.updateInfo") : t("stepTitle.yourInfo");
+				return isEditing
+					? ((t("stepTitle.updateInfo") as string) || "Update Info")
+					: ((t("stepTitle.yourInfo") as string) || "Your Info");
 			case 1:
 				return isEditing
-					? t("stepTitle.updateUnit")
-					: t("stepTitle.unitSelection");
+					? ((t("stepTitle.updateUnit") as string) || "Update Unit")
+					: ((t("stepTitle.unitSelection") as string) || "Unit Selection");
 			case 2:
 				return isEditing
-					? t("stepTitle.updateShift")
-					: t("stepTitle.shiftSelection");
+					? ((t("stepTitle.updateShift") as string) || "Update Shift")
+					: ((t("stepTitle.shiftSelection") as string) || "Shift Selection");
 			case 3:
 				return isEditing
-					? t("stepTitle.updatePatients")
-					: t("stepTitle.patientSelection");
+					? ((t("stepTitle.updatePatients") as string) || "Update Patients")
+					: ((t("stepTitle.patientSelection") as string) || "Patient Selection");
 			default:
-				return t("stepTitle.setup");
+				return (t("stepTitle.setup") as string) || "Setup";
 		}
 	};
 

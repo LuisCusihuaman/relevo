@@ -309,7 +309,7 @@ export interface Alert {
   
   // Setup patient for daily setup workflow
   export interface SetupPatient {
-	id: number;
+	id: string | number;
 	name: string;
 	age?: number;
 	room: string;
