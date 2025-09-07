@@ -1,4 +1,4 @@
-import type { Dispatch, FC, SetStateAction } from "react";
+import type { Dispatch, FC, SetStateAction, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -27,6 +27,8 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 			result.category.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+	const resolveText = (value: string): string => (value.startsWith("home:") ? String(t(value)) : value);
+
 	return (
 		<div
 			className="fixed inset-0 z-[9999] bg-white/20 backdrop-blur-sm"
@@ -47,9 +49,9 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 						<Input
 							autoFocus
 							className="pl-10 pr-16 h-10 border-gray-300 focus:border-gray-400 focus:ring-0"
-							placeholder={t("search.placeholder")}
+							placeholder={String(t("search.placeholder"))}
 							value={searchQuery}
-							onChange={(event_) => {
+							onChange={(event_: ChangeEvent<HTMLInputElement>) => {
 								setSearchQuery(event_.target.value);
 							}}
 						/>
@@ -103,7 +105,7 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 													viewBox="0 0 24 24"
 												>
 													<path
-														d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+														d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 2 0 01-2 2h-2a2 2 0 01-2-2z"
 														strokeLinecap="round"
 														strokeLinejoin="round"
 														strokeWidth={2}
@@ -131,10 +133,10 @@ export const CommandPalette: FC<CommandPaletteProps> = ({
 								</div>
 								<div className="flex-1 min-w-0">
 									<div className="font-medium text-gray-900 truncate">
-										{result.name}
+										{resolveText(result.name)}
 									</div>
 									<div className="text-sm text-gray-500 truncate">
-										{result.category}
+										{resolveText(result.category)}
 									</div>
 								</div>
 							</div>
