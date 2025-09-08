@@ -2,6 +2,7 @@ import { type ReactElement, useEffect, useMemo } from "react";
 import {
 	DashboardSidebar,
 	PatientDirectoryList,
+	PatientDirectorySkeleton,
 	PatientDirectoryToolbar,
 	PatientProfileHeader,
 	VersionNotice,
@@ -72,11 +73,10 @@ export function Home({
 				<div className="space-y-6">
 					<VersionNotice />
 					<div className="max-w-7xl mx-auto px-6 py-6">
-						<div className="flex items-center justify-center h-64">
-							<div className="text-center">
-								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-								<p className="mt-4 text-gray-600">Cargando pacientes...</p>
-							</div>
+						<PatientDirectoryToolbar />
+						<div className="flex flex-col lg:flex-row gap-8">
+							<DashboardSidebar recentPreviews={recentPreviews} />
+							<PatientDirectorySkeleton />
 						</div>
 					</div>
 				</div>
