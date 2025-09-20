@@ -56,6 +56,8 @@ interface IllnessSeverityProps {
     role: string;
   };
   focusMode?: boolean;
+  severityContent?: string | null;
+  severityStatus?: string;
 }
 
 export function IllnessSeverity({
@@ -65,9 +67,23 @@ export function IllnessSeverity({
     initials: "DJ",
     role: "Day Attending",
   },
-}: IllnessSeverityProps) {
+  severityContent,
+  severityStatus: _severityStatus,
+}: IllnessSeverityProps): JSX.Element {
   const { t } = useTranslation("illnessSeverity");
-  const [selectedSeverity, setSelectedSeverity] = useState("stable");
+  // Use real data from backend if available, otherwise use defaults
+  const [selectedSeverity, setSelectedSeverity] = useState(() => {
+    if (severityContent) {
+      // Try to extract severity from content (this would need more sophisticated parsing in real implementation)
+      const content = severityContent.toLowerCase();
+      if (content.includes("stable")) return "stable";
+      if (content.includes("guarded")) return "guarded";
+      if (content.includes("unstable")) return "unstable";
+      if (content.includes("critical")) return "critical";
+    }
+    return "stable";
+  });
+
   const [canEdit] = useState(currentUser.name === assignedPhysician.name);
   const [realtimeUpdate, setRealtimeUpdate] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(t("justNow"));
@@ -80,7 +96,7 @@ export function IllnessSeverity({
     ...severityStyling[id as keyof typeof severityStyling],
   }));
 
-  const handleSeverityChange = (severityId: string) => {
+  const handleSeverityChange = (severityId: string): void => {
     if (canEdit) {
       setSelectedSeverity(severityId);
       setRealtimeUpdate(true);
@@ -97,8 +113,10 @@ export function IllnessSeverity({
 
   // Simulate receiving real-time updates from other users
   useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+
     if (!canEdit) {
-      const simulateRealtimeUpdate = () => {
+      const simulateRealtimeUpdate = (): void => {
         setRealtimeUpdate(true);
         setTimeout(() => {
           setRealtimeUpdate(false);
@@ -106,15 +124,22 @@ export function IllnessSeverity({
       };
 
       // Simulate occasional updates for demo purposes
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         if (Math.random() > 0.95) {
           // 5% chance every second
           simulateRealtimeUpdate();
         }
       }, 1000);
-
-      return () => { clearInterval(interval); };
+    } else {
+      // Clear any existing realtime updates when canEdit becomes true
+      setRealtimeUpdate(false);
     }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [canEdit]);
 
   return (

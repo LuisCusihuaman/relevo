@@ -12,7 +12,7 @@ interface ConfirmationChecklistProps {
 
 export function ConfirmationChecklist({
   onComplete,
-}: ConfirmationChecklistProps) {
+}: ConfirmationChecklistProps): JSX.Element {
   const { t } = useTranslation("confirmationChecklist");
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>(
     {},
@@ -69,7 +69,7 @@ export function ConfirmationChecklist({
     },
   ];
 
-  const handleItemCheck = (itemId: string, checked: boolean) => {
+  const handleItemCheck = (itemId: string, checked: boolean): void => {
     setCheckedItems((previous) => ({ ...previous, [itemId]: checked }));
   };
 

@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
+import type { JSX } from "react";
 
 export interface ActivityItem {
   id: number | string;
@@ -31,7 +32,7 @@ export function ActivityFeed({ items, onNavigateToSection }: ActivityFeedProps):
       case "content_viewed":
         return <div className="w-2 h-2 bg-gray-400 rounded-full"></div>;
       default:
-        return null;
+        return <div className="w-2 h-2 bg-gray-400 rounded-full"></div>;
     }
   };
 

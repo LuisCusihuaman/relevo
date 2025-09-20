@@ -33,7 +33,6 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import type React from "react";
 import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
@@ -70,7 +69,7 @@ export function Header({
   getTimeUntilHandover,
   getSessionDuration,
   onBack,
-}: HeaderProps) {
+}: HeaderProps): JSX.Element {
   const { t, i18n } = useTranslation(["header", "handover", "patientHeader"]);
   
   // Use Spanish data when language is Spanish

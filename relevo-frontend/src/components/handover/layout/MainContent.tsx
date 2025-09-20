@@ -10,6 +10,7 @@ import type {
   SyncStatus,
   User,
 } from "@/common/types";
+import type { ActiveHandoverData } from "@/api";
 import {
   Collapsible,
   CollapsibleContent,
@@ -44,6 +45,7 @@ interface MainContentProps {
   setHandoverComplete: (complete: boolean) => void;
   getSessionDuration: () => string;
   currentUser: User;
+  handoverData?: ActiveHandoverData;
 }
 
 export function MainContent({
@@ -57,13 +59,33 @@ export function MainContent({
   setHandoverComplete,
   getSessionDuration,
   currentUser,
-}: MainContentProps) {
+  handoverData,
+}: MainContentProps): JSX.Element {
   const { t, i18n } = useTranslation(["handover", "mainContent"]);
   const ipassGuidelines = getIpassGuidelines(t);
-  const activeUsers = activeCollaborators.filter(
+
+  // Use real data from handoverData if available, otherwise fallback to mock data
+  const activeUsers = handoverData?.participants.filter(
+    (user) => user.status === "active" || user.status === "viewing",
+  ) || activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",
   );
-  const currentPatientData = i18n.language === "es" ? patientDataES : patientData;
+
+  const currentPatientData = handoverData ? null : (i18n.language === "es" ? patientDataES : patientData);
+
+  // Helper function to get section content from handover data
+  const getSectionContent = (sectionType: string): string | null => {
+    if (!handoverData?.sections) return null;
+    const section = handoverData.sections.find(s => s.sectionType === sectionType);
+    return section?.content || null;
+  };
+
+  // Helper function to get section status
+  const getSectionStatus = (sectionType: string): string => {
+    if (!handoverData?.sections) return "draft";
+    const section = handoverData.sections.find(s => s.sectionType === sectionType);
+    return section?.status || "draft";
+  };
 
   if (focusMode) {
     return (
@@ -130,11 +152,21 @@ export function MainContent({
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <IllnessSeverity
-                assignedPhysician={currentPatientData.assignedPhysician}
-                currentUser={currentUser}
-                focusMode={focusMode}
-              />
+                <IllnessSeverity
+                  currentUser={currentUser}
+                  assignedPhysician={handoverData ? {
+                    name: handoverData.participants.find(p => p.status === "active")?.userName || "Dr. Current",
+                    role: handoverData.participants.find(p => p.status === "active")?.userRole || "Attending Physician",
+                    initials: handoverData.participants.find(p => p.status === "active")?.userName.split(' ').map(n => n[0]).join('').toUpperCase() || "DC",
+                    color: "bg-blue-600",
+                    shiftEnd: "17:00",
+                    status: "handing-off" as const,
+                    patientAssignment: "assigned" as const,
+                  } : currentPatientData.assignedPhysician}
+                  focusMode={focusMode}
+                  severityContent={getSectionContent("illness_severity")}
+                  severityStatus={getSectionStatus("illness_severity")}
+                />
             </div>
 
             {/* P - Patient Summary */}

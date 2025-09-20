@@ -32,7 +32,7 @@ interface PatientSummaryProps {
 }
 
 export function PatientSummary({
-  onOpenThread: _onOpenThread,
+  onOpenThread,
   focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
@@ -40,8 +40,8 @@ export function PatientSummary({
   hideControls = false, // Default to false for backwards compatibility
   onSave, // External save handler
   onSaveReady,
-  syncStatus: _syncStatus = "synced",
-  onSyncStatusChange: _onSyncStatusChange,
+  syncStatus = "synced",
+  onSyncStatusChange,
   currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
   assignedPhysician = {
     name: "Dr. Johnson",
@@ -49,7 +49,7 @@ export function PatientSummary({
     role: "Day Attending",
   },
   onContentChange,
-}: PatientSummaryProps) {
+}: PatientSummaryProps): JSX.Element {
   const { t } = useTranslation("patientSummary");
   const [summaryText, setSummaryText] = useState(t("initialSummary"));
 

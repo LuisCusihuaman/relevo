@@ -52,8 +52,8 @@ export function MobileMenus({
   getTimeUntilHandover,
   getSessionDuration,
   handleNavigateToSection,
-  currentUser: _currentUser,
-}: MobileMenusProps) {
+  currentUser,
+}: MobileMenusProps): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const activeUsers = activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",

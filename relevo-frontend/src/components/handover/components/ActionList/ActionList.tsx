@@ -12,8 +12,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import type React from "react";
 import { useState } from "react";
+import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 interface Collaborator {
@@ -55,8 +55,8 @@ interface ActionListProps {
 }
 
 export function ActionList({
-  expanded: _expanded = false,
-  collaborators: _collaborators = [],
+  expanded: _expanded,
+  collaborators: _collaborators,
   onOpenThread: _onOpenThread,
   focusMode = false,
   compact = false,
@@ -66,7 +66,7 @@ export function ActionList({
     initials: "DJ",
     role: "Day Attending",
   },
-}: ActionListProps) {
+}: ActionListProps): JSX.Element {
   const { t } = useTranslation("actionList");
   // Action items from multiple shifts - persistent until completed or handover ends
   const [actionItems, setActionItems] = useState<Array<ActionItem>>([
@@ -144,7 +144,7 @@ export function ActionList({
   const completedTasks = actionItems.filter((item) => item.completed);
 
   // Submit new task
-  const handleSubmitTask = () => {
+  const handleSubmitTask = (): void => {
     if (!newTask.task.trim()) return;
 
     setIsSubmitting(true);
@@ -174,7 +174,7 @@ export function ActionList({
   };
 
   // Toggle task completion
-  const handleToggleComplete = (taskId: number) => {
+  const handleToggleComplete = (taskId: number): void => {
     setActionItems((previous) =>
       previous.map((item) =>
         item.id === taskId ? { ...item, completed: !item.completed } : item,
@@ -183,21 +183,21 @@ export function ActionList({
   };
 
   // Delete task (only current shift tasks by assigned physician)
-  const handleDeleteTask = (taskId: number) => {
+  const handleDeleteTask = (taskId: number): void => {
     const task = actionItems.find((t) => t.id === taskId);
     if (!canDeleteTasks || task?.shift !== t("shifts.dayToEvening")) return;
 
     setActionItems((previous) => previous.filter((item) => item.id !== taskId));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
+  const handleKeyDown = (event: React.KeyboardEvent): void => {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
       handleSubmitTask();
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case "high":
         return "text-red-600 border-red-200 bg-red-50";
@@ -211,7 +211,7 @@ export function ActionList({
   };
 
   // Clean task card component
-  const TaskCard = ({ task }: { task: ActionItem }) => (
+  const TaskCard = ({ task }: { task: ActionItem }): JSX.Element => (
     <div
       className={`p-4 rounded-lg border transition-all hover:shadow-sm group ${
         task.completed

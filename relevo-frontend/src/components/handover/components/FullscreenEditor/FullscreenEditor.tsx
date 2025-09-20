@@ -37,7 +37,7 @@ export function FullscreenEditor({
   handleOpenDiscussion,
   syncStatus,
   setSyncStatus,
-}: FullscreenEditorProps) {
+}: FullscreenEditorProps): JSX.Element {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isMobile = useIsMobile();
   const saveButtonRef = useRef<HTMLButtonElement>(null);
@@ -71,14 +71,14 @@ export function FullscreenEditor({
   }, [saveFunction, handleSaveReady]);
 
   // Handle content changes
-  const handleContentChange = useCallback(() => {
+  const handleContentChange = useCallback((): void => {
     setHasUnsavedChanges(true);
     setSyncStatus("pending");
   }, [setSyncStatus]);
 
   // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
         handleCloseFullscreenEdit();
       } else if ((event.ctrlKey || event.metaKey) && event.key === "s") {
@@ -92,7 +92,7 @@ export function FullscreenEditor({
   }, [handleCloseFullscreenEdit, handleFullscreenSave]);
 
   // Get component title
-  const getComponentTitle = () => {
+  const getComponentTitle = (): string => {
     switch (fullscreenEditing.component) {
       case "patient-summary":
         return t("titles.patientSummary");
@@ -104,7 +104,7 @@ export function FullscreenEditor({
   };
 
   // Get sync status display
-  const getSyncStatusDisplay = () => {
+  const getSyncStatusDisplay = (): { icon: React.ReactNode; text: string; color: string } => {
     switch (syncStatus) {
       case "synced":
         return { text: t("syncStatus.synced"), color: "text-green-600" };

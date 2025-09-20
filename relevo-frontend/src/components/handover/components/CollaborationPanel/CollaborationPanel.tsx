@@ -11,6 +11,7 @@ import { Bell, MessageSquare, Send, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityFeed, type ActivityItem } from "../ActivityFeed";
+import type { JSX } from "react";
 
 interface CollaborationPanelProps {
   onClose: () => void;
@@ -214,7 +215,7 @@ export function CollaborationPanel({
                   placeholder={t("messageInput.placeholder")}
                   rows={3}
                   value={newMessage}
-                  onChange={(e) => { setNewMessage(e.target.value); }}
+                  onChange={(event) => { setNewMessage(event.target.value); }}
                   onKeyPress={handleKeyPress}
                 />
                 <Button

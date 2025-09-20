@@ -1,4 +1,3 @@
-import { currentUser, patientData } from "@/common/constants";
 import type { ExpandedSections, FullscreenEditingState, SyncStatus } from "@/common/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +10,8 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
@@ -21,6 +22,7 @@ import {
   MobileMenus,
   useHandoverSession,
 } from "../components/handover";
+import { useActiveHandover } from "@/api";
 import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
@@ -59,6 +61,9 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const isMobile = useIsMobile();
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
+  const { user: currentUser, isLoading: userLoading } = useCurrentUser();
+  const { patientData, isLoading: patientLoading } = usePatientHandoverData();
+  const { data: activeHandoverData, isLoading: handoverLoading } = useActiveHandover();
   const { t } = useTranslation("handover");
 
   // Event handlers
@@ -113,6 +118,35 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
     document.addEventListener("keydown", handleKeyDown);
     return (): void => { document.removeEventListener("keydown", handleKeyDown); };
   }, [focusMode, fullscreenEditing]);
+
+  // Loading state
+  if (userLoading || patientLoading || handoverLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading handover data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - if no user or patient data available
+  if (!currentUser || !patientData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Data</h3>
+          <p className="text-gray-600">Please check your authentication and try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -195,6 +229,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
                 setHandoverComplete={setHandoverComplete}
                 setSyncStatus={handleSyncStatusChange}
                 syncStatus={syncStatus}
+                handoverData={activeHandoverData}
               />
             </div>
           </div>
@@ -243,21 +278,22 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
 
         {/* Mobile Menus */}
         {isMobile && (
-          <MobileMenus
-            currentUser={currentUser}
-            focusMode={focusMode}
-            fullscreenEditing={!!fullscreenEditing}
-            getSessionDuration={getSessionDuration}
-            getTimeUntilHandover={getTimeUntilHandover}
-            handleNavigateToSection={handleNavigateToSection}
-            setFocusMode={setFocusMode}
-            setShowComments={setShowComments}
-            setShowHistory={setShowHistory}
-            setShowMobileMenu={setShowMobileMenu}
-            showComments={showComments}
-            showHistory={showHistory}
-            showMobileMenu={showMobileMenu}
-          />
+            <MobileMenus
+              currentUser={currentUser}
+              focusMode={focusMode}
+              fullscreenEditing={!!fullscreenEditing}
+              getSessionDuration={getSessionDuration}
+              getTimeUntilHandover={getTimeUntilHandover}
+              handleNavigateToSection={handleNavigateToSection}
+              setFocusMode={setFocusMode}
+              setShowComments={setShowComments}
+              setShowHistory={setShowHistory}
+              setShowMobileMenu={setShowMobileMenu}
+              showComments={showComments}
+              showHistory={showHistory}
+              showMobileMenu={showMobileMenu}
+              participants={activeHandoverData?.participants || []}
+            />
         )}
       </SidebarProvider>
     </TooltipProvider>

@@ -16,7 +16,7 @@ export function Footer({
   handoverComplete,
   getTimeUntilHandover,
   getSessionDuration,
-}: FooterProps) {
+}: FooterProps): JSX.Element {
   const { t } = useTranslation("handover");
   if (focusMode || fullscreenEditing) return null;
 

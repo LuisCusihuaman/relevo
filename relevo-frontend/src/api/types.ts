@@ -90,6 +90,52 @@ export type PaginatedHandovers = {
 	items: Array<Handover>;
 };
 
+// User types
+export type User = {
+	id: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	fullName: string;
+	roles: Array<string>;
+	isActive: boolean;
+};
+
+// Handover types
+export type HandoverParticipant = {
+	id: string;
+	userId: string;
+	userName: string;
+	userRole?: string;
+	status: "active" | "inactive" | "viewing";
+	joinedAt: string;
+	lastActivity: string;
+};
+
+export type HandoverSection = {
+	id: string;
+	sectionType: "illness_severity" | "patient_summary" | "action_items" | "situation_awareness" | "synthesis";
+	content?: string;
+	status: "draft" | "in_progress" | "completed";
+	lastEditedBy?: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type HandoverSyncStatus = {
+	id: string;
+	syncStatus: "synced" | "syncing" | "pending" | "offline" | "error";
+	lastSync: string;
+	version: number;
+};
+
+export type ActiveHandoverData = {
+	handover: Handover;
+	participants: Array<HandoverParticipant>;
+	sections: Array<HandoverSection>;
+	syncStatus?: HandoverSyncStatus;
+};
+
 // Additional types for Daily Setup
 export type Unit = {
 	id: string;

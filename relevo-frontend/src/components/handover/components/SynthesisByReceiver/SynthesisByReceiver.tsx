@@ -31,7 +31,7 @@ interface SynthesisByReceiverProps {
 }
 
 export function SynthesisByReceiver({
-  onOpenThread: _onOpenThread,
+  onOpenThread,
   onComplete,
   focusMode = false,
   currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
@@ -40,7 +40,7 @@ export function SynthesisByReceiver({
     initials: "SP",
     role: "Evening Attending",
   },
-}: SynthesisByReceiverProps) {
+}: SynthesisByReceiverProps): JSX.Element {
   const { t } = useTranslation("synthesisByReceiver");
   // Confirmation checklist items
   const [confirmationItems, setConfirmationItems] = useState(() => [
@@ -101,7 +101,7 @@ export function SynthesisByReceiver({
   const completionProgress = (completedItems / totalItems) * 100;
 
   // Handle checkbox changes
-  const handleItemChange = (itemId: string, checked: boolean) => {
+  const handleItemChange = (itemId: string, checked: boolean): void => {
     if (!canConfirm) return;
 
     setConfirmationItems((previous) =>
@@ -110,7 +110,7 @@ export function SynthesisByReceiver({
   };
 
   // Handle final confirmation
-  const handleFinalConfirmation = () => {
+  const handleFinalConfirmation = (): void => {
     if (!canConfirm || !isComplete) return;
 
     // Mark handover as complete

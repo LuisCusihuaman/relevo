@@ -13,8 +13,8 @@ import {
   Users,
   X,
 } from "lucide-react";
-import type React from "react";
 import { useEffect, useState } from "react";
+import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 // Enhanced collaborator with typing indicators
@@ -64,16 +64,16 @@ interface SituationAwarenessProps {
 }
 
 export function SituationAwareness({
-  collaborators: _collaborators = [],
-  onOpenThread: _onOpenThread,
+  collaborators = [],
+  onOpenThread,
   focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
   hideControls = false, // Default to false for backwards compatibility
-  onSave: _onSave, // External save handler
-  syncStatus: _syncStatus = "synced",
-  onSyncStatusChange: _onSyncStatusChange,
+  onSave, // External save handler
+  syncStatus = "synced",
+  onSyncStatusChange,
   currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
   assignedPhysician = {
     name: "Dr. Johnson",
@@ -81,7 +81,7 @@ export function SituationAwareness({
     role: "Day Attending",
   },
   onContentChange,
-}: SituationAwarenessProps) {
+}: SituationAwarenessProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
 
   // Live situation documentation (collaborative)
