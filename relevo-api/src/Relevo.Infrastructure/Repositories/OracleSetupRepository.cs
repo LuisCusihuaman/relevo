@@ -186,7 +186,8 @@ public class OracleSetupRepository : ISetupRepository
 
         const string handoverSql = @"
           SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
+                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                 TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
           FROM HANDOVERS h
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           WHERE h.PATIENT_ID IN :patientIds
@@ -224,7 +225,8 @@ public class OracleSetupRepository : ISetupRepository
                     AssignedTo: row.ASSIGNED_TO ?? "system",
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+                    CreatedAt: row.CREATED_AT
                 );
 
             handovers.Add(handover);
@@ -301,7 +303,8 @@ public class OracleSetupRepository : ISetupRepository
 
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               WHERE h.PATIENT_ID = :patientId
@@ -337,7 +340,8 @@ public class OracleSetupRepository : ISetupRepository
                     AssignedTo: row.ASSIGNED_TO ?? "system",
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+                    CreatedAt: row.CREATED_AT
                 );
 
                 handovers.Add(handover);
@@ -360,7 +364,8 @@ public class OracleSetupRepository : ISetupRepository
 
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               WHERE h.ID = :handoverId";
@@ -396,7 +401,8 @@ public class OracleSetupRepository : ISetupRepository
                 Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS) ? new HandoverSynthesis(row.SYNTHESIS) : null,
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
-                AssignedTo: row.ASSIGNED_TO ?? "system"
+                AssignedTo: row.ASSIGNED_TO ?? "system",
+                CreatedAt: row.CREATED_AT
             );
         }
         catch (Exception ex)

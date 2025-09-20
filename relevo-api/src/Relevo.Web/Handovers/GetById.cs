@@ -51,7 +51,8 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       } : null,
       ShiftName = handover.ShiftName,
       CreatedBy = handover.CreatedBy,
-      AssignedTo = handover.AssignedTo
+      AssignedTo = handover.AssignedTo,
+      CreatedAt = handover.CreatedAt
     };
 
     await SendAsync(Response, cancellation: ct);
@@ -78,6 +79,7 @@ public class GetHandoverByIdResponse
   public string ShiftName { get; set; } = string.Empty;
   public string CreatedBy { get; set; } = string.Empty;
   public string AssignedTo { get; set; } = string.Empty;
+  public string? CreatedAt { get; set; }
 
   public class IllnessSeverityDto
   {

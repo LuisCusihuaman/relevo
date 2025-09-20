@@ -44,10 +44,40 @@ export function HandoverPage(): ReactElement {
 	};
 
 	const formatTime = (dateString: string): string => {
-		return new Date(dateString).toLocaleTimeString("es-ES", {
-			hour: "2-digit",
-			minute: "2-digit",
-		});
+		try {
+			// Handle different date formats from backend
+			let date: Date;
+
+			if (dateString.includes('T')) {
+				// ISO format: 2025-09-20T17:10:50
+				date = new Date(dateString);
+			} else if (dateString.includes(' ')) {
+				// Oracle format: 2025-09-20 17:10:50
+				// Convert to ISO format for better parsing
+				date = new Date(dateString.replace(' ', 'T'));
+			} else {
+				// Fallback for other formats
+				date = new Date(dateString);
+			}
+
+			if (isNaN(date.getTime())) {
+				// If invalid date, return current time
+				return new Date().toLocaleTimeString("es-ES", {
+					hour: "2-digit",
+					minute: "2-digit",
+				});
+			}
+			return date.toLocaleTimeString("es-ES", {
+				hour: "2-digit",
+				minute: "2-digit",
+			});
+		} catch {
+			// Fallback to current time if parsing fails
+			return new Date().toLocaleTimeString("es-ES", {
+				hour: "2-digit",
+				minute: "2-digit",
+			});
+		}
 	};
 
 	const getStatusColor = (status: string): string => {

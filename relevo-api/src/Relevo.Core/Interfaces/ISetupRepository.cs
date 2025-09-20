@@ -52,7 +52,8 @@ public record HandoverRecord(
     HandoverSynthesis? Synthesis,
     string ShiftName,
     string CreatedBy,
-    string AssignedTo
+    string AssignedTo,
+    string? CreatedAt
 );
 public record HandoverIllnessSeverity(string Value);
 public record HandoverPatientSummary(string Value);

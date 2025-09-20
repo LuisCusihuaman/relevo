@@ -83,7 +83,7 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 			bg: "bg-blue-100",
 			text: "text-gray-700",
 		},
-		time: "Recently", // We'll need to calculate this based on creation date
+		time: apiHandover.createdAt || new Date().toISOString(), // Use created date from API or current date as fallback
 		statusTime: apiHandover.status === "Active" ? "Active" : "Inactive",
 		environmentType: "Preview", // Default to Preview
 		current: apiHandover.status === "Active" || apiHandover.status === "InProgress",
@@ -179,7 +179,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 			bg: "bg-blue-100",
 			text: "text-gray-700",
 		},
-		time: "Recently",
+		time: new Date().toISOString(), // Use current date as fallback
 		statusTime: "Active",
 		environmentType: "Preview",
 		current: apiPatient.handoverStatus === "Active" || apiPatient.handoverStatus === "InProgress",

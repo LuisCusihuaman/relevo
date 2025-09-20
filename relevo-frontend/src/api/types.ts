@@ -82,6 +82,7 @@ export type Handover = {
 	shiftName: string;
 	createdBy: string;
 	assignedTo: string;
+	createdAt?: string; // Date when handover was created
 };
 
 export type PaginatedHandovers = {
