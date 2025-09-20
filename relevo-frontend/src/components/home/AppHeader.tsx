@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, BookOpen } from "lucide-react";
+import { Search, ChevronRight, Trash2 } from "lucide-react";
 
 import type { Patient } from "./types";
 import { useUserStore } from "@/store/user.store";
@@ -116,13 +116,20 @@ export const AppHeader: FC<AppHeaderProps> = ({
 				{/* Notification Bell */}
 				<NotificationsPopover isMobileMenuOpen={isMobileMenuOpen} />
 
-				{/* Grid Icon */}
+				{/* Debug: Clear localStorage */}
 				<Button
-					className="h-8 w-8 p-0 text-gray-600 hover:text-gray-900 hidden md:flex"
+					className="h-8 w-8 p-0 text-gray-600 hover:text-red-600 hidden md:flex"
 					size="sm"
+					title="Clear localStorage (Debug)"
 					variant="ghost"
+					onClick={() => {
+						if (window.confirm("Are you sure you want to clear all localStorage data?")) {
+							localStorage.clear();
+							window.location.reload();
+						}
+					}}
 				>
-					<BookOpen className="h-4 w-4" />
+					<Trash2 className="h-4 w-4" />
 				</Button>
 
 				{/* User Avatar + Mobile Menu */}
