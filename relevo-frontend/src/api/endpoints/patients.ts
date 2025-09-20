@@ -10,6 +10,9 @@ import type {
 // Query Keys for cache invalidation
 export const patientQueryKeys = {
 	all: ["patients"] as const,
+	allPatients: () => [...patientQueryKeys.all, "all"] as const,
+	allPatientsWithParams: (parameters?: { page?: number; pageSize?: number }) =>
+		[...patientQueryKeys.allPatients(), parameters] as const,
 	assigned: () => [...patientQueryKeys.all, "assigned"] as const,
 	assignedWithParams: (parameters?: { page?: number; pageSize?: number }) =>
 		[...patientQueryKeys.assigned(), parameters] as const,
@@ -21,6 +24,17 @@ export const patientQueryKeys = {
 		parameters?: { page?: number; pageSize?: number }
 	) => [...patientQueryKeys.handoverTimeline(), id, parameters] as const,
 };
+
+/**
+ * Get all patients across all units
+ */
+export async function getAllPatients(parameters?: {
+	page?: number;
+	pageSize?: number;
+}): Promise<PaginatedPatientSummaryCards> {
+	const { data } = await api.get<PaginatedPatientSummaryCards>("/patients", { params: parameters });
+	return data;
+}
 
 /**
  * Get assigned patients for the current user
@@ -59,6 +73,22 @@ export async function getPatientHandoverTimeline(
 ): Promise<PaginatedPatientHandoverTimeline> {
 	const { data } = await api.get<PaginatedPatientHandoverTimeline>(`/patients/${patientId}/handovers`, { params: parameters });
 	return data;
+}
+
+/**
+ * Hook to get all patients across all units
+ */
+export function useAllPatients(parameters?: {
+	page?: number;
+	pageSize?: number;
+}): ReturnType<typeof useQuery<PaginatedPatientSummaryCards | undefined, Error>> {
+	return useQuery({
+		queryKey: patientQueryKeys.allPatientsWithParams(parameters),
+		queryFn: () => getAllPatients(parameters),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+		select: (data: PaginatedPatientSummaryCards | undefined) => data,
+	});
 }
 
 /**

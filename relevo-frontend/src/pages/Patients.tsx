@@ -7,17 +7,17 @@ import {
 	ListHeader,
 } from "@/components/home";
 import type { Handover } from "@/components/home/types";
-import { useHandovers, mapApiHandoverToUiHandover } from "@/api";
+import { useAllPatients, mapApiPatientToUiHandover } from "@/api";
 
 export function Patients(): ReactElement {
 	const navigate = useNavigate();
-	const { data: handoversData, isLoading, error } = useHandovers();
+	const { data: patientsData, isLoading, error } = useAllPatients();
 
-	// Memoize the mapped handovers to avoid unnecessary re-computations
+	// Memoize the mapped patients to handovers to avoid unnecessary re-computations
 	const handovers: ReadonlyArray<Handover> = useMemo(() => {
-		if (!handoversData?.items) return [];
-		return handoversData.items.map(mapApiHandoverToUiHandover);
-	}, [handoversData]);
+		if (!patientsData?.items) return [];
+		return patientsData.items.map(mapApiPatientToUiHandover);
+	}, [patientsData]);
 
 	const handleHandoverClick = (
 		handoverId: string,
