@@ -10,6 +10,7 @@ public class SetupService : ISetupService
     private readonly GetUnitsUseCase _getUnitsUseCase;
     private readonly GetShiftsUseCase _getShiftsUseCase;
     private readonly GetPatientsByUnitUseCase _getPatientsByUnitUseCase;
+    private readonly GetAllPatientsUseCase _getAllPatientsUseCase;
 
     public SetupService(
         AssignPatientsUseCase assignPatientsUseCase,
@@ -17,7 +18,8 @@ public class SetupService : ISetupService
         GetMyHandoversUseCase getMyHandoversUseCase,
         GetUnitsUseCase getUnitsUseCase,
         GetShiftsUseCase getShiftsUseCase,
-        GetPatientsByUnitUseCase getPatientsByUnitUseCase)
+        GetPatientsByUnitUseCase getPatientsByUnitUseCase,
+        GetAllPatientsUseCase getAllPatientsUseCase)
     {
         _assignPatientsUseCase = assignPatientsUseCase;
         _getMyPatientsUseCase = getMyPatientsUseCase;
@@ -25,6 +27,7 @@ public class SetupService : ISetupService
         _getUnitsUseCase = getUnitsUseCase;
         _getShiftsUseCase = getShiftsUseCase;
         _getPatientsByUnitUseCase = getPatientsByUnitUseCase;
+        _getAllPatientsUseCase = getAllPatientsUseCase;
     }
 
     public async Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
@@ -64,5 +67,12 @@ public class SetupService : ISetupService
         int pageSize)
     {
         return await _getPatientsByUnitUseCase.ExecuteAsync(unitId, page, pageSize);
+    }
+
+    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(
+        int page,
+        int pageSize)
+    {
+        return await _getAllPatientsUseCase.ExecuteAsync(page, pageSize);
     }
 }

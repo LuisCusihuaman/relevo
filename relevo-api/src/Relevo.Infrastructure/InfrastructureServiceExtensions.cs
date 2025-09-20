@@ -43,6 +43,7 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<Relevo.UseCases.Setup.GetUnitsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetShiftsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetPatientsByUnitUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetAllPatientsUseCase>();
 
     // Setup Application Service
     services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();

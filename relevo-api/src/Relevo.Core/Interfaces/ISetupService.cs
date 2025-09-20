@@ -8,4 +8,5 @@ public interface ISetupService
     Task<IReadOnlyList<UnitRecord>> GetUnitsAsync();
     Task<IReadOnlyList<ShiftRecord>> GetShiftsAsync();
     Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(string unitId, int page, int pageSize);
+    Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize);
 }

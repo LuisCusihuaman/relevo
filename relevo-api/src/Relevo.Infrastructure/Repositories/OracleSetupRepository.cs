@@ -49,6 +49,24 @@ public class OracleSetupRepository : ISetupRepository
         return (items, total);
     }
 
+    public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetAllPatients(int page, int pageSize)
+    {
+        using IDbConnection conn = _factory.CreateConnection();
+        int p = Math.Max(page, 1);
+        int ps = Math.Max(pageSize, 1);
+        const string countSql = "SELECT COUNT(1) FROM PATIENTS";
+        const string pageSql = @"SELECT ID AS Id, NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId FROM (
+          SELECT ID, NAME, ROW_NUMBER() OVER (ORDER BY ID) AS RN
+          FROM PATIENTS
+        ) WHERE RN BETWEEN :startRow AND :endRow";
+
+        int total = conn.ExecuteScalar<int>(countSql);
+        int startRow = ((p - 1) * ps) + 1;
+        int endRow = p * ps;
+        var items = conn.Query<PatientRecord>(pageSql, new { startRow, endRow }).ToList();
+        return (items, total);
+    }
+
     public async Task AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
         try

@@ -5,6 +5,7 @@ public interface ISetupRepository
     IReadOnlyList<UnitRecord> GetUnits();
     IReadOnlyList<ShiftRecord> GetShifts();
     (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetPatientsByUnit(string unitId, int page, int pageSize);
+    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetAllPatients(int page, int pageSize);
     Task AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds);
     (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize);
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize);
