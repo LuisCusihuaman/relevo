@@ -14,8 +14,8 @@ export { FullscreenEditor } from "./components/FullscreenEditor";
 export { CollaborationPanel } from "./components/CollaborationPanel";
 
 // Main Handover Component
-export { default as HandoverSession } from "./handover";
-export { default as HandoverDashboard } from "./handover";
+export { default as HandoverSession } from "../../pages/handover";
+export { default as HandoverDashboard } from "../../pages/handover";
 
 // Hooks
 export { useHandoverSession } from "./hooks/useHandoverSession";

@@ -1,0 +1,86 @@
+// (Spanish)
+
+export const currentUserES = {
+  name: "Dr. Johnson",
+  role: "Médico Adjunto",
+  shift: "Turno de Día",
+  initials: "DJ",
+};
+
+export const patientDataES = {
+  id: "MR-001",
+  name: "Maria Rodriguez",
+  age: 72,
+  mrn: "MRN 75678-3456-89872-78",
+  admissionDate: "2024-03-15",
+  currentDateTime: "16:45 PMT",
+  primaryTeam: "Medicina Interna - 3er Piso",
+  primaryDiagnosis: "diabetes.management.type2",
+  severity: "estable",
+  handoverStatus: "en-progreso",
+  shift: "Día → Tarde",
+  room: "302A",
+  unit: "Medicina Interna - 3er Piso",
+  assignedPhysician: {
+    name: "Dr. Johnson",
+    role: "Médico de Día",
+    initials: "DJ",
+    color: "bg-blue-600",
+    shiftEnd: "17:00",
+    status: "traspasando",
+    patientAssignment: "asignado",
+  },
+  receivingPhysician: {
+    name: "Dr. Patel",
+    role: "Médico de Tarde",
+    initials: "SP",
+    color: "bg-purple-600",
+    shiftStart: "17:00",
+    status: "listo-para-recibir",
+    patientAssignment: "recibiendo",
+  },
+  handoverTime: "17:00 PMT",
+};
+
+export const recentActivityES = [
+  {
+    id: 1,
+    user: "Dr. Patel",
+    userInitials: "SP",
+    userColor: "bg-purple-600",
+    action: "se unió a la sesión de traspaso",
+    section: "General",
+    time: "hace 30 segundos",
+    type: "user_joined",
+  },
+  {
+    id: 2,
+    user: "Dr. Rodriguez",
+    userInitials: "MR",
+    userColor: "bg-emerald-600",
+    action: "agregó una nota sobre el estado respiratorio",
+    section: "Lista de Acciones",
+    time: "hace 1 minuto",
+    type: "content_added",
+  },
+  {
+    id: 3,
+    user: "Dr. Johnson",
+    userInitials: "DJ",
+    userColor: "bg-blue-600",
+    action: "actualizó el resumen del paciente",
+    section: "Resumen del Paciente",
+    time: "hace 2 minutos",
+    type: "content_updated",
+  },
+  {
+    id: 4,
+    user: "Dr. Chen",
+    userInitials: "LC",
+    userColor: "bg-gray-700",
+    action: "se unió a la sesión de traspaso",
+    section: "General",
+    time: "hace 2 minutos",
+    type: "user_joined",
+  },
+]; 

@@ -11,7 +11,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import {
@@ -20,16 +20,16 @@ import {
   HandoverHistory,
   MobileMenus,
   useHandoverSession,
-} from ".";
-import { Footer } from "./layout/Footer";
-import { Header } from "./layout/Header";
-import { MainContent } from "./layout/MainContent";
+} from "../components/handover";
+import { Footer } from "../components/handover/layout/Footer";
+import { Header } from "../components/handover/layout/Header";
+import { MainContent } from "../components/handover/layout/MainContent";
 
 interface HandoverProps {
   onBack?: () => void;
 }
 
-export default function App({ onBack }: HandoverProps = {}): JSX.Element {
+export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Element {
   // Core state
   const [handoverComplete, setHandoverComplete] = useState(false);
 
