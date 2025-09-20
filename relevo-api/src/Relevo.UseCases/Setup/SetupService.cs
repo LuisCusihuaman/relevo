@@ -12,6 +12,8 @@ public class SetupService : ISetupService
     private readonly GetPatientsByUnitUseCase _getPatientsByUnitUseCase;
     private readonly GetAllPatientsUseCase _getAllPatientsUseCase;
     private readonly GetPatientHandoversUseCase _getPatientHandoversUseCase;
+    private readonly GetHandoverByIdUseCase _getHandoverByIdUseCase;
+    private readonly GetPatientByIdUseCase _getPatientByIdUseCase;
 
     public SetupService(
         AssignPatientsUseCase assignPatientsUseCase,
@@ -21,7 +23,9 @@ public class SetupService : ISetupService
         GetShiftsUseCase getShiftsUseCase,
         GetPatientsByUnitUseCase getPatientsByUnitUseCase,
         GetAllPatientsUseCase getAllPatientsUseCase,
-        GetPatientHandoversUseCase getPatientHandoversUseCase)
+        GetPatientHandoversUseCase getPatientHandoversUseCase,
+        GetHandoverByIdUseCase getHandoverByIdUseCase,
+        GetPatientByIdUseCase getPatientByIdUseCase)
     {
         _assignPatientsUseCase = assignPatientsUseCase;
         _getMyPatientsUseCase = getMyPatientsUseCase;
@@ -31,6 +35,8 @@ public class SetupService : ISetupService
         _getPatientsByUnitUseCase = getPatientsByUnitUseCase;
         _getAllPatientsUseCase = getAllPatientsUseCase;
         _getPatientHandoversUseCase = getPatientHandoversUseCase;
+        _getHandoverByIdUseCase = getHandoverByIdUseCase;
+        _getPatientByIdUseCase = getPatientByIdUseCase;
     }
 
     public async Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
@@ -79,11 +85,21 @@ public class SetupService : ISetupService
         return await _getAllPatientsUseCase.ExecuteAsync(page, pageSize);
     }
 
+    public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
+    {
+        return await Task.FromResult(_getPatientByIdUseCase.Execute(patientId));
+    }
+
     public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(
         string patientId,
         int page,
         int pageSize)
     {
         return await Task.FromResult(_getPatientHandoversUseCase.Execute(patientId, page, pageSize));
+    }
+
+    public async Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId)
+    {
+        return await Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
     }
 }

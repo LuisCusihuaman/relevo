@@ -248,6 +248,140 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         assignmentIds.All(id => id.Contains(shiftId)).Should().BeTrue();
     }
 
+    [Fact]
+    public void GetHandoverById_ReturnsHandover_WhenHandoverExists()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-by-id";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-for-handover";
+
+        // Create test handover
+        CreateTestHandoverForGetById(handoverId, patientId, assignmentId);
+
+        // Act
+        var result = _repository.GetHandoverById(handoverId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(handoverId);
+        result.AssignmentId.Should().Be(assignmentId);
+        result.PatientId.Should().Be(patientId);
+        result.PatientName.Should().Be("Test Patient 1");
+        result.Status.Should().Be("Active");
+        result.IllnessSeverity.Value.Should().Be("Stable");
+        result.PatientSummary.Value.Should().Be("Test handover for GetHandoverById");
+        result.ActionItems.Should().NotBeNull();
+        result.ShiftName.Should().Be("Test Shift");
+        result.CreatedBy.Should().Be("test-user-getbyid");
+        result.AssignedTo.Should().Be("test-user-getbyid");
+    }
+
+    [Fact]
+    public void GetHandoverById_ReturnsNull_WhenHandoverDoesNotExist()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var nonExistentHandoverId = "non-existent-handover-id";
+
+        // Act
+        var result = _repository.GetHandoverById(nonExistentHandoverId);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetHandoverById_ReturnsHandoverWithActionItems_WhenHandoverHasActionItems()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-with-actions";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-with-actions";
+
+        // Create test handover with action items
+        CreateTestHandoverWithActions(handoverId, patientId, assignmentId);
+
+        // Act
+        var result = _repository.GetHandoverById(handoverId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.ActionItems.Should().NotBeNull();
+        result.ActionItems.Should().HaveCountGreaterThan(0);
+        result.ActionItems[0].Id.Should().NotBeNullOrEmpty();
+        result.ActionItems[0].Description.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void GetHandoverById_ReturnsHandoverWithSynthesis_WhenSynthesisExists()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-with-synthesis";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-with-synthesis";
+
+        // Create test handover with synthesis
+        CreateTestHandoverWithSynthesis(handoverId, patientId, assignmentId);
+
+        // Act
+        var result = _repository.GetHandoverById(handoverId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Synthesis.Should().NotBeNull();
+        result.Synthesis!.Value.Should().Be("Test synthesis content");
+    }
+
+    [Fact]
+    public void GetHandoverById_ReturnsHandoverWithSituationAwarenessDocId_WhenDocIdExists()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-with-docid";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-with-docid";
+        var docId = "situation-doc-123";
+
+        // Create test handover with situation awareness document ID
+        CreateTestHandoverWithDocId(handoverId, patientId, assignmentId, docId);
+
+        // Act
+        var result = _repository.GetHandoverById(handoverId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.SituationAwarenessDocId.Should().Be(docId);
+    }
+
     private bool CheckHandoverExists(string assignmentId)
     {
         if (_connection == null) return false;
@@ -279,6 +413,89 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
             ) VALUES (
                 '{handoverId}', 'test-assignment-{patientId}', '{patientId}', 'Active',
                 'Stable', 'Test handover summary', 'Test Shift', 'test-user-{patientId}', 'test-user-{patientId}'
+            )");
+    }
+
+    private void CreateTestHandoverForGetById(string handoverId, string patientId, string assignmentId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', 'test-user-getbyid', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Test handover for GetHandoverById', 'Test Shift', 'test-user-getbyid', 'test-user-getbyid'
+            )");
+    }
+
+    private void CreateTestHandoverWithActions(string handoverId, string patientId, string assignmentId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', 'test-user-actions', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Test handover with actions', 'Test Shift', 'test-user-actions', 'test-user-actions'
+            )");
+
+        // Add action items
+        ExecuteSql($@"
+            INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
+            VALUES ('action-1', '{handoverId}', 'Check vital signs', 0)");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
+            VALUES ('action-2', '{handoverId}', 'Administer medication', 1)");
+    }
+
+    private void CreateTestHandoverWithSynthesis(string handoverId, string patientId, string assignmentId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', 'test-user-synthesis', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SYNTHESIS, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Completed',
+                'Stable', 'Test handover with synthesis', 'Test synthesis content',
+                'Test Shift', 'test-user-synthesis', 'test-user-synthesis'
+            )");
+    }
+
+    private void CreateTestHandoverWithDocId(string handoverId, string patientId, string assignmentId, string docId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', 'test-user-docid', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'InProgress',
+                'Watcher', 'Test handover with doc ID', '{docId}',
+                'Test Shift', 'test-user-docid', 'test-user-docid'
             )");
     }
 

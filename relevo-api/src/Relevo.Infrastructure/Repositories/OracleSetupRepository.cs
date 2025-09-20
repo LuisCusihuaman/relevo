@@ -351,4 +351,124 @@ public class OracleSetupRepository : ISetupRepository
             throw;
         }
     }
+
+    public HandoverRecord? GetHandoverById(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string handoverSql = @"
+              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
+              FROM HANDOVERS h
+              LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+              WHERE h.ID = :handoverId";
+
+            var row = conn.QueryFirstOrDefault(handoverSql, new { handoverId });
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            // Get action items for the handover
+            const string actionItemsSql = @"
+            SELECT ID, DESCRIPTION, IS_COMPLETED
+            FROM HANDOVER_ACTION_ITEMS
+            WHERE HANDOVER_ID = :handoverId
+            ORDER BY CREATED_AT";
+
+            var actionItems = conn.Query(actionItemsSql, new { handoverId })
+                .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+                .ToList();
+
+            return new HandoverRecord(
+                Id: row.ID,
+                AssignmentId: row.ASSIGNMENT_ID,
+                PatientId: row.PATIENT_ID,
+                PatientName: row.PATIENT_NAME,
+                Status: row.STATUS,
+                IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+                PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+                ActionItems: actionItems,
+                SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+                Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS) ? new HandoverSynthesis(row.SYNTHESIS) : null,
+                ShiftName: row.SHIFT_NAME ?? "Unknown",
+                CreatedBy: row.CREATED_BY ?? "system",
+                AssignedTo: row.ASSIGNED_TO ?? "system"
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public PatientDetailRecord? GetPatientById(string patientId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string patientSql = @"
+              SELECT p.ID, p.NAME, p.DATE_OF_BIRTH, p.GENDER, p.ADMISSION_DATE,
+                     p.UNIT_ID, p.ROOM_NUMBER, p.DIAGNOSIS, p.ALLERGIES, p.MEDICATIONS, p.NOTES
+              FROM PATIENTS p
+              WHERE p.ID = :patientId";
+
+            var row = conn.QueryFirstOrDefault(patientSql, new { patientId });
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            // Parse allergies and medications (assuming they are stored as comma-separated strings)
+            var allergies = ParseCommaSeparatedString(row.ALLERGIES);
+            var medications = ParseCommaSeparatedString(row.MEDICATIONS);
+
+            return new PatientDetailRecord(
+                Id: row.ID,
+                Name: row.NAME ?? "Unknown",
+                Mrn: GenerateMrn(row.ID), // Generate MRN from patient ID since it's not in the database
+                Dob: row.DATE_OF_BIRTH?.ToString("yyyy-MM-dd") ?? "",
+                Gender: row.GENDER ?? "Unknown",
+                AdmissionDate: row.ADMISSION_DATE?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                CurrentUnit: row.UNIT_ID ?? "",
+                RoomNumber: row.ROOM_NUMBER ?? "",
+                Diagnosis: row.DIAGNOSIS ?? "",
+                Allergies: allergies,
+                Medications: medications,
+                Notes: row.NOTES ?? ""
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get patient {PatientId}", patientId);
+            throw;
+        }
+    }
+
+    private string GenerateMrn(string patientId)
+    {
+        // Generate a simple MRN based on patient ID
+        // For example: pat-001 becomes MRN001
+        var numberPart = patientId.Split('-').LastOrDefault() ?? "000";
+        return $"MRN{numberPart.PadLeft(3, '0')}";
+    }
+
+    private List<string> ParseCommaSeparatedString(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return new List<string>();
+        }
+
+        return value.Split(',')
+            .Select(item => item.Trim())
+            .Where(item => !string.IsNullOrEmpty(item))
+            .ToList();
+    }
 }
