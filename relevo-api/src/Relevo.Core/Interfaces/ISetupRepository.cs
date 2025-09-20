@@ -13,6 +13,11 @@ public interface ISetupRepository
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize);
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize);
     HandoverRecord? GetHandoverById(string handoverId);
+    HandoverRecord? GetActiveHandover(string userId);
+    IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId);
+    IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId);
+    HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId);
+    bool UpdateHandoverSection(string handoverId, string sectionId, string content, string status, string userId);
 }
 
 // Domain Records
@@ -59,3 +64,30 @@ public record HandoverIllnessSeverity(string Value);
 public record HandoverPatientSummary(string Value);
 public record HandoverSynthesis(string Value);
 public record HandoverActionItem(string Id, string Description, bool IsCompleted);
+
+public record HandoverParticipantRecord(
+    string Id,
+    string UserId,
+    string UserName,
+    string? UserRole,
+    string Status,
+    DateTime JoinedAt,
+    DateTime LastActivity
+);
+
+public record HandoverSectionRecord(
+    string Id,
+    string SectionType,
+    string? Content,
+    string Status,
+    string? LastEditedBy,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);
+
+public record HandoverSyncStatusRecord(
+    string Id,
+    string SyncStatus,
+    DateTime LastSync,
+    int Version
+);

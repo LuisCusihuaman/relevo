@@ -12,4 +12,9 @@ public interface ISetupService
     Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId);
     Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize);
     Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId);
+    Task<HandoverRecord?> GetActiveHandoverAsync(string userId);
+    Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId);
+    Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId);
+    Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId);
+    Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId);
 }

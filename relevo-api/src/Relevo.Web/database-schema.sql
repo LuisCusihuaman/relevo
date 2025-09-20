@@ -194,6 +194,44 @@ CREATE TABLE HANDOVER_ACTION_ITEMS (
     CONSTRAINT FK_ACTION_ITEMS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
 );
 
+-- Tabla HANDOVER_PARTICIPANTS (participantes activos en un handover)
+CREATE TABLE HANDOVER_PARTICIPANTS (
+    ID VARCHAR2(50) PRIMARY KEY,
+    HANDOVER_ID VARCHAR2(50) NOT NULL,
+    USER_ID VARCHAR2(255) NOT NULL, -- Clerk User ID
+    USER_NAME VARCHAR2(200) NOT NULL,
+    USER_ROLE VARCHAR2(100),
+    STATUS VARCHAR2(20) DEFAULT 'active', -- active, inactive, viewing
+    JOINED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+    LAST_ACTIVITY TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT FK_PARTICIPANTS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+);
+
+-- Tabla HANDOVER_SECTIONS (secciones I-PASS individuales)
+CREATE TABLE HANDOVER_SECTIONS (
+    ID VARCHAR2(50) PRIMARY KEY,
+    HANDOVER_ID VARCHAR2(50) NOT NULL,
+    SECTION_TYPE VARCHAR2(20) NOT NULL, -- illness_severity, patient_summary, action_items, situation_awareness, synthesis
+    CONTENT CLOB,
+    STATUS VARCHAR2(20) DEFAULT 'draft', -- draft, in_progress, completed
+    LAST_EDITED_BY VARCHAR2(255), -- Clerk User ID
+    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT FK_SECTIONS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+);
+
+-- Tabla SYNC_STATUS (estado de sincronización del handover)
+CREATE TABLE HANDOVER_SYNC_STATUS (
+    ID VARCHAR2(50) PRIMARY KEY,
+    HANDOVER_ID VARCHAR2(50) NOT NULL,
+    USER_ID VARCHAR2(255) NOT NULL, -- Clerk User ID
+    SYNC_STATUS VARCHAR2(20) DEFAULT 'synced', -- synced, syncing, pending, offline, error
+    LAST_SYNC TIMESTAMP DEFAULT SYSTIMESTAMP,
+    VERSION NUMBER DEFAULT 1,
+    CONSTRAINT FK_SYNC_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID),
+    CONSTRAINT UK_SYNC_USER_HANDOVER UNIQUE (HANDOVER_ID, USER_ID)
+);
+
 -- ========================================
 -- CREAR ÍNDICES
 -- ========================================
@@ -208,6 +246,15 @@ CREATE INDEX IDX_HANDOVERS_STATUS ON HANDOVERS(STATUS);
 CREATE INDEX IDX_HANDOVERS_CREATED_BY ON HANDOVERS(CREATED_BY);
 CREATE INDEX IDX_HANDOVERS_ASSIGNED_TO ON HANDOVERS(ASSIGNED_TO);
 CREATE INDEX IDX_HACTION_HANDOVER_ID ON HANDOVER_ACTION_ITEMS(HANDOVER_ID);
+CREATE INDEX IDX_PARTICIPANTS_HANDOVER_ID ON HANDOVER_PARTICIPANTS(HANDOVER_ID);
+CREATE INDEX IDX_PARTICIPANTS_USER_ID ON HANDOVER_PARTICIPANTS(USER_ID);
+CREATE INDEX IDX_PARTICIPANTS_STATUS ON HANDOVER_PARTICIPANTS(STATUS);
+CREATE INDEX IDX_SECTIONS_HANDOVER_ID ON HANDOVER_SECTIONS(HANDOVER_ID);
+CREATE INDEX IDX_SECTIONS_TYPE ON HANDOVER_SECTIONS(SECTION_TYPE);
+CREATE INDEX IDX_SECTIONS_STATUS ON HANDOVER_SECTIONS(STATUS);
+CREATE INDEX IDX_SYNC_HANDOVER_ID ON HANDOVER_SYNC_STATUS(HANDOVER_ID);
+CREATE INDEX IDX_SYNC_USER_ID ON HANDOVER_SYNC_STATUS(USER_ID);
+CREATE INDEX IDX_SYNC_STATUS ON HANDOVER_SYNC_STATUS(SYNC_STATUS);
 
 -- ========================================
 -- INSERTAR DATOS DE SEMILLA
@@ -350,6 +397,65 @@ VALUES ('assign-005', 'user_demo12345678901234567890123456', 'shift-day', 'pat-0
 INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER) VALUES ('Dra. María García', 'maria.garcia@hospital.com.ar', '+54-11-555-0123');
 INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER) VALUES ('Dr. Carlos López', 'carlos.lopez@hospital.com.ar', '+54-11-555-0124');
 INSERT INTO CONTRIBUTORS (NAME, EMAIL, PHONE_NUMBER) VALUES ('Dra. Ana Martínez', 'ana.martinez@hospital.com.ar', '+54-11-555-0125');
+
+-- Insertar handover de ejemplo
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, CREATED_BY, ASSIGNED_TO)
+VALUES ('handover-001', 'assign-001', 'pat-001', 'Active', 'Stable',
+        'Paciente de 14 años con neumonía adquirida en comunidad. Estable, saturación de oxígeno 94%, requiere nebulizaciones cada 6 horas.',
+        'doc-001',
+        'Paciente estable, evolución favorable. Continuar tratamiento actual.',
+        'Mañana', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123456');
+
+-- Insertar action items del handover
+INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
+VALUES ('action-001', 'handover-001', 'Realizar nebulizaciones cada 6 horas', 0);
+
+INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
+VALUES ('action-002', 'handover-001', 'Monitorear saturación de oxígeno', 0);
+
+INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
+VALUES ('action-003', 'handover-001', 'Control de temperatura cada 4 horas', 1);
+
+-- Insertar participantes del handover
+INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS)
+VALUES ('participant-001', 'handover-001', 'user_demo12345678901234567890123456', 'Dr. Johnson', 'Attending Physician', 'active');
+
+INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS)
+VALUES ('participant-002', 'handover-001', 'user_demo12345678901234567890123457', 'Dr. Patel', 'Evening Attending', 'active');
+
+INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS)
+VALUES ('participant-003', 'handover-001', 'user_demo12345678901234567890123458', 'Dr. Martinez', 'Day Attending', 'viewing');
+
+-- Insertar secciones I-PASS del handover
+INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('section-001', 'handover-001', 'illness_severity', 'Stable - Paciente con evolución favorable', 'completed', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('section-002', 'handover-001', 'patient_summary',
+        'María García, 14 años, neumonía adquirida en comunidad. Ingreso hace 3 días. Tratamiento con Amoxicilina y oxígeno suplementario.',
+        'completed', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('section-003', 'handover-001', 'action_items',
+        'Nebulizaciones cada 6 horas, monitoreo de saturación de oxígeno, control de temperatura cada 4 horas',
+        'in_progress', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('section-004', 'handover-001', 'situation_awareness',
+        'Paciente estable, sin complicaciones. Buena respuesta al tratamiento antibiótico.',
+        'completed', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('section-005', 'handover-001', 'synthesis',
+        'Continuar tratamiento actual. Alta probable en 48-72 horas si evolución favorable.',
+        'draft', 'user_demo12345678901234567890123456');
+
+-- Insertar estado de sincronización
+INSERT INTO HANDOVER_SYNC_STATUS (ID, HANDOVER_ID, USER_ID, SYNC_STATUS, VERSION)
+VALUES ('sync-001', 'handover-001', 'user_demo12345678901234567890123456', 'synced', 1);
+
+INSERT INTO HANDOVER_SYNC_STATUS (ID, HANDOVER_ID, USER_ID, SYNC_STATUS, VERSION)
+VALUES ('sync-002', 'handover-001', 'user_demo12345678901234567890123457', 'syncing', 1);
 
 
 
