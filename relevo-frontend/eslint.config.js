@@ -193,6 +193,9 @@ const unicornConfig = {
 }
 
 const eslintConfig = typescriptEslint.config(
+  {
+    ignores: ["src/components/ui/**/*"]
+  },
   baseESLintConfig,
   typescriptConfig,
   eslintConfigPrettier,
@@ -201,7 +204,7 @@ const eslintConfig = typescriptEslint.config(
   unicornConfig
 )
 
-eslintConfig.map((config) => {
+eslintConfig.slice(1).map((config) => {
   config.files = ["src/**/*.ts", "src/**/*.tsx"]
 })
 
