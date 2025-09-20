@@ -35,13 +35,14 @@ function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
 	const patientSlug = patientCard.name.toLowerCase().replace(/\s+/g, "-");
 
 	return {
-		id: patientCard.id, // <-- AÑADIDO: Incluir el ID del paciente
+		id: patientCard.id,
 		name: patientCard.name,
 		url: patientSlug,
 		status: getStatusFromHandoverStatus(patientCard.handoverStatus),
 		date: new Date().toLocaleDateString("es-ES", { month: "short", day: "numeric" }),
 		icon: patientCard.name.charAt(0).toUpperCase(),
 		unit: "Assigned", // Default unit for assigned patients
+		handoverId: patientCard.handoverId,
 	};
 }
 

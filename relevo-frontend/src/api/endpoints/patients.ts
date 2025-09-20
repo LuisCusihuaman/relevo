@@ -4,7 +4,7 @@ import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type {
 	PaginatedPatientSummaryCards,
 	PatientDetail,
-	PaginatedPatientHandoverTimeline,
+	PaginatedHandovers,
 } from "../types";
 
 // Query Keys for cache invalidation
@@ -70,8 +70,8 @@ export async function getPatientHandoverTimeline(
 		page?: number;
 		pageSize?: number;
 	}
-): Promise<PaginatedPatientHandoverTimeline> {
-	const { data } = await api.get<PaginatedPatientHandoverTimeline>(`/patients/${patientId}/handovers`, { params: parameters });
+): Promise<PaginatedHandovers> {
+	const { data } = await api.get<PaginatedHandovers>(`/patients/${patientId}/handovers`, { params: parameters });
 	return data;
 }
 
@@ -132,13 +132,13 @@ export function usePatientHandoverTimeline(
 		page?: number;
 		pageSize?: number;
 	}
-): ReturnType<typeof useQuery<PaginatedPatientHandoverTimeline | undefined, Error>> {
+): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
 	return useQuery({
 		queryKey: patientQueryKeys.handoverTimelineById(patientId, parameters),
 		queryFn: () => getPatientHandoverTimeline(patientId, parameters),
 		enabled: !!patientId,
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000, // 5 minutes
-		select: (data: PaginatedPatientHandoverTimeline | undefined) => data,
+		select: (data: PaginatedHandovers | undefined) => data,
 	});
 }

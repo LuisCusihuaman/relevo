@@ -58,12 +58,16 @@ public class GetMyHandoversResponse
 
 public record HandoverRecord(
   string Id,
+  string AssignmentId,
   string PatientId,
   string Status,
   HandoverIllnessSeverity IllnessSeverity,
   HandoverPatientSummary PatientSummary,
   List<HandoverActionItem> ActionItems,
-  string SituationAwarenessDocId,
+  string ShiftName,
+  string CreatedBy,
+  string AssignedTo,
+  string? SituationAwarenessDocId = null,
   HandoverSynthesis? Synthesis = null
 );
 

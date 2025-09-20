@@ -67,8 +67,10 @@ public class OracleSetupRepository : ISetupRepository
         return (items, total);
     }
 
-    public async Task AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds)
+    public async Task<IReadOnlyList<string>> AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
+        var assignmentIds = new List<string>();
+
         try
         {
             using IDbConnection conn = _factory.CreateConnection();
@@ -76,21 +78,32 @@ public class OracleSetupRepository : ISetupRepository
             _logger.LogInformation("🔍 Assignment Debug - Storing assignment for UserId: {UserId}, ShiftId: {ShiftId}, PatientCount: {PatientCount}",
                 userId, shiftId, patientIds.Count());
 
+            // Remove existing handovers for this user first (to avoid FK constraint violation)
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVERS
+                WHERE ASSIGNMENT_ID IN (
+                    SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                )", new { userId });
+
             // Remove existing assignments for this user
             await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
                 new { userId });
 
-            _logger.LogInformation("Removed existing assignments for user {UserId}", userId);
+            _logger.LogInformation("Removed existing assignments and handovers for user {UserId}", userId);
 
-            // Insert new assignments
+            // Insert new assignments with explicit ASSIGNMENT_ID
             foreach (var patientId in patientIds)
             {
-                await conn.ExecuteAsync(@"
-                INSERT INTO USER_ASSIGNMENTS (USER_ID, SHIFT_ID, PATIENT_ID)
-                VALUES (:userId, :shiftId, :patientId)",
-                new { userId, shiftId, patientId });
+                var assignmentId = $"assign-{userId}-{shiftId}-{patientId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}";
 
-                _logger.LogDebug("Assigned patient {PatientId} to user {UserId}", patientId, userId);
+                await conn.ExecuteAsync(@"
+                INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+                VALUES (:assignmentId, :userId, :shiftId, :patientId)",
+                new { assignmentId, userId, shiftId, patientId });
+
+                assignmentIds.Add(assignmentId);
+                _logger.LogDebug("Assigned patient {PatientId} to user {UserId} with assignment {AssignmentId}",
+                    patientId, userId, assignmentId);
             }
 
             _logger.LogInformation("Successfully assigned {Count} patients to user {UserId}", patientIds.Count(), userId);
@@ -100,6 +113,8 @@ public class OracleSetupRepository : ISetupRepository
             _logger.LogError(ex, "Failed to assign patients to user {UserId}", userId);
             throw;
         }
+
+        return assignmentIds;
     }
 
     public (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize)
@@ -170,9 +185,10 @@ public class OracleSetupRepository : ISetupRepository
         int offset = (p - 1) * ps;
 
         const string handoverSql = @"
-          SELECT h.ID, h.PATIENT_ID, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME
+          SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
+                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
           FROM HANDOVERS h
+          INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           WHERE h.PATIENT_ID IN :patientIds
           ORDER BY h.CREATED_AT DESC
           OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -195,20 +211,144 @@ public class OracleSetupRepository : ISetupRepository
                 .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
                 .ToList();
 
-            var handover = new HandoverRecord(
-                Id: row.ID,
-                PatientId: row.PATIENT_ID,
-                Status: row.STATUS,
-                IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
-                PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                ActionItems: actionItems,
-                SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
-            );
+                var handover = new HandoverRecord(
+                    Id: row.ID,
+                    AssignmentId: row.ASSIGNMENT_ID,
+                    PatientId: row.PATIENT_ID,
+                    Status: row.STATUS,
+                    IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+                    PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+                    ActionItems: actionItems,
+                    ShiftName: row.SHIFT_NAME ?? "Unknown",
+                    CreatedBy: row.CREATED_BY ?? "system",
+                    AssignedTo: row.ASSIGNED_TO ?? "system",
+                    PatientName: row.PATIENT_NAME,
+                    SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
+                );
 
             handovers.Add(handover);
         }
 
         return (handovers, total);
+    }
+
+    public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Get assignment details
+            var assignment = await conn.QueryFirstOrDefaultAsync<dynamic>(
+                "SELECT USER_ID, SHIFT_ID, PATIENT_ID FROM USER_ASSIGNMENTS WHERE ASSIGNMENT_ID = :assignmentId",
+                new { assignmentId });
+
+            if (assignment == null)
+            {
+                throw new ArgumentException($"Assignment {assignmentId} not found");
+            }
+
+            // Get shift name
+            var shiftName = await conn.ExecuteScalarAsync<string>(
+                "SELECT NAME FROM SHIFTS WHERE ID = :shiftId",
+                new { shiftId = assignment.SHIFT_ID });
+
+            // Generate handover ID (must be <= 50 chars)
+            var timestamp = DateTime.Now.ToString("yyMMddHHmm");
+            var randomPart = new Random().Next(1000, 9999);
+            var handoverId = $"hvo-{timestamp}-{randomPart}";
+
+            // Create handover
+            await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                :handoverId, :assignmentId, :patientId, 'Active', 'Stable',
+                'Handover iniciado - información pendiente de completar', :shiftName, :userId, :userId
+            )", new {
+                handoverId,
+                assignmentId,
+                patientId = assignment.PATIENT_ID,
+                shiftName = shiftName ?? "Unknown",
+                userId
+            });
+
+            _logger.LogInformation("Created handover {HandoverId} for assignment {AssignmentId}", handoverId, assignmentId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create handover for assignment {AssignmentId}", assignmentId);
+            throw;
+        }
+    }
+
+    public (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Get total count
+            const string countSql = "SELECT COUNT(1) FROM HANDOVERS WHERE PATIENT_ID = :patientId";
+            int total = conn.ExecuteScalar<int>(countSql, new { patientId });
+
+            // Get handovers with pagination
+            int p = Math.Max(page, 1);
+            int ps = Math.Max(pageSize, 1);
+            int offset = (p - 1) * ps;
+
+            const string handoverSql = @"
+              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO
+              FROM HANDOVERS h
+              LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+              WHERE h.PATIENT_ID = :patientId
+              ORDER BY h.CREATED_AT DESC";
+
+            var handoverRows = conn.Query(handoverSql, new { patientId }).ToList();
+
+            // Get action items for each handover
+            var handovers = new List<HandoverRecord>();
+
+            foreach (var row in handoverRows)
+            {
+                const string actionItemsSql = @"
+                SELECT ID, DESCRIPTION, IS_COMPLETED
+                FROM HANDOVER_ACTION_ITEMS
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT";
+
+                var actionItems = conn.Query(actionItemsSql, new { handoverId = row.ID })
+                    .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+                    .ToList();
+
+                var handover = new HandoverRecord(
+                    Id: row.ID,
+                    AssignmentId: row.ASSIGNMENT_ID,
+                    PatientId: row.PATIENT_ID,
+                    Status: row.STATUS,
+                    IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+                    PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+                    ActionItems: actionItems,
+                    ShiftName: row.SHIFT_NAME ?? "Unknown",
+                    CreatedBy: row.CREATED_BY ?? "system",
+                    AssignedTo: row.ASSIGNED_TO ?? "system",
+                    PatientName: row.PATIENT_NAME,
+                    SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
+                );
+
+                handovers.Add(handover);
+            }
+
+            return (handovers, total);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handovers for patient {PatientId}", patientId);
+            throw;
+        }
     }
 }

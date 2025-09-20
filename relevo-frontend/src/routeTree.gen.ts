@@ -16,6 +16,7 @@ import { Route as SetupDailySetupRouteImport } from './routes/_setup/daily-setup
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AuthenticatedPatientSlugHandoverIdRouteImport } from './routes/_authenticated/$patientSlug.$handoverId'
 
 const SetupRouteRoute = SetupRouteRouteImport.update({
   id: '/_setup',
@@ -50,6 +51,12 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPatientSlugHandoverIdRoute =
+  AuthenticatedPatientSlugHandoverIdRouteImport.update({
+    id: '/$patientSlug/$handoverId',
+    path: '/$patientSlug/$handoverId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/daily-setup': typeof SetupDailySetupRoute
+  '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -64,6 +72,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/daily-setup': typeof SetupDailySetupRoute
+  '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -74,12 +83,25 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_setup/daily-setup': typeof SetupDailySetupRoute
+  '/_authenticated/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard' | '/patients' | '/daily-setup'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/patients'
+    | '/daily-setup'
+    | '/$patientSlug/$handoverId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/patients' | '/daily-setup'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/patients'
+    | '/daily-setup'
+    | '/$patientSlug/$handoverId'
   id:
     | '__root__'
     | '/'
@@ -89,6 +111,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/patients'
     | '/_setup/daily-setup'
+    | '/_authenticated/$patientSlug/$handoverId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -149,17 +172,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/$patientSlug/$handoverId': {
+      id: '/_authenticated/$patientSlug/$handoverId'
+      path: '/$patientSlug/$handoverId'
+      fullPath: '/$patientSlug/$handoverId'
+      preLoaderRoute: typeof AuthenticatedPatientSlugHandoverIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
+  AuthenticatedPatientSlugHandoverIdRoute: typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
+  AuthenticatedPatientSlugHandoverIdRoute:
+    AuthenticatedPatientSlugHandoverIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

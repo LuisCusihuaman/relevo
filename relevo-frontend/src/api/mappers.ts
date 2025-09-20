@@ -11,6 +11,7 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	// Map handover status to UI status
 	const getStatusFromHandoverStatus = (status: ApiHandover["status"]): "Error" | "Ready" => {
 		switch (status) {
+			case "Active":
 			case "InProgress":
 				return "Error"; // In the UI, "Error" seems to mean "In Progress"
 			case "Completed":
@@ -23,6 +24,7 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	// Map status colors
 	const getStatusColor = (status: ApiHandover["status"]): string => {
 		switch (status) {
+			case "Active":
 			case "InProgress":
 				return "bg-red-500";
 			case "Completed":
@@ -35,6 +37,8 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	// Map environment
 	const getEnvironment = (status: ApiHandover["status"]): string => {
 		switch (status) {
+			case "Active":
+				return "Active";
 			case "InProgress":
 				return "In Progress";
 			case "Completed":
@@ -47,6 +51,7 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	// Map environment color
 	const getEnvironmentColor = (status: ApiHandover["status"]): string => {
 		switch (status) {
+			case "Active":
 			case "InProgress":
 				return "text-red-600";
 			case "Completed":
@@ -56,10 +61,13 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 		}
 	};
 
-	// Get first letter of patient name (we don't have patient name in handover, so use patient ID)
-	const getInitials = (patientId: string): string => {
-		return patientId.charAt(0).toUpperCase();
+	// Get first letter of patient name
+	const getInitials = (name: string): string => {
+		return name.charAt(0).toUpperCase();
 	};
+
+	// Use patient name from handover if available, otherwise fallback to patient ID
+	const patientName = apiHandover.patientName || `Patient ${apiHandover.patientId}`;
 
 	return {
 		id: apiHandover.id,
@@ -68,18 +76,18 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 		environment: getEnvironment(apiHandover.status),
 		environmentColor: getEnvironmentColor(apiHandover.status),
 		patientKey: patientKey,
-		patientName: `Patient ${apiHandover.patientId}`, // We don't have patient name in handover
+		patientName: patientName,
 		patientIcon: {
 			type: "text",
-			value: getInitials(apiHandover.patientId),
+			value: getInitials(patientName),
 			bg: "bg-blue-100",
 			text: "text-gray-700",
 		},
 		time: "Recently", // We'll need to calculate this based on creation date
-		statusTime: "Active",
+		statusTime: apiHandover.status === "Active" ? "Active" : "Inactive",
 		environmentType: "Preview", // Default to Preview
-		current: apiHandover.status === "InProgress",
-		author: "System", // Default author since API doesn't provide this
+		current: apiHandover.status === "Active" || apiHandover.status === "InProgress",
+		author: apiHandover.createdBy || "System",
 		avatar: "", // Default empty avatar
 	};
 }
@@ -97,6 +105,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 			case "NotStarted":
 				return "Error"; // Not started means "Error" in UI terms
 			case "InProgress":
+			case "Active":
 				return "Error"; // In progress means "Error" in UI terms
 			case "Completed":
 				return "Ready";
@@ -110,6 +119,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		switch (status) {
 			case "NotStarted":
 				return "bg-gray-500";
+			case "Active":
 			case "InProgress":
 				return "bg-red-500";
 			case "Completed":
@@ -124,6 +134,8 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		switch (status) {
 			case "NotStarted":
 				return "Not Started";
+			case "Active":
+				return "Active";
 			case "InProgress":
 				return "In Progress";
 			case "Completed":
@@ -138,6 +150,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		switch (status) {
 			case "NotStarted":
 				return "text-gray-600";
+			case "Active":
 			case "InProgress":
 				return "text-red-600";
 			case "Completed":
@@ -169,7 +182,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		time: "Recently",
 		statusTime: "Active",
 		environmentType: "Preview",
-		current: apiPatient.handoverStatus === "InProgress",
+		current: apiPatient.handoverStatus === "Active" || apiPatient.handoverStatus === "InProgress",
 		author: "System",
 		avatar: "",
 	};

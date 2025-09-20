@@ -13,6 +13,13 @@ public class AssignPatientsUseCase
 
     public async Task ExecuteAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
-        await _repository.AssignAsync(userId, shiftId, patientIds);
+        // First, assign patients to the user for the shift
+        var assignmentIds = await _repository.AssignAsync(userId, shiftId, patientIds);
+
+        // Then, create handovers for each assignment
+        foreach (var assignmentId in assignmentIds)
+        {
+            await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId);
+        }
     }
 }

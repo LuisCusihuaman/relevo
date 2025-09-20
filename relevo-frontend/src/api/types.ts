@@ -4,7 +4,7 @@ import type { SetupPatient } from "@/common/types";
 export type PatientSummaryCard = {
 	id: string;
 	name: string;
-	handoverStatus: "NotStarted" | "InProgress" | "Completed";
+	handoverStatus: "NotStarted" | "Active" | "InProgress" | "Completed";
 	handoverId: string | null;
 };
 
@@ -25,7 +25,7 @@ export type PatientDetail = {
 
 export type PatientHandoverTimelineItem = {
 	handoverId: string;
-	status: "InProgress" | "Completed";
+	status: "Active" | "InProgress" | "Completed";
 	createdAt: string;
 	completedAt: string | null;
 	shiftName: string;
@@ -70,13 +70,18 @@ export type HandoverSynthesis = {
 
 export type Handover = {
 	id: string;
+	assignmentId: string;
 	patientId: string;
-	status: "InProgress" | "Completed";
+	patientName?: string;
+	status: "Active" | "InProgress" | "Completed";
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
 	actionItems: Array<HandoverActionItem>;
-	situationAwarenessDocId: string;
+	situationAwarenessDocId?: string;
 	synthesis?: HandoverSynthesis;
+	shiftName: string;
+	createdBy: string;
+	assignedTo: string;
 };
 
 export type PaginatedHandovers = {

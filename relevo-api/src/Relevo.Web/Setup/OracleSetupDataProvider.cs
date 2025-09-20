@@ -141,11 +141,15 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
       var handover = new HandoverRecord(
         Id: row.ID,
+        AssignmentId: row.ASSIGNMENT_ID ?? "",
         PatientId: row.PATIENT_ID,
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
+        ShiftName: row.SHIFT_NAME ?? "Unknown",
+        CreatedBy: row.CREATED_BY ?? "system",
+        AssignedTo: row.ASSIGNED_TO ?? "system",
         SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
       );

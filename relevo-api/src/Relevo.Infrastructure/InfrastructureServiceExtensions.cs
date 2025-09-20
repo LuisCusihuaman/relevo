@@ -40,6 +40,7 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<Relevo.UseCases.Setup.AssignPatientsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetMyPatientsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetMyHandoversUseCase>();
+    services.AddScoped<Relevo.UseCases.Setup.GetPatientHandoversUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetUnitsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetShiftsUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetPatientsByUnitUseCase>();

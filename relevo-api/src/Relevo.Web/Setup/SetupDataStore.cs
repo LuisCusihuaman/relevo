@@ -270,6 +270,7 @@ public class SetupDataStore : ISetupDataProvider
     {
       new HandoverRecord(
         Id: "hvo-001",
+        AssignmentId: "assign-001",
         PatientId: "pat-001",
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
@@ -279,11 +280,15 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-001", "Monitor vital signs every 4 hours", false),
           new HandoverActionItem("act-002", "Administer pain medication as needed", true)
         },
+        ShiftName: "Mañana",
+        CreatedBy: "user-123",
+        AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-001-sa",
         Synthesis: null
       ),
       new HandoverRecord(
         Id: "hvo-002",
+        AssignmentId: "assign-002",
         PatientId: "pat-013",
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
@@ -293,11 +298,15 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-003", "Wean oxygen support gradually", true),
           new HandoverActionItem("act-004", "Continue chest physiotherapy", true)
         },
+        ShiftName: "Noche",
+        CreatedBy: "user-123",
+        AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-002-sa",
         Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status.")
       ),
       new HandoverRecord(
         Id: "hvo-003",
+        AssignmentId: "assign-003",
         PatientId: "pat-025",
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
@@ -307,6 +316,9 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-005", "Continuous vital signs monitoring", false),
           new HandoverActionItem("act-006", "Prepare emergency medications", false)
         },
+        ShiftName: "Mañana",
+        CreatedBy: "user-123",
+        AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-003-sa",
         Synthesis: null
       )

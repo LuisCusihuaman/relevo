@@ -6,7 +6,7 @@ export function formatDiagnosis(input: unknown): string {
     "primary" in input &&
     typeof (input as { primary: unknown }).primary === "string"
   ) {
-    const diagnosis = input as { primary: string; secondary?: string[] };
+    const diagnosis = input as { primary: string; secondary?: Array<string> };
     const secondary = Array.isArray(diagnosis.secondary)
       ? ` — ${diagnosis.secondary.join(", ")}`
       : "";

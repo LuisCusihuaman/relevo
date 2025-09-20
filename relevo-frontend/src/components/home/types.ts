@@ -1,10 +1,12 @@
 export type Patient = {
+	id: string;
 	name: string;
 	url: string;
 	status: string;
 	date: string;
 	icon: string;
 	unit?: string;
+	handoverId?: string | null;
 };
 
 export type RecentPreview = {

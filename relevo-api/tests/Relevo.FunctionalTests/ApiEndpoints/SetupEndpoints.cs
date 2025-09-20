@@ -1,5 +1,6 @@
 using Ardalis.HttpClientTestExtensions;
 using Relevo.Web.Setup;
+using Relevo.Web.Models;
 using Xunit;
 
 namespace Relevo.FunctionalTests.ApiEndpoints;
@@ -26,6 +27,7 @@ public class SetupEndpoints(CustomWebApplicationFactory<Program> factory) : ICla
     Assert.NotEmpty(result.Shifts);
     Assert.Contains(result.Shifts, s => s.Id == "shift-day");
   }
+
 }
 
 
