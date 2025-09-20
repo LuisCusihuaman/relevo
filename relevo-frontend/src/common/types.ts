@@ -46,7 +46,7 @@ export interface Alert {
   
   export interface Diagnosis {
 	primary: string;
-	secondary: string[];
+	secondary: Array<string>;
   }
   
   // ========================================
@@ -77,16 +77,16 @@ export interface Alert {
   // Medical information and diagnosis
   export interface Medical {
 	diagnosis: Diagnosis;
-	alerts: Alert[]; // Proper Alert objects instead of simple alertCount
+	alerts: Array<Alert>; // Proper Alert objects instead of simple alertCount
   }
   
   // Care team information
   export interface CareTeam {
 	team?: {
 	  attending: string;
-	  residents?: string[];
-	  nurses?: string[];
-	  specialists?: string[];
+	  residents?: Array<string>;
+	  nurses?: Array<string>;
+	  specialists?: Array<string>;
 	};
   }
   
@@ -104,7 +104,7 @@ export interface Alert {
   };
   
   export interface Documentation {
-	ipassEntries?: IPassEntry[];
+	ipassEntries?: Array<IPassEntry>;
 	lastIPassUpdate?: {
 	  section:
 		| "illness_severity"
@@ -166,8 +166,8 @@ export interface Alert {
 	author: Author;
 	timestamp: Date;
 	isPrivate: boolean;
-	tags: string[];
-	collaborators?: string[];
+	tags: Array<string>;
+	collaborators?: Array<string>;
   }
   
   // ========================================
@@ -193,7 +193,7 @@ export interface Alert {
 		oxygenSaturation?: number;
 		respiratoryRate?: number;
 	  };
-	  clinicalEntries?: ClinicalEntry[];
+	  clinicalEntries?: Array<ClinicalEntry>;
 	  admission?: {
 		date: string;
 		reason: string;
@@ -239,7 +239,7 @@ export interface Alert {
   
   // Clinical documentation patient with detailed clinical entries
   export type ClinicalPatient = Patient & {
-	clinicalEntries?: ClinicalEntry[];
+	clinicalEntries?: Array<ClinicalEntry>;
   };
   
   // Enhanced patient card data for complex patient cards
@@ -253,7 +253,7 @@ export interface Alert {
 	description?: string;
 	status: "pending" | "in-progress" | "complete";
 	illnessSeverity: "stable" | "watcher" | "unstable";
-	alerts: Alert[];
+	alerts: Array<Alert>;
 	lastUpdate: string;
 	collaborators: number;
 	admissionDate?: string;
@@ -266,8 +266,8 @@ export interface Alert {
 	iPassData?: {
 	  illness: string;
 	  patientSummary: string;
-	  actionList: string[];
-	  situationAwareness: string[];
+	  actionList: Array<string>;
+	  situationAwareness: Array<string>;
 	  synthesis: string;
 	};
 	integrationData?: {
@@ -319,30 +319,30 @@ export interface Alert {
   }
   
   // Utility functions for working with alerts
-  export const getActiveAlerts = (alerts: Alert[]): Alert[] => {
+  export const getActiveAlerts = (alerts: Array<Alert>): Array<Alert> => {
 	return alerts.filter((alert) => alert.status === "ACTIVE");
   };
   
-  export const getCriticalAlerts = (alerts: Alert[]): Alert[] => {
+  export const getCriticalAlerts = (alerts: Array<Alert>): Array<Alert> => {
 	return getActiveAlerts(alerts).filter((alert) => alert.level === "HIGH");
   };
   
-  export const getAlertCount = (alerts: Alert[]): number => {
+  export const getAlertCount = (alerts: Array<Alert>): number => {
 	return getActiveAlerts(alerts).length;
   };
   
-  export const getCriticalAlertCount = (alerts: Alert[]): number => {
+  export const getCriticalAlertCount = (alerts: Array<Alert>): number => {
 	return getCriticalAlerts(alerts).length;
   };
   
   // Helper function to check if patient has critical alerts
-  export const hasCriticalAlerts = (patient: { alerts: Alert[] }): boolean => {
+  export const hasCriticalAlerts = (patient: { alerts: Array<Alert> }): boolean => {
 	return getCriticalAlertCount(patient.alerts) > 0;
   };
   
   // Helper function to get alert summary for patient cards
   export const getAlertSummary = (
-	alerts: Alert[],
+	alerts: Array<Alert>,
   ): { critical: number; total: number } => {
 	const activeAlerts = getActiveAlerts(alerts);
 	const criticalAlerts = getCriticalAlerts(alerts);
@@ -434,7 +434,7 @@ export interface Alert {
   export interface DailySetupData {
 	unit: string;
 	shift: string;
-	selectedPatients: number[];
+	selectedPatients: Array<number>;
 	doctorName: string;
   }
   
@@ -450,7 +450,7 @@ export interface Alert {
 	icon: string;
 	color: string;
 	placeholder: string;
-	quickActions: QuickAction[];
+	quickActions: Array<QuickAction>;
   }
   
   // Quick action interface for clinical templates
