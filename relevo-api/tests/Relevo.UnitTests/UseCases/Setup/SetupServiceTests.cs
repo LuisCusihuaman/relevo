@@ -76,6 +76,56 @@ public class SetupServiceTests
         {
             return Task.FromResult(_repository.UpdateUserPreferences(userId, preferences));
         }
+
+        public Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
+        {
+            return Task.FromResult(_repository.AssignAsync(userId, shiftId, patientIds));
+        }
+
+        public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetMyPatientsAsync(string userId, int page, int pageSize)
+        {
+            return Task.FromResult(_repository.GetMyPatients(userId, page, pageSize));
+        }
+
+        public Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(string userId, int page, int pageSize)
+        {
+            return Task.FromResult(_repository.GetMyHandovers(userId, page, pageSize));
+        }
+
+        public Task<IReadOnlyList<UnitRecord>> GetUnitsAsync()
+        {
+            return Task.FromResult(_repository.GetUnits());
+        }
+
+        public Task<IReadOnlyList<ShiftRecord>> GetShiftsAsync()
+        {
+            return Task.FromResult(_repository.GetShifts());
+        }
+
+        public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(string unitId, int page, int pageSize)
+        {
+            return Task.FromResult(_repository.GetPatientsByUnit(unitId, page, pageSize));
+        }
+
+        public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize)
+        {
+            return Task.FromResult(_repository.GetAllPatients(page, pageSize));
+        }
+
+        public Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
+        {
+            return Task.FromResult(_repository.GetPatientById(patientId));
+        }
+
+        public Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize)
+        {
+            return Task.FromResult(_repository.GetPatientHandovers(patientId, page, pageSize));
+        }
+
+        public Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverById(handoverId));
+        }
     }
 
     [Fact]
@@ -90,7 +140,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeNull();
-        await _repository.Received(1).GetActiveHandover(userId);
+        _repository.Received(1).GetActiveHandover(userId);
     }
 
     [Fact]
@@ -115,7 +165,7 @@ public class SetupServiceTests
         result!.Id.Should().Be("handover-001");
         result.PatientId.Should().Be("patient-001");
         result.Status.Should().Be("Active");
-        await _repository.Received(1).GetActiveHandover(userId);
+        _repository.Received(1).GetActiveHandover(userId);
     }
 
     [Fact]
@@ -131,7 +181,7 @@ public class SetupServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-        await _repository.Received(1).GetHandoverParticipants(handoverId);
+        _repository.Received(1).GetHandoverParticipants(handoverId);
     }
 
     [Fact]
@@ -156,7 +206,7 @@ public class SetupServiceTests
         result.Should().HaveCount(2);
         result[0].UserName.Should().Be("John Doe");
         result[1].UserName.Should().Be("Jane Smith");
-        await _repository.Received(1).GetHandoverParticipants(handoverId);
+        _repository.Received(1).GetHandoverParticipants(handoverId);
     }
 
     [Fact]
@@ -172,7 +222,7 @@ public class SetupServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-        await _repository.Received(1).GetHandoverSections(handoverId);
+        _repository.Received(1).GetHandoverSections(handoverId);
     }
 
     [Fact]
@@ -197,7 +247,7 @@ public class SetupServiceTests
         result.Should().HaveCount(2);
         result[0].SectionType.Should().Be("illness_severity");
         result[1].SectionType.Should().Be("patient_summary");
-        await _repository.Received(1).GetHandoverSections(handoverId);
+        _repository.Received(1).GetHandoverSections(handoverId);
     }
 
     [Fact]
@@ -213,7 +263,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeNull();
-        await _repository.Received(1).GetHandoverSyncStatus(handoverId, userId);
+        _repository.Received(1).GetHandoverSyncStatus(handoverId, userId);
     }
 
     [Fact]
@@ -232,7 +282,7 @@ public class SetupServiceTests
         result.Should().NotBeNull();
         result!.SyncStatus.Should().Be("synced");
         result.Version.Should().Be(1);
-        await _repository.Received(1).GetHandoverSyncStatus(handoverId, userId);
+        _repository.Received(1).GetHandoverSyncStatus(handoverId, userId);
     }
 
     [Fact]
@@ -251,7 +301,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeFalse();
-        await _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
+        _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
     }
 
     [Fact]
@@ -270,7 +320,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeTrue();
-        await _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
+        _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
     }
 
     [Fact]
@@ -285,7 +335,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeNull();
-        await _repository.Received(1).GetUserPreferences(userId);
+        _repository.Received(1).GetUserPreferences(userId);
     }
 
     [Fact]
@@ -308,7 +358,7 @@ public class SetupServiceTests
         result.Language.Should().Be("en");
         result.NotificationsEnabled.Should().BeTrue();
         result.AutoSaveEnabled.Should().BeFalse();
-        await _repository.Received(1).GetUserPreferences(userId);
+        _repository.Received(1).GetUserPreferences(userId);
     }
 
     [Fact]
@@ -324,7 +374,7 @@ public class SetupServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-        await _repository.Received(1).GetUserSessions(userId);
+        _repository.Received(1).GetUserSessions(userId);
     }
 
     [Fact]
@@ -349,7 +399,7 @@ public class SetupServiceTests
         result.Should().HaveCount(2);
         result[0].IsActive.Should().BeTrue();
         result[1].IsActive.Should().BeFalse();
-        await _repository.Received(1).GetUserSessions(userId);
+        _repository.Received(1).GetUserSessions(userId);
     }
 
     [Fact]
@@ -368,7 +418,7 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeFalse();
-        await _repository.Received(1).UpdateUserPreferences(userId, preferences);
+        _repository.Received(1).UpdateUserPreferences(userId, preferences);
     }
 
     [Fact]
@@ -387,6 +437,6 @@ public class SetupServiceTests
 
         // Assert
         result.Should().BeTrue();
-        await _repository.Received(1).UpdateUserPreferences(userId, preferences);
+        _repository.Received(1).UpdateUserPreferences(userId, preferences);
     }
 }

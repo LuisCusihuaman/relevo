@@ -207,12 +207,12 @@ public class NewHandoverFeaturesTests
         handover.PatientId.Should().Be("patient-001");
         handover.PatientName.Should().Be("John Doe");
         handover.Status.Should().Be("Active");
-        handover.IllnessSeverity.Value.Should().Be("Stable");
-        handover.PatientSummary.Value.Should().Be("Patient summary");
+        handover.IllnessSeverity.Severity.Should().Be("Stable");
+        handover.PatientSummary.Content.Should().Be("Patient summary");
         handover.ActionItems.Should().HaveCount(1);
         handover.ActionItems[0].Description.Should().Be("Monitor vital signs");
         handover.SituationAwarenessDocId.Should().Be("situation-doc-001");
-        handover.Synthesis!.Value.Should().Be("Patient ready for discharge");
+        handover.Synthesis!.Content.Should().Be("Patient ready for discharge");
         handover.ShiftName.Should().Be("Morning Shift");
         handover.CreatedBy.Should().Be("user-123");
         handover.AssignedTo.Should().Be("user-456");
@@ -236,7 +236,7 @@ public class NewHandoverFeaturesTests
         preferences.Timezone.Should().Be("America/New_York");
         preferences.NotificationsEnabled.Should().BeTrue();
         preferences.AutoSaveEnabled.Should().BeFalse();
-        preferences.CreatedAt.Should().BeOfType<System.DateTime>();
-        preferences.UpdatedAt.Should().BeOfType<System.DateTime>();
+        preferences.CreatedAt.Should().NotBe(default(DateTime));
+        preferences.UpdatedAt.Should().NotBe(default(DateTime));
     }
 }

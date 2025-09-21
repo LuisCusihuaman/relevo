@@ -27,6 +27,7 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-026",
             PatientName: "Álvaro Vargas",
             Status: "Active",
+            CreatedAt: "2025-09-20 13:29:21",
             IllnessSeverity: new HandoverIllnessSeverity("Stable"),
             PatientSummary: new HandoverPatientSummary("Handover iniciado - información pendiente de completar"),
             ActionItems: new List<HandoverActionItem>(),
@@ -89,6 +90,7 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-test",
             PatientName: "Test Patient",
             Status: "InProgress",
+            CreatedAt: "2025-09-20 14:00:00",
             IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
             PatientSummary: new HandoverPatientSummary("Patient is stable but requires monitoring"),
             ActionItems: actionItems,
@@ -113,7 +115,7 @@ public class GetHandoverByIdUseCaseTests
         result.ActionItems[0].IsCompleted.Should().BeFalse();
         result.ActionItems[1].IsCompleted.Should().BeTrue();
         result.Synthesis.Should().NotBeNull();
-        result.Synthesis!.Value.Should().Be("Patient condition has improved");
+        result.Synthesis!.Content.Should().Be("Patient condition has improved");
 
         _repository.Received(1).GetHandoverById(handoverId);
     }
@@ -134,6 +136,7 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-complete-456",
             PatientName: "Complete Test Patient",
             Status: "Completed",
+            CreatedAt: "2025-09-20 15:00:00",
             IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
             PatientSummary: new HandoverPatientSummary("Patient showed signs of improvement"),
             ActionItems: actionItems,
@@ -156,12 +159,12 @@ public class GetHandoverByIdUseCaseTests
         result.PatientId.Should().Be("pat-complete-456");
         result.PatientName.Should().Be("Complete Test Patient");
         result.Status.Should().Be("Completed");
-        result.IllnessSeverity.Value.Should().Be("Unstable");
-        result.PatientSummary.Value.Should().Be("Patient showed signs of improvement");
+        result.IllnessSeverity.Severity.Should().Be("Unstable");
+        result.PatientSummary.Content.Should().Be("Patient showed signs of improvement");
         result.ActionItems.Should().HaveCount(1);
         result.SituationAwarenessDocId.Should().Be("situation-doc-789");
         result.Synthesis.Should().NotBeNull();
-        result.Synthesis!.Value.Should().Be("Handover completed successfully");
+        result.Synthesis!.Content.Should().Be("Handover completed successfully");
         result.ShiftName.Should().Be("Tarde");
         result.CreatedBy.Should().Be("user-creator-123");
         result.AssignedTo.Should().Be("user-assigned-456");
@@ -188,6 +191,7 @@ public class GetHandoverByIdUseCaseTests
                 PatientId: $"pat-{handoverId}",
                 PatientName: "Test Patient",
                 Status: status,
+                CreatedAt: "2025-09-20 16:00:00",
                 IllnessSeverity: new HandoverIllnessSeverity("Stable"),
                 PatientSummary: new HandoverPatientSummary("Test summary"),
                 ActionItems: new List<HandoverActionItem>(),

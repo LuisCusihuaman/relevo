@@ -72,7 +72,7 @@ public class PatientHandoversEndpoints(CustomWebApplicationFactory<Program> fact
 
       // Verify illness severity structure
       Assert.NotNull(handover.IllnessSeverity);
-      Assert.Contains(handover.IllnessSeverity.Value, new[] { "Stable", "Watcher", "Unstable" });
+      Assert.Contains(handover.IllnessSeverity.Severity, new[] { "Stable", "Watcher", "Unstable" });
 
       // Verify patient summary structure
       Assert.NotNull(handover.PatientSummary);

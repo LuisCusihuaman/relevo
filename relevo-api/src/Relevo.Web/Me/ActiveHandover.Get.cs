@@ -39,13 +39,12 @@ public class GetActiveHandoverEndpoint(
       return;
     }
 
-    // For now, return empty arrays to test if the main handover works
     Response = new GetActiveHandoverResponse
     {
         Handover = activeHandover,
-        Participants = Array.Empty<HandoverParticipantRecord>(),
-        Sections = Array.Empty<HandoverSectionRecord>(),
-        SyncStatus = null
+        Participants = await _setupService.GetHandoverParticipantsAsync(activeHandover.Id),
+        Sections = await _setupService.GetHandoverSectionsAsync(activeHandover.Id),
+        SyncStatus = await _setupService.GetHandoverSyncStatusAsync(activeHandover.Id, user.Id)
     };
 
     await SendAsync(Response, cancellation: ct);
