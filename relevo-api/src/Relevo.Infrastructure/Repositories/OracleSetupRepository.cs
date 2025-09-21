@@ -73,6 +73,9 @@ public class OracleSetupRepository : ISetupRepository
 
         try
         {
+            // Ensure the user exists in the database before assigning patients
+            EnsureUserExists(userId, null, null, null, null);
+
             using IDbConnection conn = _factory.CreateConnection();
 
             _logger.LogInformation("🔍 Assignment Debug - Storing assignment for UserId: {UserId}, ShiftId: {ShiftId}, PatientCount: {PatientCount}",
@@ -235,10 +238,35 @@ public class OracleSetupRepository : ISetupRepository
         return (handovers, total);
     }
 
+    public void EnsureUserExists(string userId, string? email, string? firstName, string? lastName, string? fullName)
+    {
+        using IDbConnection conn = _factory.CreateConnection();
+
+        // Check if user already exists
+        var existingUser = conn.QueryFirstOrDefault("SELECT ID FROM USERS WHERE ID = :userId", new { userId });
+
+        if (existingUser != null)
+        {
+            // User already exists, nothing to do
+            return;
+        }
+
+        // Create the user with basic info
+        // Use a default email if not provided (required by schema)
+        var defaultEmail = email ?? $"{userId}@clerk.local";
+        conn.Execute(@"
+            INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, ROLE, IS_ACTIVE, CREATED_AT, UPDATED_AT)
+            VALUES (:userId, :defaultEmail, :firstName, :lastName, :fullName, 'doctor', 1, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { userId, defaultEmail, firstName, lastName, fullName });
+    }
+
     public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId)
     {
         try
         {
+            // Ensure the user exists in the database before creating handovers
+            EnsureUserExists(userId, null, null, null, null);
+
             using IDbConnection conn = _factory.CreateConnection();
 
             // Get assignment details

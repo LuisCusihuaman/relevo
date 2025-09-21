@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
 using Relevo.Web.Models;
+using Models = Relevo.Web.Models;
 
 // Use specific types from Core layer to avoid conflicts
 using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
@@ -49,4 +50,12 @@ public class GetActiveHandoverEndpoint(
 
         await SendAsync(Response, cancellation: ct);
     }
+}
+
+public class GetActiveHandoverResponse
+{
+    public required HandoverRecord Handover { get; set; }
+    public required IReadOnlyList<HandoverParticipantRecord> Participants { get; set; }
+    public required IReadOnlyList<HandoverSectionRecord> Sections { get; set; }
+    public required HandoverSyncStatusRecord? SyncStatus { get; set; }
 }
