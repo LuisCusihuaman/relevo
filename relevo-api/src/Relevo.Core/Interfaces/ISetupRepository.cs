@@ -35,7 +35,15 @@ public interface ISetupRepository
 
     // Handover Contingency Plans
     IReadOnlyList<HandoverContingencyPlanRecord> GetHandoverContingencyPlans(string handoverId);
+
+    // Handover Contingency Plans
     HandoverContingencyPlanRecord CreateContingencyPlan(string handoverId, string conditionText, string actionText, string priority, string createdBy);
+
+    // Action Items
+    IReadOnlyList<HandoverActionItemRecord> GetHandoverActionItems(string handoverId);
+    string CreateHandoverActionItem(string handoverId, string description, string priority);
+    bool UpdateHandoverActionItem(string handoverId, string itemId, bool isCompleted);
+    bool DeleteHandoverActionItem(string handoverId, string itemId);
 }
 
 // Domain Records
@@ -195,4 +203,18 @@ public record HandoverContingencyPlanRecord(
 )
 {
     public HandoverContingencyPlanRecord() : this("", "", "", "", "medium", "active", "", DateTime.MinValue, DateTime.MinValue) { }
+}
+
+// Action Items
+public record HandoverActionItemRecord(
+    string Id,
+    string HandoverId,
+    string Description,
+    bool IsCompleted,
+    DateTime CreatedAt,
+    DateTime UpdatedAt,
+    DateTime? CompletedAt
+)
+{
+    public HandoverActionItemRecord() : this("", "", "", false, DateTime.MinValue, DateTime.MinValue, null) { }
 }

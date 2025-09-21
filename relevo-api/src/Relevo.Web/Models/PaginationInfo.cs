@@ -80,3 +80,33 @@ public record GetActiveHandoverResponse
     public required IReadOnlyList<HandoverSectionRecord> Sections { get; init; }
     public required HandoverSyncStatusRecord? SyncStatus { get; init; }
 }
+
+// Action Items
+public record GetHandoverActionItemsRequest(string HandoverId);
+
+public record GetHandoverActionItemsResponse
+{
+    public required IReadOnlyList<HandoverActionItemRecord> ActionItems { get; init; }
+}
+
+public record CreateHandoverActionItemRequest(string HandoverId, string Description, string Priority);
+
+public record CreateHandoverActionItemResponse
+{
+    public required bool Success { get; init; }
+    public required string ActionItemId { get; init; }
+}
+
+public record UpdateHandoverActionItemRequest(string HandoverId, string ItemId, bool IsCompleted);
+
+public record UpdateHandoverActionItemResponse
+{
+    public required bool Success { get; init; }
+}
+
+public record DeleteHandoverActionItemRequest(string HandoverId, string ItemId);
+
+public record DeleteHandoverActionItemResponse
+{
+    public required bool Success { get; init; }
+}

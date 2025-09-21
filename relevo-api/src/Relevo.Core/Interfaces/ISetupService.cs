@@ -35,4 +35,10 @@ public interface ISetupService
     // Handover Contingency Plans
     Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId);
     Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy);
+
+    // Action Items
+    Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId);
+    Task<string> CreateHandoverActionItemAsync(string handoverId, string description, string priority);
+    Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted);
+    Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId);
 }

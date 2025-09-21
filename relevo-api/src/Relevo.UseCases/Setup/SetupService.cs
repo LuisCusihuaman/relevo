@@ -196,4 +196,25 @@ public class SetupService : ISetupService
     {
         return await Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
     }
+
+    // Action Items
+    public async Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId)
+    {
+        return await Task.FromResult(_repository.GetHandoverActionItems(handoverId));
+    }
+
+    public async Task<string> CreateHandoverActionItemAsync(string handoverId, string description, string priority)
+    {
+        return await Task.FromResult(_repository.CreateHandoverActionItem(handoverId, description, priority));
+    }
+
+    public async Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted)
+    {
+        return await Task.FromResult(_repository.UpdateHandoverActionItem(handoverId, itemId, isCompleted));
+    }
+
+    public async Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId)
+    {
+        return await Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
+    }
 }
