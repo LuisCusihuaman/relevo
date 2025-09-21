@@ -18,6 +18,9 @@ public interface ISetupRepository
     IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId);
     HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId);
     bool UpdateHandoverSection(string handoverId, string sectionId, string content, string status, string userId);
+    UserPreferencesRecord? GetUserPreferences(string userId);
+    IReadOnlyList<UserSessionRecord> GetUserSessions(string userId);
+    bool UpdateUserPreferences(string userId, UserPreferencesRecord preferences);
 }
 
 // Domain Records
@@ -90,4 +93,26 @@ public record HandoverSyncStatusRecord(
     string SyncStatus,
     DateTime LastSync,
     int Version
+);
+
+public record UserPreferencesRecord(
+    string Id,
+    string UserId,
+    string Theme,
+    string Language,
+    string Timezone,
+    bool NotificationsEnabled,
+    bool AutoSaveEnabled,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);
+
+public record UserSessionRecord(
+    string Id,
+    string UserId,
+    DateTime SessionStart,
+    DateTime? SessionEnd,
+    string? IpAddress,
+    string? UserAgent,
+    bool IsActive
 );

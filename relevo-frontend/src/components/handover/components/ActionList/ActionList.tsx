@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
+import { useActionItems, type ActionItem } from "@/hooks/useActionItems";
 
 interface Collaborator {
   id: number;
@@ -25,11 +26,11 @@ interface Collaborator {
 }
 
 interface ActionItem {
-  id: number;
-  task: string;
+  id: string;
+  description: string;
   priority: "low" | "medium" | "high";
   dueTime?: string;
-  completed: boolean;
+  isCompleted: boolean;
   submittedBy: string;
   submittedTime: string;
   submittedDate: string;
@@ -42,6 +43,7 @@ interface ActionListProps {
   onOpenThread?: (section: string) => void;
   focusMode?: boolean;
   compact?: boolean;
+  handoverId?: string;
   currentUser?: {
     name: string;
     initials: string;
@@ -60,77 +62,29 @@ export function ActionList({
   onOpenThread: _onOpenThread,
   focusMode = false,
   compact = false,
-  currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
-  assignedPhysician = {
-    name: "Dr. Johnson",
-    initials: "DJ",
-    role: "Day Attending",
-  },
+  handoverId,
+  currentUser,
+  assignedPhysician,
 }: ActionListProps): JSX.Element {
   const { t } = useTranslation("actionList");
-  // Action items from multiple shifts - persistent until completed or handover ends
-  const [actionItems, setActionItems] = useState<Array<ActionItem>>([
-    // Previous Night Shift tasks (still pending)
-    {
-      id: 1,
-      task: t("actionItems.followUpCulture.task"),
-      priority: "high",
-      dueTime: t("actionItems.followUpCulture.dueTime"),
-      completed: false,
-      submittedBy: t("doctors.park"),
-      submittedTime: "02:15",
-      submittedDate: t("time.lastNight"),
-      shift: t("shifts.nightToDay"),
-    },
-    {
-      id: 2,
-      task: t("actionItems.cardiologyConsult.task"),
-      priority: "medium",
-      dueTime: t("time.today"),
-      completed: false,
-      submittedBy: t("doctors.kim"),
-      submittedTime: "23:45",
-      submittedDate: t("time.lastNight"),
-      shift: t("shifts.nightToDay"),
-    },
-    // Current Day Shift tasks
-    {
-      id: 3,
-      task: t("actionItems.dischargePlanning.task"),
-      priority: "medium",
-      completed: true,
-      submittedBy: t("doctors.johnson"),
-      submittedTime: "09:30",
-      submittedDate: t("time.today"),
-      shift: t("shifts.dayToEvening"),
-    },
-    {
-      id: 4,
-      task: t("actionItems.reviewXray.task"),
-      priority: "high",
-      dueTime: t("actionItems.reviewXray.dueTime"),
-      completed: false,
-      submittedBy: t("doctors.martinez"),
-      submittedTime: "11:15",
-      submittedDate: t("time.today"),
-      shift: t("shifts.dayToEvening"),
-    },
-    {
-      id: 5,
-      task: t("actionItems.monitorUrine.task"),
-      priority: "high",
-      dueTime: t("actionItems.monitorUrine.dueTime"),
-      completed: false,
-      submittedBy: t("nurses.clara"),
-      submittedTime: "15:30",
-      submittedDate: t("time.today"),
-      shift: t("shifts.dayToEvening"),
-    },
-  ]);
+
+  // Use the action items hook instead of hardcoded data
+  const {
+    actionItems,
+    createActionItem,
+    updateActionItem,
+    deleteActionItem,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useActionItems({
+    handoverId,
+    initialActionItems: [], // Start with empty array, will be populated by API
+  });
 
   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
   const [newTask, setNewTask] = useState({
-    task: "",
+    description: "",
     priority: "medium" as "low" | "medium" | "high",
     dueTime: "",
   });
@@ -140,54 +94,52 @@ export function ActionList({
   const canDeleteTasks = currentUser.name === assignedPhysician.name;
 
   // Group tasks by status only - no urgent separation
-  const pendingTasks = actionItems.filter((item) => !item.completed);
-  const completedTasks = actionItems.filter((item) => item.completed);
+  const pendingTasks = actionItems.filter((item) => !item.isCompleted);
+  const completedTasks = actionItems.filter((item) => item.isCompleted);
 
   // Submit new task
-  const handleSubmitTask = (): void => {
-    if (!newTask.task.trim()) return;
+  const handleSubmitTask = async (): Promise<void> => {
+    if (!newTask.description.trim() || !handoverId || !currentUser) return;
 
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      const task: ActionItem = {
-        id: Date.now(),
-        task: newTask.task.trim(),
+    try {
+      await createActionItem({
+        description: newTask.description.trim(),
         priority: newTask.priority,
         dueTime: newTask.dueTime.trim() || undefined,
-        completed: false,
-        submittedBy: currentUser.name,
-        submittedTime: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        submittedDate: t("time.today"),
-        shift: t("shifts.dayToEvening"),
-      };
+      });
 
-      setActionItems((previous) => [...previous, task]);
-      setNewTask({ task: "", priority: "medium", dueTime: "" });
+      setNewTask({ description: "", priority: "medium", dueTime: "" });
       setShowNewTaskForm(false);
-      setIsSubmitting(false);
-    }, 500);
+    } catch (error) {
+      console.error("Failed to create action item:", error);
+      // TODO: Show error toast
+    }
   };
 
   // Toggle task completion
-  const handleToggleComplete = (taskId: number): void => {
-    setActionItems((previous) =>
-      previous.map((item) =>
-        item.id === taskId ? { ...item, completed: !item.completed } : item,
-      ),
-    );
+  const handleToggleComplete = async (taskId: string): Promise<void> => {
+    try {
+      await updateActionItem({
+        actionItemId: taskId,
+        updates: { isCompleted: !actionItems.find(item => item.id === taskId)?.isCompleted },
+      });
+    } catch (error) {
+      console.error("Failed to update action item:", error);
+      // TODO: Show error toast
+    }
   };
 
   // Delete task (only current shift tasks by assigned physician)
-  const handleDeleteTask = (taskId: number): void => {
+  const handleDeleteTask = async (taskId: string): Promise<void> => {
     const task = actionItems.find((t) => t.id === taskId);
     if (!canDeleteTasks || task?.shift !== t("shifts.dayToEvening")) return;
 
-    setActionItems((previous) => previous.filter((item) => item.id !== taskId));
+    try {
+      await deleteActionItem(taskId);
+    } catch (error) {
+      console.error("Failed to delete action item:", error);
+      // TODO: Show error toast
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent): void => {
@@ -224,8 +176,8 @@ export function ActionList({
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3 flex-1 min-w-0">
             <Checkbox
-              checked={task.completed}
-              className={`mt-1 ${task.completed ? "bg-gray-600 border-gray-600" : ""}`}
+              checked={task.isCompleted}
+              className={`mt-1 ${task.isCompleted ? "bg-gray-600 border-gray-600" : ""}`}
               disabled={focusMode}
               onCheckedChange={
                 focusMode ? undefined : () => { handleToggleComplete(task.id); }
@@ -241,12 +193,12 @@ export function ActionList({
               </div>
               <p
                 className={`text-sm leading-relaxed ${
-                  task.completed
+                  task.isCompleted
                     ? "line-through text-gray-500"
                     : "text-gray-900"
                 }`}
               >
-                {task.task}
+                {task.description}
               </p>
             </div>
           </div>
@@ -255,7 +207,7 @@ export function ActionList({
           {!focusMode &&
             canDeleteTasks &&
             task.shift === t("shifts.dayToEvening") &&
-            !task.completed && (
+            !task.isCompleted && (
               <Button
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
                 size="sm"
@@ -268,25 +220,25 @@ export function ActionList({
         </div>
 
         {/* Task Details */}
-        <div
-          className={`flex items-center justify-between text-xs pt-2 border-t ${
-            task.completed
-              ? "border-gray-100 text-gray-400"
-              : "border-gray-100 text-gray-500"
-          }`}
-        >
-          <div className="flex items-center space-x-3">
-            {task.dueTime && (
-              <div className="flex items-center space-x-1">
-                <Clock className="w-3 h-3" />
-                <span>{task.dueTime}</span>
-              </div>
-            )}
+          <div
+            className={`flex items-center justify-between text-xs pt-2 border-t ${
+              task.isCompleted
+                ? "border-gray-100 text-gray-400"
+                : "border-gray-100 text-gray-500"
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              {task.dueTime && (
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{task.dueTime}</span>
+                </div>
+              )}
+            </div>
+            <span className={task.isCompleted ? "text-gray-400" : "text-gray-500"}>
+              {task.submittedBy} • {task.submittedTime}
+            </span>
           </div>
-          <span className={task.completed ? "text-gray-400" : "text-gray-500"}>
-            {task.submittedBy} • {task.submittedTime}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -375,12 +327,12 @@ export function ActionList({
                     <Textarea
                       className="min-h-[50px] text-sm border-gray-300 focus:border-blue-400 focus:ring-blue-100 bg-white resize-none"
                       disabled={isSubmitting}
-                      placeholder={t("describeTask")}
-                      value={newTask.task}
-                      onKeyDown={handleKeyDown}
-                      onChange={(e) =>
-                        { setNewTask({ ...newTask, task: e.target.value }); }
-                      }
+                    placeholder={t("describeTask")}
+                    value={newTask.description}
+                    onKeyDown={handleKeyDown}
+                    onChange={(e) =>
+                      { setNewTask({ ...newTask, description: e.target.value }); }
+                    }
                     />
                   </div>
 
@@ -433,7 +385,7 @@ export function ActionList({
                   </Button>
                   <Button
                     className="text-xs px-2 py-1 h-7 bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={!newTask.task.trim() || isSubmitting}
+                    disabled={!newTask.description.trim() || isSubmitting}
                     size="sm"
                     onClick={handleSubmitTask}
                   >
@@ -577,10 +529,10 @@ export function ActionList({
                     disabled={isSubmitting}
                     id="task-description"
                     placeholder={t("taskDescriptionPlaceholder")}
-                    value={newTask.task}
+                    value={newTask.description}
                     onKeyDown={handleKeyDown}
                     onChange={(e) =>
-                      { setNewTask({ ...newTask, task: e.target.value }); }
+                      { setNewTask({ ...newTask, description: e.target.value }); }
                     }
                   />
                 </div>
@@ -643,11 +595,11 @@ export function ActionList({
                 >
                   {t("cancel")}
                 </Button>
-                <Button
-                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
-                  disabled={!newTask.task.trim() || isSubmitting}
-                  size="sm"
-                  onClick={handleSubmitTask}
+                  <Button
+                    className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={!newTask.description.trim() || isSubmitting}
+                    size="sm"
+                    onClick={handleSubmitTask}
                 >
                   {isSubmitting ? (
                     <>

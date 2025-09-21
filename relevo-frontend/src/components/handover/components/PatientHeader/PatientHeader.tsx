@@ -13,8 +13,8 @@ interface PatientHeaderProps {
     admissionDate: string;
     currentDateTime: string;
     primaryTeam: string;
-    severity: string;
-    handoverStatus: string;
+    severity: "stable" | "watcher" | "unstable";
+    handoverStatus: "not-started" | "in-progress" | "completed";
     shift: string;
     room: string;
     primaryDiagnosis: string;

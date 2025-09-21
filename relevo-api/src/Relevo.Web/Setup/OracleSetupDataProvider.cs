@@ -3,6 +3,13 @@ using Dapper;
 using Relevo.Infrastructure.Data.Oracle;
 using Relevo.Web.Patients;
 using Relevo.Web.Me;
+using Relevo.Core.Interfaces;
+
+// Use specific types from Core layer to avoid conflicts
+using PatientRecord = Relevo.Core.Interfaces.PatientRecord;
+using UnitRecord = Relevo.Core.Interfaces.UnitRecord;
+using ShiftRecord = Relevo.Core.Interfaces.ShiftRecord;
+using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Setup;
 
@@ -143,6 +150,7 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         Id: row.ID,
         AssignmentId: row.ASSIGNMENT_ID ?? "",
         PatientId: row.PATIENT_ID,
+        PatientName: row.PATIENT_NAME ?? "Unknown Patient",
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
@@ -151,7 +159,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
         SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS)
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
       );
 
       handovers.Add(handover);

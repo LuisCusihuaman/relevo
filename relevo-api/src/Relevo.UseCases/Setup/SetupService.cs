@@ -102,4 +102,60 @@ public class SetupService : ISetupService
     {
         return await Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
     }
+
+    public async Task<HandoverRecord?> GetActiveHandoverAsync(string userId)
+    {
+        // This would need a new use case - for now return null
+        // TODO: Implement GetActiveHandoverUseCase
+        return await Task.FromResult<HandoverRecord?>(null);
+    }
+
+    public async Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
+    {
+        // This would need a new use case - for now return empty list
+        // TODO: Implement GetHandoverParticipantsUseCase
+        return await Task.FromResult(Array.Empty<HandoverParticipantRecord>());
+    }
+
+    public async Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId)
+    {
+        // This would need a new use case - for now return empty list
+        // TODO: Implement GetHandoverSectionsUseCase
+        return await Task.FromResult(Array.Empty<HandoverSectionRecord>());
+    }
+
+    public async Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId)
+    {
+        // This would need a new use case - for now return null
+        // TODO: Implement GetHandoverSyncStatusUseCase
+        return await Task.FromResult<HandoverSyncStatusRecord?>(null);
+    }
+
+    public async Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId)
+    {
+        // This would need a new use case - for now return false
+        // TODO: Implement UpdateHandoverSectionUseCase
+        return await Task.FromResult(false);
+    }
+
+    public async Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId)
+    {
+        // This would need a new use case - for now return null
+        // TODO: Implement GetUserPreferencesUseCase
+        return await Task.FromResult<UserPreferencesRecord?>(null);
+    }
+
+    public async Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId)
+    {
+        // This would need a new use case - for now return empty list
+        // TODO: Implement GetUserSessionsUseCase
+        return await Task.FromResult(Array.Empty<UserSessionRecord>());
+    }
+
+    public async Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences)
+    {
+        // This would need a new use case - for now return false
+        // TODO: Implement UpdateUserPreferencesUseCase
+        return await Task.FromResult(false);
+    }
 }

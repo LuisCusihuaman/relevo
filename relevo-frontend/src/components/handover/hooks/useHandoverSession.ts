@@ -7,14 +7,19 @@ export function useHandoverSession(): {
   getSessionDuration: () => string;
 } {
   const { t } = useTranslation("handover");
-  const [handoverStartTime] = useState(new Date(Date.now() - 12 * 60 * 1000)); // Started 12 minutes ago
-  const [sessionDuration, setSessionDuration] = useState(12);
+  const [handoverStartTime] = useState(new Date()); // Use current time as start time
+  const [sessionDuration, setSessionDuration] = useState(0);
 
   // Calculate time until handover
   const getTimeUntilHandover = (): string => {
     const now = new Date();
     const handoverTime = new Date();
-    handoverTime.setHours(17, 0, 0, 0); // 17:00
+    handoverTime.setHours(17, 0, 0, 0); // Default handover time is 17:00
+
+    // If handover time has already passed today, calculate for tomorrow
+    if (handoverTime.getTime() < now.getTime()) {
+      handoverTime.setDate(handoverTime.getDate() + 1);
+    }
 
     const diffMs = handoverTime.getTime() - now.getTime();
     const diffMins = Math.ceil(diffMs / (1000 * 60));

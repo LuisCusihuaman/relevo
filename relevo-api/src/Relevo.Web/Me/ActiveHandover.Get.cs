@@ -2,6 +2,12 @@ using FastEndpoints;
 using Relevo.Core.Interfaces;
 using Relevo.Web.Models;
 
+// Use specific types from Core layer to avoid conflicts
+using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
+using HandoverParticipantRecord = Relevo.Core.Interfaces.HandoverParticipantRecord;
+using HandoverSectionRecord = Relevo.Core.Interfaces.HandoverSectionRecord;
+using HandoverSyncStatusRecord = Relevo.Core.Interfaces.HandoverSyncStatusRecord;
+
 namespace Relevo.Web.Me;
 
 public class GetActiveHandoverEndpoint(
@@ -47,35 +53,8 @@ public class GetActiveHandoverEndpoint(
 
 public class GetActiveHandoverResponse
 {
-    public required DomainHandoverRecord Handover { get; set; }
-    public required List<HandoverParticipantRecord> Participants { get; set; }
-    public required List<HandoverSectionRecord> Sections { get; set; }
+    public required HandoverRecord Handover { get; set; }
+    public required IReadOnlyList<HandoverParticipantRecord> Participants { get; set; }
+    public required IReadOnlyList<HandoverSectionRecord> Sections { get; set; }
     public required HandoverSyncStatusRecord? SyncStatus { get; set; }
 }
-
-public record HandoverParticipantRecord(
-    string Id,
-    string UserId,
-    string UserName,
-    string? UserRole,
-    string Status,
-    DateTime JoinedAt,
-    DateTime LastActivity
-);
-
-public record HandoverSectionRecord(
-    string Id,
-    string SectionType,
-    string? Content,
-    string Status,
-    string? LastEditedBy,
-    DateTime CreatedAt,
-    DateTime UpdatedAt
-);
-
-public record HandoverSyncStatusRecord(
-    string Id,
-    string SyncStatus,
-    DateTime LastSync,
-    int Version
-);

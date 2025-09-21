@@ -477,4 +477,390 @@ public class OracleSetupRepository : ISetupRepository
             .Where(item => !string.IsNullOrEmpty(item))
             .ToList();
     }
+
+    public HandoverRecord? GetActiveHandover(string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Find the active handover for this user's assigned patients
+            const string handoverSql = @"
+                SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
+                       h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                       TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+                FROM HANDOVERS h
+                INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+                WHERE h.ASSIGNED_TO = :userId
+                  AND h.STATUS IN ('Active', 'InProgress')
+                ORDER BY h.CREATED_AT DESC
+                FETCH FIRST 1 ROW ONLY";
+
+            var row = conn.QueryFirstOrDefault(handoverSql, new { userId });
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            // Get action items for the handover
+            const string actionItemsSql = @"
+                SELECT ID, DESCRIPTION, IS_COMPLETED
+                FROM HANDOVER_ACTION_ITEMS
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT";
+
+            var actionItems = conn.Query(actionItemsSql, new { handoverId = row.ID })
+                .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+                .ToList();
+
+            return new HandoverRecord(
+                Id: row.ID,
+                AssignmentId: row.ASSIGNMENT_ID,
+                PatientId: row.PATIENT_ID,
+                PatientName: row.PATIENT_NAME,
+                Status: row.STATUS,
+                IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+                PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+                ActionItems: actionItems,
+                SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+                Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS) ? new HandoverSynthesis(row.SYNTHESIS) : null,
+                ShiftName: row.SHIFT_NAME ?? "Unknown",
+                CreatedBy: row.CREATED_BY ?? "system",
+                AssignedTo: row.ASSIGNED_TO ?? "system",
+                CreatedAt: row.CREATED_AT
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get active handover for user {UserId}", userId);
+            throw;
+        }
+    }
+
+    public IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string sql = @"
+                SELECT ID, USER_ID, USER_NAME, USER_ROLE, STATUS,
+                       JOINED_AT, LAST_ACTIVITY
+                FROM HANDOVER_PARTICIPANTS
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY JOINED_AT";
+
+            var participants = conn.Query<HandoverParticipantRecord>(sql, new { handoverId }).ToList();
+
+            // If no participants found, return a default list with the assigned user
+            if (!participants.Any())
+            {
+                // Get the handover creator as the default participant
+                const string creatorSql = @"
+                    SELECT ASSIGNED_TO as USER_ID, 'Assigned Physician' as USER_NAME, 'Doctor' as USER_ROLE
+                    FROM HANDOVERS
+                    WHERE ID = :handoverId";
+
+                var creator = conn.QueryFirstOrDefault(creatorSql, new { handoverId });
+
+                if (creator != null)
+                {
+                    participants.Add(new HandoverParticipantRecord(
+                        Id: $"participant-{handoverId}-default",
+                        UserId: creator.USER_ID,
+                        UserName: creator.USER_NAME ?? "Assigned Physician",
+                        UserRole: creator.USER_ROLE,
+                        Status: "active",
+                        JoinedAt: DateTime.Now,
+                        LastActivity: DateTime.Now
+                    ));
+                }
+            }
+
+            return participants;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get participants for handover {HandoverId}", handoverId);
+            return Array.Empty<HandoverParticipantRecord>();
+        }
+    }
+
+    public IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string sql = @"
+                SELECT ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY,
+                       CREATED_AT, UPDATED_AT
+                FROM HANDOVER_SECTIONS
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT";
+
+            var sections = conn.Query<HandoverSectionRecord>(sql, new { handoverId }).ToList();
+
+            // If no sections exist, create default empty sections
+            if (!sections.Any())
+            {
+                sections = new List<HandoverSectionRecord>
+                {
+                    new HandoverSectionRecord(
+                        Id: $"section-{handoverId}-severity",
+                        SectionType: "illness_severity",
+                        Content: "Stable",
+                        Status: "draft",
+                        LastEditedBy: null,
+                        CreatedAt: DateTime.Now,
+                        UpdatedAt: DateTime.Now
+                    ),
+                    new HandoverSectionRecord(
+                        Id: $"section-{handoverId}-summary",
+                        SectionType: "patient_summary",
+                        Content: "",
+                        Status: "draft",
+                        LastEditedBy: null,
+                        CreatedAt: DateTime.Now,
+                        UpdatedAt: DateTime.Now
+                    ),
+                    new HandoverSectionRecord(
+                        Id: $"section-{handoverId}-actions",
+                        SectionType: "action_items",
+                        Content: "",
+                        Status: "draft",
+                        LastEditedBy: null,
+                        CreatedAt: DateTime.Now,
+                        UpdatedAt: DateTime.Now
+                    ),
+                    new HandoverSectionRecord(
+                        Id: $"section-{handoverId}-awareness",
+                        SectionType: "situation_awareness",
+                        Content: "",
+                        Status: "draft",
+                        LastEditedBy: null,
+                        CreatedAt: DateTime.Now,
+                        UpdatedAt: DateTime.Now
+                    ),
+                    new HandoverSectionRecord(
+                        Id: $"section-{handoverId}-synthesis",
+                        SectionType: "synthesis",
+                        Content: "",
+                        Status: "draft",
+                        LastEditedBy: null,
+                        CreatedAt: DateTime.Now,
+                        UpdatedAt: DateTime.Now
+                    )
+                };
+            }
+
+            return sections;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get sections for handover {HandoverId}", handoverId);
+            return Array.Empty<HandoverSectionRecord>();
+        }
+    }
+
+    public HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string sql = @"
+                SELECT ID, SYNC_STATUS, LAST_SYNC, VERSION
+                FROM HANDOVER_SYNC_STATUS
+                WHERE HANDOVER_ID = :handoverId AND USER_ID = :userId";
+
+            var syncStatus = conn.QueryFirstOrDefault<HandoverSyncStatusRecord>(sql, new { handoverId, userId });
+
+            // If no sync status exists, create a default one
+            if (syncStatus == null)
+            {
+                syncStatus = new HandoverSyncStatusRecord(
+                    Id: $"sync-{handoverId}-{userId}",
+                    SyncStatus: "synced",
+                    LastSync: DateTime.Now,
+                    Version: 1
+                );
+            }
+
+            return syncStatus;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get sync status for handover {HandoverId}, user {UserId}", handoverId, userId);
+            return null;
+        }
+    }
+
+    public bool UpdateHandoverSection(string handoverId, string sectionId, string content, string status, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // First check if the section exists
+            const string checkSql = "SELECT COUNT(1) FROM HANDOVER_SECTIONS WHERE ID = :sectionId AND HANDOVER_ID = :handoverId";
+            var exists = conn.ExecuteScalar<int>(checkSql, new { sectionId, handoverId }) > 0;
+
+            if (exists)
+            {
+                // Update existing section
+                const string updateSql = @"
+                    UPDATE HANDOVER_SECTIONS
+                    SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+                    WHERE ID = :sectionId AND HANDOVER_ID = :handoverId";
+
+                var rowsAffected = conn.Execute(updateSql, new { sectionId, handoverId, content, status, userId });
+                return rowsAffected > 0;
+            }
+            else
+            {
+                // Insert new section
+                const string insertSql = @"
+                    INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+                    VALUES (:sectionId, :handoverId, :sectionType, :content, :status, :userId, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+                // Extract section type from sectionId (e.g., "section-h1-severity" -> "illness_severity")
+                var sectionType = sectionId.Contains("severity") ? "illness_severity" :
+                                 sectionId.Contains("summary") ? "patient_summary" :
+                                 sectionId.Contains("actions") ? "action_items" :
+                                 sectionId.Contains("awareness") ? "situation_awareness" :
+                                 "synthesis";
+
+                var rowsAffected = conn.Execute(insertSql, new { sectionId, handoverId, sectionType, content, status, userId });
+                return rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update handover section {SectionId}", sectionId);
+            throw;
+        }
+    }
+
+    public UserPreferencesRecord? GetUserPreferences(string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string sql = @"
+                SELECT ID, USER_ID, THEME, LANGUAGE, TIMEZONE, NOTIFICATIONS_ENABLED, AUTO_SAVE_ENABLED,
+                       CREATED_AT, UPDATED_AT
+                FROM USER_PREFERENCES
+                WHERE USER_ID = :userId";
+
+            var row = conn.QueryFirstOrDefault(sql, new { userId });
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            return new UserPreferencesRecord(
+                Id: row.ID,
+                UserId: row.USER_ID,
+                Theme: row.THEME ?? "light",
+                Language: row.LANGUAGE ?? "en",
+                Timezone: row.TIMEZONE ?? "UTC",
+                NotificationsEnabled: row.NOTIFICATIONS_ENABLED == 1,
+                AutoSaveEnabled: row.AUTO_SAVE_ENABLED == 1,
+                CreatedAt: row.CREATED_AT,
+                UpdatedAt: row.UPDATED_AT
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get user preferences for user {UserId}", userId);
+            return null;
+        }
+    }
+
+    public IReadOnlyList<UserSessionRecord> GetUserSessions(string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            const string sql = @"
+                SELECT ID, USER_ID, SESSION_START, SESSION_END, IP_ADDRESS, USER_AGENT, IS_ACTIVE
+                FROM USER_SESSIONS
+                WHERE USER_ID = :userId
+                ORDER BY SESSION_START DESC";
+
+            var sessions = conn.Query<UserSessionRecord>(sql, new { userId }).ToList();
+
+            return sessions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get user sessions for user {UserId}", userId);
+            return Array.Empty<UserSessionRecord>();
+        }
+    }
+
+    public bool UpdateUserPreferences(string userId, UserPreferencesRecord preferences)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Check if preferences exist
+            const string checkSql = "SELECT COUNT(1) FROM USER_PREFERENCES WHERE USER_ID = :userId";
+            var exists = conn.ExecuteScalar<int>(checkSql, new { userId }) > 0;
+
+            if (exists)
+            {
+                // Update existing preferences
+                const string updateSql = @"
+                    UPDATE USER_PREFERENCES
+                    SET THEME = :theme, LANGUAGE = :language, TIMEZONE = :timezone,
+                        NOTIFICATIONS_ENABLED = :notificationsEnabled, AUTO_SAVE_ENABLED = :autoSaveEnabled,
+                        UPDATED_AT = SYSTIMESTAMP
+                    WHERE USER_ID = :userId";
+
+                var rowsAffected = conn.Execute(updateSql, new
+                {
+                    userId,
+                    theme = preferences.Theme,
+                    language = preferences.Language,
+                    timezone = preferences.Timezone,
+                    notificationsEnabled = preferences.NotificationsEnabled ? 1 : 0,
+                    autoSaveEnabled = preferences.AutoSaveEnabled ? 1 : 0
+                });
+
+                return rowsAffected > 0;
+            }
+            else
+            {
+                // Insert new preferences
+                const string insertSql = @"
+                    INSERT INTO USER_PREFERENCES (ID, USER_ID, THEME, LANGUAGE, TIMEZONE, NOTIFICATIONS_ENABLED, AUTO_SAVE_ENABLED, CREATED_AT, UPDATED_AT)
+                    VALUES (:id, :userId, :theme, :language, :timezone, :notificationsEnabled, :autoSaveEnabled, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+                var rowsAffected = conn.Execute(insertSql, new
+                {
+                    id = preferences.Id,
+                    userId,
+                    theme = preferences.Theme,
+                    language = preferences.Language,
+                    timezone = preferences.Timezone,
+                    notificationsEnabled = preferences.NotificationsEnabled ? 1 : 0,
+                    autoSaveEnabled = preferences.AutoSaveEnabled ? 1 : 0
+                });
+
+                return rowsAffected > 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update user preferences for user {UserId}", userId);
+            throw;
+        }
+    }
 }

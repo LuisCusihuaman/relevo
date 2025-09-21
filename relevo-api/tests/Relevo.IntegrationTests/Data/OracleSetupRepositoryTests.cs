@@ -382,6 +382,223 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         result!.SituationAwarenessDocId.Should().Be(docId);
     }
 
+    [Fact]
+    public void GetActiveHandover_ReturnsActiveHandover_WhenUserHasActiveHandover()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var userId = "test-user-active";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-active";
+        var handoverId = "test-active-handover";
+
+        // Create active handover
+        CreateActiveTestHandover(handoverId, patientId, assignmentId, userId);
+
+        // Act
+        var result = _repository.GetActiveHandover(userId);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(handoverId);
+        result.Status.Should().Be("Active");
+        result.AssignedTo.Should().Be(userId);
+        result.PatientName.Should().Be("Test Patient 1");
+    }
+
+    [Fact]
+    public void GetActiveHandover_ReturnsNull_WhenUserHasNoActiveHandover()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var userId = "test-user-no-active";
+
+        // Act
+        var result = _repository.GetActiveHandover(userId);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetHandoverParticipants_ReturnsParticipants_WhenHandoverHasParticipants()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-participants";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-participants";
+        var userId = "test-user-participants";
+
+        // Create handover with participants
+        CreateTestHandoverWithParticipants(handoverId, patientId, assignmentId, userId);
+
+        // Act
+        var participants = _repository.GetHandoverParticipants(handoverId);
+
+        // Assert
+        participants.Should().NotBeNull();
+        participants.Should().NotBeEmpty();
+        participants.Should().HaveCountGreaterThan(0);
+        participants[0].HandoverId.Should().Be(handoverId);
+        participants[0].UserId.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void GetHandoverSections_ReturnsSections_WhenHandoverHasSections()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-sections";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-sections";
+        var userId = "test-user-sections";
+
+        // Create handover with sections
+        CreateTestHandoverWithSections(handoverId, patientId, assignmentId, userId);
+
+        // Act
+        var sections = _repository.GetHandoverSections(handoverId);
+
+        // Assert
+        sections.Should().NotBeNull();
+        sections.Should().NotBeEmpty();
+        sections.Should().HaveCountGreaterThan(0);
+        sections[0].HandoverId.Should().Be(handoverId);
+        sections[0].SectionType.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void GetHandoverSyncStatus_ReturnsSyncStatus_WhenSyncStatusExists()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var handoverId = "test-handover-sync";
+        var patientId = "test-patient-1";
+        var assignmentId = "test-assignment-sync";
+        var userId = "test-user-sync";
+
+        // Create handover with sync status
+        CreateTestHandoverWithSyncStatus(handoverId, patientId, assignmentId, userId);
+
+        // Act
+        var syncStatus = _repository.GetHandoverSyncStatus(handoverId, userId);
+
+        // Assert
+        syncStatus.Should().NotBeNull();
+        syncStatus!.HandoverId.Should().Be(handoverId);
+        syncStatus.UserId.Should().Be(userId);
+        syncStatus.SyncStatus.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void GetUserPreferences_ReturnsPreferences_WhenUserHasPreferences()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var userId = "test-user-preferences";
+
+        // Create user preferences
+        CreateTestUserPreferences(userId);
+
+        // Act
+        var preferences = _repository.GetUserPreferences(userId);
+
+        // Assert
+        preferences.Should().NotBeNull();
+        preferences!.UserId.Should().Be(userId);
+        preferences.Theme.Should().NotBeNullOrEmpty();
+        preferences.Language.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void GetUserSessions_ReturnsSessions_WhenUserHasSessions()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var userId = "test-user-sessions";
+
+        // Create user sessions
+        CreateTestUserSessions(userId);
+
+        // Act
+        var sessions = _repository.GetUserSessions(userId);
+
+        // Assert
+        sessions.Should().NotBeNull();
+        sessions.Should().NotBeEmpty();
+        sessions.Should().HaveCountGreaterThan(0);
+        sessions[0].UserId.Should().Be(userId);
+    }
+
+    [Fact]
+    public void UpdateUserPreferences_ReturnsTrue_WhenUpdateSucceeds()
+    {
+        if (_connection == null)
+        {
+            Assert.True(true, _oracleUnavailableMessage);
+            return;
+        }
+
+        // Arrange
+        var userId = "test-user-update-prefs";
+
+        // Create initial preferences
+        CreateTestUserPreferences(userId);
+
+        var updatedPreferences = new UserPreferencesRecord(
+            "test-pref-update", userId, "dark", "es", "Europe/Madrid",
+            false, true, System.DateTime.Now, System.DateTime.Now
+        );
+
+        // Act
+        var result = _repository.UpdateUserPreferences(userId, updatedPreferences);
+
+        // Assert
+        result.Should().BeTrue();
+
+        // Verify the update
+        var retrievedPreferences = _repository.GetUserPreferences(userId);
+        retrievedPreferences.Should().NotBeNull();
+        retrievedPreferences!.Theme.Should().Be("dark");
+        retrievedPreferences.Language.Should().Be("es");
+    }
+
     private bool CheckHandoverExists(string assignmentId)
     {
         if (_connection == null) return false;
@@ -496,6 +713,131 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
                 '{handoverId}', '{assignmentId}', '{patientId}', 'InProgress',
                 'Watcher', 'Test handover with doc ID', '{docId}',
                 'Test Shift', 'test-user-docid', 'test-user-docid'
+            )");
+    }
+
+    private void CreateActiveTestHandover(string handoverId, string patientId, string assignmentId, string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', '{userId}', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Active handover for testing', 'Test Shift', '{userId}', '{userId}'
+            )");
+    }
+
+    private void CreateTestHandoverWithParticipants(string handoverId, string patientId, string assignmentId, string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', '{userId}', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Handover with participants', 'Test Shift', '{userId}', '{userId}'
+            )");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVER_PARTICIPANTS (
+                ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS
+            ) VALUES (
+                'part-001', '{handoverId}', '{userId}', 'Test User', 'Physician', 'active'
+            )");
+    }
+
+    private void CreateTestHandoverWithSections(string handoverId, string patientId, string assignmentId, string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', '{userId}', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Handover with sections', 'Test Shift', '{userId}', '{userId}'
+            )");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVER_SECTIONS (
+                ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY
+            ) VALUES (
+                'section-001', '{handoverId}', 'illness_severity', 'Patient condition assessment', 'completed', '{userId}'
+            )");
+    }
+
+    private void CreateTestHandoverWithSyncStatus(string handoverId, string patientId, string assignmentId, string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+            VALUES ('{assignmentId}', '{userId}', 'test-shift-1', '{patientId}')");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVERS (
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+            ) VALUES (
+                '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
+                'Stable', 'Handover with sync status', 'Test Shift', '{userId}', '{userId}'
+            )");
+
+        ExecuteSql($@"
+            INSERT INTO HANDOVER_SYNC_STATUS (
+                ID, HANDOVER_ID, USER_ID, SYNC_STATUS, VERSION
+            ) VALUES (
+                'sync-001', '{handoverId}', '{userId}', 'synced', 1
+            )");
+    }
+
+    private void CreateTestUserPreferences(string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, ROLE)
+            VALUES ('{userId}', '{userId}@test.com', 'Test', 'User', 'Test User', 'doctor')");
+
+        ExecuteSql($@"
+            INSERT INTO USER_PREFERENCES (
+                ID, USER_ID, THEME, LANGUAGE, TIMEZONE, NOTIFICATIONS_ENABLED, AUTO_SAVE_ENABLED
+            ) VALUES (
+                'pref-{userId}', '{userId}', 'light', 'en', 'UTC', 1, 1
+            )");
+    }
+
+    private void CreateTestUserSessions(string userId)
+    {
+        if (_connection == null) return;
+
+        ExecuteSql($@"
+            INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, ROLE)
+            VALUES ('{userId}', '{userId}@test.com', 'Test', 'User', 'Test User', 'doctor')");
+
+        ExecuteSql($@"
+            INSERT INTO USER_SESSIONS (
+                ID, USER_ID, IP_ADDRESS, USER_AGENT, IS_ACTIVE
+            ) VALUES (
+                'session-{userId}', '{userId}', '192.168.1.100', 'Test Browser', 1
             )");
     }
 

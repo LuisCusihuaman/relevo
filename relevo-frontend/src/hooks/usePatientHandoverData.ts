@@ -1,5 +1,6 @@
 import { useActiveHandover, getSectionByType, getActionItems, type ActiveHandoverData, type PatientDetail } from "@/api";
 import { useMemo } from "react";
+import { useActionItems } from "@/hooks/useActionItems";
 
 export interface PatientHandoverData {
 	id: string;
@@ -51,8 +52,17 @@ export function usePatientHandoverData(): {
 		const handover = activeHandoverData.handover;
 		const patient = handover.patientName || "Unknown Patient";
 
-		// Calculate approximate age (this would ideally come from patient details)
-		const age = 14; // Default age, would be calculated from DOB in real implementation
+		// Calculate approximate age from date of birth if available
+		let age = 0;
+		if (handover.patientDob) {
+			const birthDate = new Date(handover.patientDob);
+			const today = new Date();
+			age = today.getFullYear() - birthDate.getFullYear();
+			const monthDiff = today.getMonth() - birthDate.getMonth();
+			if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+				age--;
+			}
+		}
 
 		// Get severity from handover data
 		let severity: "stable" | "watcher" | "unstable" = "stable";
@@ -113,7 +123,7 @@ export function usePatientHandoverData(): {
 			id: handover.patientId,
 			name: patient,
 			age,
-			mrn: "MRN-001", // This would come from patient details in real implementation
+			mrn: `MRN-${handover.patientId?.split('-').pop()?.padStart(3, '0') || '001'}`,
 			admissionDate: handover.createdAt || new Date().toISOString(),
 			currentDateTime: new Date().toLocaleString(),
 			primaryTeam: handover.shiftName || "Day Shift",
@@ -121,7 +131,7 @@ export function usePatientHandoverData(): {
 			severity,
 			handoverStatus,
 			shift: `${handover.shiftName} → Next Shift`,
-			room: "201", // This would come from patient details
+			room: handover.patientRoom || "201",
 			unit: "Internal Medicine", // This would come from patient details
 			assignedPhysician: assignedPhysicianData,
 			receivingPhysician: receivingPhysicianData,

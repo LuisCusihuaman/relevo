@@ -84,12 +84,71 @@ export function getActionItems(sections: HandoverSection[]): Array<{ id: string;
 	const actionItemsSection = getSectionByType(sections, "action_items");
 	if (!actionItemsSection?.content) return [];
 
-	// Parse action items from content (assuming comma-separated format)
-	return actionItemsSection.content
-		.split(",")
-		.map((item, index) => ({
-			id: `action-${index}`,
-			description: item.trim(),
-			isCompleted: false, // This would come from HANDOVER_ACTION_ITEMS table in a real implementation
-		}));
+	// Parse action items from content (assuming JSON format or comma-separated)
+	try {
+		// Try to parse as JSON first
+		const parsed = JSON.parse(actionItemsSection.content);
+		if (Array.isArray(parsed)) {
+			return parsed.map((item, index) => ({
+				id: item.id || `action-${index}`,
+				description: item.description || item.task || item,
+				isCompleted: item.isCompleted || item.completed || false,
+			}));
+		}
+	} catch {
+		// Fallback to comma-separated format
+		return actionItemsSection.content
+			.split(",")
+			.map((item, index) => ({
+				id: `action-${index}`,
+				description: item.trim(),
+				isCompleted: false,
+			}));
+	}
+
+	return [];
+}
+
+/**
+ * Create a new action item
+ */
+export async function createActionItem(
+	handoverId: string,
+	description: string,
+	priority: "low" | "medium" | "high" = "medium",
+	dueTime?: string
+): Promise<{ success: boolean; message: string; actionItem?: any }> {
+	const { data } = await api.post<{ success: boolean; message: string; actionItem?: any }>(
+		`/me/handovers/${handoverId}/action-items`,
+		{ description, priority, dueTime }
+	);
+	return data;
+}
+
+/**
+ * Update an action item
+ */
+export async function updateActionItem(
+	handoverId: string,
+	actionItemId: string,
+	updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string }
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`,
+		updates
+	);
+	return data;
+}
+
+/**
+ * Delete an action item
+ */
+export async function deleteActionItem(
+	handoverId: string,
+	actionItemId: string
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.delete<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`
+	);
+	return data;
 }

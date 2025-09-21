@@ -1,5 +1,12 @@
 using Relevo.Web.Patients;
 using Relevo.Web.Me;
+using Relevo.Core.Interfaces;
+
+// Use specific types from Core layer to avoid conflicts
+using PatientRecord = Relevo.Core.Interfaces.PatientRecord;
+using UnitRecord = Relevo.Core.Interfaces.UnitRecord;
+using ShiftRecord = Relevo.Core.Interfaces.ShiftRecord;
+using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Setup;
 

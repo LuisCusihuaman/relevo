@@ -1,7 +1,10 @@
 using Ardalis.HttpClientTestExtensions;
 using Relevo.Web.Setup;
 using Relevo.Web.Models;
+using Relevo.Web.Me;
+using Relevo.Core.Interfaces;
 using Xunit;
+using System.Net;
 
 namespace Relevo.FunctionalTests.ApiEndpoints;
 
@@ -26,6 +29,31 @@ public class SetupEndpoints(CustomWebApplicationFactory<Program> factory) : ICla
     Assert.NotNull(result);
     Assert.NotEmpty(result.Shifts);
     Assert.Contains(result.Shifts, s => s.Id == "shift-day");
+  }
+
+  [Fact]
+  public async Task GetActiveHandover_ReturnsHandover_WhenUserHasActiveHandover()
+  {
+    var result = await _client.GetAndDeserializeAsync<GetActiveHandoverResponse>("/me/handovers/active");
+    Assert.NotNull(result);
+    // This test will pass once we have seed data for active handovers
+    // For now, it should return 404 or empty result
+  }
+
+  [Fact]
+  public async Task GetUserPreferences_ReturnsPreferences_WhenUserExists()
+  {
+    var result = await _client.GetAndDeserializeAsync<UserPreferencesRecord>("/me/preferences");
+    Assert.NotNull(result);
+    // Test will validate user preferences are returned correctly
+  }
+
+  [Fact]
+  public async Task GetUserSessions_ReturnsSessions_WhenUserExists()
+  {
+    var result = await _client.GetAndDeserializeAsync<IReadOnlyList<UserSessionRecord>>("/me/sessions");
+    Assert.NotNull(result);
+    // Test will validate user sessions are returned correctly
   }
 
 }

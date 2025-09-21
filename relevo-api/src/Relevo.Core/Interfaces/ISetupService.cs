@@ -17,4 +17,7 @@ public interface ISetupService
     Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId);
     Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId);
     Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId);
+    Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId);
+    Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId);
+    Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences);
 }

@@ -267,6 +267,9 @@ export function MainContent({
                 collaborators={activeCollaborators}
                 focusMode={focusMode}
                 onOpenThread={handleOpenDiscussion}
+                handoverId={handoverData?.handover?.id}
+                currentUser={currentUser}
+                assignedPhysician={currentUser}
               />
             </div>
 
@@ -623,6 +626,9 @@ export function MainContent({
                     collaborators={activeCollaborators}
                     focusMode={focusMode}
                     onOpenThread={handleOpenDiscussion}
+                    handoverId={handoverData?.handover?.id}
+                    currentUser={currentUser}
+                    assignedPhysician={currentUser}
                   />
                 </div>
               </div>
@@ -921,6 +927,9 @@ export function MainContent({
                   collaborators={activeCollaborators}
                   focusMode={focusMode}
                   onOpenThread={handleOpenDiscussion}
+                  handoverId={handoverData?.handover?.id}
+                  currentUser={currentUser}
+                  assignedPhysician={currentUser}
                 />
               </div>
             </CollapsibleContent>

@@ -56,25 +56,3 @@ public class GetMyHandoversResponse
 }
 
 
-public record HandoverRecord(
-  string Id,
-  string AssignmentId,
-  string PatientId,
-  string Status,
-  HandoverIllnessSeverity IllnessSeverity,
-  HandoverPatientSummary PatientSummary,
-  List<HandoverActionItem> ActionItems,
-  string ShiftName,
-  string CreatedBy,
-  string AssignedTo,
-  string? SituationAwarenessDocId = null,
-  HandoverSynthesis? Synthesis = null
-);
-
-public record HandoverIllnessSeverity(string Severity);
-
-public record HandoverPatientSummary(string Content);
-
-public record HandoverActionItem(string Id, string Description, bool IsCompleted);
-
-public record HandoverSynthesis(string Content);

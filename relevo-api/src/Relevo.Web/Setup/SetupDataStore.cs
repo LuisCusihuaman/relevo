@@ -3,6 +3,13 @@ using Relevo.Web.Me;
 using System.Data;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
+using Relevo.Core.Interfaces;
+
+// Use specific types from Core layer to avoid conflicts
+using PatientRecord = Relevo.Core.Interfaces.PatientRecord;
+using UnitRecord = Relevo.Core.Interfaces.UnitRecord;
+using ShiftRecord = Relevo.Core.Interfaces.ShiftRecord;
+using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Setup;
 
@@ -158,45 +165,45 @@ public class SetupDataStore : ISetupDataProvider
     var allPatients = new List<(string UnitId, PatientRecord Patient)>
     {
       // UCI (unit-1) - 12 patients
-      ("unit-1", new PatientRecord("pat-001", "María García")),
-      ("unit-1", new PatientRecord("pat-002", "Carlos Rodríguez")),
-      ("unit-1", new PatientRecord("pat-003", "Ana López")),
-      ("unit-1", new PatientRecord("pat-004", "Miguel Hernández")),
-      ("unit-1", new PatientRecord("pat-005", "Isabella González")),
-      ("unit-1", new PatientRecord("pat-006", "David Pérez")),
-      ("unit-1", new PatientRecord("pat-007", "Sofia Martínez")),
-      ("unit-1", new PatientRecord("pat-008", "José Sánchez")),
-      ("unit-1", new PatientRecord("pat-009", "Carmen Díaz")),
-      ("unit-1", new PatientRecord("pat-010", "Antonio Moreno")),
-      ("unit-1", new PatientRecord("pat-011", "Elena Jiménez")),
-      ("unit-1", new PatientRecord("pat-012", "Francisco Ruiz")),
+      ("unit-1", new PatientRecord("pat-001", "María García", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-002", "Carlos Rodríguez", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-003", "Ana López", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-004", "Miguel Hernández", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-005", "Isabella González", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-006", "David Pérez", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-007", "Sofia Martínez", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-008", "José Sánchez", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-009", "Carmen Díaz", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-010", "Antonio Moreno", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-011", "Elena Jiménez", "not-started", null)),
+      ("unit-1", new PatientRecord("pat-012", "Francisco Ruiz", "not-started", null)),
 
       // Pediatría General (unit-2) - 12 patients
-      ("unit-2", new PatientRecord("pat-013", "Lucía Álvarez")),
-      ("unit-2", new PatientRecord("pat-014", "Pablo Romero")),
-      ("unit-2", new PatientRecord("pat-015", "Valentina Navarro")),
-      ("unit-2", new PatientRecord("pat-016", "Diego Torres")),
-      ("unit-2", new PatientRecord("pat-017", "Marta Ramírez")),
-      ("unit-2", new PatientRecord("pat-018", "Adrián Gil")),
-      ("unit-2", new PatientRecord("pat-019", "Clara Serrano")),
-      ("unit-2", new PatientRecord("pat-020", "Hugo Castro")),
-      ("unit-2", new PatientRecord("pat-021", "Natalia Rubio")),
-      ("unit-2", new PatientRecord("pat-022", "Iván Ortega")),
-      ("unit-2", new PatientRecord("pat-023", "Paula Delgado")),
-      ("unit-2", new PatientRecord("pat-024", "Mario Guerrero")),
+      ("unit-2", new PatientRecord("pat-013", "Lucía Álvarez", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-014", "Pablo Romero", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-015", "Valentina Navarro", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-016", "Diego Torres", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-017", "Marta Ramírez", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-018", "Adrián Gil", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-019", "Clara Serrano", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-020", "Hugo Castro", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-021", "Natalia Rubio", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-022", "Iván Ortega", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-023", "Paula Delgado", "not-started", null)),
+      ("unit-2", new PatientRecord("pat-024", "Mario Guerrero", "not-started", null)),
 
       // Pediatría Especializada (unit-3) - 11 patients
-      ("unit-3", new PatientRecord("pat-025", "Laura Flores")),
-      ("unit-3", new PatientRecord("pat-026", "Álvaro Vargas")),
-      ("unit-3", new PatientRecord("pat-027", "Cristina Medina")),
-      ("unit-3", new PatientRecord("pat-028", "Sergio Herrera")),
-      ("unit-3", new PatientRecord("pat-029", "Alicia Castro")),
-      ("unit-3", new PatientRecord("pat-030", "Roberto Vega")),
-      ("unit-3", new PatientRecord("pat-031", "Beatriz León")),
-      ("unit-3", new PatientRecord("pat-032", "Manuel Peña")),
-      ("unit-3", new PatientRecord("pat-033", "Silvia Cortés")),
-      ("unit-3", new PatientRecord("pat-034", "Fernando Aguilar")),
-      ("unit-3", new PatientRecord("pat-035", "Teresa Santana"))
+      ("unit-3", new PatientRecord("pat-025", "Laura Flores", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-026", "Álvaro Vargas", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-027", "Cristina Medina", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-028", "Sergio Herrera", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-029", "Alicia Castro", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-030", "Roberto Vega", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-031", "Beatriz León", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-032", "Manuel Peña", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-033", "Silvia Cortés", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-034", "Fernando Aguilar", "not-started", null)),
+      ("unit-3", new PatientRecord("pat-035", "Teresa Santana", "not-started", null))
     };
 
     var unitPatients = allPatients
@@ -272,6 +279,7 @@ public class SetupDataStore : ISetupDataProvider
         Id: "hvo-001",
         AssignmentId: "assign-001",
         PatientId: "pat-001",
+        PatientName: "María García",
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient is stable post-surgery with good vital signs."),
@@ -284,12 +292,14 @@ public class SetupDataStore : ISetupDataProvider
         CreatedBy: "user-123",
         AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-001-sa",
-        Synthesis: null
+        Synthesis: null,
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
       ),
       new HandoverRecord(
         Id: "hvo-002",
         AssignmentId: "assign-002",
         PatientId: "pat-013",
+        PatientName: "Lucía Álvarez",
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
         PatientSummary: new HandoverPatientSummary("Patient showing signs of improvement with reduced oxygen requirements."),
@@ -302,12 +312,14 @@ public class SetupDataStore : ISetupDataProvider
         CreatedBy: "user-123",
         AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-002-sa",
-        Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status.")
+        Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status."),
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
       ),
       new HandoverRecord(
         Id: "hvo-003",
         AssignmentId: "assign-003",
         PatientId: "pat-025",
+        PatientName: "Laura Flores",
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
         PatientSummary: new HandoverPatientSummary("Patient requires close monitoring due to fluctuating vital signs."),
@@ -320,7 +332,8 @@ public class SetupDataStore : ISetupDataProvider
         CreatedBy: "user-123",
         AssignedTo: "user-123",
         SituationAwarenessDocId: "hvo-003-sa",
-        Synthesis: null
+        Synthesis: null,
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
       )
     };
 

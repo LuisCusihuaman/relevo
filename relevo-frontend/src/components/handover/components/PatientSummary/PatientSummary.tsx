@@ -42,12 +42,8 @@ export function PatientSummary({
   onSaveReady,
   syncStatus = "synced",
   onSyncStatusChange,
-  currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
-  assignedPhysician = {
-    name: "Dr. Johnson",
-    initials: "DJ",
-    role: "Day Attending",
-  },
+  currentUser,
+  assignedPhysician,
   onContentChange,
 }: PatientSummaryProps): JSX.Element {
   const { t } = useTranslation("patientSummary");
