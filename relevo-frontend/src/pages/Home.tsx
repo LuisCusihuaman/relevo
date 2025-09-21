@@ -21,13 +21,13 @@ function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
 	const getStatusFromHandoverStatus = (status: PatientSummaryCard["handoverStatus"]): string => {
 		switch (status) {
 			case "NotStarted":
-				return "home:patientList.noActiveHandover";
+				return "home:patientList.noHandover";
 			case "InProgress":
 				return "home:patientList.startHandover";
 			case "Completed":
 				return "home:patientList.handoverCompleted";
 			default:
-				return "home:patientList.noActiveHandover";
+				return "home:patientList.noHandover";
 		}
 	};
 

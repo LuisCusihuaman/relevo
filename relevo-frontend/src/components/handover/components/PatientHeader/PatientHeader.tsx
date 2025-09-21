@@ -148,7 +148,7 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
             <div className="flex items-center space-x-2">
               <Activity className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-800">
-                {t("activeHandoverSession", { shift: patient.shift })}
+                {t("handoverSession", { shift: patient.shift })}
               </span>
               <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
             </div>

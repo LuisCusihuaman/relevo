@@ -6,7 +6,7 @@
   "handoverInProgress": "Handover In Progress",
   "handoverComplete": "Handover Complete",
   "los": "LOS: {{count}} days",
-  "activeHandoverSession": "Active handover session: {{shift}}",
+  "handoverSession": "Handover session: {{shift}}",
   "collaborationMessage": "Team members are currently collaborating on this handover",
   "severity": {
     "stable": "Stable",

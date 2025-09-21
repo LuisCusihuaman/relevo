@@ -29,28 +29,26 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 	// Handle navigation when handover data is loaded
 	useEffect(() => {
 		if (handoverTimeline?.items && handoverTimeline.items.length > 0 && selectedPatientId) {
-			// Find the active handover (Active or InProgress status)
-			const activeHandover = handoverTimeline.items.find(
-				(item) => item.status === "Active" || item.status === "InProgress"
-			);
+			// Find the most recent handover (regardless of status)
+			const mostRecentHandover = handoverTimeline.items[0]; // Items are already sorted by creation date
 
-			if (activeHandover) {
+			if (mostRecentHandover) {
 				// Find the patient to get the URL slug
 				const patient = patients.find((p: Patient) => p.id === selectedPatientId);
-				if (patient && activeHandover.id) {
-					console.log("Navigating to active handover:", activeHandover.id);
+				if (patient && mostRecentHandover.id) {
+					console.log("Navigating to most recent handover:", mostRecentHandover.id);
 					void navigate({
 						to: "/$patientSlug/$handoverId",
 						params: {
 							patientSlug: patient.url,
-							handoverId: activeHandover.id,
+							handoverId: mostRecentHandover.id,
 						},
 					});
 				}
 			} else {
-				// No active handover found
-				console.log("No active handover found for patient:", selectedPatientId);
-				alert("Este paciente no tiene un handover activo en este momento.");
+				// No handover found
+				console.log("No handover found for patient:", selectedPatientId);
+				alert("No se encontraron handovers para este paciente.");
 			}
 
 			// Reset selected patient

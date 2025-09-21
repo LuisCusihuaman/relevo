@@ -318,8 +318,8 @@ public class OracleSetupRepository : ISetupRepository
             var randomPart = new Random().Next(1000, 9999);
             var handoverId = $"hvo-{timestamp}-{randomPart}";
 
-            var fromShiftName = (await conn.QueryFirstOrDefaultAsync<ShiftRecord>("SELECT ID AS Id, NAME AS Name FROM SHIFTS WHERE ID = :fromShiftId", new { fromShiftId }))?.Name ?? "Unknown";
-            var toShiftName = (await conn.QueryFirstOrDefaultAsync<ShiftRecord>("SELECT ID AS Id, NAME AS Name FROM SHIFTS WHERE ID = :toShiftId", new { toShiftId }))?.Name ?? "Unknown";
+            var fromShiftName = await conn.ExecuteScalarAsync<string>("SELECT NAME FROM SHIFTS WHERE ID = :fromShiftId", new { fromShiftId }) ?? "Unknown";
+            var toShiftName = await conn.ExecuteScalarAsync<string>("SELECT NAME FROM SHIFTS WHERE ID = :toShiftId", new { toShiftId }) ?? "Unknown";
 
             // Create handover
             await conn.ExecuteAsync(@"

@@ -5,6 +5,7 @@ using Relevo.Core.Services;
 using Relevo.Infrastructure.Data;
 using Relevo.Infrastructure.Data.Queries;
 using Relevo.UseCases.Contributors.List;
+using Relevo.UseCases.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,9 @@ public static class InfrastructureServiceExtensions
 
     // Setup Application Service
     services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();
+
+    // Add core services including ShiftBoundaryResolver
+    services.AddCoreServices();
 
     // Authentication and Authorization Services
     services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, Auth.ClerkAuthenticationService>();

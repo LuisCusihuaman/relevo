@@ -6,7 +6,7 @@
   "handoverInProgress": "Traspaso en Curso",
   "handoverComplete": "Traspaso Completo",
   "los": "Días de estadía: {{count}}",
-  "activeHandoverSession": "Sesión de traspaso activa: {{shift}}",
+  "handoverSession": "Sesión de traspaso: {{shift}}",
   "collaborationMessage": "Los miembros del equipo están colaborando actualmente en este traspaso",
   "severity": {
     "stable": "Estable",

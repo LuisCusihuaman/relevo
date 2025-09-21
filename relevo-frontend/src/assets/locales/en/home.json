@@ -114,7 +114,7 @@
   "patientList.noPatientsFound": "No patients found.",
   "patientList.changeFilters": "Change filters",
   "patientList.initialAdmission": "Initial admission",
-  "patientList.noActiveHandover": "No active handover",
+  "patientList.noHandover": "No handover available",
   "patientList.pendingClinicalNotes": "Pending clinical notes"
 }
 

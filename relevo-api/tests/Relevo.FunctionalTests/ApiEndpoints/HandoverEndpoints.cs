@@ -11,14 +11,7 @@ public class HandoverEndpoints(CustomWebApplicationFactory<Program> factory) : I
 {
   private readonly HttpClient _client = factory.CreateClient();
 
-  [Fact]
-  public async Task GetActiveHandover_ReturnsData_WhenActiveHandoverExists()
-  {
-    var response = await _client.GetAsync("/me/handovers/active");
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    // With seed data, we expect to get a handover
-  }
-
-
+  // Active handover endpoint has been removed from the system
+  // The concept of "active handover" is no longer part of the state machine
 
 }

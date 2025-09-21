@@ -161,6 +161,69 @@ export async function updateChecklistItem(
 	return data;
 }
 
+// HANDOVER ACTION ITEMS
+// ----------------------------------------
+
+export async function getHandoverActionItems(handoverId: string): Promise<{
+	actionItems: Array<{
+		id: string;
+		handoverId: string;
+		description: string;
+		isCompleted: boolean;
+		createdAt: string;
+		updatedAt: string;
+		completedAt: string | null;
+	}>;
+}> {
+	const { data } = await api.get<{
+		actionItems: Array<{
+			id: string;
+			handoverId: string;
+			description: string;
+			isCompleted: boolean;
+			createdAt: string;
+			updatedAt: string;
+			completedAt: string | null;
+		}>;
+	}>(`/me/handovers/${handoverId}/action-items`);
+	return data;
+}
+
+export async function createActionItem(
+	handoverId: string,
+	description: string,
+	priority: "low" | "medium" | "high" = "medium",
+	dueTime?: string
+): Promise<{ success: boolean; actionItemId: string }> {
+	const { data } = await api.post<{ success: boolean; actionItemId: string }>(
+		`/me/handovers/${handoverId}/action-items`,
+		{ description, priority, dueTime }
+	);
+	return data;
+}
+
+export async function updateActionItem(
+	handoverId: string,
+	actionItemId: string,
+	updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string }
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`,
+		updates
+	);
+	return data;
+}
+
+export async function deleteActionItem(
+	handoverId: string,
+	actionItemId: string
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.delete<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`
+	);
+	return data;
+}
+
 // HANDOVER CONTINGENCY PLANS
 // ----------------------------------------
 
@@ -376,6 +439,81 @@ export function useUpdateChecklistItem() {
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.checklists(variables.handoverId),
+			});
+		},
+	});
+}
+
+// HOOKS: HANDOVER ACTION ITEMS
+// ----------------------------------------
+
+export function useHandoverActionItems(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.detail(handoverId).concat("action-items"),
+		queryFn: () => getHandoverActionItems(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+export function useCreateActionItem() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			description,
+			priority,
+			dueTime,
+		}: {
+			handoverId: string;
+			description: string;
+			priority?: "low" | "medium" | "high";
+			dueTime?: string;
+		}) => createActionItem(handoverId, description, priority, dueTime),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.detail(variables.handoverId),
+			});
+		},
+	});
+}
+
+export function useUpdateActionItem() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			actionItemId,
+			updates,
+		}: {
+			handoverId: string;
+			actionItemId: string;
+			updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string };
+		}) => updateActionItem(handoverId, actionItemId, updates),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.detail(variables.handoverId),
+			});
+		},
+	});
+}
+
+export function useDeleteActionItem() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			actionItemId,
+		}: {
+			handoverId: string;
+			actionItemId: string;
+		}) => deleteActionItem(handoverId, actionItemId),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.detail(variables.handoverId),
 			});
 		},
 	});

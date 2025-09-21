@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createActionItem, deleteActionItem, getHandoverActionItems } from "@/api/endpoints/handover";
+import { createActionItem, deleteActionItem, getHandoverActionItems } from "@/api/endpoints/handovers";
 import { api } from "@/api";
 
 // API response type

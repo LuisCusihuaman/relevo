@@ -32,7 +32,7 @@ export const patients: Array<Patient> = [
 		id: "carlos-gomez",
 		name: "Carlos Gómez",
 		url: "Sin traspaso activo",
-		status: "home:patientList.noActiveHandover",
+		status: "home:patientList.noHandover",
 		date: "2/22/21",
 		icon: "C",
 		unit: "Emergencia",

@@ -19,5 +19,5 @@
   },
   "loadingPatientData": "Loading patient data...",
   "errorLoadingPatientData": "Error loading patient data",
-  "noActiveHandover": "No active handover available"
+  "noPatientData": "No patient data available"
 }

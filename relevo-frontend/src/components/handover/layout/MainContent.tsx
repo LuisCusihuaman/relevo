@@ -97,7 +97,7 @@ export function MainContent({
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="text-gray-500 mb-4">📋</div>
-          <p className="text-gray-600">{t("mainContent:noActiveHandover")}</p>
+          <p className="text-gray-600">{t("mainContent:noPatientData")}</p>
         </div>
       </div>
     );

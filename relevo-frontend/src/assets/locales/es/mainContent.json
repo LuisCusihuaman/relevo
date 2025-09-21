@@ -19,5 +19,5 @@
   },
   "loadingPatientData": "Cargando datos del paciente...",
   "errorLoadingPatientData": "Error al cargar datos del paciente",
-  "noActiveHandover": "No hay traspaso activo disponible"
+  "noPatientData": "No hay datos del paciente disponibles"
 }

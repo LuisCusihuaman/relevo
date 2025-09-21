@@ -27,43 +27,11 @@ This document describes how handovers and doctor-related states are modeled in t
   - Checklist items do not carry a global state beyond their own completion flags.
   - Contingency plan status: `active` | `planned` | `completed`.
 
-### What is the “Active Handover”?
+### What was the "Active Handover"? (REMOVED)
 
-- The backend computes “active handover” for the current user by selecting the most recent handover where the user is the receiving doctor (`TO_DOCTOR_ID`) and the handover status is either `Active` or `InProgress`.
-- Implementation (repository):
-
-```516:555:relevo/relevo-api/src/Relevo.Infrastructure/Repositories/OracleSetupRepository.cs
-// Find the active handover for this user's assigned patients
-const string handoverSql = "SELECT ... FROM HANDOVERS h ... WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress') ORDER BY h.CREATED_AT DESC";
-```
-
-- Endpoint contract:
-
-```14:60:relevo/relevo-api/src/Relevo.Web/Me/ActiveHandover.Get.cs
-Get("/me/handovers/active");
-// ...
-var activeHandover = await _setupService.GetActiveHandoverAsync(user.Id);
-if (activeHandover == null) { await SendNotFoundAsync(ct); return; }
-Response = new GetActiveHandoverResponse
-{
-  Handover = activeHandover,
-  Participants = await _setupService.GetHandoverParticipantsAsync(activeHandover.Id),
-  Sections = await _setupService.GetHandoverSectionsAsync(activeHandover.Id),
-  SyncStatus = await _setupService.GetHandoverSyncStatusAsync(activeHandover.Id, user.Id)
-};
-```
-
-- Frontend API wrapper/hook:
-
-```19:54:relevo/relevo-frontend/src/api/endpoints/handover.ts
-export async function getActiveHandover(): Promise<ActiveHandoverData> {
-  const { data } = await api.get<ActiveHandoverData>("/me/handovers/active");
-  return data;
-}
-export function useActiveHandover() {
-  return useQuery({ queryKey: ["handover","active"], queryFn: () => getActiveHandover(), ... });
-}
-```
+- **DEPRECATED**: The concept of "active handover" has been removed from the system. The state machine no longer uses this concept.
+- **Historical context**: Previously, the backend computed "active handover" for the current user by selecting the most recent handover where the user is the receiving doctor (`TO_DOCTOR_ID`) and the handover status is either `Active` or `InProgress`.
+- **Removal reason**: The "active handover" concept was ambiguous and didn't align with the actual handover workflow. Users now navigate to the most recent handover for a patient regardless of status.
 
 ### Handover Lifecycle (State Machine)
 
@@ -116,9 +84,8 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 
 ### API Endpoints (relevant)
 
-- `GET /me/handovers/active`
-  - 200 with payload `{ handover, participants, sections, syncStatus }` when found
-  - 404 when no handover for current user matches criteria
+- `GET /me/handovers/active` **(REMOVED)**
+  - This endpoint has been removed as the "active handover" concept is no longer part of the system
 
 - `POST /handovers/{handoverId}/accept`
   - Transitions `Active → InProgress` for the receiving doctor.
@@ -129,23 +96,15 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 - `GET /patients/{patientId}/handovers`
   - Historical per-patient list, regardless of doctor.
 
-### Known Pitfalls / Likely Causes of 404 on “Active”
+### Known Pitfalls / Historical Issues with "Active" Handover (RESOLVED)
 
-- **Receiving-doctor filter**: Only `TO_DOCTOR_ID` is considered when searching for active handovers. If you are the sending doctor, you will receive 404 even if you just created a handover.
-- **Status filter**: Only `Active` and `InProgress` are considered. Handovers in `Completed` or `Cancelled` will not appear.
-- **Demo user mismatch**: If the current (fallback) demo user ID doesn’t match `TO_DOCTOR_ID` in seeded handovers, the query returns no rows.
-  - Logs show fallback user as `user_2demo12345678901234567890123456`.
-  - Schema seeding and sample rows commonly use IDs like `user_demo12345678901234567890123456` (note the missing `2`).
-  - Result: `GET /me/handovers/active` returns 404 even though seed contains an `Active` handover.
+- **RESOLVED**: The "active handover" concept has been removed. Users now navigate to the most recent handover for a patient regardless of status.
+- **Historical context**: Previously, only `TO_DOCTOR_ID` was considered when searching for active handovers, and only `Active` and `InProgress` statuses were included. This created confusion about which handover was "active".
 
 ### Decision Points for Product
 
-- **Definition of “active handover”**
-  - Current: receiving doctor’s most recent handover with status in `Active|InProgress`.
-  - Options:
-    - Restrict to `InProgress` only, making “active” represent accepted/ongoing work.
-    - Include `Active` (awaiting acceptance) only when the current user is the receiving doctor.
-    - Include sending-doctor perspective (e.g., a separate endpoint or toggle).
+- **Definition of "active handover"** **(RESOLVED)**
+  - **Decision**: The concept of "active handover" has been removed entirely. Users now work with the most recent handover for a patient regardless of status.
 
 - **Multiple concurrent handovers**
   - If multiple `Active|InProgress` handovers exist for the same doctor, the system picks the latest by `CREATED_AT`. Consider surfacing all in UI or enforcing one-at-a-time.
@@ -167,6 +126,6 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 
 - **Receiving doctor**: The doctor assigned to take over care (`TO_DOCTOR_ID`).
 - **Sending doctor**: The doctor handing off care (`FROM_DOCTOR_ID`).
-- **Active handover** (current impl): Latest handover for receiving doctor with status `Active` or `InProgress`.
+- **Active handover** (deprecated): This concept has been removed. Users now work with the most recent handover regardless of status.
 
 
