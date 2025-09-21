@@ -811,6 +811,12 @@ VALUES ('message-002', 'handover-001', 'user_demo12345678901234567890123457', 'P
 INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
 VALUES ('message-003', 'handover-001', 'user_demo12345678901234567890123458', 'Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.', 'message', SYSTIMESTAMP - INTERVAL '1' MINUTE);
 
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-004', 'handover-001', 'user_demo12345678901234567890123456', 'Agreed, let''s maintain current dose and recheck labs tomorrow morning.', 'message', SYSTIMESTAMP - INTERVAL '30' SECOND);
+
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-005', 'handover-001', 'user_demo12345678901234567890123457', 'Family called - they want to discuss the discharge plan. Should I arrange a meeting for tomorrow?', 'message', SYSTIMESTAMP - INTERVAL '15' SECOND);
+
 -- Insertar planes de contingencia de ejemplo
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
 VALUES ('contingency-001', 'handover-001', 'If patient develops acute shortness of breath', 'Administer supplemental oxygen, call respiratory therapy, consider BIPAP, contact attending physician immediately', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
@@ -820,6 +826,28 @@ VALUES ('contingency-002', 'handover-001', 'If blood pressure drops below 90/60'
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
 VALUES ('contingency-003', 'handover-001', 'If patient complains of chest pain', 'Assess vital signs, administer nitroglycerin if appropriate, ECG within 10 minutes, call cardiology', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-004', 'handover-001', 'If patient becomes confused or agitated', 'Assess for pain, medication side effects, or metabolic abnormalities. Consider haloperidol if needed.', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-005', 'handover-001', 'If urine output decreases below 30ml/hour', 'Assess volume status, check bladder scan, consider foley catheter if retention suspected', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Insertar registro de actividad de ejemplo
+INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
+VALUES ('activity-001', 'handover-001', 'user_demo12345678901234567890123456', 'section_updated', 'Updated illness severity section', 'illness_severity', '{"severity": "stable"}', SYSTIMESTAMP - INTERVAL '45' MINUTE);
+
+INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
+VALUES ('activity-002', 'handover-001', 'user_demo12345678901234567890123457', 'section_updated', 'Updated patient summary with latest vitals', 'patient_summary', '{"vitals_updated": true}', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
+VALUES ('activity-003', 'handover-001', 'user_demo12345678901234567890123458', 'action_item_added', 'Added action item for medication review', 'action_items', '{"action_id": "action-001"}', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
+VALUES ('activity-004', 'handover-001', 'user_demo12345678901234567890123456', 'message_sent', 'Sent message about fluid balance', null, '{"message_id": "message-001"}', SYSTIMESTAMP - INTERVAL '5' MINUTE);
+
+INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
+VALUES ('activity-005', 'handover-001', 'user_demo12345678901234567890123457', 'contingency_added', 'Added contingency plan for shortness of breath', null, '{"contingency_id": "contingency-001"}', SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
 COMMIT;
 

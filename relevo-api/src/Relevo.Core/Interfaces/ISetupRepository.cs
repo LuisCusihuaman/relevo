@@ -21,6 +21,21 @@ public interface ISetupRepository
     UserPreferencesRecord? GetUserPreferences(string userId);
     IReadOnlyList<UserSessionRecord> GetUserSessions(string userId);
     bool UpdateUserPreferences(string userId, UserPreferencesRecord preferences);
+
+    // Handover Messages
+    IReadOnlyList<HandoverMessageRecord> GetHandoverMessages(string handoverId);
+    HandoverMessageRecord CreateHandoverMessage(string handoverId, string userId, string userName, string messageText, string messageType);
+
+    // Handover Activity Log
+    IReadOnlyList<HandoverActivityItemRecord> GetHandoverActivityLog(string handoverId);
+
+    // Handover Checklists
+    IReadOnlyList<HandoverChecklistItemRecord> GetHandoverChecklists(string handoverId);
+    bool UpdateChecklistItem(string handoverId, string itemId, bool isChecked, string userId);
+
+    // Handover Contingency Plans
+    IReadOnlyList<HandoverContingencyPlanRecord> GetHandoverContingencyPlans(string handoverId);
+    HandoverContingencyPlanRecord CreateContingencyPlan(string handoverId, string conditionText, string actionText, string priority, string createdBy);
 }
 
 // Domain Records
@@ -70,6 +85,7 @@ public record HandoverActionItem(string Id, string Description, bool IsCompleted
 
 public record HandoverParticipantRecord(
     string Id,
+    string HandoverId,
     string UserId,
     string UserName,
     string? UserRole,
@@ -80,6 +96,7 @@ public record HandoverParticipantRecord(
 
 public record HandoverSectionRecord(
     string Id,
+    string HandoverId,
     string SectionType,
     string? Content,
     string Status,
@@ -90,6 +107,8 @@ public record HandoverSectionRecord(
 
 public record HandoverSyncStatusRecord(
     string Id,
+    string HandoverId,
+    string UserId,
     string SyncStatus,
     DateTime LastSync,
     int Version
@@ -116,3 +135,64 @@ public record UserSessionRecord(
     string? UserAgent,
     bool IsActive
 );
+
+public record HandoverMessageRecord(
+    string Id,
+    string HandoverId,
+    string UserId,
+    string UserName,
+    string MessageText,
+    string MessageType,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+)
+{
+    public HandoverMessageRecord() : this("", "", "", "", "", "message", DateTime.MinValue, DateTime.MinValue) { }
+}
+
+public record HandoverActivityItemRecord(
+    string Id,
+    string HandoverId,
+    string UserId,
+    string UserName,
+    string ActivityType,
+    string? ActivityDescription,
+    string? SectionAffected,
+    string? Metadata,
+    DateTime CreatedAt
+)
+{
+    public HandoverActivityItemRecord() : this("", "", "", "", "", null, null, null, DateTime.MinValue) { }
+}
+
+public record HandoverChecklistItemRecord(
+    string Id,
+    string HandoverId,
+    string UserId,
+    string ItemId,
+    string ItemCategory,
+    string ItemLabel,
+    string? ItemDescription,
+    bool IsRequired,
+    bool IsChecked,
+    DateTime? CheckedAt,
+    DateTime CreatedAt
+)
+{
+    public HandoverChecklistItemRecord() : this("", "", "", "", "", "", null, false, false, null, DateTime.MinValue) { }
+}
+
+public record HandoverContingencyPlanRecord(
+    string Id,
+    string HandoverId,
+    string ConditionText,
+    string ActionText,
+    string Priority,
+    string Status,
+    string CreatedBy,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+)
+{
+    public HandoverContingencyPlanRecord() : this("", "", "", "", "medium", "active", "", DateTime.MinValue, DateTime.MinValue) { }
+}

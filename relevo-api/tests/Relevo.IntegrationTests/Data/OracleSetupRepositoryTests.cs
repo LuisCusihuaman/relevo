@@ -275,8 +275,8 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         result.PatientId.Should().Be(patientId);
         result.PatientName.Should().Be("Test Patient 1");
         result.Status.Should().Be("Active");
-        result.IllnessSeverity.Value.Should().Be("Stable");
-        result.PatientSummary.Value.Should().Be("Test handover for GetHandoverById");
+        result.IllnessSeverity.Severity.Should().Be("Stable");
+        result.PatientSummary.Content.Should().Be("Test handover for GetHandoverById");
         result.ActionItems.Should().NotBeNull();
         result.ShiftName.Should().Be("Test Shift");
         result.CreatedBy.Should().Be("test-user-getbyid");
@@ -353,7 +353,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         // Assert
         result.Should().NotBeNull();
         result!.Synthesis.Should().NotBeNull();
-        result.Synthesis!.Value.Should().Be("Test synthesis content");
+        result.Synthesis!.Content.Should().Be("Test synthesis content");
     }
 
     [Fact]

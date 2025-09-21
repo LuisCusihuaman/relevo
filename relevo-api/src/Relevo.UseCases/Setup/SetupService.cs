@@ -157,4 +157,43 @@ public class SetupService : ISetupService
         // TODO: Implement UpdateUserPreferencesUseCase
         return await Task.FromResult(false);
     }
+
+    // Handover Messages
+    public async Task<IReadOnlyList<HandoverMessageRecord>> GetHandoverMessagesAsync(string handoverId)
+    {
+        return await Task.FromResult(_repository.GetHandoverMessages(handoverId));
+    }
+
+    public async Task<HandoverMessageRecord> CreateHandoverMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType)
+    {
+        return await Task.FromResult(_repository.CreateHandoverMessage(handoverId, userId, userName, messageText, messageType));
+    }
+
+    // Handover Activity Log
+    public async Task<IReadOnlyList<HandoverActivityItemRecord>> GetHandoverActivityLogAsync(string handoverId)
+    {
+        return await Task.FromResult(_repository.GetHandoverActivityLog(handoverId));
+    }
+
+    // Handover Checklists
+    public async Task<IReadOnlyList<HandoverChecklistItemRecord>> GetHandoverChecklistsAsync(string handoverId)
+    {
+        return await Task.FromResult(_repository.GetHandoverChecklists(handoverId));
+    }
+
+    public async Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId)
+    {
+        return await Task.FromResult(_repository.UpdateChecklistItem(handoverId, itemId, isChecked, userId));
+    }
+
+    // Handover Contingency Plans
+    public async Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId)
+    {
+        return await Task.FromResult(_repository.GetHandoverContingencyPlans(handoverId));
+    }
+
+    public async Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy)
+    {
+        return await Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
+    }
 }

@@ -188,6 +188,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               <HandoverHistory
                 hideHeader
                 patientData={patientData}
+                handoverId={activeHandoverData?.handover?.id || ""}
                 onClose={() => {
                   setShowHistory(false);
                 }}
@@ -267,6 +268,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             <SidebarContent>
               <CollaborationPanel
                 hideHeader
+                handoverId={activeHandoverData?.handover?.id || ""}
                 onNavigateToSection={handleNavigateToSection}
                 onClose={() => {
                   setShowComments(false);

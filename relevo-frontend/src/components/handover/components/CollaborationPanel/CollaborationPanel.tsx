@@ -12,10 +12,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityFeed, type ActivityItem } from "../ActivityFeed";
 import type { JSX } from "react";
+import { useHandoverMessages, useCreateHandoverMessage } from "@/api";
 
 interface CollaborationPanelProps {
   onClose: () => void;
   onNavigateToSection: (section: string) => void;
+  handoverId: string;
   hideHeader?: boolean;
 }
 
@@ -65,17 +67,42 @@ const handoverDiscussion = [
 export function CollaborationPanel({
   onClose,
   onNavigateToSection,
+  handoverId,
   hideHeader = false,
 }: CollaborationPanelProps): JSX.Element {
   const [newMessage, setNewMessage] = useState("");
+
+  // Fetch handover messages
+  const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
+  const createMessageMutation = useCreateHandoverMessage();
   const [activeTab, setActiveTab] = useState("discussion");
   const { t, i18n } = useTranslation("collaborationPanel");
   const currentRecentActivity =
     i18n.language === "es" ? recentActivityES : recentActivity;
 
+  // Transform API messages to component format
+  const transformedMessages = messages && messages.length > 0
+    ? messages.map((msg) => ({
+        id: parseInt(msg.id) || Math.random(),
+        user: msg.userName,
+        userInitials: msg.userName.split(' ').map(n => n[0]).join('').toUpperCase(),
+        userColor: "bg-blue-600", // Could be derived from user ID
+        role: "Physician", // Could be derived from user role if available
+        message: msg.messageText,
+        time: new Date(msg.createdAt).toLocaleString(),
+        timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: msg.messageType as "message" | "system" | "notification",
+        mentions: [], // Could be parsed from message content if needed
+      }))
+    : handoverDiscussion; // Fallback to hardcoded data if no messages
+
   const handleSendMessage = (): void => {
-    if (newMessage.trim()) {
-      console.log("Sending message:", newMessage);
+    if (newMessage.trim() && handoverId) {
+      createMessageMutation.mutate({
+        handoverId,
+        messageText: newMessage.trim(),
+        messageType: "message",
+      });
       setNewMessage("");
     }
   };
@@ -174,7 +201,7 @@ export function CollaborationPanel({
           {/* Messages */}
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-4 py-4">
-              {handoverDiscussion.map((message) => (
+              {transformedMessages.map((message) => (
                 <div key={message.id} className="space-y-2">
                   <div className="flex items-start space-x-3">
                     <Avatar className="w-8 h-8 flex-shrink-0">

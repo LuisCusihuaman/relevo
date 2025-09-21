@@ -47,9 +47,9 @@ public class NewHandoverFeaturesTests
         var repository = Substitute.For<ISetupRepository>();
         var participants = new List<HandoverParticipantRecord>
         {
-            new HandoverParticipantRecord("part-001", "user-123", "John Doe", "Physician", "active",
+            new HandoverParticipantRecord("part-001", "handover-001", "user-123", "John Doe", "Physician", "active",
                                         System.DateTime.Now, System.DateTime.Now),
-            new HandoverParticipantRecord("part-002", "user-456", "Jane Smith", "Nurse", "active",
+            new HandoverParticipantRecord("part-002", "handover-001", "user-456", "Jane Smith", "Nurse", "active",
                                         System.DateTime.Now, System.DateTime.Now)
         };
         repository.GetHandoverParticipants("handover-001").Returns(participants);
@@ -71,9 +71,9 @@ public class NewHandoverFeaturesTests
         var repository = Substitute.For<ISetupRepository>();
         var sections = new List<HandoverSectionRecord>
         {
-            new HandoverSectionRecord("section-001", "illness_severity", "Patient is stable", "completed",
+            new HandoverSectionRecord("section-001", "handover-001", "illness_severity", "Patient is stable", "completed",
                                     "user-123", System.DateTime.Now, System.DateTime.Now),
-            new HandoverSectionRecord("section-002", "patient_summary", "Patient summary content", "draft",
+            new HandoverSectionRecord("section-002", "handover-001", "patient_summary", "Patient summary content", "draft",
                                     "user-456", System.DateTime.Now, System.DateTime.Now)
         };
         repository.GetHandoverSections("handover-001").Returns(sections);
@@ -93,7 +93,7 @@ public class NewHandoverFeaturesTests
     {
         // Arrange
         var repository = Substitute.For<ISetupRepository>();
-        var syncStatus = new HandoverSyncStatusRecord("sync-001", "synced", System.DateTime.Now, 1);
+        var syncStatus = new HandoverSyncStatusRecord("sync-001", "handover-001", "user-123", "synced", System.DateTime.Now, 1);
         repository.GetHandoverSyncStatus("handover-001", "user-123").Returns(syncStatus);
 
         // Act

@@ -533,7 +533,7 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string sql = @"
-                SELECT ID, USER_ID as UserId, USER_NAME as UserName, USER_ROLE as UserRole, STATUS,
+                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName, USER_ROLE as UserRole, STATUS,
                        JOINED_AT as JoinedAt, LAST_ACTIVITY as LastActivity
                 FROM HANDOVER_PARTICIPANTS
                 WHERE HANDOVER_ID = :handoverId
@@ -556,6 +556,7 @@ public class OracleSetupRepository : ISetupRepository
                 {
                     participants.Add(new HandoverParticipantRecord(
                         Id: $"participant-{handoverId}-default",
+                        HandoverId: handoverId,
                         UserId: creator.USER_ID,
                         UserName: creator.USER_NAME ?? "Assigned Physician",
                         UserRole: creator.USER_ROLE,
@@ -582,7 +583,7 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string sql = @"
-                SELECT ID, SECTION_TYPE as SectionType, CONTENT, STATUS, LAST_EDITED_BY as LastEditedBy,
+                SELECT ID, HANDOVER_ID as HandoverId, SECTION_TYPE as SectionType, CONTENT, STATUS, LAST_EDITED_BY as LastEditedBy,
                        CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
                 FROM HANDOVER_SECTIONS
                 WHERE HANDOVER_ID = :handoverId
@@ -597,6 +598,7 @@ public class OracleSetupRepository : ISetupRepository
                 {
                     new HandoverSectionRecord(
                         Id: $"section-{handoverId}-severity",
+                        HandoverId: handoverId,
                         SectionType: "illness_severity",
                         Content: "Stable",
                         Status: "draft",
@@ -606,6 +608,7 @@ public class OracleSetupRepository : ISetupRepository
                     ),
                     new HandoverSectionRecord(
                         Id: $"section-{handoverId}-summary",
+                        HandoverId: handoverId,
                         SectionType: "patient_summary",
                         Content: "",
                         Status: "draft",
@@ -615,6 +618,7 @@ public class OracleSetupRepository : ISetupRepository
                     ),
                     new HandoverSectionRecord(
                         Id: $"section-{handoverId}-actions",
+                        HandoverId: handoverId,
                         SectionType: "action_items",
                         Content: "",
                         Status: "draft",
@@ -624,6 +628,7 @@ public class OracleSetupRepository : ISetupRepository
                     ),
                     new HandoverSectionRecord(
                         Id: $"section-{handoverId}-awareness",
+                        HandoverId: handoverId,
                         SectionType: "situation_awareness",
                         Content: "",
                         Status: "draft",
@@ -633,6 +638,7 @@ public class OracleSetupRepository : ISetupRepository
                     ),
                     new HandoverSectionRecord(
                         Id: $"section-{handoverId}-synthesis",
+                        HandoverId: handoverId,
                         SectionType: "synthesis",
                         Content: "",
                         Status: "draft",
@@ -659,7 +665,7 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string sql = @"
-                SELECT ID, SYNC_STATUS, LAST_SYNC, VERSION
+                SELECT ID, HANDOVER_ID, USER_ID, SYNC_STATUS, LAST_SYNC, VERSION
                 FROM HANDOVER_SYNC_STATUS
                 WHERE HANDOVER_ID = :handoverId AND USER_ID = :userId";
 
@@ -670,6 +676,8 @@ public class OracleSetupRepository : ISetupRepository
             {
                 syncStatus = new HandoverSyncStatusRecord(
                     Id: $"sync-{handoverId}-{userId}",
+                    HandoverId: handoverId,
+                    UserId: userId,
                     SyncStatus: "synced",
                     LastSync: DateTime.Now,
                     Version: 1
@@ -848,6 +856,180 @@ public class OracleSetupRepository : ISetupRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to update user preferences for user {UserId}", userId);
+            throw;
+        }
+    }
+
+    // Handover Messages
+    public IReadOnlyList<HandoverMessageRecord> GetHandoverMessages(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
+                       MESSAGE_TEXT as MessageText, MESSAGE_TYPE as MessageType,
+                       CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+                FROM HANDOVER_MESSAGES
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT ASC";
+
+            return conn.Query<HandoverMessageRecord>(sql, new { handoverId }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handover messages for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public HandoverMessageRecord CreateHandoverMessage(string handoverId, string userId, string userName, string messageText, string messageType)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            var id = Guid.NewGuid().ToString();
+
+            const string sql = @"
+                INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT, UPDATED_AT)
+                VALUES (:id, :handoverId, :userId, :userName, :messageText, :messageType, SYSTIMESTAMP, SYSTIMESTAMP)
+                RETURNING ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
+                         MESSAGE_TEXT as MessageText, MESSAGE_TYPE as MessageType,
+                         CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt INTO :newRecord";
+
+            var parameters = new
+            {
+                id,
+                handoverId,
+                userId,
+                userName,
+                messageText,
+                messageType
+            };
+
+            conn.Execute(sql, parameters);
+            return new HandoverMessageRecord(id, handoverId, userId, userName, messageText, messageType, DateTime.Now, DateTime.Now);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create handover message for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    // Handover Activity Log
+    public IReadOnlyList<HandoverActivityItemRecord> GetHandoverActivityLog(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
+                       ACTIVITY_TYPE as ActivityType, ACTIVITY_DESCRIPTION as ActivityDescription,
+                       SECTION_AFFECTED as SectionAffected, METADATA,
+                       CREATED_AT as CreatedAt
+                FROM HANDOVER_ACTIVITY_LOG
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT DESC";
+
+            return conn.Query<HandoverActivityItemRecord>(sql, new { handoverId }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handover activity log for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    // Handover Checklists
+    public IReadOnlyList<HandoverChecklistItemRecord> GetHandoverChecklists(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, ITEM_ID as ItemId,
+                       ITEM_CATEGORY as ItemCategory, ITEM_LABEL as ItemLabel,
+                       ITEM_DESCRIPTION as ItemDescription, IS_REQUIRED as IsRequired,
+                       IS_CHECKED as IsChecked, CHECKED_AT as CheckedAt, CREATED_AT as CreatedAt
+                FROM HANDOVER_CHECKLISTS
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT ASC";
+
+            return conn.Query<HandoverChecklistItemRecord>(sql, new { handoverId }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handover checklists for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public bool UpdateChecklistItem(string handoverId, string itemId, bool isChecked, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVER_CHECKLISTS
+                SET IS_CHECKED = :isChecked,
+                    CHECKED_AT = CASE WHEN :isChecked = 1 THEN SYSTIMESTAMP ELSE NULL END,
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE HANDOVER_ID = :handoverId AND ITEM_ID = :itemId AND USER_ID = :userId";
+
+            var result = conn.Execute(sql, new { handoverId, itemId, isChecked = isChecked ? 1 : 0, userId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update checklist item {ItemId} for handover {HandoverId}", itemId, handoverId);
+            throw;
+        }
+    }
+
+    // Handover Contingency Plans
+    public IReadOnlyList<HandoverContingencyPlanRecord> GetHandoverContingencyPlans(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT ID, HANDOVER_ID as HandoverId, CONDITION_TEXT as ConditionText,
+                       ACTION_TEXT as ActionText, PRIORITY, STATUS, CREATED_BY as CreatedBy,
+                       CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+                FROM HANDOVER_CONTINGENCY
+                WHERE HANDOVER_ID = :handoverId
+                ORDER BY CREATED_AT ASC";
+
+            return conn.Query<HandoverContingencyPlanRecord>(sql, new { handoverId }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get handover contingency plans for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public HandoverContingencyPlanRecord CreateContingencyPlan(string handoverId, string conditionText, string actionText, string priority, string createdBy)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            var id = Guid.NewGuid().ToString();
+
+            const string sql = @"
+                INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT, UPDATED_AT)
+                VALUES (:id, :handoverId, :conditionText, :actionText, :priority, 'active', :createdBy, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+            conn.Execute(sql, new { id, handoverId, conditionText, actionText, priority, createdBy });
+
+            return new HandoverContingencyPlanRecord(
+                id, handoverId, conditionText, actionText, priority, "active",
+                createdBy, DateTime.Now, DateTime.Now);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create contingency plan for handover {HandoverId}", handoverId);
             throw;
         }
     }

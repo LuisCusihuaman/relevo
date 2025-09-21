@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useHandoverActivityLog } from "@/api";
 
 interface PatientData {
   name: string;
@@ -24,87 +25,58 @@ interface PatientData {
 interface HandoverHistoryProps {
   onClose: () => void;
   patientData: PatientData;
+  handoverId: string;
   hideHeader?: boolean;
 }
 
 export function HandoverHistory({
   onClose,
   patientData,
+  handoverId,
   hideHeader = false,
 }: HandoverHistoryProps) {
   const { t } = useTranslation("handoverHistory");
   const [selectedHandover, setSelectedHandover] = useState<string | null>(null);
 
-  const handoverHistory = [
-    {
-      id: "current",
-      date: "2024-06-23",
-      shift: "shifts.dayToEvening",
-      time: "16:45",
-      status: "in-progress",
-      outgoingTeam: "teams.dayInternal",
-      incomingTeam: "teams.eveningInternal",
-      primaryPhysician: "doctors.johnson",
-      receivingPhysician: "doctors.martinez",
-      severity: "stable",
-      keyPoints: [
-        "keyPoints.copdImproving",
-        "keyPoints.o2Decreased",
-        "keyPoints.familyMeeting",
-      ],
-    },
-    {
-      id: "ho-001",
-      date: "2024-06-23",
-      shift: "shifts.nightToDay",
-      time: "07:30",
-      status: "completed",
-      outgoingTeam: "teams.nightInternal",
-      incomingTeam: "teams.dayInternal",
-      primaryPhysician: "doctors.chen",
-      receivingPhysician: "doctors.johnson",
-      severity: "guarded",
-      keyPoints: [
-        "keyPoints.admittedCopd",
-        "keyPoints.startedSteroids",
-        "keyPoints.initialO2",
-      ],
-    },
-    {
-      id: "ho-002",
-      date: "2024-06-22",
-      shift: "shifts.eveningToNight",
-      time: "23:15",
-      status: "completed",
-      outgoingTeam: "teams.eveningEmergency",
-      incomingTeam: "teams.nightInternal",
-      primaryPhysician: "doctors.williams",
-      receivingPhysician: "doctors.chen",
-      severity: "unstable",
-      keyPoints: [
-        "keyPoints.emergencyAdmission",
-        "keyPoints.acuteDistress",
-        "keyPoints.stabilized",
-      ],
-    },
-    {
-      id: "ho-003",
-      date: "2024-06-22",
-      shift: "shifts.dayToEvening",
-      time: "19:00",
-      status: "completed",
-      outgoingTeam: "teams.dayEmergency",
-      incomingTeam: "teams.eveningEmergency",
-      primaryPhysician: "doctors.rodriguez",
-      receivingPhysician: "doctors.williams",
-      severity: "critical",
-      keyPoints: [
-        "keyPoints.severeDyspnea",
-        "keyPoints.workupCompleted",
-        "keyPoints.xrayCopd",
-      ],
-    },
-  ];
+  // Fetch handover activity log
+  const { data: activityLog, isLoading, error } = useHandoverActivityLog(handoverId);
+
+  // Transform activity log data into handover history format
+  const handoverHistory = activityLog && activityLog.length > 0
+    ? activityLog.slice(0, 10).map((activity, index) => ({
+        id: activity.id,
+        date: new Date(activity.createdAt).toLocaleDateString(),
+        shift: "Current Shift", // Could be derived from activity metadata
+        time: new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: "completed", // All past activities are completed
+        outgoingTeam: "Previous Team", // Could be derived from activity
+        incomingTeam: "Current Team", // Could be derived from activity
+        primaryPhysician: activity.userName,
+        receivingPhysician: "Current Physician", // Could be derived from context
+        severity: "stable", // Could be derived from activity type
+        keyPoints: [
+          activity.activityDescription || activity.activityType,
+        ].filter(Boolean),
+      }))
+    : [
+        // Fallback data when no activity log is available
+        {
+          id: "current",
+          date: new Date().toLocaleDateString(),
+          shift: "shifts.dayToEvening",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          status: "in-progress",
+          outgoingTeam: "teams.dayInternal",
+          incomingTeam: "teams.eveningInternal",
+          primaryPhysician: "Current Physician",
+          receivingPhysician: "Next Physician",
+          severity: "stable",
+          keyPoints: [
+            "keyPoints.currentHandover",
+            "keyPoints.patientStable",
+          ],
+        },
+      ];
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -131,6 +103,65 @@ export function HandoverHistory({
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="h-full flex flex-col bg-white">
+        {!hideHeader && (
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {t("handoverHistory")}
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">{t("loadingHistory")}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="h-full flex flex-col bg-white">
+        {!hideHeader && (
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {t("handoverHistory")}
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">⚠️</div>
+            <p className="text-red-600">{t("errorLoadingHistory")}</p>
+            <p className="text-sm text-gray-500 mt-2">{error.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">

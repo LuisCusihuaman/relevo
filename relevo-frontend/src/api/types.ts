@@ -129,6 +129,55 @@ export type HandoverSyncStatus = {
 	version: number;
 };
 
+export type HandoverMessage = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	userName: string;
+	messageText: string;
+	messageType: "message" | "system" | "notification";
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type HandoverActivityItem = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	userName: string;
+	activityType: string;
+	activityDescription?: string;
+	sectionAffected?: string;
+	metadata?: Record<string, any>;
+	createdAt: string;
+};
+
+export type HandoverChecklistItem = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	itemId: string;
+	itemCategory: string;
+	itemLabel: string;
+	itemDescription?: string;
+	isRequired: boolean;
+	isChecked: boolean;
+	checkedAt?: string;
+	createdAt: string;
+};
+
+export type HandoverContingencyPlan = {
+	id: string;
+	handoverId: string;
+	conditionText: string;
+	actionText: string;
+	priority: "low" | "medium" | "high";
+	status: "active" | "planned" | "completed";
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
 export type ActiveHandoverData = {
 	handover: Handover;
 	participants: Array<HandoverParticipant>;

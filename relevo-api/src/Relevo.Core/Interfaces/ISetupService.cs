@@ -20,4 +20,19 @@ public interface ISetupService
     Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId);
     Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId);
     Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences);
+
+    // Handover Messages
+    Task<IReadOnlyList<HandoverMessageRecord>> GetHandoverMessagesAsync(string handoverId);
+    Task<HandoverMessageRecord> CreateHandoverMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType);
+
+    // Handover Activity Log
+    Task<IReadOnlyList<HandoverActivityItemRecord>> GetHandoverActivityLogAsync(string handoverId);
+
+    // Handover Checklists
+    Task<IReadOnlyList<HandoverChecklistItemRecord>> GetHandoverChecklistsAsync(string handoverId);
+    Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId);
+
+    // Handover Contingency Plans
+    Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId);
+    Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy);
 }

@@ -77,6 +77,45 @@ public class SetupServiceTests
             return Task.FromResult(_repository.UpdateUserPreferences(userId, preferences));
         }
 
+        // Handover Messages
+        public Task<IReadOnlyList<HandoverMessageRecord>> GetHandoverMessagesAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverMessages(handoverId));
+        }
+
+        public Task<HandoverMessageRecord> CreateHandoverMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType)
+        {
+            return Task.FromResult(_repository.CreateHandoverMessage(handoverId, userId, userName, messageText, messageType));
+        }
+
+        // Handover Activity Log
+        public Task<IReadOnlyList<HandoverActivityItemRecord>> GetHandoverActivityLogAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverActivityLog(handoverId));
+        }
+
+        // Handover Checklists
+        public Task<IReadOnlyList<HandoverChecklistItemRecord>> GetHandoverChecklistsAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverChecklists(handoverId));
+        }
+
+        public Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId)
+        {
+            return Task.FromResult(_repository.UpdateChecklistItem(handoverId, itemId, isChecked, userId));
+        }
+
+        // Handover Contingency Plans
+        public Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverContingencyPlans(handoverId));
+        }
+
+        public Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy)
+        {
+            return Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
+        }
+
         public Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
         {
             return Task.FromResult(_repository.AssignAsync(userId, shiftId, patientIds));
@@ -191,9 +230,9 @@ public class SetupServiceTests
         var handoverId = "handover-001";
         var participants = new List<HandoverParticipantRecord>
         {
-            new HandoverParticipantRecord("part-001", "user-123", "John Doe", "Physician", "active",
+            new HandoverParticipantRecord("part-001", handoverId, "user-123", "John Doe", "Physician", "active",
                                         System.DateTime.Now, System.DateTime.Now),
-            new HandoverParticipantRecord("part-002", "user-456", "Jane Smith", "Nurse", "active",
+            new HandoverParticipantRecord("part-002", handoverId, "user-456", "Jane Smith", "Nurse", "active",
                                         System.DateTime.Now, System.DateTime.Now)
         };
         _repository.GetHandoverParticipants(handoverId).Returns(participants);
@@ -232,9 +271,9 @@ public class SetupServiceTests
         var handoverId = "handover-001";
         var sections = new List<HandoverSectionRecord>
         {
-            new HandoverSectionRecord("section-001", "illness_severity", "Patient is stable", "completed",
+            new HandoverSectionRecord("section-001", handoverId, "illness_severity", "Patient is stable", "completed",
                                     "user-123", System.DateTime.Now, System.DateTime.Now),
-            new HandoverSectionRecord("section-002", "patient_summary", "Patient summary content", "draft",
+            new HandoverSectionRecord("section-002", handoverId, "patient_summary", "Patient summary content", "draft",
                                     "user-456", System.DateTime.Now, System.DateTime.Now)
         };
         _repository.GetHandoverSections(handoverId).Returns(sections);
@@ -272,7 +311,7 @@ public class SetupServiceTests
         // Arrange
         var handoverId = "handover-001";
         var userId = "user-123";
-        var syncStatus = new HandoverSyncStatusRecord("sync-001", "synced", System.DateTime.Now, 1);
+        var syncStatus = new HandoverSyncStatusRecord("sync-001", handoverId, userId, "synced", System.DateTime.Now, 1);
         _repository.GetHandoverSyncStatus(handoverId, userId).Returns(syncStatus);
 
         // Act

@@ -8,7 +8,68 @@ using HandoverParticipantRecord = Relevo.Core.Interfaces.HandoverParticipantReco
 using HandoverSectionRecord = Relevo.Core.Interfaces.HandoverSectionRecord;
 using HandoverSyncStatusRecord = Relevo.Core.Interfaces.HandoverSyncStatusRecord;
 
+// Additional types for new endpoints
+
 namespace Relevo.Web.Me;
+
+public class GetHandoverMessagesEndpoint(
+    ISetupService _setupService,
+    IUserContext _userContext)
+    : Endpoint<GetHandoverMessagesRequest, GetHandoverMessagesResponse>
+{
+    public override void Configure()
+    {
+        Get("/me/handovers/{handoverId}/messages");
+        AllowAnonymous(); // Let our custom middleware handle authentication
+    }
+
+    public override async Task HandleAsync(GetHandoverMessagesRequest req, CancellationToken ct)
+    {
+        var user = _userContext.CurrentUser;
+        if (user == null)
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
+
+        var messages = await _setupService.GetHandoverMessagesAsync(req.HandoverId);
+        Response = new GetHandoverMessagesResponse { Messages = messages };
+        await SendAsync(Response, cancellation: ct);
+    }
+}
+
+public class CreateHandoverMessageEndpoint(
+    ISetupService _setupService,
+    IUserContext _userContext)
+    : Endpoint<CreateHandoverMessageRequest, CreateHandoverMessageResponse>
+{
+    public override void Configure()
+    {
+        Post("/me/handovers/{handoverId}/messages");
+        AllowAnonymous(); // Let our custom middleware handle authentication
+    }
+
+    public override async Task HandleAsync(CreateHandoverMessageRequest req, CancellationToken ct)
+    {
+        var user = _userContext.CurrentUser;
+        if (user == null)
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
+
+        var message = await _setupService.CreateHandoverMessageAsync(
+            req.HandoverId,
+            user.Id,
+            user.FirstName + " " + user.LastName,
+            req.MessageText,
+            req.MessageType ?? "message"
+        );
+
+        Response = new CreateHandoverMessageResponse { Success = true, Message = message };
+        await SendAsync(Response, cancellation: ct);
+    }
+}
 
 public class GetActiveHandoverEndpoint(
     ISetupService _setupService,
