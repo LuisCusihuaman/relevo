@@ -18,12 +18,12 @@ interface SynthesisByReceiverProps {
   onOpenThread?: (section: string) => void;
   onComplete?: (completed: boolean) => void;
   focusMode?: boolean;
-  currentUser?: {
+  currentUser: {
     name: string;
     initials: string;
     role: string;
   };
-  receivingPhysician?: {
+  receivingPhysician: {
     name: string;
     initials: string;
     role: string;
@@ -34,12 +34,8 @@ export function SynthesisByReceiver({
   onOpenThread: _onOpenThread,
   onComplete,
   focusMode = false,
-  currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
-  receivingPhysician = {
-    name: "Dr. Patel",
-    initials: "SP",
-    role: "Evening Attending",
-  },
+  currentUser,
+  receivingPhysician,
 }: SynthesisByReceiverProps): JSX.Element {
   const { t } = useTranslation("synthesisByReceiver");
   // Confirmation checklist items

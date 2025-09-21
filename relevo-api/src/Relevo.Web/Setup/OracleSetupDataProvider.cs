@@ -168,6 +168,321 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     return (handovers, total);
   }
+
+  public HandoverRecord? GetHandoverById(string handoverId)
+  {
+    using IDbConnection conn = _factory.CreateConnection();
+
+    const string sql = @"
+      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+      FROM HANDOVERS h
+      LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      WHERE h.ID = :handoverId";
+
+    var row = conn.QueryFirstOrDefault(sql, new { handoverId });
+
+    if (row == null) return null;
+
+    const string actionItemsSql = @"
+      SELECT ID, DESCRIPTION, IS_COMPLETED
+      FROM HANDOVER_ACTION_ITEMS
+      WHERE HANDOVER_ID = :handoverId
+      ORDER BY CREATED_AT";
+
+    var actionItems = conn.Query(actionItemsSql, new { handoverId })
+      .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+      .ToList();
+
+    return new HandoverRecord(
+      Id: row.ID,
+      AssignmentId: row.ASSIGNMENT_ID ?? "",
+      PatientId: row.PATIENT_ID,
+      PatientName: row.PATIENT_NAME ?? "Unknown Patient",
+      Status: row.STATUS,
+      IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+      PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+      ActionItems: actionItems,
+      ShiftName: row.SHIFT_NAME ?? "Unknown",
+      CreatedBy: row.CREATED_BY ?? "system",
+      AssignedTo: row.ASSIGNED_TO ?? "system",
+      SituationAwarenessDocId: null,
+      Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+      CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+    );
+  }
+
+  public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    // Generate IDs
+    var handoverId = $"handover-{Guid.NewGuid().ToString().Substring(0, 8)}";
+    var assignmentId = $"assign-{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+    // Create user assignment if it doesn't exist
+    conn.Execute(@"
+      INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
+      VALUES (:assignmentId, :toDoctorId, :toShiftId, :patientId, SYSTIMESTAMP)
+      ON DUPLICATE KEY UPDATE ASSIGNED_AT = SYSTIMESTAMP",
+      new { assignmentId, toDoctorId = request.ToDoctorId, toShiftId = request.ToShiftId, patientId = request.PatientId });
+
+    // Create handover
+    conn.Execute(@"
+      INSERT INTO HANDOVERS (
+        ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+        SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID,
+        CREATED_BY, CREATED_AT, INITIATED_AT
+      ) VALUES (
+        :handoverId, :assignmentId, :patientId, 'Active', 'Stable',
+        :shiftName, :fromShiftId, :toShiftId, :fromDoctorId, :toDoctorId,
+        :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP
+      )",
+      new {
+        handoverId,
+        assignmentId,
+        patientId = request.PatientId,
+        shiftName = $"{request.FromShiftId} → {request.ToShiftId}",
+        fromShiftId = request.FromShiftId,
+        toShiftId = request.ToShiftId,
+        fromDoctorId = request.FromDoctorId,
+        toDoctorId = request.ToDoctorId,
+        initiatedBy = request.InitiatedBy
+      });
+
+    // Add participants
+    conn.Execute(@"
+      INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS, JOINED_AT)
+      SELECT :participantId1, :handoverId, :fromDoctorId, u.FULL_NAME, 'Handing Over Doctor', 'active', SYSTIMESTAMP
+      FROM USERS u WHERE u.ID = :fromDoctorId
+      UNION ALL
+      SELECT :participantId2, :handoverId, :toDoctorId, u.FULL_NAME, 'Receiving Doctor', 'active', SYSTIMESTAMP
+      FROM USERS u WHERE u.ID = :toDoctorId",
+      new {
+        handoverId,
+        fromDoctorId = request.FromDoctorId,
+        toDoctorId = request.ToDoctorId,
+        participantId1 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}",
+        participantId2 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
+      });
+
+    // Create default sections
+    conn.Execute(@"
+      INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, CREATED_AT)
+      VALUES
+      (:illnessId, :handoverId, 'illness_severity', 'Stable - Patient condition stable', 'draft', SYSTIMESTAMP),
+      (:patientId, :handoverId, 'patient_summary', '', 'draft', SYSTIMESTAMP),
+      (:actionsId, :handoverId, 'action_items', '', 'draft', SYSTIMESTAMP),
+      (:awarenessId, :handoverId, 'situation_awareness', '', 'draft', SYSTIMESTAMP),
+      (:synthesisId, :handoverId, 'synthesis', '', 'draft', SYSTIMESTAMP)",
+      new {
+        handoverId,
+        illnessId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
+        patientId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
+        actionsId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
+        awarenessId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
+        synthesisId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}"
+      });
+
+    // Return the created handover
+    return GetHandoverById(handoverId) ?? throw new InvalidOperationException("Failed to create handover");
+  }
+
+  public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    var affected = conn.Execute(@"
+      UPDATE HANDOVERS
+      SET STATUS = 'InProgress', ACCEPTED_AT = SYSTIMESTAMP
+      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'Active'",
+      new { handoverId, userId });
+
+    return affected > 0;
+  }
+
+  public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    var affected = conn.Execute(@"
+      UPDATE HANDOVERS
+      SET STATUS = 'Completed', COMPLETED_AT = SYSTIMESTAMP, COMPLETED_BY = :userId
+      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'",
+      new { handoverId, userId });
+
+    return affected > 0;
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    const string sql = @"
+      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+      FROM HANDOVERS h
+      INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress')
+      ORDER BY h.INITIATED_AT DESC";
+
+    var handoverRows = conn.Query(sql, new { userId }).ToList();
+    var handovers = new List<HandoverRecord>();
+
+    foreach (var row in handoverRows)
+    {
+      var handoverId = row.ID;
+
+      const string actionItemsSql = @"
+        SELECT ID, DESCRIPTION, IS_COMPLETED
+        FROM HANDOVER_ACTION_ITEMS
+        WHERE HANDOVER_ID = :handoverId
+        ORDER BY CREATED_AT";
+
+      var actionItems = conn.Query(actionItemsSql, new { handoverId })
+        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+        .ToList();
+
+      var handover = new HandoverRecord(
+        Id: row.ID,
+        AssignmentId: row.ASSIGNMENT_ID ?? "",
+        PatientId: row.PATIENT_ID,
+        PatientName: row.PATIENT_NAME ?? "Unknown Patient",
+        Status: row.STATUS,
+        IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+        PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+        ActionItems: actionItems,
+        ShiftName: row.SHIFT_NAME ?? "Unknown",
+        CreatedBy: row.CREATED_BY ?? "system",
+        AssignedTo: row.ASSIGNED_TO ?? "system",
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      );
+
+      handovers.Add(handover);
+    }
+
+    return handovers;
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    const string sql = @"
+      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+      FROM HANDOVERS h
+      INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      WHERE h.PATIENT_ID = :patientId
+      ORDER BY h.CREATED_AT DESC";
+
+    var handoverRows = conn.Query(sql, new { patientId }).ToList();
+    var handovers = new List<HandoverRecord>();
+
+    foreach (var row in handoverRows)
+    {
+      var handoverId = row.ID;
+
+      const string actionItemsSql = @"
+        SELECT ID, DESCRIPTION, IS_COMPLETED
+        FROM HANDOVER_ACTION_ITEMS
+        WHERE HANDOVER_ID = :handoverId
+        ORDER BY CREATED_AT";
+
+      var actionItems = conn.Query(actionItemsSql, new { handoverId })
+        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+        .ToList();
+
+      var handover = new HandoverRecord(
+        Id: row.ID,
+        AssignmentId: row.ASSIGNMENT_ID ?? "",
+        PatientId: row.PATIENT_ID,
+        PatientName: row.PATIENT_NAME ?? "Unknown Patient",
+        Status: row.STATUS,
+        IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+        PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+        ActionItems: actionItems,
+        ShiftName: row.SHIFT_NAME ?? "Unknown",
+        CreatedBy: row.CREATED_BY ?? "system",
+        AssignedTo: row.ASSIGNED_TO ?? "system",
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      );
+
+      handovers.Add(handover);
+    }
+
+    return handovers;
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId)
+  {
+    await Task.CompletedTask; // Make async
+    using IDbConnection conn = _factory.CreateConnection();
+
+    const string sql = @"
+      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+      FROM HANDOVERS h
+      INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      WHERE h.FROM_DOCTOR_ID = :fromDoctorId AND h.TO_DOCTOR_ID = :toDoctorId
+      ORDER BY h.INITIATED_AT DESC";
+
+    var handoverRows = conn.Query(sql, new { fromDoctorId, toDoctorId }).ToList();
+    var handovers = new List<HandoverRecord>();
+
+    foreach (var row in handoverRows)
+    {
+      var handoverId = row.ID;
+
+      const string actionItemsSql = @"
+        SELECT ID, DESCRIPTION, IS_COMPLETED
+        FROM HANDOVER_ACTION_ITEMS
+        WHERE HANDOVER_ID = :handoverId
+        ORDER BY CREATED_AT";
+
+      var actionItems = conn.Query(actionItemsSql, new { handoverId })
+        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
+        .ToList();
+
+      var handover = new HandoverRecord(
+        Id: row.ID,
+        AssignmentId: row.ASSIGNMENT_ID ?? "",
+        PatientId: row.PATIENT_ID,
+        PatientName: row.PATIENT_NAME ?? "Unknown Patient",
+        Status: row.STATUS,
+        IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
+        PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+        ActionItems: actionItems,
+        ShiftName: row.SHIFT_NAME ?? "Unknown",
+        CreatedBy: row.CREATED_BY ?? "system",
+        AssignedTo: row.ASSIGNED_TO ?? "system",
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      );
+
+      handovers.Add(handover);
+    }
+
+    return handovers;
+  }
 }
 
 

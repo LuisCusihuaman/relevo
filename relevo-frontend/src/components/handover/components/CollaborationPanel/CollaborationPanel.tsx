@@ -21,48 +21,7 @@ interface CollaborationPanelProps {
   hideHeader?: boolean;
 }
 
-// Mock discussion messages for the unified handover conversation
-const handoverDiscussion = [
-  {
-    id: 1,
-    user: "Dr. Patel",
-    userInitials: "SP",
-    userColor: "bg-purple-600",
-    role: "Evening Attending",
-    message:
-      "Just reviewed the case. The heart failure seems stable today. Any concerns about the fluid balance?",
-    time: "2 minutes ago",
-    timestamp: "16:43",
-    type: "message",
-    mentions: [],
-  },
-  {
-    id: 2,
-    user: "Dr. Johnson",
-    userInitials: "DJ",
-    userColor: "bg-blue-600",
-    role: "Day Attending",
-    message:
-      "Patient has been net negative 500ml today. Responded well to the lasix adjustment this morning. Current weight is down 2kg from admission.",
-    time: "1 minute ago",
-    timestamp: "16:44",
-    type: "message",
-    mentions: [],
-  },
-  {
-    id: 3,
-    user: "Dr. Rodriguez",
-    userInitials: "MR",
-    userColor: "bg-emerald-600",
-    role: "Resident",
-    message:
-      "Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.",
-    time: "30 seconds ago",
-    timestamp: "16:45",
-    type: "message",
-    mentions: ["Dr. Patel"],
-  },
-];
+// Removed hardcoded discussion messages - now using real API data
 
 export function CollaborationPanel({
   onClose,
@@ -73,7 +32,7 @@ export function CollaborationPanel({
   const [newMessage, setNewMessage] = useState("");
 
   // Fetch handover messages
-  const { data: messages, isLoading: _messagesLoading, error: _messagesError } = useHandoverMessages(handoverId);
+  const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
   const createMessageMutation = useCreateHandoverMessage();
   const [activeTab, setActiveTab] = useState("discussion");
   const { t, i18n } = useTranslation("collaborationPanel");
@@ -81,7 +40,7 @@ export function CollaborationPanel({
     i18n.language === "es" ? recentActivityES : recentActivity;
 
   // Transform API messages to component format
-  const transformedMessages = messages && messages.length > 0
+  const transformedMessages = messages
     ? messages.map((msg) => ({
         id: parseInt(msg.id) || Math.random(),
         user: msg.userName,
@@ -94,7 +53,7 @@ export function CollaborationPanel({
         type: msg.messageType as "message" | "system" | "notification",
         mentions: [], // Could be parsed from message content if needed
       }))
-    : handoverDiscussion; // Fallback to hardcoded data if no messages
+    : []; // No fallback hardcoded data
 
   const handleSendMessage = (): void => {
     if (newMessage.trim() && handoverId) {
@@ -201,7 +160,21 @@ export function CollaborationPanel({
           {/* Messages */}
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-4 py-4">
-              {transformedMessages.map((message) => (
+              {messagesLoading ? (
+                <div className="text-center text-gray-500 py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  {t("loadingMessages")}
+                </div>
+              ) : messagesError ? (
+                <div className="text-center text-red-500 py-8">
+                  {t("errorLoadingMessages")}
+                </div>
+              ) : transformedMessages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  {t("noMessagesYet")}
+                </div>
+              ) : (
+                transformedMessages.map((message) => (
                 <div key={message.id} className="space-y-2">
                   <div className="flex items-start space-x-3">
                     <Avatar className="w-8 h-8 flex-shrink-0">
@@ -229,7 +202,8 @@ export function CollaborationPanel({
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </ScrollArea>
 

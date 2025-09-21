@@ -1,50 +1,8 @@
 import type { TFunction } from "i18next";
 import type { Collaborator } from "./types";
 
-// Mock current user
-export const currentUser = {
-  name: "Dr. Johnson",
-  role: "Attending Physician",
-  shift: "Day Shift",
-  initials: "DJ",
-};
-
-// Enhanced patient data with complete physician handover information
-export const patientData = {
-  id: "MR-001",
-  name: "Maria Rodriguez",
-  age: 72,
-  mrn: "MRN 75678-3456-89872-78",
-  admissionDate: "2024-03-15",
-  currentDateTime: "4:45 PMT",
-  primaryTeam: "Internal Medicine - 3rd Floor",
-  primaryDiagnosis: "diabetes.management.type2",
-  severity: "stable",
-  handoverStatus: "in-progress",
-  shift: "Day → Evening",
-  room: "302A",
-  unit: "Internal Medicine - 3rd Floor",
-  // ONLY the physicians assigned to THIS specific patient
-  assignedPhysician: {
-    name: "Dr. Johnson",
-    role: "Day Attending",
-    initials: "DJ",
-    color: "bg-blue-600",
-    shiftEnd: "17:00",
-    status: "handing-off",
-    patientAssignment: "assigned",
-  },
-  receivingPhysician: {
-    name: "Dr. Patel",
-    role: "Evening Attending",
-    initials: "SP",
-    color: "bg-purple-600",
-    shiftStart: "17:00",
-    status: "ready-to-receive",
-    patientAssignment: "receiving",
-  },
-  handoverTime: "17:00 PMT",
-};
+// REMOVED: Mock current user and patient data - now fetched from API
+// Use real API data instead of hardcoded constants
 
 // I-PASS Guidelines for each section
 export const getIpassGuidelines = (t: TFunction<"handover", undefined>) => ({

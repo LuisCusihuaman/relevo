@@ -3,11 +3,11 @@ using Relevo.Infrastructure.Repositories;
 using Relevo.Infrastructure.Data.Oracle;
 using Relevo.Infrastructure.Data;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using FluentAssertions;
 using Xunit;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
-using Relevo.Infrastructure.Data.Oracle;
 
 namespace Relevo.IntegrationTests.Data;
 
@@ -27,7 +27,17 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         }
 
         _logger = Microsoft.Extensions.Logging.Abstractions.NullLogger<OracleSetupRepository>.Instance;
-        var factory = new OracleConnectionFactory("User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
+
+        // Create configuration for Oracle connection factory
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new[]
+            {
+                new KeyValuePair<string, string?>("Oracle:ConnectionString", "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15")
+            })
+            .Build();
+
+        var factoryLogger = Microsoft.Extensions.Logging.Abstractions.NullLogger<OracleConnectionFactory>.Instance;
+        var factory = new OracleConnectionFactory(configuration, factoryLogger);
         _repository = new OracleSetupRepository(factory, _logger);
 
         // Setup test data

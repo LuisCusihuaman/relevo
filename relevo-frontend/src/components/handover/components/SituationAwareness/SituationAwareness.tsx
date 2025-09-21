@@ -50,12 +50,12 @@ interface SituationAwarenessProps {
   onSave?: () => void; // Handler for external save button
   syncStatus?: SyncStatus;
   onSyncStatusChange?: (status: SyncStatus) => void;
-  currentUser?: {
+  currentUser: {
     name: string;
     initials: string;
     role: string;
   };
-  assignedPhysician?: {
+  assignedPhysician: {
     name: string;
     initials: string;
     role: string;
@@ -74,12 +74,8 @@ export function SituationAwareness({
   onSave: _onSave, // External save handler
   syncStatus: _syncStatus = "synced",
   onSyncStatusChange: _onSyncStatusChange,
-  currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
-  assignedPhysician = {
-    name: "Dr. Johnson",
-    initials: "DJ",
-    role: "Day Attending",
-  },
+  currentUser,
+  assignedPhysician,
   onContentChange,
 }: SituationAwarenessProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");

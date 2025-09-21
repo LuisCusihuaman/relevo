@@ -343,6 +343,100 @@ public class SetupDataStore : ISetupDataProvider
     var pageItems = mockHandovers.Skip((p - 1) * ps).Take(ps).ToList();
     return (pageItems, total);
   }
+
+  // Handover Creation and Management
+  public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
+  {
+    await Task.CompletedTask; // Make async
+    throw new NotImplementedException("CreateHandoverAsync not implemented in test data store");
+  }
+
+  public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask; // Make async
+    throw new NotImplementedException("AcceptHandoverAsync not implemented in test data store");
+  }
+
+  public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask; // Make async
+    throw new NotImplementedException("CompleteHandoverAsync not implemented in test data store");
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
+  {
+    await Task.CompletedTask; // Make async
+    // Return mock pending handovers for testing
+    return new List<HandoverRecord>
+    {
+      new HandoverRecord(
+        Id: "pending-hvo-001",
+        AssignmentId: "assign-001",
+        PatientId: "pat-001",
+        PatientName: "María García",
+        Status: "Active",
+        IllnessSeverity: new HandoverIllnessSeverity("Stable"),
+        PatientSummary: new HandoverPatientSummary("Patient awaiting handover acceptance."),
+        ActionItems: new List<HandoverActionItem>(),
+        ShiftName: "Mañana → Noche",
+        CreatedBy: "user-demo12345678901234567890123456",
+        AssignedTo: userId,
+        SituationAwarenessDocId: null,
+        Synthesis: null,
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      )
+    };
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId)
+  {
+    await Task.CompletedTask; // Make async
+    // Return mock handovers for the patient
+    return new List<HandoverRecord>
+    {
+      new HandoverRecord(
+        Id: "patient-hvo-001",
+        AssignmentId: "assign-001",
+        PatientId: patientId,
+        PatientName: "Patient Name",
+        Status: "Completed",
+        IllnessSeverity: new HandoverIllnessSeverity("Stable"),
+        PatientSummary: new HandoverPatientSummary("Patient handover completed."),
+        ActionItems: new List<HandoverActionItem>(),
+        ShiftName: "Mañana → Noche",
+        CreatedBy: "user-123",
+        AssignedTo: "user-456",
+        SituationAwarenessDocId: null,
+        Synthesis: new HandoverSynthesis("Handover completed successfully."),
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      )
+    };
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId)
+  {
+    await Task.CompletedTask; // Make async
+    // Return mock shift transition handovers
+    return new List<HandoverRecord>
+    {
+      new HandoverRecord(
+        Id: "transition-hvo-001",
+        AssignmentId: "assign-001",
+        PatientId: "pat-001",
+        PatientName: "María García",
+        Status: "Completed",
+        IllnessSeverity: new HandoverIllnessSeverity("Stable"),
+        PatientSummary: new HandoverPatientSummary("Shift transition handover completed."),
+        ActionItems: new List<HandoverActionItem>(),
+        ShiftName: "Mañana → Noche",
+        CreatedBy: fromDoctorId,
+        AssignedTo: toDoctorId,
+        SituationAwarenessDocId: null,
+        Synthesis: new HandoverSynthesis("Successful shift transition."),
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      )
+    };
+  }
 }
 
 public record UnitRecord(string Id, string Name);

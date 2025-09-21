@@ -165,6 +165,59 @@ public class SetupServiceTests
         {
             return Task.FromResult(_repository.GetHandoverById(handoverId));
         }
+
+
+        // Handover Creation and Management
+        public Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
+        {
+            throw new NotImplementedException("CreateHandoverAsync not implemented in mock");
+        }
+
+        public Task<bool> AcceptHandoverAsync(string handoverId, string userId)
+        {
+            throw new NotImplementedException("AcceptHandoverAsync not implemented in mock");
+        }
+
+        public Task<bool> CompleteHandoverAsync(string handoverId, string userId)
+        {
+            throw new NotImplementedException("CompleteHandoverAsync not implemented in mock");
+        }
+
+        public Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
+        {
+            throw new NotImplementedException("GetPendingHandoversForUserAsync not implemented in mock");
+        }
+
+        public Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId)
+        {
+            throw new NotImplementedException("GetHandoversByPatientAsync not implemented in mock");
+        }
+
+        public Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId)
+        {
+            throw new NotImplementedException("GetShiftTransitionHandoversAsync not implemented in mock");
+        }
+
+        // Action Items
+        public Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId)
+        {
+            return Task.FromResult(_repository.GetHandoverActionItems(handoverId));
+        }
+
+        public Task<string> CreateHandoverActionItemAsync(string handoverId, string description, string priority)
+        {
+            return Task.FromResult(_repository.CreateHandoverActionItem(handoverId, description, priority));
+        }
+
+        public Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted)
+        {
+            return Task.FromResult(_repository.UpdateHandoverActionItem(handoverId, itemId, isCompleted));
+        }
+
+        public Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId)
+        {
+            return Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
+        }
     }
 
     [Fact]

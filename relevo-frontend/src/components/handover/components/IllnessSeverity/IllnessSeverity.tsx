@@ -45,12 +45,12 @@ const severityStyling = {
 };
 
 interface IllnessSeverityProps {
-  currentUser?: {
+  currentUser: {
     name: string;
     initials: string;
     role: string;
   };
-  assignedPhysician?: {
+  assignedPhysician: {
     name: string;
     initials: string;
     role: string;
@@ -61,12 +61,8 @@ interface IllnessSeverityProps {
 }
 
 export function IllnessSeverity({
-  currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
-  assignedPhysician = {
-    name: "Dr. Johnson",
-    initials: "DJ",
-    role: "Day Attending",
-  },
+  currentUser,
+  assignedPhysician,
   severityContent,
   severityStatus: _severityStatus,
 }: IllnessSeverityProps): JSX.Element {

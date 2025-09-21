@@ -5,6 +5,7 @@ export { SynthesisByReceiver } from "./components/SynthesisByReceiver";
 export { SituationAwareness } from "./components/SituationAwareness";
 export { PatientSummary } from "./components/PatientSummary";
 export { PatientHeader } from "./components/PatientHeader";
+export { ShiftTransition } from "./components/ShiftTransition";
 export { Justification } from "./components/Justification";
 export { IllnessSeverity } from "./components/IllnessSeverity";
 export { ActionList } from "./components/ActionList";

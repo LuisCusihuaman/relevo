@@ -218,3 +218,14 @@ public record HandoverActionItemRecord(
 {
     public HandoverActionItemRecord() : this("", "", "", false, DateTime.MinValue, DateTime.MinValue, null) { }
 }
+
+// Handover Creation Request
+public record CreateHandoverRequest(
+    string PatientId,
+    string FromDoctorId,
+    string ToDoctorId,
+    string FromShiftId,
+    string ToShiftId,
+    string InitiatedBy,
+    string? Notes
+);
