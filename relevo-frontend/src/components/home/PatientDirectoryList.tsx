@@ -26,6 +26,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 		{ pageSize: 50 } // Get recent handovers
 	);
 
+
 	// Handle navigation when handover data is loaded
 	useEffect(() => {
 		if (handoverTimeline?.items && handoverTimeline.items.length > 0 && selectedPatientId) {

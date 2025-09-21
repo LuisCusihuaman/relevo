@@ -292,7 +292,7 @@ function useHandoverStateMutation(mutationFn: (handoverId: string) => Promise<vo
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn,
-		onSuccess: (_data, handoverId) => {
+		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
 		},
 	});
@@ -327,6 +327,7 @@ export function useRejectHandover() {
 		},
 	});
 }
+
 
 
 // HOOKS: PENDING HANDOVERS

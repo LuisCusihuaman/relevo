@@ -266,12 +266,14 @@ CREATE TABLE HANDOVERS (
     TO_SHIFT_ID VARCHAR2(50), -- Shift receiving the handover TO
     FROM_DOCTOR_ID VARCHAR2(255), -- Doctor handing over (Clerk User ID)
     TO_DOCTOR_ID VARCHAR2(255), -- Doctor receiving handover (Clerk User ID)
+    RECEIVER_USER_ID VARCHAR2(255), -- Doctor receiving handover (Clerk User ID)
     CREATED_BY VARCHAR2(255), -- Clerk User ID who initiated
     INITIATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP, -- When handover was initiated
     ACCEPTED_AT TIMESTAMP, -- When receiving doctor accepted
     COMPLETED_BY VARCHAR2(255), -- Who completed the handover
     READY_AT         TIMESTAMP,
     STARTED_AT       TIMESTAMP,
+    ACKNOWLEDGED_AT  TIMESTAMP, -- Optional: when receiver acknowledges seeing the handover
     CANCELLED_AT     TIMESTAMP,
     REJECTED_AT      TIMESTAMP,
     REJECTION_REASON VARCHAR2(4000),
@@ -282,6 +284,7 @@ CREATE TABLE HANDOVERS (
     CONSTRAINT FK_HANDOVERS_PATIENT FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
     CONSTRAINT FK_HANDOVERS_FROM_SHIFT FOREIGN KEY (FROM_SHIFT_ID) REFERENCES SHIFTS(ID),
     CONSTRAINT FK_HANDOVERS_TO_SHIFT FOREIGN KEY (TO_SHIFT_ID) REFERENCES SHIFTS(ID),
+    CONSTRAINT FK_HANDOVERS_RECEIVER FOREIGN KEY (RECEIVER_USER_ID) REFERENCES USERS(ID),
     CONSTRAINT chk_handover_type CHECK (HANDOVER_TYPE IN ('ShiftToShift','TemporaryCoverage','Consult'))
 );
 
@@ -534,7 +537,7 @@ CREATE INDEX IDX_ACTIVITY_TYPE ON HANDOVER_ACTIVITY_LOG(ACTIVITY_TYPE);
 CREATE INDEX IDX_ACTIVITY_CREATED ON HANDOVER_ACTIVITY_LOG(CREATED_AT);
 
 -- Índice único para asegurar un solo handover activo por ventana de traspaso
-CREATE UNIQUE INDEX uq_active_handover_per_window
+CREATE UNIQUE INDEX uq_one_active_handover_per_window
 ON HANDOVERS (
   PATIENT_ID,
   HANDOVER_WINDOW_DATE,

@@ -30,29 +30,45 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       PatientId = handover.PatientId,
       PatientName = handover.PatientName,
       Status = handover.Status,
-      IllnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
+      illnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
       {
-        Value = handover.IllnessSeverity.Severity
+        severity = handover.IllnessSeverity.Severity
       },
-      PatientSummary = new GetHandoverByIdResponse.PatientSummaryDto
+      patientSummary = new GetHandoverByIdResponse.PatientSummaryDto
       {
-        Value = handover.PatientSummary.Content
+        content = handover.PatientSummary.Content
       },
-      ActionItems = handover.ActionItems.Select(item => new GetHandoverByIdResponse.ActionItemDto
+      actionItems = handover.ActionItems.Select(item => new GetHandoverByIdResponse.ActionItemDto
       {
-        Id = item.Id,
-        Description = item.Description,
-        IsCompleted = item.IsCompleted
+        id = item.Id,
+        description = item.Description,
+        isCompleted = item.IsCompleted
       }).ToList(),
-      SituationAwarenessDocId = handover.SituationAwarenessDocId,
-      Synthesis = handover.Synthesis != null ? new GetHandoverByIdResponse.SynthesisDto
+      situationAwarenessDocId = handover.SituationAwarenessDocId,
+      synthesis = handover.Synthesis != null ? new GetHandoverByIdResponse.SynthesisDto
       {
-        Value = handover.Synthesis.Content
+        content = handover.Synthesis.Content
       } : null,
       ShiftName = handover.ShiftName,
       CreatedBy = handover.CreatedBy,
       AssignedTo = handover.AssignedTo,
-      CreatedAt = handover.CreatedAt
+      ReceiverUserId = handover.ReceiverUserId,
+      CreatedAt = handover.CreatedAt,
+      ReadyAt = handover.ReadyAt,
+      StartedAt = handover.StartedAt,
+      AcknowledgedAt = handover.AcknowledgedAt,
+      AcceptedAt = handover.AcceptedAt,
+      CompletedAt = handover.CompletedAt,
+      CancelledAt = handover.CancelledAt,
+      RejectedAt = handover.RejectedAt,
+      RejectionReason = handover.RejectionReason,
+      ExpiredAt = handover.ExpiredAt,
+      HandoverType = handover.HandoverType,
+      HandoverWindowDate = handover.HandoverWindowDate?.ToString("yyyy-MM-ddTHH:mm:ss"),
+      FromShiftId = handover.FromShiftId,
+      ToShiftId = handover.ToShiftId,
+      ToDoctorId = handover.ToDoctorId,
+      StateName = handover.StateName
     };
 
     await SendAsync(Response, cancellation: ct);
@@ -71,35 +87,51 @@ public class GetHandoverByIdResponse
   public string PatientId { get; set; } = string.Empty;
   public string? PatientName { get; set; }
   public string Status { get; set; } = string.Empty;
-  public IllnessSeverityDto IllnessSeverity { get; set; } = new();
-  public PatientSummaryDto PatientSummary { get; set; } = new();
-  public List<ActionItemDto> ActionItems { get; set; } = [];
-  public string? SituationAwarenessDocId { get; set; }
-  public SynthesisDto? Synthesis { get; set; }
+  public IllnessSeverityDto illnessSeverity { get; set; } = new();
+  public PatientSummaryDto patientSummary { get; set; } = new();
+  public List<ActionItemDto> actionItems { get; set; } = [];
+  public string? situationAwarenessDocId { get; set; }
+  public SynthesisDto? synthesis { get; set; }
   public string ShiftName { get; set; } = string.Empty;
   public string CreatedBy { get; set; } = string.Empty;
   public string AssignedTo { get; set; } = string.Empty;
+  public string? ReceiverUserId { get; set; }
   public string? CreatedAt { get; set; }
+  public string? ReadyAt { get; set; }
+  public string? StartedAt { get; set; }
+  public string? AcknowledgedAt { get; set; }
+  public string? AcceptedAt { get; set; }
+  public string? CompletedAt { get; set; }
+  public string? CancelledAt { get; set; }
+  public string? RejectedAt { get; set; }
+  public string? RejectionReason { get; set; }
+  public string? ExpiredAt { get; set; }
+  public string? HandoverType { get; set; }
+  public string? HandoverWindowDate { get; set; }
+  public string? FromShiftId { get; set; }
+  public string? ToShiftId { get; set; }
+  public string? ToDoctorId { get; set; }
+  public string StateName { get; set; } = string.Empty;
 
   public class IllnessSeverityDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string severity { get; set; } = string.Empty;
   }
 
   public class PatientSummaryDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string content { get; set; } = string.Empty;
   }
 
   public class ActionItemDto
   {
-    public string Id { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public bool IsCompleted { get; set; }
+    public string id { get; set; } = string.Empty;
+    public string description { get; set; } = string.Empty;
+    public bool isCompleted { get; set; }
   }
 
   public class SynthesisDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string content { get; set; } = string.Empty;
   }
 }

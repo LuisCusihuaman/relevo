@@ -82,9 +82,11 @@ export type Handover = {
 	shiftName: string;
 	createdBy: string;
 	assignedTo: string;
+	receiverUserId?: string;
 	createdAt?: string; // Date when handover was created
 	readyAt?: string;
 	startedAt?: string;
+	acknowledgedAt?: string;
 	acceptedAt?: string;
 	completedAt?: string;
 	cancelledAt?: string;

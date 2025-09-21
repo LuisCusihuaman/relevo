@@ -66,7 +66,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
   const { user: currentUser, isLoading: userLoading } = useCurrentUser();
-  const { data: handoverData, isLoading: handoverLoading } = useHandover(routeHandoverId);
+  const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(routeHandoverId);
   const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
   const { t } = useTranslation("handover");
 
@@ -152,8 +152,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
     );
   }
 
-  // Error state - if handover not found
-  if (!handoverData && !handoverLoading) {
+  // Error state - if handover not found or API error
+  if ((!handoverData && !handoverLoading) || handoverError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -162,8 +162,23 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Handover Not Found</h3>
-          <p className="text-gray-600">The requested handover could not be found.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {handoverError ? "Error Loading Handover" : "Handover Not Found"}
+          </h3>
+          <p className="text-gray-600">
+            {handoverError
+              ? `Failed to load handover data: ${handoverError.message}`
+              : "The requested handover could not be found."
+            }
+          </p>
+          {process.env.NODE_ENV === "development" && handoverError && (
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-sm text-gray-500">Technical Details</summary>
+              <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-w-md">
+                {JSON.stringify(handoverError, null, 2)}
+              </pre>
+            </details>
+          )}
           {onBack && (
             <button
               onClick={onBack}

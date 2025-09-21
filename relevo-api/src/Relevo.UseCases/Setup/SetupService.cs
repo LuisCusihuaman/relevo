@@ -98,14 +98,40 @@ public class SetupService : ISetupService
         int page,
         int pageSize)
     {
-        return await Task.FromResult(_getPatientHandoversUseCase.Execute(patientId, page, pageSize));
+        var result = await Task.FromResult(_getPatientHandoversUseCase.Execute(patientId, page, pageSize));
+
+        // Auto-ready logic: when patient is selected (receiver selects patient),
+        // mark Draft handovers as Ready if they have minimum content and are within window
+        await ApplyAutoReadyLogicAsync(result.Handovers);
+
+        return result;
+    }
+
+    private async Task ApplyAutoReadyLogicAsync(IReadOnlyList<HandoverRecord> handovers)
+    {
+        var draftHandovers = handovers.Where(h => h.StateName == "Draft").ToList();
+
+        foreach (var handover in draftHandovers)
+        {
+            // Check if handover has minimum content
+            bool hasMinimumContent = !string.IsNullOrWhiteSpace(handover.PatientSummary.Content) ||
+                                   !string.IsNullOrWhiteSpace(handover.SituationAwarenessDocId);
+
+            // Check if handover is within window (current date matches handover window date)
+            bool isWithinWindow = handover.HandoverWindowDate?.Date == DateTime.UtcNow.Date;
+
+            if (hasMinimumContent && isWithinWindow && !string.IsNullOrWhiteSpace(handover.Id))
+            {
+                // Auto-ready the handover
+                await _repository.ReadyHandover(handover.Id, "system"); // Using system as the user who triggers auto-ready
+            }
+        }
     }
 
     public async Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId)
     {
         return await Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
     }
-
 
     public async Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
     {
