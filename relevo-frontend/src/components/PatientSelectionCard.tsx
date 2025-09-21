@@ -1,21 +1,22 @@
 import { Activity, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import type { ReactElement } from "react";
 import type { SetupPatient } from "@/common/types";
+import i18n from "@/common/i18n";
 
 interface PatientSelectionCardProps {
   patient: SetupPatient;
   isSelected: boolean;
-  translation?: (key: string, options?: Record<string, unknown>) => string;
 }
 
 export function PatientSelectionCard({
   patient,
   isSelected,
-  translation: t = ((key: string) => key) as (key: string, options?: Record<string, unknown>) => string,
 }: PatientSelectionCardProps): ReactElement {
-  const translate = (key: string): string => {
+  const translate = (key: string, options?: Record<string, unknown>): string => {
     try {
-      return String(t(key));
+      // Use i18n instance directly with patientSelectionCard namespace
+      const result = i18n.t(key, { ns: 'patientSelectionCard', ...options }) as string;
+      return result || key;
     } catch {
       return key;
     }
@@ -78,7 +79,7 @@ export function PatientSelectionCard({
             {patient.name || 'Unknown Patient'}
           </div>
           <div className="text-xs text-gray-600 truncate">
-            {patient.age ? `${patient.age} ${translate("ageUnit")}` : translate("ageNotAvailable")} • {patient.room || 'Unknown Room'}
+            {patient.age ? translate("age", { age: patient.age }) : translate("ageNotAvailable")} • {patient.room || 'Unknown Room'}
           </div>
         </div>
       </div>
@@ -103,11 +104,6 @@ export function PatientSelectionCard({
           {patient.status === "in-progress" && translate("status.inProgress")}
           {patient.status === "complete" && translate("status.complete")}
         </span>
-        <div className="text-xs text-gray-500">
-          {isSelected
-            ? translate("toggleAssignment.remove")
-            : translate("toggleAssignment.add")}
-        </div>
       </div>
     </li>
   );

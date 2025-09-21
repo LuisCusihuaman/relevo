@@ -4,6 +4,7 @@ import { AlertCircle, CheckCircle, Circle } from "lucide-react";
 import { PatientSelectionCard } from "@/components/PatientSelectionCard";
 import type { SetupPatient, SetupStep } from "../types";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 type PatientSelectionStepProps = {
 	currentStep: SetupStep;
@@ -13,7 +14,6 @@ type PatientSelectionStepProps = {
 	showValidationError: boolean;
 	onPatientToggle: (index: number) => void;
 	onSelectAll: () => void;
-	translation: (key: string, options?: Record<string, unknown>) => string;
 };
 
 export function PatientSelectionStep({
@@ -24,9 +24,10 @@ export function PatientSelectionStep({
 	showValidationError,
 	onPatientToggle,
 	onSelectAll,
-	translation: t,
 	isFetching = false,
 }: PatientSelectionStepProps & { isFetching?: boolean }): ReactElement {
+	const { t } = useTranslation(["dailySetup", "handover"]);
+
 	if (currentStep !== 3) return <></>;
 
 	// Show loading state if no patients yet or currently fetching
@@ -150,7 +151,6 @@ export function PatientSelectionStep({
 								<PatientSelectionCard
 									isSelected={selectedIndexes.includes(index)}
 									patient={patient}
-									translation={t}
 								/>
 							</div>
 						))}

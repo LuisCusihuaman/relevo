@@ -20,7 +20,7 @@ type SetupWizardProps = {
 const TOTAL_STEPS = 4;
 
 function SetupWizardComponent({ units, shifts }: SetupWizardProps): ReactElement {
-	const { t } = useTranslation(["dailySetup", "handover"]);
+	const { t } = useTranslation(["dailySetup", "handover", "patientSelectionCard"]);
 
 	const {
 		currentStep,
@@ -110,7 +110,6 @@ function SetupWizardComponent({ units, shifts }: SetupWizardProps): ReactElement
 						patients={patients}
 						selectedIndexes={selectedIndexes}
 						showValidationError={showValidationError}
-						translation={t}
 						onPatientToggle={togglePatientSelection}
 						onSelectAll={() => {
 							handleSelectAll(patients);

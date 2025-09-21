@@ -37,10 +37,29 @@ public class OracleSetupRepository : ISetupRepository
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
         const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = :unitId";
-        const string pageSql = @"SELECT ID AS Id, NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId FROM (
-          SELECT ID, NAME, ROW_NUMBER() OVER (ORDER BY ID) AS RN
-          FROM PATIENTS WHERE UNIT_ID = :unitId
-        ) WHERE RN BETWEEN :startRow AND :endRow";
+        const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
+          FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+          CASE
+            WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
+            WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
+            WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
+            WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
+            WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
+            WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
+            WHEN h.READY_AT IS NOT NULL THEN 'Ready'
+            ELSE 'Draft'
+          END AS Status,
+          h.ILLNESS_SEVERITY AS Severity
+          FROM (
+            SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
+            FROM PATIENTS WHERE UNIT_ID = :unitId
+          ) p
+          LEFT JOIN (
+            SELECT PATIENT_ID, ILLNESS_SEVERITY, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+                   ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
+            FROM HANDOVERS
+          ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+          WHERE p.RN BETWEEN :startRow AND :endRow";
 
         int total = conn.ExecuteScalar<int>(countSql, new { unitId });
         int startRow = ((p - 1) * ps) + 1;
@@ -55,10 +74,29 @@ public class OracleSetupRepository : ISetupRepository
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
         const string countSql = "SELECT COUNT(1) FROM PATIENTS";
-        const string pageSql = @"SELECT ID AS Id, NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId FROM (
-          SELECT ID, NAME, ROW_NUMBER() OVER (ORDER BY ID) AS RN
-          FROM PATIENTS
-        ) WHERE RN BETWEEN :startRow AND :endRow";
+        const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
+          FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+          CASE
+            WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
+            WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
+            WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
+            WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
+            WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
+            WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
+            WHEN h.READY_AT IS NOT NULL THEN 'Ready'
+            ELSE 'Draft'
+          END AS Status,
+          h.ILLNESS_SEVERITY AS Severity
+          FROM (
+            SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
+            FROM PATIENTS
+          ) p
+          LEFT JOIN (
+            SELECT PATIENT_ID, ILLNESS_SEVERITY, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+                   ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
+            FROM HANDOVERS
+          ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+          WHERE p.RN BETWEEN :startRow AND :endRow";
 
         int total = conn.ExecuteScalar<int>(countSql);
         int startRow = ((p - 1) * ps) + 1;
@@ -138,11 +176,28 @@ public class OracleSetupRepository : ISetupRepository
             if (total == 0)
                 return (Array.Empty<PatientRecord>(), 0);
 
-            // Get assigned patients (ultra simplified)
+            // Get assigned patients with full patient details
             const string patientsSql = @"
-              SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId
+              SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
+              FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+              CASE
+                WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
+                WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
+                WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
+                WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
+                WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
+                WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
+                WHEN h.READY_AT IS NOT NULL THEN 'Ready'
+                ELSE 'Draft'
+              END AS Status,
+              h.ILLNESS_SEVERITY AS Severity
               FROM PATIENTS p
               INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+              LEFT JOIN (
+                SELECT PATIENT_ID, ILLNESS_SEVERITY, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+                       ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
+                FROM HANDOVERS
+              ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
               WHERE ua.USER_ID = :userId";
 
             var allPatients = conn.Query<PatientRecord>(patientsSql, new { userId }).ToList();
