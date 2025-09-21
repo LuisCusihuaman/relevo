@@ -150,6 +150,7 @@ export function PatientSelectionStep({
 								<PatientSelectionCard
 									isSelected={selectedIndexes.includes(index)}
 									patient={patient}
+									translation={t}
 								/>
 							</div>
 						))}

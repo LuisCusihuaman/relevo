@@ -1,173 +1,114 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Activity, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import type { ReactElement } from "react";
-import { useTranslation } from "react-i18next";
 import type { SetupPatient } from "@/common/types";
 
 interface PatientSelectionCardProps {
   patient: SetupPatient;
   isSelected: boolean;
+  translation?: (key: string, options?: Record<string, unknown>) => string;
 }
-
-type SeverityConfig = {
-  color: string;
-  bgColor: string;
-  borderColor: string;
-  icon: typeof Activity;
-};
-
-type StatusConfig = {
-  label: string;
-  color: string;
-  bgColor: string;
-};
 
 export function PatientSelectionCard({
   patient,
   isSelected,
+  translation: t = ((key: string) => key) as (key: string, options?: Record<string, unknown>) => string,
 }: PatientSelectionCardProps): ReactElement {
-  const { t } = useTranslation("patientSelectionCard");
-  const getSeverityConfig = (severity: string): SeverityConfig => {
+  const translate = (key: string): string => {
+    try {
+      return String(t(key));
+    } catch {
+      return key;
+    }
+  };
+
+  const getSeverityIcon = (severity: string): typeof Activity => {
     switch (severity) {
       case "unstable":
-        return {
-          color: "text-red-700",
-          bgColor: "bg-red-50",
-          borderColor: "border-red-200",
-          icon: AlertTriangle,
-        };
+        return AlertTriangle;
       case "watcher":
-        return {
-          color: "text-yellow-700",
-          bgColor: "bg-yellow-50",
-          borderColor: "border-yellow-200",
-          icon: Eye,
-        };
+        return Eye;
       case "stable":
-        return {
-          color: "text-green-700",
-          bgColor: "bg-green-50",
-          borderColor: "border-green-200",
-          icon: CheckCircle,
-        };
+        return CheckCircle;
       default:
-        return {
-          color: "text-gray-700",
-          bgColor: "bg-gray-50",
-          borderColor: "border-gray-200",
-          icon: Activity,
-        };
+        return Activity;
     }
   };
 
-  const getStatusConfig = (status: string): StatusConfig => {
+  const getSeverityColor = (severity: string): string => {
+    switch (severity) {
+      case "unstable":
+        return "text-red-600";
+      case "watcher":
+        return "text-yellow-600";
+      case "stable":
+        return "text-green-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "pending":
-        return {
-          label: (t("status.pending") ?? "Pending") as string,
-          color: "text-orange-700",
-          bgColor: "bg-orange-50",
-        };
+        return "text-orange-600";
       case "in-progress":
-        return {
-          label: (t("status.inProgress") ?? "In Progress") as string,
-          color: "text-blue-700",
-          bgColor: "bg-blue-50",
-        };
+        return "text-blue-600";
       case "complete":
-        return {
-          label: (t("status.complete") ?? "Complete") as string,
-          color: "text-green-700",
-          bgColor: "bg-green-50",
-        };
+        return "text-green-600";
       default:
-        return {
-          label: (t("status.unknown") ?? "Unknown") as string,
-          color: "text-gray-700",
-          bgColor: "bg-gray-50",
-        };
+        return "text-gray-600";
     }
   };
 
-  const severityConfig = getSeverityConfig(patient.severity);
-  const statusConfig = getStatusConfig(patient.status);
-  const SeverityIcon = severityConfig.icon;
+  const SeverityIcon = getSeverityIcon(patient.severity);
 
   return (
-    <Card
-      className={`transition-all duration-200 cursor-pointer ${
-        isSelected
-          ? "border-primary bg-primary/5 shadow-sm"
-          : "border border-border/40 hover:border-border/60 hover:bg-muted/20"
+    <li
+      className={`grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 cursor-pointer transition-all border-2 rounded-lg ${
+        isSelected ? 'border-primary bg-primary/5' : 'border-gray-100'
       }`}
     >
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          {/* Header Row */}
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-medium text-foreground truncate">
-                  {patient.name}
-                </h3>
-                {isSelected && (
-                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                <span>
-                  {patient.age
-                    ? t("age", { age: patient.age })
-                    : t("ageNotAvailable")}
-                </span>
-                <span>•</span>
-                <span className="font-medium">{patient.room}</span>
-              </div>
-            </div>
-
-            {/* Status Badges Column */}
-            <div className="flex flex-col items-end gap-1 ml-3">
-              {/* Severity Badge - CLEAN DESIGN WITHOUT VERTICAL BAR */}
-              <Badge
-                className={`text-xs ${severityConfig.color} ${severityConfig.bgColor} ${severityConfig.borderColor} border`}
-              >
-                <SeverityIcon className="w-3 h-3 mr-1" />
-                {t(`severity.${patient.severity}`)}
-              </Badge>
-
-              {/* Status Badge */}
-              <Badge
-                className={`text-xs border border-border/30 ${statusConfig.color} ${statusConfig.bgColor}`}
-              >
-                {statusConfig.label}
-              </Badge>
-            </div>
+      {/* Patient Info Column */}
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+          {patient.name?.charAt(0)?.toUpperCase() || '?'}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-gray-900 truncate">
+            {patient.name || 'Unknown Patient'}
           </div>
-
-          {/* Diagnosis */}
-          <div>
-            <p className="text-sm text-foreground leading-relaxed line-clamp-2">
-              {patient.diagnosis}
-            </p>
-          </div>
-
-          {/* Selection Indicator */}
-          <div className="flex items-center justify-between pt-2 border-t border-border/20">
-            <div className="text-xs text-muted-foreground">
-              {isSelected
-                ? t("toggleAssignment.remove")
-                : t("toggleAssignment.add")}
-            </div>
-            {isSelected && (
-              <div className="flex items-center gap-1 text-primary text-xs font-medium">
-                <CheckCircle className="w-3 h-3" />
-                {t("selected")}
-              </div>
-            )}
+          <div className="text-xs text-gray-600 truncate">
+            {patient.age ? `${patient.age} ${translate("ageUnit")}` : translate("ageNotAvailable")} • {patient.room || 'Unknown Room'}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Diagnosis Column */}
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-blue-600 truncate">
+          {patient.diagnosis || 'No diagnosis'}
+        </div>
+        <div className="mt-1 flex items-center gap-2">
+          <SeverityIcon className={`w-3.5 h-3.5 ${getSeverityColor(patient.severity)}`} />
+          <span className="text-xs text-gray-600">
+            {translate(`severity.${patient.severity}`)}
+          </span>
+        </div>
+      </div>
+
+      {/* Status and Actions Column */}
+      <div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
+        <span className={`text-xs font-medium ${getStatusColor(patient.status)}`}>
+          {patient.status === "pending" && translate("status.pending")}
+          {patient.status === "in-progress" && translate("status.inProgress")}
+          {patient.status === "complete" && translate("status.complete")}
+        </span>
+        <div className="text-xs text-gray-500">
+          {isSelected
+            ? translate("toggleAssignment.remove")
+            : translate("toggleAssignment.add")}
+        </div>
+      </div>
+    </li>
   );
 }
