@@ -3,7 +3,7 @@ using Relevo.Web.Setup;
 
 namespace Relevo.Web.Handovers;
 
-public class GetPendingHandoversEndpoint(OracleSetupDataProvider _dataProvider)
+public class GetPendingHandoversEndpoint(ISetupDataProvider _dataProvider)
   : Endpoint<GetPendingHandoversRequest, GetPendingHandoversResponse>
 {
   public override void Configure()

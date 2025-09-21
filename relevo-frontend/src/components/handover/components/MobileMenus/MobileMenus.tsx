@@ -19,9 +19,10 @@ import {
     Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { activeCollaborators, patientData } from "../../../../common/constants";
+import { activeCollaborators } from "../../../../common/constants";
 import { CollaborationPanel } from "../CollaborationPanel";
 import { HandoverHistory } from "../HandoverHistory";
+import type { PatientHandoverData } from "../../../../hooks/usePatientHandoverData";
 
 interface MobileMenusProps {
   showMobileMenu: boolean;
@@ -39,6 +40,7 @@ interface MobileMenusProps {
   currentUser: UserType;
   handoverId?: string;
   participants?: any[];
+  patientData: PatientHandoverData | null;
 }
 
 export function MobileMenus({
@@ -57,6 +59,7 @@ export function MobileMenus({
   currentUser: _currentUser,
   handoverId,
   participants: _participants,
+  patientData,
 }: MobileMenusProps): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const activeUsers = activeCollaborators.filter(
@@ -76,7 +79,7 @@ export function MobileMenus({
               {t("controls.title")}
             </SheetTitle>
             <SheetDescription className="text-left text-gray-600">
-              {t("controls.description", { patientName: patientData.name })}
+              {t("controls.description", { patientName: patientData?.name || "Patient" })}
             </SheetDescription>
           </SheetHeader>
 
@@ -93,13 +96,13 @@ export function MobileMenus({
                 <div className="flex justify-between">
                   <span className="text-blue-700">{t("patientInfo.age")}</span>
                   <span className="text-blue-900 font-medium">
-                    {patientData.age}
+                    {patientData?.age || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">{t("patientInfo.mrn")}</span>
                   <span className="text-blue-900 font-mono text-xs">
-                    {patientData.mrn}
+                    {patientData?.mrn || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -107,7 +110,7 @@ export function MobileMenus({
                     {t("patientInfo.diagnosis")}
                   </span>
                   <span className="text-blue-900 font-medium text-right">
-                    {patientData.primaryDiagnosis}
+                    {patientData?.primaryDiagnosis || "N/A"}
                   </span>
                 </div>
               </div>
@@ -281,7 +284,7 @@ export function MobileMenus({
                 {t("historySheet.title")}
               </SheetTitle>
               <SheetDescription className="text-left text-gray-600">
-                {t("historySheet.description", { patientName: patientData.name })}
+                {t("historySheet.description", { patientName: patientData?.name || "Patient" })}
               </SheetDescription>
             </SheetHeader>
             <div className="flex-1 overflow-auto">
@@ -309,7 +312,7 @@ export function MobileMenus({
               </SheetTitle>
               <SheetDescription className="text-left text-gray-600">
                 {t("collaborationSheet.description", {
-                  patientName: patientData.name,
+                  patientName: patientData?.name || "Patient",
                 })}
               </SheetDescription>
             </SheetHeader>

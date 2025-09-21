@@ -1,8 +1,8 @@
 import {
     activeCollaborators,
-    currentUser,
-    patientData,
 } from "@/common/constants";
+import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { CurrentUserData } from "@/hooks/useCurrentUser";
 import type { FullscreenEditingState, SyncStatus } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ interface FullscreenEditorProps {
   handleOpenDiscussion: () => void;
   syncStatus: SyncStatus;
   setSyncStatus: (status: SyncStatus) => void;
+  patientData: PatientHandoverData | null;
+  currentUser: CurrentUserData | null;
 }
 
 export function FullscreenEditor({
@@ -37,6 +39,8 @@ export function FullscreenEditor({
   handleOpenDiscussion,
   syncStatus,
   setSyncStatus,
+  patientData,
+  currentUser,
 }: FullscreenEditorProps): JSX.Element {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isMobile = useIsMobile();
@@ -139,7 +143,7 @@ export function FullscreenEditor({
             <div className="min-w-0">
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">
-                  {patientData.name}
+                  {patientData?.name || "Patient"}
                 </span>
                 <span className="text-sm text-gray-400">•</span>
                 <span className="text-sm font-medium text-gray-900">
@@ -240,7 +244,7 @@ export function FullscreenEditor({
                 <PatientSummary
                   fullscreenMode
                   hideControls
-                  assignedPhysician={patientData.assignedPhysician}
+                  assignedPhysician={patientData?.assignedPhysician}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser}
                   focusMode={false}

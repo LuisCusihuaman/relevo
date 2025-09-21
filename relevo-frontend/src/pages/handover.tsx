@@ -161,6 +161,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             handleSaveReady={handleSaveReady}
             setSyncStatus={handleSyncStatusChange}
             syncStatus={syncStatus}
+            patientData={patientData}
+            currentUser={currentUser}
           />
         )}
 
@@ -214,6 +216,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             showComments={showComments}
             showHistory={showHistory}
             onBack={onBack}
+            patientData={patientData}
           />
 
           {/* Main Content */}
@@ -242,6 +245,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             getSessionDuration={getSessionDuration}
             getTimeUntilHandover={getTimeUntilHandover}
             handoverComplete={handoverComplete}
+            patientData={patientData}
           />
         </SidebarInset>
 
@@ -296,6 +300,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               showMobileMenu={showMobileMenu}
               handoverId={activeHandoverData?.handover?.id}
               participants={activeHandoverData?.participants || []}
+              patientData={patientData}
             />
         )}
       </SidebarProvider>

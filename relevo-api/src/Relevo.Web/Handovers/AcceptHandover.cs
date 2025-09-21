@@ -3,7 +3,7 @@ using Relevo.Web.Setup;
 
 namespace Relevo.Web.Handovers;
 
-public class AcceptHandoverEndpoint(OracleSetupDataProvider _dataProvider)
+public class AcceptHandoverEndpoint(ISetupDataProvider _dataProvider)
   : Endpoint<AcceptHandoverRequest, AcceptHandoverResponse>
 {
   public override void Configure()

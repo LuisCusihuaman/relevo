@@ -1,9 +1,9 @@
 import {
   activeCollaborators,
   currentlyPresent,
-  patientData,
 } from "@/common/constants";
 import { patientDataES } from "@/common/constants.es";
+import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,7 @@ interface HeaderProps {
   getTimeUntilHandover: () => string;
   getSessionDuration: () => string;
   onBack?: () => void;
+  patientData: PatientHandoverData | null;
 }
 
 export function Header({
@@ -69,10 +70,11 @@ export function Header({
   getTimeUntilHandover,
   getSessionDuration,
   onBack,
+  patientData,
 }: HeaderProps): JSX.Element {
   const { t, i18n } = useTranslation(["header", "handover", "patientHeader"]);
   
-  // Use Spanish data when language is Spanish
+  // Use Spanish data when language is Spanish, fallback to API data
   const currentPatientData = i18n.language === "es" ? patientDataES : patientData;
   
   const activeUsers = activeCollaborators.filter(

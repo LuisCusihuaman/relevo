@@ -185,7 +185,7 @@ public class OracleSetupRepository : ISetupRepository
         // Get handovers with pagination
         const string handoverSql = @"
           SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                  TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
           FROM HANDOVERS h
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
@@ -265,7 +265,7 @@ public class OracleSetupRepository : ISetupRepository
             await conn.ExecuteAsync(@"
             INSERT INTO HANDOVERS (
                 ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
-                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, ASSIGNED_TO
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, TO_DOCTOR_ID
             ) VALUES (
                 :handoverId, :assignmentId, :patientId, 'Active', 'Stable',
                 'Handover iniciado - información pendiente de completar', :shiftName, :userId, :userId
@@ -303,7 +303,7 @@ public class OracleSetupRepository : ISetupRepository
 
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
@@ -364,7 +364,7 @@ public class OracleSetupRepository : ISetupRepository
 
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO,
+                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
@@ -485,7 +485,7 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             // Find the active handover for this user's assigned patients
-            const string handoverSql = "SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.ASSIGNED_TO, TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT FROM HANDOVERS h INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID WHERE h.ASSIGNED_TO = :userId AND h.STATUS IN ('Active', 'InProgress') ORDER BY h.CREATED_AT DESC";
+            const string handoverSql = "SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT FROM HANDOVERS h INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress') ORDER BY h.CREATED_AT DESC";
 
             var rows = conn.Query(handoverSql, new { userId }).ToList();
             var row = rows.FirstOrDefault();
@@ -546,7 +546,7 @@ public class OracleSetupRepository : ISetupRepository
             {
                 // Get the handover creator as the default participant
                 const string creatorSql = @"
-                    SELECT ASSIGNED_TO as USER_ID, 'Assigned Physician' as USER_NAME, 'Doctor' as USER_ROLE
+                    SELECT TO_DOCTOR_ID as USER_ID, 'Assigned Physician' as USER_NAME, 'Doctor' as USER_ROLE
                     FROM HANDOVERS
                     WHERE ID = :handoverId";
 
