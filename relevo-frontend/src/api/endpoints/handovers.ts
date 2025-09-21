@@ -8,6 +8,11 @@ import type {
 	HandoverActivityItem,
 	HandoverChecklistItem,
 	HandoverContingencyPlan,
+	SituationAwarenessResponse,
+	ContingencyPlansResponse,
+	CreateContingencyPlanRequest,
+	UpdateSituationAwarenessRequest,
+	ApiResponse,
 } from "../types";
 
 // ========================================
@@ -25,6 +30,7 @@ export const handoverQueryKeys = {
 	activity: (id: string) => [...handoverQueryKeys.detail(id), "activity"] as const,
 	checklists: (id: string) => [...handoverQueryKeys.detail(id), "checklists"] as const,
 	contingencyPlans: (id: string) => [...handoverQueryKeys.detail(id), "contingency-plans"] as const,
+	situationAwareness: (id: string) => [...handoverQueryKeys.detail(id), "situation-awareness"] as const,
 };
 
 // ========================================
@@ -547,6 +553,128 @@ export function useCreateContingencyPlan() {
 			actionText: string;
 			priority?: "low" | "medium" | "high";
 		}) => createContingencyPlan(handoverId, conditionText, actionText, priority),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
+			});
+		},
+	});
+}
+
+// ========================================
+// SITUATION AWARENESS API FUNCTIONS
+// ========================================
+
+export async function getSituationAwareness(handoverId: string): Promise<SituationAwarenessResponse> {
+	const { data } = await api.get<SituationAwarenessResponse>(`/handovers/${handoverId}/situation-awareness`);
+	return data;
+}
+
+export async function updateSituationAwareness(handoverId: string, request: UpdateSituationAwarenessRequest): Promise<ApiResponse> {
+	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/situation-awareness`, request);
+	return data;
+}
+
+export async function getContingencyPlans(handoverId: string): Promise<ContingencyPlansResponse> {
+	const { data } = await api.get<ContingencyPlansResponse>(`/handovers/${handoverId}/contingency-plans`);
+	return data;
+}
+
+export async function createHandoverContingencyPlan(
+	handoverId: string,
+	conditionText: string,
+	actionText: string,
+	priority: "low" | "medium" | "high" = "medium"
+): Promise<HandoverContingencyPlan> {
+	const request: CreateContingencyPlanRequest = {
+		conditionText,
+		actionText,
+		priority,
+	};
+	const { data } = await api.post<HandoverContingencyPlan>(`/handovers/${handoverId}/contingency-plans`, request);
+	return data;
+}
+
+export async function deleteContingencyPlan(handoverId: string, contingencyId: string): Promise<ApiResponse> {
+	const { data } = await api.delete<ApiResponse>(`/handovers/${handoverId}/contingency-plans/${contingencyId}`);
+	return data;
+}
+
+// ========================================
+// SITUATION AWARENESS HOOKS
+// ========================================
+
+export function useSituationAwareness(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.situationAwareness(handoverId),
+		queryFn: () => getSituationAwareness(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+export function useUpdateSituationAwareness() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			content,
+		}: {
+			handoverId: string;
+			content: string;
+		}) => updateSituationAwareness(handoverId, { content }),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.situationAwareness(variables.handoverId),
+			});
+		},
+	});
+}
+
+export function useContingencyPlans(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
+		queryFn: () => getContingencyPlans(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+export function useCreateHandoverContingencyPlan() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			conditionText,
+			actionText,
+			priority,
+		}: {
+			handoverId: string;
+			conditionText: string;
+			actionText: string;
+			priority?: "low" | "medium" | "high";
+		}) => createHandoverContingencyPlan(handoverId, conditionText, actionText, priority),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
+			});
+		},
+	});
+}
+
+export function useDeleteContingencyPlan() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			contingencyId,
+		}: {
+			handoverId: string;
+			contingencyId: string;
+		}) => deleteContingencyPlan(handoverId, contingencyId),
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),

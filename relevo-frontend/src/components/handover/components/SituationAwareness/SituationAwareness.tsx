@@ -16,6 +16,13 @@ import {
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  useSituationAwareness,
+  useUpdateSituationAwareness,
+  useContingencyPlans,
+  useCreateContingencyPlan,
+  useDeleteContingencyPlan
+} from "@/api/endpoints/handovers";
 
 // Enhanced collaborator with typing indicators
 interface Collaborator {
@@ -40,6 +47,7 @@ interface ContingencyPlan {
 }
 
 interface SituationAwarenessProps {
+  handoverId: string; // Required: ID of the handover for this situation awareness
   collaborators?: Array<Collaborator>;
   onOpenThread?: (section: string) => void;
   focusMode?: boolean;
@@ -64,6 +72,7 @@ interface SituationAwarenessProps {
 }
 
 export function SituationAwareness({
+  handoverId,
   collaborators: _collaborators = [],
   onOpenThread: _onOpenThread,
   focusMode = false,
@@ -80,59 +89,75 @@ export function SituationAwareness({
 }: SituationAwarenessProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
 
-  // Live situation documentation (collaborative)
-  const [currentSituation, setCurrentSituation] = useState(
-    t("initialSituation.header") +
-      "\n" +
-      t("initialSituation.line1") +
-      "\n" +
-      t("initialSituation.line2") +
-      "\n" +
-      t("initialSituation.line3") +
-      "\n" +
-      t("initialSituation.line4") +
-      "\n" +
-      t("initialSituation.line5") +
-      "\n\n" +
-      t("initialSituation.monitoringHeader") +
-      "\n" +
-      t("initialSituation.monitoring1") +
-      "\n" +
-      t("initialSituation.monitoring2") +
-      "\n" +
-      t("initialSituation.monitoring3") +
-      "\n" +
-      t("initialSituation.monitoring4") +
-      "\n" +
-      t("initialSituation.monitoring5") +
-      "\n\n" +
-      t("initialSituation.teamNotesHeader") +
-      "\n" +
-      t("initialSituation.teamNote1") +
-      "\n" +
-      t("initialSituation.teamNote2") +
-      "\n" +
-      t("initialSituation.teamNote3") +
-      "\n" +
-      t("initialSituation.teamNote4") +
-      "\n\n" +
-      t("initialSituation.nextShiftGoalsHeader") +
-      "\n" +
-      t("initialSituation.goal1") +
-      "\n" +
-      t("initialSituation.goal2") +
-      "\n" +
-      t("initialSituation.goal3") +
-      "\n" +
-      t("initialSituation.goal4"),
-  );
+  // Fetch situation awareness data
+  const { data: situationData, isLoading: isLoadingSituation } = useSituationAwareness(handoverId);
+  const { data: contingencyData, isLoading: isLoadingContingency } = useContingencyPlans(handoverId);
 
-  // State for editing mode
+  // Mutations
+  const updateSituationMutation = useUpdateSituationAwareness();
+  const createContingencyMutation = useCreateContingencyPlan();
+  const deleteContingencyMutation = useDeleteContingencyPlan();
+
+  // Local state for situation awareness content
+  const [currentSituation, setCurrentSituation] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [_lastEdit, setLastEdit] = useState(new Date());
   const [autoSaveStatus, setAutoSaveStatus] = useState<
     "saved" | "saving" | "error"
   >("saved");
+
+  // Update local state when API data loads
+  useEffect(() => {
+    if (situationData?.section?.content) {
+      setCurrentSituation(situationData.section.content);
+    } else if (!isLoadingSituation) {
+      // If no content exists, use default text
+      setCurrentSituation(
+        t("initialSituation.header") +
+          "\n" +
+          t("initialSituation.line1") +
+          "\n" +
+          t("initialSituation.line2") +
+          "\n" +
+          t("initialSituation.line3") +
+          "\n" +
+          t("initialSituation.line4") +
+          "\n" +
+          t("initialSituation.line5") +
+          "\n\n" +
+          t("initialSituation.monitoringHeader") +
+          "\n" +
+          t("initialSituation.monitoring1") +
+          "\n" +
+          t("initialSituation.monitoring2") +
+          "\n" +
+          t("initialSituation.monitoring3") +
+          "\n" +
+          t("initialSituation.monitoring4") +
+          "\n" +
+          t("initialSituation.monitoring5") +
+          "\n\n" +
+          t("initialSituation.teamNotesHeader") +
+          "\n" +
+          t("initialSituation.teamNote1") +
+          "\n" +
+          t("initialSituation.teamNote2") +
+          "\n" +
+          t("initialSituation.teamNote3") +
+          "\n" +
+          t("initialSituation.teamNote4") +
+          "\n\n" +
+          t("initialSituation.nextShiftGoalsHeader") +
+          "\n" +
+          t("initialSituation.goal1") +
+          "\n" +
+          t("initialSituation.goal2") +
+          "\n" +
+          t("initialSituation.goal3") +
+          "\n" +
+          t("initialSituation.goal4")
+      );
+    }
+  }, [situationData, isLoadingSituation, t]);
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
@@ -141,41 +166,20 @@ export function SituationAwareness({
     }
   }, [fullscreenMode, autoEdit]);
 
-  // Contingency plans
-  const [contingencyPlans, setContingencyPlans] = useState<Array<ContingencyPlan>>(
-    () => [
-      {
-        id: 1,
-        condition: t("contingencyPlans.plan1.condition"),
-        action: t("contingencyPlans.plan1.action"),
-        priority: "high",
-        status: "active",
-        submittedBy: t("doctors.johnson"),
-        submittedTime: "14:20",
-        submittedDate: t("time.today"),
-      },
-      {
-        id: 2,
-        condition: t("contingencyPlans.plan2.condition"),
-        action: t("contingencyPlans.plan2.action"),
-        priority: "medium",
-        status: "active",
-        submittedBy: t("doctors.martinez"),
-        submittedTime: "15:45",
-        submittedDate: t("time.today"),
-      },
-      {
-        id: 3,
-        condition: t("contingencyPlans.plan3.condition"),
-        action: t("contingencyPlans.plan3.action"),
-        priority: "high",
-        status: "planned",
-        submittedBy: t("doctors.rodriguez"),
-        submittedTime: "16:10",
-        submittedDate: t("time.today"),
-      },
-    ],
-  );
+  // Convert API contingency plans to component format
+  const contingencyPlans: Array<ContingencyPlan> = contingencyData?.plans.map(plan => ({
+    id: parseInt(plan.id) || Date.now(), // Fallback for number IDs
+    condition: plan.conditionText,
+    action: plan.actionText,
+    priority: plan.priority as "low" | "medium" | "high",
+    status: plan.status as "active" | "planned",
+    submittedBy: plan.createdBy,
+    submittedTime: new Date(plan.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    submittedDate: new Date(plan.createdAt).toLocaleDateString(),
+  })) || [];
 
   // New plan form state
   const [showNewPlanForm, setShowNewPlanForm] = useState(false);
@@ -189,54 +193,65 @@ export function SituationAwareness({
   // Check if current user can delete plans (only assigned physician)
   const canDeletePlans = currentUser.name === assignedPhysician.name;
 
-  // Handle situation documentation changes with auto-save simulation
-  const handleSituationChange = (value: string) => {
+  // Handle situation documentation changes with real auto-save
+  const handleSituationChange = async (value: string) => {
     setCurrentSituation(value);
-    setLastEdit(new Date());
     setAutoSaveStatus("saving");
     if (onContentChange) {
       onContentChange();
     }
 
-    // Simulate auto-save after user stops typing
-    setTimeout(() => {
+    try {
+      await updateSituationMutation.mutateAsync({
+        handoverId,
+        content: value,
+      });
       setAutoSaveStatus("saved");
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to save situation awareness:", error);
+      setAutoSaveStatus("error");
+    }
   };
 
   // Submit new contingency plan
-  const handleSubmitPlan = () => {
+  const handleSubmitPlan = async () => {
     if (!newPlan.condition || !newPlan.action) return;
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const plan: ContingencyPlan = {
-        id: Date.now(),
-        condition: newPlan.condition.trim(),
-        action: newPlan.action.trim(),
+    try {
+      await createContingencyMutation.mutateAsync({
+        handoverId,
+        conditionText: newPlan.condition.trim(),
+        actionText: newPlan.action.trim(),
         priority: newPlan.priority as "low" | "medium" | "high",
-        status: "active",
-        submittedBy: currentUser.name,
-        submittedTime: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        submittedDate: t("time.today"),
-      };
+      });
 
-      setContingencyPlans((previous) => [...previous, plan]);
       setNewPlan({ condition: "", action: "", priority: "medium" });
       setShowNewPlanForm(false);
+    } catch (error) {
+      console.error("Failed to create contingency plan:", error);
+    } finally {
       setIsSubmitting(false);
-    }, 500);
+    }
   };
 
   // Delete contingency plan (only assigned physician can delete)
-  const handleDeletePlan = (planId: number) => {
+  const handleDeletePlan = async (planId: number) => {
     if (!canDeletePlans) return;
-    setContingencyPlans((previous) => previous.filter((plan) => plan.id !== planId));
+
+    // Find the plan in the API data to get the string ID
+    const planToDelete = contingencyData?.plans.find(p => (parseInt(p.id) || 0) === planId);
+    if (!planToDelete) return;
+
+    try {
+      await deleteContingencyMutation.mutateAsync({
+        handoverId,
+        contingencyId: planToDelete.id,
+      });
+    } catch (error) {
+      console.error("Failed to delete contingency plan:", error);
+    }
   };
 
   // Handle keyboard shortcuts
@@ -291,6 +306,43 @@ export function SituationAwareness({
 
   // Optimized height for fullscreen
   const contentHeight = fullscreenMode ? "min-h-[60vh]" : "h-80";
+
+  // Show loading state
+  if (isLoadingSituation || isLoadingContingency) {
+    return (
+      <div className="space-y-0">
+        {/* Loading state for situation awareness */}
+        <div className="space-y-4">
+          <div className="bg-white border border-gray-200 rounded-t-none rounded-b-none">
+            <div className="px-6 py-4 border-b border-gray-100 bg-blue-25/50">
+              <div className="flex items-center space-x-3">
+                <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                <div className="h-5 bg-gray-200 rounded w-48"></div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="animate-pulse space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Loading state for contingency plans */}
+        {!fullscreenMode && (
+          <div className="space-y-4 pt-6 px-6">
+            <div className="animate-pulse space-y-3">
+              <div className="h-6 bg-gray-200 rounded w-48"></div>
+              <div className="h-32 bg-gray-200 rounded"></div>
+              <div className="h-32 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-0">

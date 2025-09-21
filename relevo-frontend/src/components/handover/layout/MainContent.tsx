@@ -357,6 +357,7 @@ export function MainContent({
                 </Tooltip>
               </div>
               <SituationAwareness
+                handoverId={handoverData.id}
                 collaborators={activeCollaborators}
                 focusMode={focusMode}
                 syncStatus={syncStatus}
@@ -603,6 +604,7 @@ export function MainContent({
                 </div>
               </div>
               <SituationAwareness
+                handoverId={handoverData.id}
                 collaborators={activeCollaborators}
                 focusMode={focusMode}
                 syncStatus={syncStatus}
@@ -1056,6 +1058,7 @@ export function MainContent({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SituationAwareness
+                handoverId={handoverData.id}
                 collaborators={activeCollaborators}
                 focusMode={focusMode}
                 syncStatus={syncStatus}

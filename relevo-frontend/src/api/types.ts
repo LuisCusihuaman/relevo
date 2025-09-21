@@ -223,6 +223,40 @@ export type HandoverContingencyPlan = {
 	updatedAt: string;
 };
 
+export type SituationAwarenessSection = {
+	id: string;
+	handoverId: string;
+	sectionType: string;
+	content: string | null;
+	status: string;
+	lastEditedBy: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type SituationAwarenessResponse = {
+	section: SituationAwarenessSection | null;
+};
+
+export type ContingencyPlansResponse = {
+	plans: HandoverContingencyPlan[];
+};
+
+export type CreateContingencyPlanRequest = {
+	conditionText: string;
+	actionText: string;
+	priority: "low" | "medium" | "high";
+};
+
+export type UpdateSituationAwarenessRequest = {
+	content: string;
+};
+
+export type ApiResponse = {
+	success: boolean;
+	message: string;
+};
+
 export type ActiveHandoverData = {
 	handover: Handover;
 	participants: Array<HandoverParticipant>;

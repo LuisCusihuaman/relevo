@@ -1138,6 +1138,25 @@ public class OracleSetupRepository : ISetupRepository
         }
     }
 
+    public bool DeleteContingencyPlan(string handoverId, string contingencyId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                DELETE FROM HANDOVER_CONTINGENCY
+                WHERE ID = :contingencyId AND HANDOVER_ID = :handoverId";
+
+            var result = conn.Execute(sql, new { contingencyId, handoverId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete contingency plan {ContingencyId}", contingencyId);
+            throw;
+        }
+    }
+
     // Action Items
     public IReadOnlyList<HandoverActionItemRecord> GetHandoverActionItems(string handoverId)
     {
@@ -1365,17 +1384,18 @@ public class OracleSetupRepository : ISetupRepository
         {
             using IDbConnection conn = _factory.CreateConnection();
             const string sql = @"
-                SELECT ID AS Id,
-                       PATIENT_ID AS PatientId,
-                       PHYSICIAN_ID AS PhysicianId,
-                       SUMMARY_TEXT AS SummaryText,
-                       CREATED_AT AS CreatedAt,
-                       UPDATED_AT AS UpdatedAt,
-                       LAST_EDITED_BY AS LastEditedBy
-                FROM PATIENT_SUMMARIES
-                WHERE PATIENT_ID = :patientId
-                ORDER BY UPDATED_AT DESC
-                FETCH FIRST 1 ROWS ONLY";
+                SELECT * FROM (
+                    SELECT ID AS Id,
+                           PATIENT_ID AS PatientId,
+                           PHYSICIAN_ID AS PhysicianId,
+                           SUMMARY_TEXT AS SummaryText,
+                           CREATED_AT AS CreatedAt,
+                           UPDATED_AT AS UpdatedAt,
+                           LAST_EDITED_BY AS LastEditedBy
+                    FROM PATIENT_SUMMARIES
+                    WHERE PATIENT_ID = :patientId
+                    ORDER BY UPDATED_AT DESC
+                ) WHERE ROWNUM = 1";
 
             return conn.QueryFirstOrDefault<PatientSummaryRecord>(sql, new { patientId });
         }

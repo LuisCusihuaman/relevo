@@ -60,19 +60,13 @@ export function PatientSummary({
   const { data: summaryData, isLoading: isLoadingSummary } = usePatientSummary(patientId);
 
   // Local state for editing
-  const [summaryText, setSummaryText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [editingText, setEditingText] = useState("");
 
-  // Update local state when summary data loads
-  useEffect(() => {
-    if (summaryData?.summary) {
-      setSummaryText(summaryData.summary.summaryText);
-    } else if (!isLoadingSummary) {
-      // If no summary exists, use default text
-      setSummaryText(t("initialSummary"));
-    }
-  }, [summaryData, isLoadingSummary, t]);
+  // Get the current summary text, defaulting to empty string if no data
+  const displayText = summaryData?.summary?.summaryText || "";
+  const currentText = isEditing ? editingText : displayText;
 
   // Check if current user can edit (only assigned physician)
   const canEdit = currentUser?.name === assignedPhysician?.name;
@@ -93,7 +87,7 @@ export function PatientSummary({
   });
 
   const handleSave = useCallback(async () => {
-    if (!summaryText.trim()) return;
+    if (!editingText.trim()) return;
 
     setIsUpdating(true);
 
@@ -102,12 +96,13 @@ export function PatientSummary({
       const hasExistingSummary = summaryData?.summary != null;
 
       if (hasExistingSummary) {
-        await updateSummaryMutation.mutateAsync(summaryText);
+        await updateSummaryMutation.mutateAsync(editingText);
       } else {
-        await createSummaryMutation.mutateAsync(summaryText);
+        await createSummaryMutation.mutateAsync(editingText);
       }
 
       setIsEditing(false);
+      setEditingText("");
 
       // Call external save handler if provided
       if (onSave) {
@@ -119,14 +114,15 @@ export function PatientSummary({
     } finally {
       setIsUpdating(false);
     }
-  }, [summaryText, summaryData, createSummaryMutation, updateSummaryMutation, onSave]);
+  }, [editingText, summaryData, createSummaryMutation, updateSummaryMutation, onSave]);
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
     if (fullscreenMode && autoEdit && canEdit) {
       setIsEditing(true);
+      setEditingText(displayText);
     }
-  }, [fullscreenMode, autoEdit, canEdit]);
+  }, [fullscreenMode, autoEdit, canEdit, displayText]);
 
   // Provide save function to parent when ready
   useEffect(() => {
@@ -135,12 +131,6 @@ export function PatientSummary({
     }
   }, [onSaveReady, isEditing, fullscreenMode, handleSave]);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setSummaryText(e.target.value);
-    if (onContentChange) {
-      onContentChange();
-    }
-  };
 
   const getTimeAgo = () => {
     const updatedAt = summaryData?.summary?.updatedAt;
@@ -165,12 +155,14 @@ export function PatientSummary({
     if (fullscreenMode) {
       // If in fullscreen, just start editing
       setIsEditing(true);
+      setEditingText(displayText);
     } else if (onRequestFullscreen) {
       // If not in fullscreen, go to fullscreen with auto-edit
       onRequestFullscreen();
     } else {
       // Fallback to regular editing
       setIsEditing(true);
+      setEditingText(displayText);
     }
   };
 
@@ -239,14 +231,19 @@ export function PatientSummary({
                   <Textarea
                     className={`w-full h-full ${fullscreenMode ? "min-h-[60vh]" : "min-h-[320px]"} border-0 bg-transparent p-4 resize-none text-gray-900 leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none`}
                     placeholder={t("editing.placeholder")}
-                    value={summaryText}
+                    value={currentText}
                     style={{
                       fontFamily: "system-ui, -apple-system, sans-serif",
                       fontSize: fullscreenMode ? "16px" : "14px",
                       lineHeight: "1.6",
                       background: "transparent !important",
                     }}
-                    onChange={handleTextChange}
+                    onChange={(e) => {
+                      setEditingText(e.target.value);
+                      if (onContentChange) {
+                        onContentChange();
+                      }
+                    }}
                   />
                 </ScrollArea>
               </div>
@@ -258,10 +255,10 @@ export function PatientSummary({
                 >
                   <div className="flex items-center space-x-3 text-xs text-gray-500">
                     <span>
-                      {summaryText.split(" ").length} {t("editing.words")}
+                      {currentText.split(" ").length} {t("editing.words")}
                     </span>
                     <span>
-                      {summaryText.split("\n").length} {t("editing.lines")}
+                      {currentText.split("\n").length} {t("editing.lines")}
                     </span>
                   </div>
                   <div className="flex space-x-2">
@@ -294,10 +291,10 @@ export function PatientSummary({
                 >
                   <div className="flex items-center space-x-3 text-xs text-gray-500">
                     <span>
-                      {summaryText.split(" ").length} {t("editing.words")}
+                      {currentText.split(" ").length} {t("editing.words")}
                     </span>
                     <span>
-                      {summaryText.split("\n").length} {t("editing.lines")}
+                      {currentText.split("\n").length} {t("editing.lines")}
                     </span>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -377,7 +374,11 @@ export function PatientSummary({
                     lineHeight: "1.6",
                   }}
                 >
-                  {summaryText}
+                  {displayText || (
+                    <span className="text-gray-500 italic">
+                      {t("view.noSummaryMessage")}
+                    </span>
+                  )}
                 </div>
               </ScrollArea>
             </div>
@@ -395,7 +396,7 @@ export function PatientSummary({
                 </div>
                 <span>•</span>
                 <span>
-                  {summaryText.split(" ").length} {t("view.words")}
+                  {displayText.split(" ").length} {t("view.words")}
                 </span>
               </div>
               {canEdit && !focusMode && (

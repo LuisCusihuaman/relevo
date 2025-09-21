@@ -27,7 +27,8 @@
     "current": "Actual",
     "updated": "Actualizado",
     "words": "palabras",
-    "clickToEdit": "Haga clic para editar"
+    "clickToEdit": "Haga clic para editar",
+    "noSummaryMessage": "No hay resumen clínico disponible. Haga clic para crear uno."
   },
   "permission": {
     "only": "Solo",

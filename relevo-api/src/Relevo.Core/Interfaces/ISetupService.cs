@@ -34,6 +34,7 @@ public interface ISetupService
     // Handover Contingency Plans
     Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId);
     Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy);
+    Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId);
 
     // Action Items
     Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId);

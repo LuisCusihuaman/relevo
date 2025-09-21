@@ -218,6 +218,11 @@ public class SetupService : ISetupService
         return await Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
     }
 
+    public async Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
+    {
+        return await Task.FromResult(_repository.DeleteContingencyPlan(handoverId, contingencyId));
+    }
+
     // Action Items
     public async Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId)
     {

@@ -326,19 +326,6 @@ CREATE TABLE HANDOVER_SECTIONS (
     CONSTRAINT FK_SECTIONS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
 );
 
--- Tabla PATIENT_SUMMARIES (resúmenes independientes de pacientes)
-CREATE TABLE PATIENT_SUMMARIES (
-    ID VARCHAR2(50) PRIMARY KEY,
-    PATIENT_ID VARCHAR2(50) NOT NULL,
-    PHYSICIAN_ID VARCHAR2(255) NOT NULL, -- Clerk User ID del médico asignado
-    SUMMARY_TEXT CLOB NOT NULL,
-    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
-    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
-    LAST_EDITED_BY VARCHAR2(255), -- Clerk User ID de quien editó por última vez
-    CONSTRAINT FK_PATIENT_SUMMARIES_PATIENT FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
-    CONSTRAINT FK_PATIENT_SUMMARIES_PHYSICIAN FOREIGN KEY (PHYSICIAN_ID) REFERENCES USERS(ID),
-    CONSTRAINT FK_PATIENT_SUMMARIES_EDITOR FOREIGN KEY (LAST_EDITED_BY) REFERENCES USERS(ID)
-);
 
 -- Tabla SYNC_STATUS (estado de sincronización del handover)
 CREATE TABLE HANDOVER_SYNC_STATUS (
@@ -372,6 +359,20 @@ ALTER TABLE HANDOVERS ADD CONSTRAINT FK_HANDOVERS_FROM_DOCTOR FOREIGN KEY (FROM_
 ALTER TABLE HANDOVERS ADD CONSTRAINT FK_HANDOVERS_TO_DOCTOR FOREIGN KEY (TO_DOCTOR_ID) REFERENCES USERS(ID);
 ALTER TABLE HANDOVERS ADD CONSTRAINT FK_HANDOVERS_COMPLETED_BY FOREIGN KEY (COMPLETED_BY) REFERENCES USERS(ID);
 ALTER TABLE HANDOVERS ADD CONSTRAINT FK_HANDOVERS_RECEIVER FOREIGN KEY (RECEIVER_USER_ID) REFERENCES USERS(ID);
+
+-- Tabla PATIENT_SUMMARIES (resúmenes independientes de pacientes)
+CREATE TABLE PATIENT_SUMMARIES (
+    ID VARCHAR2(50) PRIMARY KEY,
+    PATIENT_ID VARCHAR2(50) NOT NULL,
+    PHYSICIAN_ID VARCHAR2(255) NOT NULL, -- Clerk User ID del médico asignado
+    SUMMARY_TEXT CLOB NOT NULL,
+    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+    LAST_EDITED_BY VARCHAR2(255), -- Clerk User ID de quien editó por última vez
+    CONSTRAINT FK_PATIENT_SUMMARIES_PATIENT FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
+    CONSTRAINT FK_PATIENT_SUMMARIES_PHYSICIAN FOREIGN KEY (PHYSICIAN_ID) REFERENCES USERS(ID),
+    CONSTRAINT FK_PATIENT_SUMMARIES_EDITOR FOREIGN KEY (LAST_EDITED_BY) REFERENCES USERS(ID)
+);
 
 -- Tabla USER_PREFERENCES (preferencias de usuario)
 CREATE TABLE USER_PREFERENCES (
@@ -519,10 +520,10 @@ CREATE INDEX IDX_PARTICIPANTS_STATUS ON HANDOVER_PARTICIPANTS(STATUS);
 CREATE INDEX IDX_SECTIONS_HANDOVER_ID ON HANDOVER_SECTIONS(HANDOVER_ID);
 CREATE INDEX IDX_SECTIONS_TYPE ON HANDOVER_SECTIONS(SECTION_TYPE);
 CREATE INDEX IDX_SECTIONS_STATUS ON HANDOVER_SECTIONS(STATUS);
-CREATE INDEX IDX_PATIENT_SUMMARIES_PATIENT_ID ON PATIENT_SUMMARIES(PATIENT_ID);
-CREATE INDEX IDX_PATIENT_SUMMARIES_PHYSICIAN_ID ON PATIENT_SUMMARIES(PHYSICIAN_ID);
-CREATE INDEX IDX_PATIENT_SUMMARIES_CREATED_AT ON PATIENT_SUMMARIES(CREATED_AT);
-CREATE INDEX IDX_PATIENT_SUMMARIES_UPDATED_AT ON PATIENT_SUMMARIES(UPDATED_AT);
+CREATE INDEX IDX_PAT_SUMMARIES_PATIENT ON PATIENT_SUMMARIES(PATIENT_ID);
+CREATE INDEX IDX_PAT_SUMMARIES_PHYSICIAN ON PATIENT_SUMMARIES(PHYSICIAN_ID);
+CREATE INDEX IDX_PAT_SUMMARIES_CREATED ON PATIENT_SUMMARIES(CREATED_AT);
+CREATE INDEX IDX_PAT_SUMMARIES_UPDATED ON PATIENT_SUMMARIES(UPDATED_AT);
 CREATE INDEX IDX_SYNC_HANDOVER_ID ON HANDOVER_SYNC_STATUS(HANDOVER_ID);
 CREATE INDEX IDX_SYNC_USER_ID ON HANDOVER_SYNC_STATUS(USER_ID);
 CREATE INDEX IDX_SYNC_STATUS ON HANDOVER_SYNC_STATUS(SYNC_STATUS);
@@ -898,6 +899,112 @@ VALUES ('activity-004', 'handover-001', 'user_demo12345678901234567890123456', '
 
 INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
 VALUES ('activity-005', 'handover-001', 'user_demo12345678901234567890123457', 'contingency_added', 'Added contingency plan for shortness of breath', null, '{"contingency_id": "contingency-001"}', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+-- Insertar resúmenes de pacientes iniciales
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-001', 'pat-001', 'user_demo12345678901234567890123456', 'Paciente de 14 años con neumonía adquirida en comunidad. Ingreso hace 3 días. Tratamiento con Amoxicilina 500mg cada 8 horas y oxígeno suplementario. Estable, saturación de oxígeno 94%. Requiere nebulizaciones cada 6 horas y monitoreo continuo de signos vitales.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-002', 'pat-002', 'user_demo12345678901234567890123456', 'Paciente de 12 años con sepsis secundaria a infección urinaria. Ingreso hace 5 días. Tratamiento con Meropenem 40mg/kg cada 8 horas y soporte vasopresor con Noradrenalina. Paciente crítico, requiere monitoreo continuo de signos vitales y soporte hemodinámico.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-003', 'pat-003', 'user_demo12345678901234567890123456', 'Paciente de 13 años con estado asmático agudo. Ingreso hace 2 días. Tratamiento con Salbutamol nebulizado cada 4 horas y Corticoides intravenosos. Mejoría progresiva, disminución en requerimiento de oxígeno. Continuar monitoreo respiratorio.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-004', 'pat-004', 'user_demo12345678901234567890123456', 'Paciente de 13 años con trauma craneoencefálico moderado. Ingreso hace 7 días. Tratamiento con Manitol 1g/kg cada 6 horas y analgesia. Glasgow 12/15, pupilas isocóricas. Requiere monitoreo neurológico frecuente y evaluación por neurocirugía.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-005', 'pat-005', 'user_demo12345678901234567890123456', 'Paciente de 13 años con insuficiencia respiratoria aguda. Ingreso hace 4 días. Ventilación mecánica invasiva, parámetros estables. Sedación con Midazolam y analgesia con Fentanilo. Monitoreo continuo en UTI.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-006', 'pat-006', 'user_demo12345678901234567890123456', 'Paciente de 13 años con choque séptico. Ingreso hace 6 días. Antibióticos de amplio espectro y soporte hemodinámico. Requiere vasopresores y monitoreo continuo. Evaluar respuesta antimicrobiana en 48-72 horas.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-007', 'pat-007', 'user_demo12345678901234567890123456', 'Paciente de 16 años con meningitis bacteriana. Ingreso hace 1 día. Tratamiento con Ceftriaxona 100mg/kg cada 12 horas y Dexametasona. Cultivos pendientes. Monitoreo neurológico continuo y evaluación de complicaciones.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-008', 'pat-008', 'user_demo12345678901234567890123456', 'Paciente de 12 años con quemaduras de segundo grado en 25% de superficie corporal. Ingreso hace 8 días. Tratamiento con analgesia y antibióticos tópicos. Curas diarias y evaluación por cirugía plástica. Prevención de infección.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-009', 'pat-009', 'user_demo12345678901234567890123456', 'Paciente de 14 años con convulsiones febriles. Ingreso hace 9 días. Tratamiento con anticonvulsivantes y antipiréticos. Sin recurrencia de convulsiones. Estudio etiológico en curso.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-010', 'pat-010', 'user_demo12345678901234567890123456', 'Paciente de 17 años con intoxicación medicamentosa. Ingreso hace 12 días. Tratamiento con carbón activado y soporte vital. Monitoreo de función hepática y renal. Evaluación psiquiátrica.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-011', 'pat-011', 'user_demo12345678901234567890123456', 'Paciente de 13 años con hipoglucemia severa. Ingreso hace 3 días. Tratamiento con glucosa intravenosa e insulina. Episodio resuelto. Educación diabética y evaluación endocrinológica.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-012', 'pat-012', 'user_demo12345678901234567890123456', 'Paciente de 12 años con trauma abdominal. Ingreso hace 5 días. Tratamiento conservador con analgesia. Sin signos de peritonitis. Monitoreo clínico y evaluación por cirugía.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123456');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-013', 'pat-013', 'user_demo12345678901234567890123457', 'Paciente de 8 años con bronquiolitis. Ingreso hace 2 días. Tratamiento con salbutamol nebulizado y hidratación. Mejoría respiratoria progresiva. Buena respuesta al tratamiento actual.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-014', 'pat-014', 'user_demo12345678901234567890123457', 'Paciente de 11 años con gastroenteritis aguda. Ingreso hace 1 día. Tratamiento con rehidratación oral y ondansetrón. Buena tolerancia oral, sin vómitos. Monitoreo de signos de deshidratación.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-015', 'pat-015', 'user_demo12345678901234567890123457', 'Paciente de 10 años con otitis media aguda. Ingreso hace 3 días. Tratamiento con amoxicilina oral. Paciente afebril, disminución del dolor otológico. Control audiométrico pendiente.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-016', 'pat-016', 'user_demo12345678901234567890123457', 'Paciente de 12 años con neumonía adquirida en comunidad. Ingreso hace 4 días. Tratamiento con amoxicilina. Paciente afebril, mejoría radiológica en progreso. Continuar antibioticoterapia.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-017', 'pat-017', 'user_demo12345678901234567890123457', 'Paciente de 9 años con infección urinaria. Ingreso hace 2 días. Tratamiento con cefuroxima. Urocultivo positivo, tratamiento dirigido iniciado. Control de resolución de síntomas.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-018', 'pat-018', 'user_demo12345678901234567890123457', 'Paciente de 12 años con fractura de antebrazo. Ingreso hace 5 días. Tratamiento con ibuprofeno e inmovilización. Fractura simple, alineación adecuada lograda. Control radiológico pendiente.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-019', 'pat-019', 'user_demo12345678901234567890123457', 'Paciente de 11 años con varicela. Ingreso hace 1 día. Tratamiento con antihistamínicos y antipiréticos. Lesiones en fase de costra, prurito controlado. Prevención de complicaciones bacterianas.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-020', 'pat-020', 'user_demo12345678901234567890123457', 'Paciente de 7 años con deshidratación moderada. Ingreso hace 3 días. Tratamiento con rehidratación intravenosa. Paciente hidratado, buena diuresis. Monitoreo de electrolitos.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-021', 'pat-021', 'user_demo12345678901234567890123457', 'Paciente de 10 años con apendicitis aguda. Ingreso hace 6 días. Tratamiento quirúrgico realizado. Paciente postoperatorio, evolución favorable. Antibióticos profilácticos.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-022', 'pat-022', 'user_demo12345678901234567890123457', 'Paciente de 13 años con asma agudizada. Ingreso hace 2 días. Tratamiento con salbutamol y corticoides. Paciente con buen control sintomático. Educación sobre manejo del asma.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-023', 'pat-023', 'user_demo12345678901234567890123457', 'Paciente de 11 años con faringoamigdalitis. Ingreso hace 7 días. Tratamiento con azitromicina. Paciente afebril, mejoría de odinofagia. Cultivo faríngeo negativo.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-024', 'pat-024', 'user_demo12345678901234567890123457', 'Paciente de 10 años con traumatismo craneoencefálico leve. Ingreso hace 4 días. Tratamiento conservador con analgesia. Glasgow 15/15, paciente asintomático. Observación neurológica.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123457');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-025', 'pat-025', 'user_demo12345678901234567890123458', 'Paciente de 14 años con cardiopatía congénita. Seguimiento en especialidad. Paciente compensado, requiere seguimiento cardiológico. Evaluación ecocardiográfica periódica.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-026', 'pat-026', 'user_demo12345678901234567890123458', 'Paciente de 13 años con diabetes mellitus tipo 1. Control metabólico adecuado. Tratamiento con insulina. Educación diabética en progreso. Monitoreo de HbA1c.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-027', 'pat-027', 'user_demo12345678901234567890123458', 'Paciente de 16 años con fibrosis quística. Seguimiento multidisciplinario. Paciente estable, requiere fisioterapia respiratoria. Tratamiento enzimático y antibiótico profiláctico.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-028', 'pat-028', 'user_demo12345678901234567890123458', 'Paciente de 12 años con trastorno del espectro autista. Seguimiento en programa de intervención temprana. Evaluación multidisciplinaria en curso. Apoyo terapéutico integral.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-029', 'pat-029', 'user_demo12345678901234567890123458', 'Paciente de 11 años con epilepsia refractaria. Tratamiento con múltiples anticonvulsivantes. Paciente con control parcial de convulsiones. Evaluación para cirugía de epilepsia.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-030', 'pat-030', 'user_demo12345678901234567890123458', 'Paciente de 15 años con leucemia linfoblástica aguda. En protocolo de tratamiento oncológico. Soporte hematológico y transfusional. Seguimiento onco-hematológico estricto.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-031', 'pat-031', 'user_demo12345678901234567890123458', 'Paciente de 10 años con síndrome de Down y cardiopatía. Seguimiento cardiológico. Paciente compensado hemodinámicamente. Evaluación genética completa realizada.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-032', 'pat-032', 'user_demo12345678901234567890123458', 'Paciente de 17 años con parálisis cerebral. Programa de rehabilitación intensiva. Tratamiento antiespástico. Evaluación multidisciplinaria para optimización terapéutica.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-033', 'pat-033', 'user_demo12345678901234567890123458', 'Paciente de 9 años con prematuridad extrema. Seguimiento de desarrollo neurológico. Paciente en programa de intervención temprana. Evaluación oftalmológica y auditiva.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-034', 'pat-034', 'user_demo12345678901234567890123458', 'Paciente de 13 años con trastorno de déficit de atención. Tratamiento con estimulantes. Paciente con buena respuesta al tratamiento. Terapia conductual concomitante.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
+
+INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+VALUES ('summary-pat-035', 'pat-035', 'user_demo12345678901234567890123458', 'Paciente de 14 años con talasemia mayor. Programa de transfusiones crónicas. Tratamiento quelante. Seguimiento hematológico y endocrinológico. Prevención de complicaciones.', SYSTIMESTAMP, SYSTIMESTAMP, 'user_demo12345678901234567890123458');
 
 COMMIT;
 

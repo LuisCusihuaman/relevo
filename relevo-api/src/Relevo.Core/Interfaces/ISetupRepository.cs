@@ -35,9 +35,8 @@ public interface ISetupRepository
 
     // Handover Contingency Plans
     IReadOnlyList<HandoverContingencyPlanRecord> GetHandoverContingencyPlans(string handoverId);
-
-    // Handover Contingency Plans
     HandoverContingencyPlanRecord CreateContingencyPlan(string handoverId, string conditionText, string actionText, string priority, string createdBy);
+    bool DeleteContingencyPlan(string handoverId, string contingencyId);
 
     // Action Items
     IReadOnlyList<HandoverActionItemRecord> GetHandoverActionItems(string handoverId);

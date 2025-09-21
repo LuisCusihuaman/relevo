@@ -112,6 +112,11 @@ public class SetupServiceTests
             return Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
         }
 
+        public Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
+        {
+            return Task.FromResult(_repository.DeleteContingencyPlan(handoverId, contingencyId));
+        }
+
         public Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
         {
             return Task.FromResult(_repository.AssignAsync(userId, shiftId, patientIds));
