@@ -52,7 +52,7 @@ export function MobileMenus({
   getTimeUntilHandover,
   getSessionDuration,
   handleNavigateToSection,
-  currentUser,
+  currentUser: _currentUser,
 }: MobileMenusProps): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const activeUsers = activeCollaborators.filter(

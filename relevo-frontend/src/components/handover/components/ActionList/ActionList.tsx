@@ -25,17 +25,6 @@ interface Collaborator {
   role: string;
 }
 
-interface ActionItem {
-  id: string;
-  description: string;
-  priority: "low" | "medium" | "high";
-  dueTime?: string;
-  isCompleted: boolean;
-  submittedBy: string;
-  submittedTime: string;
-  submittedDate: string;
-  shift: string;
-}
 
 interface ActionListProps {
   expanded?: boolean;
@@ -74,9 +63,6 @@ export function ActionList({
     createActionItem,
     updateActionItem,
     deleteActionItem,
-    isCreating,
-    isUpdating,
-    isDeleting,
   } = useActionItems({
     handoverId,
     initialActionItems: [], // Start with empty array, will be populated by API
@@ -88,10 +74,10 @@ export function ActionList({
     priority: "medium" as "low" | "medium" | "high",
     dueTime: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
 
   // Check if current user can delete tasks (only assigned physician for current shift)
-  const canDeleteTasks = currentUser.name === assignedPhysician.name;
+  const canDeleteTasks = currentUser?.name === assignedPhysician?.name;
 
   // Group tasks by status only - no urgent separation
   const pendingTasks = actionItems.filter((item) => !item.isCompleted);
@@ -166,7 +152,7 @@ export function ActionList({
   const TaskCard = ({ task }: { task: ActionItem }): JSX.Element => (
     <div
       className={`p-4 rounded-lg border transition-all hover:shadow-sm group ${
-        task.completed
+        task.isCompleted
           ? "border-gray-200 bg-gray-50"
           : "border-gray-200 bg-white hover:border-gray-300"
       }`}

@@ -64,16 +64,16 @@ interface SituationAwarenessProps {
 }
 
 export function SituationAwareness({
-  collaborators = [],
-  onOpenThread,
+  collaborators: _collaborators = [],
+  onOpenThread: _onOpenThread,
   focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
   hideControls = false, // Default to false for backwards compatibility
-  onSave, // External save handler
-  syncStatus = "synced",
-  onSyncStatusChange,
+  onSave: _onSave, // External save handler
+  syncStatus: _syncStatus = "synced",
+  onSyncStatusChange: _onSyncStatusChange,
   currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
   assignedPhysician = {
     name: "Dr. Johnson",

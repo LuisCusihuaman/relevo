@@ -107,13 +107,13 @@ export function FullscreenEditor({
   const getSyncStatusDisplay = (): { icon: React.ReactNode; text: string; color: string } => {
     switch (syncStatus) {
       case "synced":
-        return { text: t("syncStatus.synced"), color: "text-green-600" };
+        return { icon: <div className="w-2 h-2 bg-green-600 rounded-full" />, text: t("syncStatus.synced"), color: "text-green-600" };
       case "pending":
-        return { text: t("syncStatus.pending"), color: "text-yellow-600" };
+        return { icon: <div className="w-2 h-2 bg-yellow-600 rounded-full" />, text: t("syncStatus.pending"), color: "text-yellow-600" };
       case "error":
-        return { text: t("syncStatus.error"), color: "text-red-600" };
+        return { icon: <div className="w-2 h-2 bg-red-600 rounded-full" />, text: t("syncStatus.error"), color: "text-red-600" };
       default:
-        return { text: t("syncStatus.ready"), color: "text-gray-600" };
+        return { icon: <div className="w-2 h-2 bg-gray-600 rounded-full" />, text: t("syncStatus.ready"), color: "text-gray-600" };
     }
   };
 

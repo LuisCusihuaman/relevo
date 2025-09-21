@@ -32,7 +32,7 @@ interface PatientSummaryProps {
 }
 
 export function PatientSummary({
-  onOpenThread,
+  onOpenThread: _onOpenThread,
   focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
@@ -40,8 +40,8 @@ export function PatientSummary({
   hideControls = false, // Default to false for backwards compatibility
   onSave, // External save handler
   onSaveReady,
-  syncStatus = "synced",
-  onSyncStatusChange,
+  syncStatus: _syncStatus = "synced",
+  onSyncStatusChange: _onSyncStatusChange,
   currentUser,
   assignedPhysician,
   onContentChange,
@@ -56,7 +56,7 @@ export function PatientSummary({
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Check if current user can edit (only assigned physician)
-  const canEdit = currentUser.name === assignedPhysician.name;
+  const canEdit = currentUser?.name === assignedPhysician?.name;
 
   const handleSave = useCallback(() => {
     setIsUpdating(true);
@@ -277,7 +277,7 @@ export function PatientSummary({
                     variant="outline"
                   >
                     <Shield className="w-3 h-3 mr-1" />
-                    {assignedPhysician.name}
+                    {assignedPhysician?.name || "Unknown Physician"}
                     {t("view.only")}
                   </Badge>
                 </div>
@@ -339,7 +339,7 @@ export function PatientSummary({
               <div className="flex items-center space-x-2 text-sm text-orange-700">
                 <Lock className="w-4 h-4" />
                 <span>
-                  {t("permission.only")} {assignedPhysician.name}{" "}
+                  {t("permission.only")} {assignedPhysician?.name || "Unknown Physician"}{" "}
                   {t("permission.canModify")}
                 </span>
               </div>

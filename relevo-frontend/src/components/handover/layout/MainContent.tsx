@@ -1,9 +1,4 @@
-import {
-  activeCollaborators,
-  getIpassGuidelines,
-  patientData,
-} from "@/common/constants";
-import { patientDataES } from "@/common/constants.es";
+import { getIpassGuidelines, activeCollaborators } from "@/common/constants";
 import type {
   ExpandedSections,
   FullscreenComponent,
@@ -23,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import {
   ActionList,
   IllnessSeverity,
@@ -60,18 +56,54 @@ export function MainContent({
   getSessionDuration,
   currentUser,
   handoverData,
-}: MainContentProps): JSX.Element {
-  const { t, i18n } = useTranslation(["handover", "mainContent"]);
+}: MainContentProps): React.JSX.Element {
+  const { t } = useTranslation(["handover", "mainContent"]);
   const ipassGuidelines = getIpassGuidelines(t);
 
-  // Use real data from handoverData if available, otherwise fallback to mock data
+  // Use the new hook for patient handover data
+  const { patientData: currentPatientData, isLoading: isPatientLoading, error: patientError } = usePatientHandoverData();
+
+  // Get active users from handover data or fallback to empty array
   const activeUsers = handoverData?.participants.filter(
     (user) => user.status === "active" || user.status === "viewing",
-  ) || activeCollaborators.filter(
-    (user) => user.status === "active" || user.status === "viewing",
-  );
+  ) || [];
 
-  const currentPatientData = handoverData ? null : (i18n.language === "es" ? patientDataES : patientData);
+  // Handle loading state
+  if (isPatientLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">{t("mainContent:loadingPatientData")}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (patientError) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️</div>
+          <p className="text-red-600">{t("mainContent:errorLoadingPatientData")}</p>
+          <p className="text-sm text-gray-500 mt-2">{patientError.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle case where no patient data is available
+  if (!currentPatientData) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="text-gray-500 mb-4">📋</div>
+          <p className="text-gray-600">{t("mainContent:noActiveHandover")}</p>
+        </div>
+      </div>
+    );
+  }
 
   // Helper function to get section content from handover data
   const getSectionContent = (sectionType: string): string | null => {

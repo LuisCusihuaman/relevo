@@ -3,7 +3,7 @@ import { api } from "../client";
 import type { ActiveHandoverData, HandoverSection } from "../types";
 
 // Query Keys for cache invalidation
-export const handoverQueryKeys = {
+export const activeHandoverQueryKeys = {
 	active: ["handover", "active"] as const,
 	sections: (handoverId: string) => ["handover", "sections", handoverId] as const,
 };
@@ -37,7 +37,7 @@ export async function updateHandoverSection(
  */
 export function useActiveHandover(): ReturnType<typeof useQuery<ActiveHandoverData | undefined, Error>> {
 	return useQuery({
-		queryKey: handoverQueryKeys.active,
+		queryKey: activeHandoverQueryKeys.active,
 		queryFn: () => getActiveHandover(),
 		staleTime: 30 * 1000, // 30 seconds
 		gcTime: 5 * 60 * 1000, // 5 minutes
@@ -65,7 +65,7 @@ export function useUpdateHandoverSection() {
 		}) => updateHandoverSection(handoverId, sectionId, content, status),
 		onSuccess: () => {
 			// Invalidate and refetch active handover data
-			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.active });
+			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
 		},
 	});
 }
@@ -89,7 +89,7 @@ export function getActionItems(sections: HandoverSection[]): Array<{ id: string;
 		// Try to parse as JSON first
 		const parsed = JSON.parse(actionItemsSection.content);
 		if (Array.isArray(parsed)) {
-			return parsed.map((item, index) => ({
+			return parsed.map((item: any, index) => ({
 				id: item.id || `action-${index}`,
 				description: item.description || item.task || item,
 				isCompleted: item.isCompleted || item.completed || false,

@@ -16,5 +16,8 @@
     "patientSummaryDescription": "Static patient record copied from previous handovers",
     "situationAwarenessDescription": "Real-time patient status and updates",
     "actionListDescription": "Pending tasks"
-  }
+  },
+  "loadingPatientData": "Loading patient data...",
+  "errorLoadingPatientData": "Error loading patient data",
+  "noActiveHandover": "No active handover available"
 }

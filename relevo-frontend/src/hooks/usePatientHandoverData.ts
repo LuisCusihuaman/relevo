@@ -1,6 +1,6 @@
-import { useActiveHandover, getSectionByType, getActionItems, type ActiveHandoverData, type PatientDetail } from "@/api";
+import { useActiveHandover, getActionItems } from "@/api";
+import { usePatientDetails } from "@/api/endpoints/patients";
 import { useMemo } from "react";
-import { useActionItems } from "@/hooks/useActionItems";
 
 export interface PatientHandoverData {
 	id: string;
@@ -44,18 +44,27 @@ export function usePatientHandoverData(): {
 	error: Error | null;
 } {
 	// Get active handover data from backend
-	const { data: activeHandoverData, isLoading, error } = useActiveHandover();
+	const { data: activeHandoverData, isLoading: isHandoverLoading, error: handoverError } = useActiveHandover();
+
+	// Get patient details if we have handover data with patient ID
+	const patientId = activeHandoverData?.handover?.patientId;
+	const { data: patientDetails, isLoading: isPatientLoading, error: patientError } = usePatientDetails(patientId || "");
+
+	const isLoading = isHandoverLoading || (patientId ? isPatientLoading : false);
+	const error = handoverError || patientError;
 
 	const patientData = useMemo((): PatientHandoverData | null => {
 		if (!activeHandoverData?.handover) return null;
 
 		const handover = activeHandoverData.handover;
-		const patient = handover.patientName || "Unknown Patient";
 
-		// Calculate approximate age from date of birth if available
+		// Use patient details from API if available, otherwise fallback to handover data
+		const patientName = patientDetails?.name || handover.patientName || "Unknown Patient";
+
+		// Calculate age from patient details or estimate from handover data
 		let age = 0;
-		if (handover.patientDob) {
-			const birthDate = new Date(handover.patientDob);
+		if (patientDetails?.dob) {
+			const birthDate = new Date(patientDetails.dob);
 			const today = new Date();
 			age = today.getFullYear() - birthDate.getFullYear();
 			const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -77,7 +86,7 @@ export function usePatientHandoverData(): {
 		let handoverStatus: "not-started" | "in-progress" | "completed" = "not-started";
 		if (handover.status) {
 			const status = handover.status.toLowerCase();
-			if (status === "inprogress" || status === "in_progress") {
+			if (status === "inprogress" || status === "in_progress" || status === "active") {
 				handoverStatus = "in-progress";
 			} else if (status === "completed") {
 				handoverStatus = "completed";
@@ -87,32 +96,39 @@ export function usePatientHandoverData(): {
 		// Get action items from sections
 		const actionItems = getActionItems(activeHandoverData.sections);
 
-		// Get assigned physician from participants (first active participant)
-		const assignedPhysician = activeHandoverData.participants.find(p => p.status === "active") || {
-			userName: "Dr. Current",
-			userRole: "Attending Physician"
-		};
-
-		// Get initials from physician name (remove client-side logic)
+		// Get initials from physician name helper
 		const getInitials = (name: string): string => {
 			return name.split(' ').map(n => n[0]).join('').toUpperCase();
 		};
 
+		// Find physicians from participants
+		const assignedParticipant = activeHandoverData.participants.find(p =>
+			p.userRole?.toLowerCase().includes("day") ||
+			p.userRole?.toLowerCase().includes("attending") ||
+			p.status === "active"
+		);
+
+		const receivingParticipant = activeHandoverData.participants.find(p =>
+			p.userRole?.toLowerCase().includes("evening") ||
+			p.userRole?.toLowerCase().includes("night") ||
+			p.userRole?.toLowerCase().includes("next")
+		);
+
 		// Create physician objects with real data
 		const assignedPhysicianData = {
-			name: assignedPhysician.userName,
-			role: assignedPhysician.userRole || "Attending Physician",
-			initials: getInitials(assignedPhysician.userName),
-			color: "bg-blue-600", // This would come from user preferences in real implementation
+			name: assignedParticipant?.userName || handover.createdBy || "Dr. Current",
+			role: assignedParticipant?.userRole || "Attending Physician",
+			initials: getInitials(assignedParticipant?.userName || handover.createdBy || "Dr. Current"),
+			color: "bg-blue-600",
 			shiftEnd: "17:00",
 			status: "handing-off" as const,
 			patientAssignment: "assigned" as const,
 		};
 
 		const receivingPhysicianData = {
-			name: handover.assignedTo || "Dr. Next",
-			role: "Evening Attending",
-			initials: handover.assignedTo ? getInitials(handover.assignedTo) : "DN",
+			name: receivingParticipant?.userName || handover.assignedTo || "Dr. Next",
+			role: receivingParticipant?.userRole || "Evening Attending",
+			initials: getInitials(receivingParticipant?.userName || handover.assignedTo || "Dr. Next"),
 			color: "bg-purple-600",
 			shiftStart: "17:00",
 			status: "ready-to-receive" as const,
@@ -121,24 +137,24 @@ export function usePatientHandoverData(): {
 
 		return {
 			id: handover.patientId,
-			name: patient,
+			name: patientName,
 			age,
-			mrn: `MRN-${handover.patientId?.split('-').pop()?.padStart(3, '0') || '001'}`,
-			admissionDate: handover.createdAt || new Date().toISOString(),
+			mrn: patientDetails?.mrn || `MRN-${handover.patientId?.split('-').pop()?.padStart(3, '0') || '001'}`,
+			admissionDate: patientDetails?.admissionDate || handover.createdAt || new Date().toISOString(),
 			currentDateTime: new Date().toLocaleString(),
-			primaryTeam: handover.shiftName || "Day Shift",
-			primaryDiagnosis: handover.patientSummary?.content || "Diagnosis pending",
+			primaryTeam: patientDetails?.currentUnit || handover.shiftName || "Medical Team",
+			primaryDiagnosis: patientDetails?.diagnosis || handover.patientSummary?.content || "Diagnosis pending",
 			severity,
 			handoverStatus,
-			shift: `${handover.shiftName} → Next Shift`,
-			room: handover.patientRoom || "201",
-			unit: "Internal Medicine", // This would come from patient details
+			shift: `${handover.shiftName || "Current"} → ${receivingParticipant?.userRole || "Next Shift"}`,
+			room: patientDetails?.roomNumber || "201",
+			unit: patientDetails?.currentUnit || "Internal Medicine",
 			assignedPhysician: assignedPhysicianData,
 			receivingPhysician: receivingPhysicianData,
-			handoverTime: "17:00 PMT",
+			handoverTime: "17:00",
 			actionItems,
 		};
-	}, [activeHandoverData]);
+	}, [activeHandoverData, patientDetails]);
 
 	return {
 		patientData,

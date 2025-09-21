@@ -31,7 +31,7 @@ interface SynthesisByReceiverProps {
 }
 
 export function SynthesisByReceiver({
-  onOpenThread,
+  onOpenThread: _onOpenThread,
   onComplete,
   focusMode = false,
   currentUser = { name: "Dr. Johnson", initials: "DJ", role: "Day Attending" },
