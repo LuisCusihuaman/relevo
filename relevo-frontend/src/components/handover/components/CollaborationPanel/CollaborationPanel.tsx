@@ -73,7 +73,7 @@ export function CollaborationPanel({
   const [newMessage, setNewMessage] = useState("");
 
   // Fetch handover messages
-  const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
+  const { data: messages, isLoading: _messagesLoading, error: _messagesError } = useHandoverMessages(handoverId);
   const createMessageMutation = useCreateHandoverMessage();
   const [activeTab, setActiveTab] = useState("discussion");
   const { t, i18n } = useTranslation("collaborationPanel");

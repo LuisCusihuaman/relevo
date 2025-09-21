@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
-import type { ActiveHandoverData, HandoverSection } from "../types";
+import type {
+	ActiveHandoverData,
+	HandoverSection,
+	HandoverMessage,
+	HandoverActivityItem,
+	HandoverChecklistItem,
+	HandoverContingencyPlan
+} from "../types";
 
 // Query Keys for cache invalidation
 export const activeHandoverQueryKeys = {
@@ -110,6 +117,34 @@ export function getActionItems(sections: HandoverSection[]): Array<{ id: string;
 }
 
 /**
+ * Get handover action items for a specific handover
+ */
+export async function getHandoverActionItems(handoverId: string): Promise<{
+	actionItems: Array<{
+		id: string;
+		handoverId: string;
+		description: string;
+		isCompleted: boolean;
+		createdAt: string;
+		updatedAt: string;
+		completedAt: string | null;
+	}>;
+}> {
+	const { data } = await api.get<{
+		actionItems: Array<{
+			id: string;
+			handoverId: string;
+			description: string;
+			isCompleted: boolean;
+			createdAt: string;
+			updatedAt: string;
+			completedAt: string | null;
+		}>;
+	}>(`/me/handovers/${handoverId}/action-items`);
+	return data;
+}
+
+/**
  * Create a new action item
  */
 export async function createActionItem(
@@ -117,8 +152,8 @@ export async function createActionItem(
 	description: string,
 	priority: "low" | "medium" | "high" = "medium",
 	dueTime?: string
-): Promise<{ success: boolean; message: string; actionItem?: any }> {
-	const { data } = await api.post<{ success: boolean; message: string; actionItem?: any }>(
+): Promise<{ success: boolean; actionItemId: string }> {
+	const { data } = await api.post<{ success: boolean; actionItemId: string }>(
 		`/me/handovers/${handoverId}/action-items`,
 		{ description, priority, dueTime }
 	);
@@ -259,7 +294,7 @@ export function useCreateHandoverMessage() {
 			messageText: string;
 			messageType?: "message" | "system" | "notification";
 		}) => createHandoverMessage(handoverId, messageText, messageType),
-		onSuccess: (data, variables) => {
+		onSuccess: (_data, variables) => {
 			// Invalidate messages for this handover
 			queryClient.invalidateQueries({
 				queryKey: [...activeHandoverQueryKeys.active, "messages", variables.handoverId]
@@ -308,7 +343,7 @@ export function useUpdateChecklistItem() {
 			itemId: string;
 			isChecked: boolean;
 		}) => updateChecklistItem(handoverId, itemId, isChecked),
-		onSuccess: (data, variables) => {
+		onSuccess: (_data, variables) => {
 			// Invalidate checklists for this handover
 			queryClient.invalidateQueries({
 				queryKey: [...activeHandoverQueryKeys.active, "checklists", variables.handoverId]
@@ -347,7 +382,7 @@ export function useCreateContingencyPlan() {
 			actionText: string;
 			priority?: "low" | "medium" | "high";
 		}) => createContingencyPlan(handoverId, conditionText, actionText, priority),
-		onSuccess: (data, variables) => {
+		onSuccess: (_data, variables) => {
 			// Invalidate contingency plans for this handover
 			queryClient.invalidateQueries({
 				queryKey: [...activeHandoverQueryKeys.active, "contingency-plans", variables.handoverId]

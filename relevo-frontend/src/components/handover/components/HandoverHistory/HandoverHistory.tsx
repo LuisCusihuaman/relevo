@@ -43,7 +43,7 @@ export function HandoverHistory({
 
   // Transform activity log data into handover history format
   const handoverHistory = activityLog && activityLog.length > 0
-    ? activityLog.slice(0, 10).map((activity, index) => ({
+    ? activityLog.slice(0, 10).map((activity, _index) => ({
         id: activity.id,
         date: new Date(activity.createdAt).toLocaleDateString(),
         shift: "Current Shift", // Could be derived from activity metadata

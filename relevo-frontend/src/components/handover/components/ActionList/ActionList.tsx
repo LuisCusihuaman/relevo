@@ -60,6 +60,8 @@ export function ActionList({
   // Use the action items hook instead of hardcoded data
   const {
     actionItems,
+    isLoading,
+    error,
     createActionItem,
     updateActionItem,
     deleteActionItem,
@@ -248,6 +250,20 @@ export function ActionList({
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && handoverId && (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+            Error loading action items
+          </div>
+        )}
+
         {/* Pending Tasks - Limited */}
         {pendingTasks.length > 0 && (
           <div className="space-y-2">
@@ -412,6 +428,34 @@ export function ActionList({
           )}
         </div>
       </div>
+
+      {/* Loading State */}
+      {isLoading && handoverId && (
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center space-x-2 text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            <span className="text-sm">{t("loading") || "Loading action items..."}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 text-sm">
+            {t("errorLoading") || "Error loading action items"}: {error.message}
+          </p>
+        </div>
+      )}
+
+      {/* No handoverId warning */}
+      {!handoverId && (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-700 text-sm">
+            {t("noHandover") || "No handover selected"}
+          </p>
+        </div>
+      )}
 
       {/* Cross-Shift Persistence Notice */}
       <div className="p-3 bg-blue-25 border border-blue-200 rounded-lg">

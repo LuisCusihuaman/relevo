@@ -294,6 +294,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               showComments={showComments}
               showHistory={showHistory}
               showMobileMenu={showMobileMenu}
+              handoverId={activeHandoverData?.handover?.id}
               participants={activeHandoverData?.participants || []}
             />
         )}

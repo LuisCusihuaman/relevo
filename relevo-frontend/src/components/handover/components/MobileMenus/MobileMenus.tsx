@@ -37,6 +37,8 @@ interface MobileMenusProps {
   getSessionDuration: () => string;
   handleNavigateToSection: (section: string) => void;
   currentUser: UserType;
+  handoverId?: string;
+  participants?: any[];
 }
 
 export function MobileMenus({
@@ -53,6 +55,8 @@ export function MobileMenus({
   getSessionDuration,
   handleNavigateToSection,
   currentUser: _currentUser,
+  handoverId,
+  participants: _participants,
 }: MobileMenusProps): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const activeUsers = activeCollaborators.filter(
@@ -284,6 +288,7 @@ export function MobileMenus({
               <HandoverHistory
                 hideHeader
                 patientData={patientData}
+                handoverId={handoverId || ""}
                 onClose={() => { setShowHistory(false); }}
               />
             </div>
@@ -311,6 +316,7 @@ export function MobileMenus({
             <div className="flex-1 overflow-auto">
               <CollaborationPanel
                 hideHeader
+                handoverId={handoverId || ""}
                 onClose={() => { setShowComments(false); }}
                 onNavigateToSection={handleNavigateToSection}
               />

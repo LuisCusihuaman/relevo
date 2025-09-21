@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createActionItem, deleteActionItem, updateActionItem } from "@/api/endpoints/handover";
+import { createActionItem, deleteActionItem, getHandoverActionItems } from "@/api/endpoints/handover";
+import { api } from "@/api";
 
 export interface ActionItem {
   id: string;
@@ -25,12 +26,35 @@ export function useActionItems({ handoverId, initialActionItems = [] }: UseActio
   const actionItemsQuery = useQuery({
     queryKey: ["actionItems", handoverId],
     queryFn: async () => {
-      if (!handoverId) return initialActionItems;
-      // In a real implementation, this would fetch from the API
-      return initialActionItems;
+      if (!handoverId) {
+        return initialActionItems;
+      }
+
+      try {
+        const response = await getHandoverActionItems(handoverId);
+
+        const transformedItems = response.actionItems.map(item => ({
+          id: item.id,
+          description: item.description,
+          priority: "medium" as const, // Default priority since API doesn't return it
+          isCompleted: item.isCompleted,
+          submittedBy: "Current User", // Default since API doesn't return it
+          submittedTime: new Date(item.createdAt).toLocaleTimeString(),
+          submittedDate: new Date(item.createdAt).toLocaleDateString(),
+          shift: "Current Shift", // Default since API doesn't return it
+        }));
+
+        return transformedItems;
+      } catch (error) {
+        console.error("Error loading action items:", error);
+        return initialActionItems;
+      }
     },
     enabled: !!handoverId,
-    initialData: initialActionItems,
+    // Remove initialData to force fresh data on mount
+    // initialData: initialActionItems,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 
   // Create action item mutation
@@ -44,6 +68,7 @@ export function useActionItems({ handoverId, initialActionItems = [] }: UseActio
       return createActionItem(handoverId, data.description, data.priority, data.dueTime);
     },
     onSuccess: () => {
+      // Invalidate and refetch action items
       queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
     },
   });
@@ -60,7 +85,16 @@ export function useActionItems({ handoverId, initialActionItems = [] }: UseActio
       };
     }) => {
       if (!handoverId) throw new Error("Handover ID is required");
-      return updateActionItem(handoverId, data.actionItemId, data.updates);
+      // For now, only support updating isCompleted status
+      if (data.updates.isCompleted !== undefined) {
+        // Use the PUT endpoint for updating completion status
+        const { data: response } = await api.put<{ success: boolean }>(
+          `/me/handovers/${handoverId}/action-items/${data.actionItemId}`,
+          { isCompleted: data.updates.isCompleted }
+        );
+        return response;
+      }
+      throw new Error("Only completion status updates are supported");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
