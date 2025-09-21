@@ -71,3 +71,12 @@ public record CreateContingencyPlanResponse
     public required bool Success { get; init; }
     public required HandoverContingencyPlanRecord ContingencyPlan { get; init; }
 }
+
+// Active Handover Response
+public record GetActiveHandoverResponse
+{
+    public required HandoverRecord Handover { get; init; }
+    public required IReadOnlyList<HandoverParticipantRecord> Participants { get; init; }
+    public required IReadOnlyList<HandoverSectionRecord> Sections { get; init; }
+    public required HandoverSyncStatusRecord? SyncStatus { get; init; }
+}

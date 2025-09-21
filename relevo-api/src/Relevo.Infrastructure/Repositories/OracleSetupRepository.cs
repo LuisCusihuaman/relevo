@@ -867,12 +867,14 @@ public class OracleSetupRepository : ISetupRepository
         {
             using IDbConnection conn = _factory.CreateConnection();
             const string sql = @"
-                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
-                       MESSAGE_TEXT as MessageText, MESSAGE_TYPE as MessageType,
-                       CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
-                FROM HANDOVER_MESSAGES
-                WHERE HANDOVER_ID = :handoverId
-                ORDER BY CREATED_AT ASC";
+                SELECT hm.ID, hm.HANDOVER_ID as HandoverId, hm.USER_ID as UserId,
+                       u.FIRST_NAME || ' ' || u.LAST_NAME as UserName,
+                       hm.MESSAGE_TEXT as MessageText, hm.MESSAGE_TYPE as MessageType,
+                       hm.CREATED_AT as CreatedAt, hm.UPDATED_AT as UpdatedAt
+                FROM HANDOVER_MESSAGES hm
+                INNER JOIN USERS u ON hm.USER_ID = u.ID
+                WHERE hm.HANDOVER_ID = :handoverId
+                ORDER BY hm.CREATED_AT ASC";
 
             return conn.Query<HandoverMessageRecord>(sql, new { handoverId }).ToList();
         }
@@ -924,13 +926,15 @@ public class OracleSetupRepository : ISetupRepository
         {
             using IDbConnection conn = _factory.CreateConnection();
             const string sql = @"
-                SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
-                       ACTIVITY_TYPE as ActivityType, ACTIVITY_DESCRIPTION as ActivityDescription,
-                       SECTION_AFFECTED as SectionAffected, METADATA,
-                       CREATED_AT as CreatedAt
-                FROM HANDOVER_ACTIVITY_LOG
-                WHERE HANDOVER_ID = :handoverId
-                ORDER BY CREATED_AT DESC";
+                SELECT hal.ID, hal.HANDOVER_ID as HandoverId, hal.USER_ID as UserId,
+                       u.FIRST_NAME || ' ' || u.LAST_NAME as UserName,
+                       hal.ACTIVITY_TYPE as ActivityType, hal.ACTIVITY_DESCRIPTION as ActivityDescription,
+                       hal.SECTION_AFFECTED as SectionAffected, hal.METADATA,
+                       hal.CREATED_AT as CreatedAt
+                FROM HANDOVER_ACTIVITY_LOG hal
+                INNER JOIN USERS u ON hal.USER_ID = u.ID
+                WHERE hal.HANDOVER_ID = :handoverId
+                ORDER BY hal.CREATED_AT DESC";
 
             return conn.Query<HandoverActivityItemRecord>(sql, new { handoverId }).ToList();
         }
