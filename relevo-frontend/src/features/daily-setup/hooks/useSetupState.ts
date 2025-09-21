@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useUserStore } from "@/store/user.store";
 import { useNavigate } from "@tanstack/react-router";
-import { useAssignPatients, usePatientsByUnit } from "@/api";
+import { useAssignPatients, usePatientsByUnit, useReadyHandover, usePendingHandovers } from "@/api";
 import { formatDiagnosis } from "@/lib/formatters";
 import { transformApiPatient } from "../utils/patientUtilities";
 import type { SetupState, SetupActions, SetupPatient, SetupStep } from "../types";
@@ -14,6 +14,10 @@ export function useSetupState(): SetupState & SetupActions {
 	const { setDoctorName: setDoctorNameInStore, setUnitName } = useUserStore();
 	const { signOut } = useClerk();
 	const assignMutation = useAssignPatients();
+	const readyHandoverMutation = useReadyHandover();
+
+	// Remainder of the hook...
+	const { data: pendingHandovers } = usePendingHandovers(user?.id ?? "");
 
 	// Zustand state
 	const {
@@ -156,6 +160,16 @@ export function useSetupState(): SetupState & SetupActions {
 				const payload = { shiftId, patientIds: selectedPatientIds };
 				assignMutation.mutate(payload, {
 					onSuccess: () => {
+						// After assignment, find the draft handovers for the selected patients and mark them as ready
+						if (pendingHandovers?.handovers) {
+							const draftHandovers = pendingHandovers.handovers.filter(h => 
+								selectedPatientIds.includes(h.patientId) && h.stateName === "Draft"
+							);
+							draftHandovers.forEach(h => {
+								readyHandoverMutation.mutate(h.id);
+							});
+						}
+
 						window.localStorage.setItem("dailySetupCompleted", "true");
 						resetPersistentState(); // Reset zustand store on success
 						void navigate({ to: "/" });
@@ -168,7 +182,7 @@ export function useSetupState(): SetupState & SetupActions {
 				stableSetCurrentStep((previous) => (previous + 1) as SetupStep);
 			}
 		}
-	}, [currentStep, selectedIndexes, canProceedToNextStep, assignMutation, navigate, resetPersistentState, shift, stableSetCurrentStep]);
+	}, [currentStep, selectedIndexes, canProceedToNextStep, assignMutation, navigate, resetPersistentState, shift, stableSetCurrentStep, pendingHandovers, readyHandoverMutation]);
 
 	const handleBackStep = useCallback((): void => {
 		if (currentStep > 0) {

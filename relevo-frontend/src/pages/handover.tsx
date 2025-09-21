@@ -22,8 +22,7 @@ import {
   MobileMenus,
   useHandoverSession,
 } from "../components/handover";
-import { useHandover } from "@/api/endpoints/handovers";
-import { useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api";
+import { useHandover, useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api/endpoints/handovers";
 import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
@@ -83,8 +82,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
 
   const handleReady = (): void => { handoverId && readyState(handoverId); };
   const handleStart = (): void => { handoverId && startState(handoverId); };
-  const handleAccept = (): void => { handoverId && acceptState({ handoverId }); };
-  const handleComplete = (): void => { handoverId && completeState({ handoverId }); };
+  const handleAccept = (): void => { handoverId && acceptState(handoverId); };
+  const handleComplete = (): void => { handoverId && completeState(handoverId); };
   const handleCancel = (): void => { handoverId && cancelState(handoverId); };
   const handleReject = (): void => { handoverId && rejectState({ handoverId, reason: "No reason provided" }); };
 
@@ -292,7 +291,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             getSessionDuration={getSessionDuration}
             getTimeUntilHandover={getTimeUntilHandover}
             handoverComplete={handoverComplete}
-            handoverState={handoverData?.stateName}
+            handover={handoverData}
+            currentUser={currentUser}
             patientData={patientData}
             onAccept={handleAccept}
             onCancel={handleCancel}

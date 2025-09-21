@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
 import type { Handover } from "@/api/types";
+import { type CurrentUserData } from "@/hooks/useCurrentUser";
 
 interface FooterProps {
   focusMode: boolean;
@@ -10,7 +11,8 @@ interface FooterProps {
   getTimeUntilHandover: () => string;
   getSessionDuration: () => string;
   patientData: PatientHandoverData | null;
-  handoverState?: Handover["stateName"];
+  handover?: Handover | null;
+  currentUser?: CurrentUserData | null;
   onReady?: () => void;
   onStart?: () => void;
   onAccept?: () => void;
@@ -25,7 +27,8 @@ export function Footer({
   getTimeUntilHandover,
   getSessionDuration,
   patientData,
-  handoverState,
+  handover,
+  currentUser,
   onAccept,
   onCancel,
   onComplete,
@@ -37,10 +40,12 @@ export function Footer({
 
   if (focusMode || fullscreenEditing) return null;
 
+  const isSender = handover?.createdBy === currentUser?.name; // TODO: Compare IDs when available on currentUser
+
   const renderButtons = () => {
-    switch (handoverState) {
+    switch (handover?.stateName) {
       case "Draft":
-        return <Button onClick={onReady}>{t("footer.readyForHandover")}</Button>;
+        return isSender && <Button onClick={onReady}>{t("footer.readyForHandover")}</Button>;
       case "Ready":
         return <Button onClick={onStart}>{t("footer.startHandover")}</Button>;
       case "InProgress":

@@ -1,20 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
-import type { PaginatedHandovers, Handover } from "../types";
-import { patientQueryKeys } from "./patients";
+import type {
+	PaginatedHandovers,
+	Handover,
+	HandoverSection,
+	HandoverMessage,
+	HandoverActivityItem,
+	HandoverChecklistItem,
+	HandoverContingencyPlan,
+} from "../types";
 
-// Handover query keys (extending patient query keys)
+// ========================================
+// QUERY KEYS
+// ========================================
+
 export const handoverQueryKeys = {
-	...patientQueryKeys,
-	handovers: () => [...patientQueryKeys.all, "handovers"] as const,
-	handoversWithParams: (parameters?: { page?: number; pageSize?: number }) =>
-		[...handoverQueryKeys.handovers(), parameters] as const,
-	handoverById: (id: string) => [...handoverQueryKeys.handovers(), id] as const,
+	all: ["handovers"] as const,
+	lists: () => [...handoverQueryKeys.all, "list"] as const,
+	list: (filters: { page?: number; pageSize?: number; userId?: string; status?: string }) =>
+		[...handoverQueryKeys.lists(), filters] as const,
+	details: () => [...handoverQueryKeys.all, "detail"] as const,
+	detail: (id: string) => [...handoverQueryKeys.details(), id] as const,
+	messages: (id: string) => [...handoverQueryKeys.detail(id), "messages"] as const,
+	activity: (id: string) => [...handoverQueryKeys.detail(id), "activity"] as const,
+	checklists: (id: string) => [...handoverQueryKeys.detail(id), "checklists"] as const,
+	contingencyPlans: (id: string) => [...handoverQueryKeys.detail(id), "contingency-plans"] as const,
 };
 
-/**
- * Get all handovers for the current user
- */
+// ========================================
+// API FUNCTIONS
+// ========================================
+
+// MAIN HANDOVER DATA
+// ----------------------------------------
+
 export async function getHandovers(parameters?: {
 	page?: number;
 	pageSize?: number;
@@ -23,40 +42,384 @@ export async function getHandovers(parameters?: {
 	return data;
 }
 
-/**
- * Get a specific handover by ID
- */
 export async function getHandover(handoverId: string): Promise<Handover> {
 	const { data } = await api.get<Handover>(`/handovers/${handoverId}`);
 	return data;
 }
 
-/**
- * Hook to get all handovers for the current user
- */
+export async function createHandover(request: {
+	patientId: string;
+	fromDoctorId: string;
+	toDoctorId: string;
+	fromShiftId: string;
+	toShiftId: string;
+	initiatedBy: string;
+	notes?: string;
+}): Promise<Handover> {
+	const { data } = await api.post<Handover>("/handovers", request);
+	return data;
+}
+
+// HANDOVER STATE TRANSITIONS
+// ----------------------------------------
+
+export async function readyHandover(handoverId: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/ready`);
+}
+
+export async function startHandover(handoverId: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/start`);
+}
+
+export async function acceptHandover(handoverId: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/accept`);
+}
+
+export async function completeHandover(handoverId: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/complete`);
+}
+
+export async function cancelHandover(handoverId: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/cancel`);
+}
+
+export async function rejectHandover(handoverId: string, reason: string): Promise<void> {
+	await api.post(`/handovers/${handoverId}/reject`, { reason });
+}
+
+
+// PENDING HANDOVERS
+// ----------------------------------------
+
+export async function getPendingHandovers(userId: string): Promise<{ handovers: Handover[] }> {
+	const { data } = await api.get<{ handovers: Handover[] }>(`/handovers/pending?userId=${userId}`);
+	return data;
+}
+
+
+// HANDOVER SECTIONS
+// ----------------------------------------
+
+export async function updateHandoverSection(
+	handoverId: string,
+	sectionId: string,
+	content: string,
+	status: string
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/sections/${sectionId}`,
+		{ content, status }
+	);
+	return data;
+}
+
+// HANDOVER MESSAGES
+// ----------------------------------------
+
+export async function getHandoverMessages(handoverId: string): Promise<HandoverMessage[]> {
+	const { data } = await api.get<HandoverMessage[]>(`/me/handovers/${handoverId}/messages`);
+	return data;
+}
+
+export async function createHandoverMessage(
+	handoverId: string,
+	messageText: string,
+	messageType: "message" | "system" | "notification" = "message"
+): Promise<{ success: boolean; message: HandoverMessage }> {
+	const { data } = await api.post<{ success: boolean; message: HandoverMessage }>(
+		`/me/handovers/${handoverId}/messages`,
+		{ messageText, messageType }
+	);
+	return data;
+}
+
+// HANDOVER ACTIVITY LOG
+// ----------------------------------------
+
+export async function getHandoverActivityLog(handoverId: string): Promise<HandoverActivityItem[]> {
+	const { data } = await api.get<HandoverActivityItem[]>(`/me/handovers/${handoverId}/activity`);
+	return data;
+}
+
+// HANDOVER CHECKLISTS
+// ----------------------------------------
+
+export async function getHandoverChecklists(handoverId: string): Promise<HandoverChecklistItem[]> {
+	const { data } = await api.get<HandoverChecklistItem[]>(`/me/handovers/${handoverId}/checklists`);
+	return data;
+}
+
+export async function updateChecklistItem(
+	handoverId: string,
+	itemId: string,
+	isChecked: boolean
+): Promise<{ success: boolean; message: string }> {
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/checklists/${itemId}`,
+		{ isChecked }
+	);
+	return data;
+}
+
+// HANDOVER CONTINGENCY PLANS
+// ----------------------------------------
+
+export async function getHandoverContingencyPlans(handoverId: string): Promise<HandoverContingencyPlan[]> {
+	const { data } = await api.get<HandoverContingencyPlan[]>(`/me/handovers/${handoverId}/contingency-plans`);
+	return data;
+}
+
+export async function createContingencyPlan(
+	handoverId: string,
+	conditionText: string,
+	actionText: string,
+	priority: "low" | "medium" | "high" = "medium"
+): Promise<{ success: boolean; message: HandoverContingencyPlan }> {
+	const { data } = await api.post<{ success: boolean; message: HandoverContingencyPlan }>(
+		`/me/handovers/${handoverId}/contingency-plans`,
+		{ conditionText, actionText, priority }
+	);
+	return data;
+}
+
+// ========================================
+// REACT QUERY HOOKS
+// ========================================
+
+// HOOKS: MAIN HANDOVER DATA
+// ----------------------------------------
+
 export function useHandovers(parameters?: {
 	page?: number;
 	pageSize?: number;
 }): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
 	return useQuery({
-		queryKey: handoverQueryKeys.handoversWithParams(parameters),
+		queryKey: handoverQueryKeys.list({ ...parameters }),
 		queryFn: () => getHandovers(parameters),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
-		select: (data: PaginatedHandovers | undefined) => data,
 	});
 }
 
-/**
- * Hook to get a specific handover by ID
- */
 export function useHandover(handoverId: string): ReturnType<typeof useQuery<Handover | undefined, Error>> {
 	return useQuery({
-		queryKey: handoverQueryKeys.handoverById(handoverId),
+		queryKey: handoverQueryKeys.detail(handoverId),
 		queryFn: () => getHandover(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
-		select: (data: Handover | undefined) => data,
 	});
+}
+
+export function useCreateHandover() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: createHandover,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.lists() });
+		},
+	});
+}
+
+// HOOKS: HANDOVER STATE TRANSITIONS
+// ----------------------------------------
+
+function useHandoverStateMutation(mutationFn: (handoverId: string) => Promise<void>) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn,
+		onSuccess: (_data, handoverId) => {
+			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
+		},
+	});
+}
+
+export function useReadyHandover() {
+	return useHandoverStateMutation(readyHandover);
+}
+
+export function useStartHandover() {
+	return useHandoverStateMutation(startHandover);
+}
+
+export function useAcceptHandover() {
+	return useHandoverStateMutation(acceptHandover);
+}
+
+export function useCompleteHandover() {
+	return useHandoverStateMutation(completeHandover);
+}
+
+export function useCancelHandover() {
+	return useHandoverStateMutation(cancelHandover);
+}
+
+export function useRejectHandover() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, reason }: { handoverId: string; reason: string }) => rejectHandover(handoverId, reason),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
+		},
+	});
+}
+
+
+// HOOKS: PENDING HANDOVERS
+// ----------------------------------------
+
+export function usePendingHandovers(userId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.list({ userId, status: "pending" }),
+		queryFn: () => getPendingHandovers(userId),
+		enabled: !!userId,
+		staleTime: 30 * 1000, // 30 seconds
+	});
+}
+
+// HOOKS: HANDOVER SECTIONS
+// ----------------------------------------
+
+export function useUpdateHandoverSection() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			sectionId,
+			content,
+			status,
+		}: {
+			handoverId: string;
+			sectionId: string;
+			content: string;
+			status: string;
+		}) => updateHandoverSection(handoverId, sectionId, content, status),
+		onSuccess: (_data, { handoverId }) => {
+			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.detail(handoverId) });
+		},
+	});
+}
+
+
+// HOOKS: HANDOVER MESSAGES
+// ----------------------------------------
+
+export function useHandoverMessages(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.messages(handoverId),
+		queryFn: () => getHandoverMessages(handoverId),
+		enabled: !!handoverId,
+		staleTime: 30 * 1000, // 30 seconds
+	});
+}
+
+export function useCreateHandoverMessage() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			messageText,
+			messageType,
+		}: {
+			handoverId: string;
+			messageText: string;
+			messageType?: "message" | "system" | "notification";
+		}) => createHandoverMessage(handoverId, messageText, messageType),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.messages(variables.handoverId),
+			});
+		},
+	});
+}
+
+// HOOKS: HANDOVER ACTIVITY LOG
+// ----------------------------------------
+
+export function useHandoverActivityLog(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.activity(handoverId),
+		queryFn: () => getHandoverActivityLog(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+// HOOKS: HANDOVER CHECKLISTS
+// ----------------------------------------
+
+export function useHandoverChecklists(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.checklists(handoverId),
+		queryFn: () => getHandoverChecklists(handoverId),
+		enabled: !!handoverId,
+		staleTime: 2 * 60 * 1000, // 2 minutes
+	});
+}
+
+export function useUpdateChecklistItem() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			itemId,
+			isChecked,
+		}: {
+			handoverId: string;
+			itemId: string;
+			isChecked: boolean;
+		}) => updateChecklistItem(handoverId, itemId, isChecked),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.checklists(variables.handoverId),
+			});
+		},
+	});
+}
+
+// HOOKS: HANDOVER CONTINGENCY PLANS
+// ----------------------------------------
+
+export function useHandoverContingencyPlans(handoverId: string) {
+	return useQuery({
+		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
+		queryFn: () => getHandoverContingencyPlans(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+export function useCreateContingencyPlan() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({
+			handoverId,
+			conditionText,
+			actionText,
+			priority,
+		}: {
+			handoverId: string;
+			conditionText: string;
+			actionText: string;
+			priority?: "low" | "medium" | "high";
+		}) => createContingencyPlan(handoverId, conditionText, actionText, priority),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
+			});
+		},
+	});
+}
+
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
+
+export function getSectionByType(sections: HandoverSection[], sectionType: string): HandoverSection | undefined {
+	return sections.find(section => section.sectionType === sectionType);
 }
