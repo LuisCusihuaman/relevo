@@ -27,38 +27,38 @@ export function SetupNavigation({
 	if (isMobile) {
 		return (
 			<div
-				className="fixed bottom-0 left-0 right-0 z-30"
+				className="fixed top-0 left-0 right-0 z-30 px-4 py-3"
 				style={{
-					paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+					paddingTop: "max(env(safe-area-inset-top), 8px)",
 				}}
 			>
-				<div className="bg-background/95 backdrop-blur-md mx-3 mb-3 rounded-2xl px-3 py-4 border border-border/40 shadow-lg">
-					<div className="flex items-center gap-3">
-						{currentStep > 0 && (
-							<Button
-								className="gap-2 h-12 px-6 rounded-xl"
-								size="lg"
-								variant="outline"
-								onClick={onBack}
-							>
-								<ChevronLeft className="w-4 h-4" />
-								{t("back")}
-							</Button>
-						)}
-
+				<div className="rounded-xl border border-border/20 px-3 py-2">
+					<div className="flex items-center gap-2">
+					{currentStep > 0 && (
 						<Button
-							className="flex-1 gap-2 h-12 rounded-xl"
-							disabled={!canProceed}
-							size="lg"
-							onClick={onNext}
+							className="gap-2 h-10 px-4 rounded-lg"
+							size="sm"
+							variant="outline"
+							onClick={onBack}
 						>
-							{currentStep === totalSteps - 1
-								? isEditing
-									? t("saveChanges")
-									: t("startUsingRelevo")
-								: t("continue")}
-							<ChevronRight className="w-4 h-4" />
+							<ChevronLeft className="w-4 h-4" />
+							{t("back")}
 						</Button>
+					)}
+
+					<Button
+						className={`flex-1 gap-2 h-10 rounded-lg ${canProceed ? 'cursor-pointer' : 'cursor-default'}`}
+						disabled={!canProceed}
+						size="sm"
+						onClick={onNext}
+					>
+						{currentStep === totalSteps - 1
+							? isEditing
+								? t("saveChanges")
+								: t("startUsingRelevo")
+							: t("continue")}
+						<ChevronRight className="w-4 h-4" />
+					</Button>
 					</div>
 				</div>
 			</div>
@@ -66,9 +66,16 @@ export function SetupNavigation({
 	}
 
 	return (
-		<div className="flex items-center justify-between pt-6">
+		<div
+			className="fixed top-0 left-0 right-0 z-30 px-6 py-3"
+			style={{
+				paddingTop: "max(env(safe-area-inset-top), 8px)",
+			}}
+		>
+			<div className="border-b border-border/20 px-4 py-2">
+				<div className="flex items-center justify-between">
 			{currentStep > 0 ? (
-				<Button className="gap-2" variant="outline" onClick={onBack}>
+				<Button className="gap-2" size="sm" variant="outline" onClick={onBack}>
 					<ChevronLeft className="w-4 h-4" />
 					{t("back")}
 				</Button>
@@ -76,7 +83,7 @@ export function SetupNavigation({
 				<div />
 			)}
 
-			<Button className="gap-2" disabled={!canProceed} onClick={onNext}>
+			<Button className={`gap-2 ${canProceed ? 'cursor-pointer' : 'cursor-default'}`} disabled={!canProceed} size="sm" onClick={onNext}>
 				{currentStep === totalSteps - 1
 					? isEditing
 						? t("saveChanges")
@@ -84,6 +91,8 @@ export function SetupNavigation({
 					: t("continue")}
 				<ChevronRight className="w-4 h-4" />
 			</Button>
+				</div>
+			</div>
 		</div>
 	);
 }

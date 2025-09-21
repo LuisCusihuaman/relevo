@@ -144,7 +144,7 @@ function SetupWizardComponent({ units, shifts }: SetupWizardProps): ReactElement
 
 				<div className="flex-1 flex flex-col min-h-0">
 					<div className="flex-1 overflow-y-auto mobile-scroll-fix">
-						<div className="p-4 pb-32">{renderStepContent()}</div>
+						<div className="p-4 pt-28 pb-32">{renderStepContent()}</div>
 					</div>
 				</div>
 
@@ -190,7 +190,7 @@ function SetupWizardComponent({ units, shifts }: SetupWizardProps): ReactElement
 					onSignOut={handleSignOut}
 				/>
 
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-6 pt-28">
 					{renderStepContent()}
 
 					<SetupNavigation
