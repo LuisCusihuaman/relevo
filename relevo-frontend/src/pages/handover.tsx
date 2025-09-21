@@ -22,16 +22,21 @@ import {
   MobileMenus,
   useHandoverSession,
 } from "../components/handover";
-import { useActiveHandover, useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api";
+import { useHandover } from "@/api/endpoints/handovers";
+import { useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api";
 import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
+import { useRouteContext } from "@tanstack/react-router";
 
 interface HandoverProps {
   onBack?: () => void;
 }
 
 export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Element {
+  // Get route parameters
+  const { handoverId: routeHandoverId } = useRouteContext({ from: "/_authenticated/$patientSlug/$handoverId" });
+
   // Core state
   const [handoverComplete, setHandoverComplete] = useState(false);
 
@@ -62,8 +67,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
   const { user: currentUser, isLoading: userLoading } = useCurrentUser();
-  const { patientData, isLoading: patientLoading } = usePatientHandoverData();
-  const { data: activeHandoverData, isLoading: handoverLoading } = useActiveHandover();
+  const { data: handoverData, isLoading: handoverLoading } = useHandover(routeHandoverId);
+  const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
   const { t } = useTranslation("handover");
 
   // State transition mutations
@@ -74,7 +79,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { mutate: cancelState } = useCancelHandover();
   const { mutate: rejectState } = useRejectHandover();
 
-  const handoverId = activeHandoverData?.handover?.id;
+  const handoverId = handoverData?.id || routeHandoverId;
 
   const handleReady = (): void => { handoverId && readyState(handoverId); };
   const handleStart = (): void => { handoverId && startState(handoverId); };
@@ -148,6 +153,31 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
     );
   }
 
+  // Error state - if handover not found
+  if (!handoverData && !handoverLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Handover Not Found</h3>
+          <p className="text-gray-600">The requested handover could not be found.</p>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Go Back
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Error state - if no user or patient data available
   if (!currentUser || !patientData) {
     return (
@@ -207,7 +237,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               <HandoverHistory
                 hideHeader
                 patientData={patientData}
-                handoverId={activeHandoverData?.handover?.id || ""}
+                handoverId={handoverData?.id || ""}
                 onClose={() => {
                   setShowHistory(false);
                 }}
@@ -250,7 +280,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
                 setHandoverComplete={setHandoverComplete}
                 setSyncStatus={handleSyncStatusChange}
                 syncStatus={syncStatus}
-                handoverData={activeHandoverData}
+                handoverData={handoverData}
               />
             </div>
           </div>
@@ -262,7 +292,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             getSessionDuration={getSessionDuration}
             getTimeUntilHandover={getTimeUntilHandover}
             handoverComplete={handoverComplete}
-            handoverState={activeHandoverData?.handover.stateName}
+            handoverState={handoverData?.stateName}
             patientData={patientData}
             onAccept={handleAccept}
             onCancel={handleCancel}
@@ -296,7 +326,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             <SidebarContent>
               <CollaborationPanel
                 hideHeader
-                handoverId={activeHandoverData?.handover?.id || ""}
+                handoverId={handoverData?.id || ""}
                 onNavigateToSection={handleNavigateToSection}
                 onClose={() => {
                   setShowComments(false);
@@ -314,9 +344,9 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               fullscreenEditing={!!fullscreenEditing}
               getSessionDuration={getSessionDuration}
               getTimeUntilHandover={getTimeUntilHandover}
-              handoverId={activeHandoverData?.handover?.id}
+              handoverId={handoverData?.id}
               handleNavigateToSection={handleNavigateToSection}
-              participants={activeHandoverData?.participants || []}
+              participants={[]}
               patientData={patientData}
               setFocusMode={setFocusMode}
               setShowComments={setShowComments}

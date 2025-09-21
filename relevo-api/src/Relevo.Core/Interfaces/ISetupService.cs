@@ -12,7 +12,6 @@ public interface ISetupService
     Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId);
     Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize);
     Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId);
-    Task<HandoverRecord?> GetActiveHandoverAsync(string userId);
     Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId);
     Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId);
     Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId);
@@ -44,13 +43,13 @@ public interface ISetupService
 
     // Handover Creation and Management
     Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request);
-    Task<bool> AcceptHandoverAsync(string handoverId, string userId);
-    Task<bool> CompleteHandoverAsync(string handoverId, string userId);
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId);
     Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId);
     Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId);
-    Task<bool> StartHandoverAsync(string handoverId, string userId);
     Task<bool> ReadyHandoverAsync(string handoverId, string userId);
+    Task<bool> StartHandoverAsync(string handoverId, string userId);
+    Task<bool> AcceptHandoverAsync(string handoverId, string userId);
+    Task<bool> CompleteHandoverAsync(string handoverId, string userId);
     Task<bool> CancelHandoverAsync(string handoverId, string userId);
     Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason);
 }

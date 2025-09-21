@@ -9,11 +9,12 @@ namespace Relevo.UnitTests.UseCases.Setup;
 public class AssignPatientsUseCaseTests
 {
     private readonly ISetupRepository _repository = Substitute.For<ISetupRepository>();
+    private readonly IShiftBoundaryResolver _shiftBoundaryResolver = Substitute.For<IShiftBoundaryResolver>();
     private readonly AssignPatientsUseCase _useCase;
 
     public AssignPatientsUseCaseTests()
     {
-        _useCase = new AssignPatientsUseCase(_repository);
+        _useCase = new AssignPatientsUseCase(_repository, _shiftBoundaryResolver);
     }
 
     [Fact]
@@ -24,17 +25,21 @@ public class AssignPatientsUseCaseTests
         var shiftId = "shift-day";
         var patientIds = new List<string> { "pat-001", "pat-002" };
         var assignmentIds = new List<string> { "assign-001", "assign-002" };
+        var windowDate = DateTime.Now.Date;
+        var toShiftId = "shift-night";
 
         _repository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
+        _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
+            .Returns((windowDate, toShiftId));
 
         // Act
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
         await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-001", userId);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-002", userId);
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-001", userId, windowDate, shiftId, toShiftId);
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-002", userId, windowDate, shiftId, toShiftId);
     }
 
     [Fact]
@@ -45,16 +50,20 @@ public class AssignPatientsUseCaseTests
         var shiftId = "shift-night";
         var patientIds = new List<string> { "pat-003" };
         var assignmentIds = new List<string> { "assign-003" };
+        var windowDate = DateTime.Now.Date;
+        var toShiftId = "shift-day";
 
         _repository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
+        _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
+            .Returns((windowDate, toShiftId));
 
         // Act
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
         await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-003", userId);
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-003", userId, windowDate, shiftId, toShiftId);
     }
 
     [Fact]
@@ -74,7 +83,7 @@ public class AssignPatientsUseCaseTests
 
         // Assert
         await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.DidNotReceive().CreateHandoverForAssignmentAsync(Arg.Any<string>(), Arg.Any<string>());
+        await _repository.DidNotReceive().CreateHandoverForAssignmentAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>(), Arg.Any<string>(), Arg.Any<string>());
     }
 
     [Fact]
@@ -85,14 +94,20 @@ public class AssignPatientsUseCaseTests
         var shiftId = "shift-day";
         var patientIds = new List<string> { "pat-010", "pat-011", "pat-012" };
         var assignmentIds = new List<string> { "assign-010", "assign-011", "assign-012" };
+        var windowDate = DateTime.Now.Date;
+        var toShiftId = "shift-night";
 
         _repository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
+        _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
+            .Returns((windowDate, toShiftId));
 
         // Act
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
-        // Assert - Note: NSubstitute Received() doesn't work well with async methods
-        // These assertions would need to be reworked for proper async testing
+        // Assert
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-010", userId, windowDate, shiftId, toShiftId);
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-011", userId, windowDate, shiftId, toShiftId);
+        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-012", userId, windowDate, shiftId, toShiftId);
     }
 }

@@ -5,7 +5,7 @@ import type {
   SyncStatus,
   User,
 } from "@/common/types";
-import type { ActiveHandoverData } from "@/api";
+import type { Handover } from "@/api";
 import {
   Collapsible,
   CollapsibleContent,
@@ -41,7 +41,7 @@ interface MainContentProps {
   setHandoverComplete: (complete: boolean) => void;
   getSessionDuration: () => string;
   currentUser: User;
-  handoverData?: ActiveHandoverData;
+  handoverData?: Handover;
 }
 
 export function MainContent({
@@ -61,12 +61,10 @@ export function MainContent({
   const ipassGuidelines = getIpassGuidelines(t);
 
   // Use the new hook for patient handover data
-  const { patientData: currentPatientData, isLoading: isPatientLoading, error: patientError } = usePatientHandoverData();
+  const { patientData: currentPatientData, isLoading: isPatientLoading, error: patientError } = usePatientHandoverData(handoverData);
 
   // Get active users from handover data or fallback to empty array
-  const activeUsers = handoverData?.participants.filter(
-    (user) => user.status === "active" || user.status === "viewing",
-  ) || [];
+  const activeUsers: any[] = []; // TODO: Implement when participants are available
 
   // Handle loading state
   if (isPatientLoading) {
@@ -107,16 +105,26 @@ export function MainContent({
 
   // Helper function to get section content from handover data
   const getSectionContent = (sectionType: string): string | null => {
-    if (!handoverData?.sections) return null;
-    const section = handoverData.sections.find(s => s.sectionType === sectionType);
-    return section?.content || null;
+    if (!handoverData) return null;
+
+    // Map section types to handover properties
+    switch (sectionType) {
+      case "patient_summary":
+        return handoverData.patientSummary?.content || null;
+      case "situation_awareness":
+        return handoverData.situationAwarenessDocId || null;
+      case "synthesis":
+        return handoverData.synthesis?.content || null;
+      default:
+        return null;
+    }
   };
 
   // Helper function to get section status
   const getSectionStatus = (sectionType: string): string => {
-    if (!handoverData?.sections) return "draft";
-    const section = handoverData.sections.find(s => s.sectionType === sectionType);
-    return section?.status || "draft";
+    if (!handoverData) return "draft";
+    // For now, return "draft" as default since we don't have section status in basic Handover type
+    return "draft";
   };
 
   if (focusMode) {
@@ -187,9 +195,9 @@ export function MainContent({
                 <IllnessSeverity
                   currentUser={currentUser}
                   assignedPhysician={handoverData ? {
-                    name: handoverData.participants.find(p => p.status === "active")?.userName || "Dr. Current",
-                    role: handoverData.participants.find(p => p.status === "active")?.userRole || "Attending Physician",
-                    initials: handoverData.participants.find(p => p.status === "active")?.userName.split(' ').map(n => n[0]).join('').toUpperCase() || "DC",
+                    name: handoverData.createdBy || "Dr. Current",
+                    role: "Attending Physician",
+                    initials: (handoverData.createdBy || "Dr. Current").split(' ').map(n => n[0]).join('').toUpperCase(),
                     color: "bg-blue-600",
                     shiftEnd: "17:00",
                     status: "handing-off" as const,
@@ -299,7 +307,7 @@ export function MainContent({
                 collaborators={activeCollaborators}
                 focusMode={focusMode}
                 onOpenThread={handleOpenDiscussion}
-                handoverId={handoverData?.handover?.id}
+                handoverId={handoverData?.id}
                 currentUser={currentUser}
                 assignedPhysician={currentUser}
               />
@@ -658,7 +666,7 @@ export function MainContent({
                     collaborators={activeCollaborators}
                     focusMode={focusMode}
                     onOpenThread={handleOpenDiscussion}
-                    handoverId={handoverData?.handover?.id}
+                    handoverId={handoverData?.id}
                     currentUser={currentUser}
                     assignedPhysician={currentUser}
                   />
@@ -959,7 +967,7 @@ export function MainContent({
                   collaborators={activeCollaborators}
                   focusMode={focusMode}
                   onOpenThread={handleOpenDiscussion}
-                  handoverId={handoverData?.handover?.id}
+                  handoverId={handoverData?.id}
                   currentUser={currentUser}
                   assignedPhysician={currentUser}
                 />

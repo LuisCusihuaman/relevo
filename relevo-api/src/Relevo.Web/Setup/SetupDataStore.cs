@@ -35,21 +35,21 @@ public class SetupDataStore : ISetupDataProvider
       CREATE TABLE UNITS (
         ID VARCHAR2(50) PRIMARY KEY,
         NAME VARCHAR2(100) NOT NULL
-      );
+      )
 
       CREATE TABLE SHIFTS (
         ID VARCHAR2(50) PRIMARY KEY,
         NAME VARCHAR2(100) NOT NULL,
         START_TIME VARCHAR2(5) NOT NULL,
         END_TIME VARCHAR2(5) NOT NULL
-      );
+      )
 
       CREATE TABLE PATIENTS (
         ID VARCHAR2(50) PRIMARY KEY,
         NAME VARCHAR2(200) NOT NULL,
         UNIT_ID VARCHAR2(50),
         FOREIGN KEY (UNIT_ID) REFERENCES UNITS(ID)
-      );
+      )
 
       CREATE TABLE USER_ASSIGNMENTS (
         USER_ID VARCHAR2(255) NOT NULL,
@@ -59,7 +59,7 @@ public class SetupDataStore : ISetupDataProvider
         PRIMARY KEY (USER_ID, PATIENT_ID),
         FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID),
         FOREIGN KEY (SHIFT_ID) REFERENCES SHIFTS(ID)
-      );";
+      )";
     cmd.ExecuteNonQuery();
   }
 
@@ -68,7 +68,7 @@ public class SetupDataStore : ISetupDataProvider
     // Seed units
     _connection.Execute(@"
       INSERT INTO UNITS (ID, NAME) VALUES
-      (@Id, @Name);",
+      (@Id, @Name)",
       new[]
       {
         new { Id = "unit-1", Name = "UCI" },
@@ -79,7 +79,7 @@ public class SetupDataStore : ISetupDataProvider
     // Seed shifts
     _connection.Execute(@"
       INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES
-      (@Id, @Name, @StartTime, @EndTime);",
+      (@Id, @Name, @StartTime, @EndTime)",
       new[]
       {
         new { Id = "shift-day", Name = "Mañana", StartTime = "07:00", EndTime = "15:00" },
@@ -89,7 +89,7 @@ public class SetupDataStore : ISetupDataProvider
     // Seed patients - 35 patients distributed across units
     _connection.Execute(@"
       INSERT INTO PATIENTS (ID, NAME, UNIT_ID) VALUES
-      (@Id, @Name, @UnitId);",
+      (@Id, @Name, @UnitId)",
       new[]
       {
         // UCI (unit-1) - 12 patients
@@ -288,12 +288,22 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-001", "Monitor vital signs every 4 hours", false),
           new HandoverActionItem("act-002", "Administer pain medication as needed", true)
         },
+        SituationAwarenessDocId: "hvo-001-sa",
+        Synthesis: null,
         ShiftName: "Mañana",
         CreatedBy: "user-123",
         AssignedTo: "user-123",
-        SituationAwarenessDocId: "hvo-001-sa",
-        Synthesis: null,
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: null,
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       ),
       new HandoverRecord(
         Id: "hvo-002",
@@ -308,12 +318,22 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-003", "Wean oxygen support gradually", true),
           new HandoverActionItem("act-004", "Continue chest physiotherapy", true)
         },
+        SituationAwarenessDocId: "hvo-002-sa",
+        Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status."),
         ShiftName: "Noche",
         CreatedBy: "user-123",
         AssignedTo: "user-123",
-        SituationAwarenessDocId: "hvo-002-sa",
-        Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status."),
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       ),
       new HandoverRecord(
         Id: "hvo-003",
@@ -328,12 +348,22 @@ public class SetupDataStore : ISetupDataProvider
           new HandoverActionItem("act-005", "Continuous vital signs monitoring", false),
           new HandoverActionItem("act-006", "Prepare emergency medications", false)
         },
+        SituationAwarenessDocId: "hvo-003-sa",
+        Synthesis: null,
         ShiftName: "Mañana",
         CreatedBy: "user-123",
         AssignedTo: "user-123",
-        SituationAwarenessDocId: "hvo-003-sa",
-        Synthesis: null,
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: null,
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       )
     };
 
@@ -374,16 +404,26 @@ public class SetupDataStore : ISetupDataProvider
         AssignmentId: "assign-001",
         PatientId: "pat-001",
         PatientName: "María García",
-        Status: "Active",
+        Status: "Ready",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient awaiting handover acceptance."),
         ActionItems: new List<HandoverActionItem>(),
+        SituationAwarenessDocId: null,
+        Synthesis: null,
         ShiftName: "Mañana → Noche",
         CreatedBy: "user-demo12345678901234567890123456",
         AssignedTo: userId,
-        SituationAwarenessDocId: null,
-        Synthesis: null,
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: null,
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       )
     };
   }
@@ -403,12 +443,22 @@ public class SetupDataStore : ISetupDataProvider
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient handover completed."),
         ActionItems: new List<HandoverActionItem>(),
+        SituationAwarenessDocId: null,
+        Synthesis: new HandoverSynthesis("Handover completed successfully."),
         ShiftName: "Mañana → Noche",
         CreatedBy: "user-123",
         AssignedTo: "user-456",
-        SituationAwarenessDocId: null,
-        Synthesis: new HandoverSynthesis("Handover completed successfully."),
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       )
     };
   }
@@ -428,12 +478,22 @@ public class SetupDataStore : ISetupDataProvider
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Shift transition handover completed."),
         ActionItems: new List<HandoverActionItem>(),
+        SituationAwarenessDocId: null,
+        Synthesis: new HandoverSynthesis("Successful shift transition."),
         ShiftName: "Mañana → Noche",
         CreatedBy: fromDoctorId,
         AssignedTo: toDoctorId,
-        SituationAwarenessDocId: null,
-        Synthesis: new HandoverSynthesis("Successful shift transition."),
-        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: null,
+        StartedAt: null,
+        AcceptedAt: null,
+        CompletedAt: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: null,
+        RejectedAt: null,
+        RejectionReason: null,
+        ExpiredAt: null,
+        HandoverType: null,
+        StateName: "Draft"
       )
     };
   }

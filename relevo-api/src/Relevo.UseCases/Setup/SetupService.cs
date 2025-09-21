@@ -106,11 +106,6 @@ public class SetupService : ISetupService
         return await Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
     }
 
-    public async Task<HandoverRecord?> GetActiveHandoverAsync(string userId)
-    {
-        // Call repository directly - no use case needed for simple retrieval
-        return await Task.FromResult(_repository.GetActiveHandover(userId));
-    }
 
     public async Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
     {
@@ -236,6 +231,7 @@ public class SetupService : ISetupService
     {
         return await _repository.CompleteHandover(handoverId, userId);
     }
+
 
     public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
     {

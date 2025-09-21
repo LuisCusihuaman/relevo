@@ -15,30 +15,6 @@ namespace Relevo.UnitTests.UseCases.Setup;
 
 public class NewHandoverFeaturesTests
 {
-    [Fact]
-    public void GetActiveHandover_ShouldReturnHandoverWithCorrectStructure()
-    {
-        // Arrange
-        var repository = Substitute.For<ISetupRepository>();
-        var expectedHandover = new HandoverRecord(
-            "handover-001", "assignment-001", "patient-001", "John Doe",
-            "Active", new HandoverIllnessSeverity("Stable"),
-            new HandoverPatientSummary("Patient is stable"),
-            new List<HandoverActionItem>(), "situation-doc-001",
-            null, "Morning Shift", "user-123", "user-456", "2024-01-01 08:00:00"
-        );
-        repository.GetActiveHandover("user-123").Returns(expectedHandover);
-
-        // Act
-        var result = repository.GetActiveHandover("user-123");
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be("handover-001");
-        result.Status.Should().Be("Active");
-        result.AssignedTo.Should().Be("user-456");
-        result.PatientName.Should().Be("John Doe");
-    }
 
     [Fact]
     public void GetHandoverParticipants_ShouldReturnParticipantsList()
@@ -189,16 +165,33 @@ public class NewHandoverFeaturesTests
     {
         // This test verifies the structure of the HandoverRecord
         var handover = new HandoverRecord(
-            "handover-001", "assignment-001", "patient-001", "John Doe",
-            "Active", new HandoverIllnessSeverity("Stable"),
-            new HandoverPatientSummary("Patient summary"),
-            new List<HandoverActionItem>
+            Id: "handover-001",
+            AssignmentId: "assignment-001",
+            PatientId: "patient-001",
+            PatientName: "John Doe",
+            Status: "Active",
+            IllnessSeverity: new HandoverIllnessSeverity("Stable"),
+            PatientSummary: new HandoverPatientSummary("Patient summary"),
+            ActionItems: new List<HandoverActionItem>
             {
                 new HandoverActionItem("action-001", "Monitor vital signs", true)
             },
-            "situation-doc-001",
-            new HandoverSynthesis("Patient ready for discharge"),
-            "Morning Shift", "user-123", "user-456", "2024-01-01 08:00:00"
+            SituationAwarenessDocId: "situation-doc-001",
+            Synthesis: new HandoverSynthesis("Patient ready for discharge"),
+            ShiftName: "Morning Shift",
+            CreatedBy: "user-123",
+            AssignedTo: "user-456",
+            CreatedAt: "2024-01-01 08:00:00",
+            ReadyAt: "2024-01-01 08:15:00",
+            StartedAt: null,
+            AcceptedAt: null,
+            CompletedAt: null,
+            CancelledAt: null,
+            RejectedAt: null,
+            RejectionReason: null,
+            ExpiredAt: null,
+            HandoverType: "ShiftToShift",
+            StateName: "Ready"
         );
 
         // Assert

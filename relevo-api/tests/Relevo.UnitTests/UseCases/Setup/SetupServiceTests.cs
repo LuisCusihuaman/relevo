@@ -37,10 +37,6 @@ public class SetupServiceTests
             _repository = repository;
         }
 
-        public Task<HandoverRecord?> GetActiveHandoverAsync(string userId)
-        {
-            return Task.FromResult(_repository.GetActiveHandover(userId));
-        }
 
         public Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
         {
@@ -183,6 +179,26 @@ public class SetupServiceTests
             throw new NotImplementedException("CompleteHandoverAsync not implemented in mock");
         }
 
+        public Task<bool> StartHandoverAsync(string handoverId, string userId)
+        {
+            throw new NotImplementedException("StartHandoverAsync not implemented in mock");
+        }
+
+        public Task<bool> ReadyHandoverAsync(string handoverId, string userId)
+        {
+            throw new NotImplementedException("ReadyHandoverAsync not implemented in mock");
+        }
+
+        public Task<bool> CancelHandoverAsync(string handoverId, string userId)
+        {
+            throw new NotImplementedException("CancelHandoverAsync not implemented in mock");
+        }
+
+        public Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason)
+        {
+            throw new NotImplementedException("RejectHandoverAsync not implemented in mock");
+        }
+
         public Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
         {
             throw new NotImplementedException("GetPendingHandoversForUserAsync not implemented in mock");
@@ -218,46 +234,6 @@ public class SetupServiceTests
         {
             return Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
         }
-    }
-
-    [Fact]
-    public async Task GetActiveHandoverAsync_ReturnsNull_WhenNoActiveHandover()
-    {
-        // Arrange
-        var userId = "test-user-123";
-        _repository.GetActiveHandover(userId).Returns((HandoverRecord?)null);
-
-        // Act
-        var result = await _setupService.GetActiveHandoverAsync(userId);
-
-        // Assert
-        result.Should().BeNull();
-        _repository.Received(1).GetActiveHandover(userId);
-    }
-
-    [Fact]
-    public async Task GetActiveHandoverAsync_ReturnsHandover_WhenActiveHandoverExists()
-    {
-        // Arrange
-        var userId = "test-user-123";
-        var expectedHandover = new HandoverRecord(
-            "handover-001", "assignment-001", "patient-001", "John Doe",
-            "Active", new HandoverIllnessSeverity("Stable"),
-            new HandoverPatientSummary("Patient is stable"),
-            new List<HandoverActionItem>(), "situation-doc-001",
-            null, "Morning Shift", "user-123", "user-456", "2024-01-01 08:00:00"
-        );
-        _repository.GetActiveHandover(userId).Returns(expectedHandover);
-
-        // Act
-        var result = await _setupService.GetActiveHandoverAsync(userId);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be("handover-001");
-        result.PatientId.Should().Be("patient-001");
-        result.Status.Should().Be("Active");
-        _repository.Received(1).GetActiveHandover(userId);
     }
 
     [Fact]

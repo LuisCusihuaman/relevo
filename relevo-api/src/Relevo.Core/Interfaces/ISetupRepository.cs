@@ -8,12 +8,12 @@ public interface ISetupRepository
     (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetAllPatients(int page, int pageSize);
     PatientDetailRecord? GetPatientById(string patientId);
     Task<IReadOnlyList<string>> AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds);
-    Task CreateHandoverForAssignmentAsync(string assignmentId, string userId);
+    void EnsureUserExists(string userId, string? email, string? firstName, string? lastName, string? fullName);
+    Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, DateTime windowDate, string fromShiftId, string toShiftId);
     (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize);
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize);
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize);
     HandoverRecord? GetHandoverById(string handoverId);
-    HandoverRecord? GetActiveHandover(string userId);
     IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId);
     IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId);
     HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId);

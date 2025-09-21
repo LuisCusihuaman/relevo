@@ -155,12 +155,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
+        SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
-        SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: row.READY_AT,
+        StartedAt: row.STARTED_AT,
+        AcceptedAt: row.ACCEPTED_AT,
+        CompletedAt: row.COMPLETED_AT,
+        CancelledAt: row.CANCELLED_AT,
+        RejectedAt: row.REJECTED_AT,
+        RejectionReason: row.REJECTION_REASON,
+        ExpiredAt: row.EXPIRED_AT,
+        HandoverType: row.HANDOVER_TYPE,
+        StateName: row.STATENAME ?? "Draft"
       );
 
       handovers.Add(handover);
@@ -205,12 +215,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
       PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
       ActionItems: actionItems,
+      SituationAwarenessDocId: null,
+      Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
       ShiftName: row.SHIFT_NAME ?? "Unknown",
       CreatedBy: row.CREATED_BY ?? "system",
       AssignedTo: row.ASSIGNED_TO ?? "system",
-      SituationAwarenessDocId: null,
-      Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-      CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+      CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+      ReadyAt: row.READY_AT,
+      StartedAt: row.STARTED_AT,
+      AcceptedAt: row.ACCEPTED_AT,
+      CompletedAt: row.COMPLETED_AT,
+      CancelledAt: row.CANCELLED_AT,
+      RejectedAt: row.REJECTED_AT,
+      RejectionReason: row.REJECTION_REASON,
+      ExpiredAt: row.EXPIRED_AT,
+      HandoverType: row.HANDOVER_TYPE,
+      StateName: row.STATENAME ?? "Draft"
     );
   }
 
@@ -298,8 +318,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     var affected = conn.Execute(@"
       UPDATE HANDOVERS
-      SET STATUS = 'InProgress', ACCEPTED_AT = SYSTIMESTAMP
-      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'Active'",
+      SET ACCEPTED_AT = SYSTIMESTAMP
+      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND READY_AT IS NOT NULL AND ACCEPTED_AT IS NULL",
       new { handoverId, userId });
 
     return affected > 0;
@@ -331,7 +351,13 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-      WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress')
+      WHERE h.TO_DOCTOR_ID = :userId
+        AND h.READY_AT IS NOT NULL
+        AND h.ACCEPTED_AT IS NULL
+        AND h.COMPLETED_AT IS NULL
+        AND h.CANCELLED_AT IS NULL
+        AND h.REJECTED_AT IS NULL
+        AND h.EXPIRED_AT IS NULL
       ORDER BY h.INITIATED_AT DESC";
 
     var handoverRows = conn.Query(sql, new { userId }).ToList();
@@ -360,12 +386,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
-        SituationAwarenessDocId: null,
-        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: row.READY_AT,
+        StartedAt: row.STARTED_AT,
+        AcceptedAt: row.ACCEPTED_AT,
+        CompletedAt: row.COMPLETED_AT,
+        CancelledAt: row.CANCELLED_AT,
+        RejectedAt: row.REJECTED_AT,
+        RejectionReason: row.REJECTION_REASON,
+        ExpiredAt: row.EXPIRED_AT,
+        HandoverType: row.HANDOVER_TYPE,
+        StateName: row.STATENAME ?? "Draft"
       );
 
       handovers.Add(handover);
@@ -415,12 +451,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
-        SituationAwarenessDocId: null,
-        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: row.READY_AT,
+        StartedAt: row.STARTED_AT,
+        AcceptedAt: row.ACCEPTED_AT,
+        CompletedAt: row.COMPLETED_AT,
+        CancelledAt: row.CANCELLED_AT,
+        RejectedAt: row.REJECTED_AT,
+        RejectionReason: row.REJECTION_REASON,
+        ExpiredAt: row.EXPIRED_AT,
+        HandoverType: row.HANDOVER_TYPE,
+        StateName: row.STATENAME ?? "Draft"
       );
 
       handovers.Add(handover);
@@ -470,12 +516,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
+        SituationAwarenessDocId: null,
+        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
-        SituationAwarenessDocId: null,
-        Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: row.READY_AT,
+        StartedAt: row.STARTED_AT,
+        AcceptedAt: row.ACCEPTED_AT,
+        CompletedAt: row.COMPLETED_AT,
+        CancelledAt: row.CANCELLED_AT,
+        RejectedAt: row.REJECTED_AT,
+        RejectionReason: row.REJECTION_REASON,
+        ExpiredAt: row.EXPIRED_AT,
+        HandoverType: row.HANDOVER_TYPE,
+        StateName: row.STATENAME ?? "Draft"
       );
 
       handovers.Add(handover);

@@ -111,7 +111,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         var userId = "test-user-1";
 
         // Act
-        await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId);
+        await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId, DateTime.Now, "test-shift-1", "test-shift-2");
 
         // Assert
         var handoverExists = CheckHandoverExists(assignmentId);
@@ -133,7 +133,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _repository.CreateHandoverForAssignmentAsync(nonExistentAssignmentId, userId));
+            _repository.CreateHandoverForAssignmentAsync(nonExistentAssignmentId, userId, DateTime.Now, "test-shift-1", "test-shift-2"));
     }
 
     [Fact]
@@ -392,53 +392,6 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         result!.SituationAwarenessDocId.Should().Be(docId);
     }
 
-    [Fact]
-    public void GetActiveHandover_ReturnsActiveHandover_WhenUserHasActiveHandover()
-    {
-        if (_connection == null)
-        {
-            Assert.True(true, _oracleUnavailableMessage);
-            return;
-        }
-
-        // Arrange
-        var userId = "test-user-active";
-        var patientId = "test-patient-1";
-        var assignmentId = "test-assignment-active";
-        var handoverId = "test-active-handover";
-
-        // Create active handover
-        CreateActiveTestHandover(handoverId, patientId, assignmentId, userId);
-
-        // Act
-        var result = _repository.GetActiveHandover(userId);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(handoverId);
-        result.Status.Should().Be("Active");
-        result.AssignedTo.Should().Be(userId);
-        result.PatientName.Should().Be("Test Patient 1");
-    }
-
-    [Fact]
-    public void GetActiveHandover_ReturnsNull_WhenUserHasNoActiveHandover()
-    {
-        if (_connection == null)
-        {
-            Assert.True(true, _oracleUnavailableMessage);
-            return;
-        }
-
-        // Arrange
-        var userId = "test-user-no-active";
-
-        // Act
-        var result = _repository.GetActiveHandover(userId);
-
-        // Assert
-        result.Should().BeNull();
-    }
 
     [Fact]
     public void GetHandoverParticipants_ReturnsParticipants_WhenHandoverHasParticipants()

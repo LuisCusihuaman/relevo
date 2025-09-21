@@ -27,15 +27,25 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-026",
             PatientName: "Álvaro Vargas",
             Status: "Active",
-            CreatedAt: "2025-09-20 13:29:21",
             IllnessSeverity: new HandoverIllnessSeverity("Stable"),
             PatientSummary: new HandoverPatientSummary("Handover iniciado - información pendiente de completar"),
             ActionItems: new List<HandoverActionItem>(),
             SituationAwarenessDocId: null,
             Synthesis: null,
-            ShiftName: "Noche",
+            ShiftName: "Night Shift",
             CreatedBy: "user_32GYA6PbtKI9GWMYIMebpoB59pS",
-            AssignedTo: "user_32GYA6PbtKI9GWMYIMebpoB59pS"
+            AssignedTo: "user_demo12345678901234567890123457",
+            CreatedAt: "2025-09-20 13:29:21",
+            ReadyAt: null,
+            StartedAt: null,
+            AcceptedAt: null,
+            CompletedAt: null,
+            CancelledAt: null,
+            RejectedAt: null,
+            RejectionReason: null,
+            ExpiredAt: null,
+            HandoverType: null,
+            StateName: "Draft"
         );
 
         _repository.GetHandoverById(handoverId).Returns(expectedHandover);
@@ -50,7 +60,7 @@ public class GetHandoverByIdUseCaseTests
         result.PatientId.Should().Be("pat-026");
         result.Status.Should().Be("Active");
         result.PatientName.Should().Be("Álvaro Vargas");
-        result.ShiftName.Should().Be("Noche");
+        result.ShiftName.Should().Be("Night Shift");
 
         _repository.Received(1).GetHandoverById(handoverId);
     }
@@ -90,7 +100,6 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-test",
             PatientName: "Test Patient",
             Status: "InProgress",
-            CreatedAt: "2025-09-20 14:00:00",
             IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
             PatientSummary: new HandoverPatientSummary("Patient is stable but requires monitoring"),
             ActionItems: actionItems,
@@ -98,7 +107,18 @@ public class GetHandoverByIdUseCaseTests
             Synthesis: new HandoverSynthesis("Patient condition has improved"),
             ShiftName: "Mañana",
             CreatedBy: "user-test",
-            AssignedTo: "user-test"
+            AssignedTo: "user-test",
+            CreatedAt: "2025-09-20 14:00:00",
+            ReadyAt: "2025-09-20 14:15:00",
+            StartedAt: "2025-09-20 14:30:00",
+            AcceptedAt: null,
+            CompletedAt: null,
+            CancelledAt: null,
+            RejectedAt: null,
+            RejectionReason: null,
+            ExpiredAt: null,
+            HandoverType: "ShiftToShift",
+            StateName: "InProgress"
         );
 
         _repository.GetHandoverById(handoverId).Returns(expectedHandover);
@@ -136,7 +156,6 @@ public class GetHandoverByIdUseCaseTests
             PatientId: "pat-complete-456",
             PatientName: "Complete Test Patient",
             Status: "Completed",
-            CreatedAt: "2025-09-20 15:00:00",
             IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
             PatientSummary: new HandoverPatientSummary("Patient showed signs of improvement"),
             ActionItems: actionItems,
@@ -144,7 +163,18 @@ public class GetHandoverByIdUseCaseTests
             Synthesis: new HandoverSynthesis("Handover completed successfully"),
             ShiftName: "Tarde",
             CreatedBy: "user-creator-123",
-            AssignedTo: "user-assigned-456"
+            AssignedTo: "user-assigned-456",
+            CreatedAt: "2025-09-20 15:00:00",
+            ReadyAt: "2025-09-20 15:10:00",
+            StartedAt: "2025-09-20 15:20:00",
+            AcceptedAt: "2025-09-20 15:30:00",
+            CompletedAt: "2025-09-20 15:45:00",
+            CancelledAt: null,
+            RejectedAt: null,
+            RejectionReason: null,
+            ExpiredAt: null,
+            HandoverType: "ShiftToShift",
+            StateName: "Completed"
         );
 
         _repository.GetHandoverById(handoverId).Returns(expectedHandover);
@@ -191,7 +221,6 @@ public class GetHandoverByIdUseCaseTests
                 PatientId: $"pat-{handoverId}",
                 PatientName: "Test Patient",
                 Status: status,
-                CreatedAt: "2025-09-20 16:00:00",
                 IllnessSeverity: new HandoverIllnessSeverity("Stable"),
                 PatientSummary: new HandoverPatientSummary("Test summary"),
                 ActionItems: new List<HandoverActionItem>(),
@@ -199,7 +228,18 @@ public class GetHandoverByIdUseCaseTests
                 Synthesis: null,
                 ShiftName: "Test Shift",
                 CreatedBy: "test-user",
-                AssignedTo: "test-user"
+                AssignedTo: "test-user",
+                CreatedAt: "2025-09-20 16:00:00",
+                ReadyAt: status == "Active" ? "2025-09-20 16:10:00" : null,
+                StartedAt: status == "InProgress" ? "2025-09-20 16:20:00" : null,
+                AcceptedAt: status == "InProgress" ? "2025-09-20 16:15:00" : null,
+                CompletedAt: status == "Completed" ? "2025-09-20 16:30:00" : null,
+                CancelledAt: null,
+                RejectedAt: null,
+                RejectionReason: null,
+                ExpiredAt: null,
+                HandoverType: "ShiftToShift",
+                StateName: status == "Active" ? "Ready" : status == "InProgress" ? "InProgress" : "Completed"
             );
 
             _repository.GetHandoverById(handoverId).Returns(expectedHandover);

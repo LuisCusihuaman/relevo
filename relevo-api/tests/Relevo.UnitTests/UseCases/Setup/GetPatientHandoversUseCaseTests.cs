@@ -29,7 +29,6 @@ public class GetPatientHandoversUseCaseTests
                 PatientId: patientId,
                 PatientName: "Test Patient",
                 Status: "Active",
-                CreatedAt: "2025-09-20 10:00:00",
                 IllnessSeverity: new HandoverIllnessSeverity("Stable"),
                 PatientSummary: new HandoverPatientSummary("Patient summary"),
                 ActionItems: new List<HandoverActionItem>(),
@@ -37,7 +36,18 @@ public class GetPatientHandoversUseCaseTests
                 Synthesis: null,
                 ShiftName: "Mañana",
                 CreatedBy: "user-123",
-                AssignedTo: "user-123"
+                AssignedTo: "user-123",
+                CreatedAt: "2025-09-20 10:00:00",
+                ReadyAt: "2025-09-20 10:15:00",
+                StartedAt: null,
+                AcceptedAt: null,
+                CompletedAt: null,
+                CancelledAt: null,
+                RejectedAt: null,
+                RejectionReason: null,
+                ExpiredAt: null,
+                HandoverType: "ShiftToShift",
+                StateName: "Ready"
             )
         };
 
@@ -111,15 +121,25 @@ public class GetPatientHandoversUseCaseTests
                 PatientId: patientId,
                 PatientName: "Test Patient",
                 Status: "Completed",
-                CreatedAt: "2025-09-20 11:00:00",
                 IllnessSeverity: new HandoverIllnessSeverity("Stable"),
                 PatientSummary: new HandoverPatientSummary("Patient summary 2"),
                 ActionItems: new List<HandoverActionItem>(),
                 SituationAwarenessDocId: "doc-002",
                 Synthesis: new HandoverSynthesis("Synthesis 2"),
-                ShiftName: "Noche",
-                CreatedBy: "user-123",
-                AssignedTo: "user-123"
+                ShiftName: "Tarde",
+                CreatedBy: "user-456",
+                AssignedTo: "user-789",
+                CreatedAt: "2025-09-20 11:00:00",
+                ReadyAt: "2025-09-20 11:10:00",
+                StartedAt: "2025-09-20 11:20:00",
+                AcceptedAt: "2025-09-20 11:25:00",
+                CompletedAt: "2025-09-20 11:45:00",
+                CancelledAt: null,
+                RejectedAt: null,
+                RejectionReason: null,
+                ExpiredAt: null,
+                HandoverType: "ShiftToShift",
+                StateName: "Completed"
             ),
             new HandoverRecord(
                 Id: "hvo-001",
@@ -127,15 +147,25 @@ public class GetPatientHandoversUseCaseTests
                 PatientId: patientId,
                 PatientName: "Test Patient",
                 Status: "Active",
-                CreatedAt: "2025-09-20 12:00:00",
                 IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
                 PatientSummary: new HandoverPatientSummary("Patient summary 1"),
                 ActionItems: new List<HandoverActionItem>(),
                 SituationAwarenessDocId: "doc-001",
                 Synthesis: null,
-                ShiftName: "Mañana",
+                ShiftName: "Noche",
                 CreatedBy: "user-123",
-                AssignedTo: "user-123"
+                AssignedTo: "user-123",
+                CreatedAt: "2025-09-20 12:00:00",
+                ReadyAt: "2025-09-20 12:15:00",
+                StartedAt: null,
+                AcceptedAt: null,
+                CompletedAt: null,
+                CancelledAt: null,
+                RejectedAt: null,
+                RejectionReason: null,
+                ExpiredAt: null,
+                HandoverType: "ShiftToShift",
+                StateName: "Ready"
             )
         };
 

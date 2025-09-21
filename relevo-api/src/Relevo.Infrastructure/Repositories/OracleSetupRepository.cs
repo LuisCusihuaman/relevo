@@ -281,7 +281,7 @@ public class OracleSetupRepository : ISetupRepository
             new { userId, defaultEmail, firstName, lastName, fullName });
     }
 
-    public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId)
+    public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, DateTime windowDate, string fromShiftId, string toShiftId)
     {
         try
         {
@@ -310,20 +310,28 @@ public class OracleSetupRepository : ISetupRepository
             var randomPart = new Random().Next(1000, 9999);
             var handoverId = $"hvo-{timestamp}-{randomPart}";
 
+            var fromShiftName = (await conn.QueryFirstOrDefaultAsync<ShiftRecord>("SELECT ID AS Id, NAME AS Name FROM SHIFTS WHERE ID = :fromShiftId", new { fromShiftId }))?.Name ?? "Unknown";
+            var toShiftName = (await conn.QueryFirstOrDefaultAsync<ShiftRecord>("SELECT ID AS Id, NAME AS Name FROM SHIFTS WHERE ID = :toShiftId", new { toShiftId }))?.Name ?? "Unknown";
+
             // Create handover
             await conn.ExecuteAsync(@"
             INSERT INTO HANDOVERS (
                 ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
-                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, TO_DOCTOR_ID
+                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, FROM_DOCTOR_ID,
+                HANDOVER_WINDOW_DATE, FROM_SHIFT_ID, TO_SHIFT_ID
             ) VALUES (
-                :handoverId, :assignmentId, :patientId, 'Active', 'Stable',
-                'Handover iniciado - información pendiente de completar', :shiftName, :userId, :userId
+                :handoverId, :assignmentId, :patientId, 'Draft', 'Stable',
+                'Handover iniciado - información pendiente de completar', :shiftName, :userId, :userId,
+                :windowDate, :fromShiftId, :toShiftId
             )", new {
                 handoverId,
                 assignmentId,
                 patientId = assignment.PATIENT_ID,
-                shiftName = shiftName ?? "Unknown",
-                userId
+                shiftName = $"{fromShiftName} → {toShiftName}",
+                userId,
+                windowDate,
+                fromShiftId,
+                toShiftId
             });
 
             _logger.LogInformation("Created handover {HandoverId} for assignment {AssignmentId}", handoverId, assignmentId);
@@ -569,81 +577,6 @@ public class OracleSetupRepository : ISetupRepository
             .ToList();
     }
 
-    public HandoverRecord? GetActiveHandover(string userId)
-    {
-        try
-        {
-            using IDbConnection conn = _factory.CreateConnection();
-
-            // Find the active handover for this user's assigned patients
-            const string handoverSql = @"
-                SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                       h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-                       TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-                       TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
-                       TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
-                       TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
-                       TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
-                       TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
-                       TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
-                       h.REJECTION_REASON,
-                       TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
-                       h.HANDOVER_TYPE,
-                       vws.StateName
-                FROM HANDOVERS h
-                INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-                LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
-                WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress')
-                ORDER BY h.CREATED_AT DESC";
-
-            var rows = conn.Query(handoverSql, new { userId }).ToList();
-            var row = rows.FirstOrDefault();
-
-            if (row == null)
-            {
-                return null;
-            }
-
-            // Get action items for the handover
-            const string actionItemsSql = "SELECT ID, DESCRIPTION, IS_COMPLETED FROM HANDOVER_ACTION_ITEMS WHERE HANDOVER_ID = :handoverId ORDER BY CREATED_AT";
-
-            var actionItems = conn.Query(actionItemsSql, new { handoverId = row.ID })
-                .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-                .ToList();
-
-            return new HandoverRecord(
-                Id: row.ID,
-                AssignmentId: row.ASSIGNMENT_ID,
-                PatientId: row.PATIENT_ID,
-                PatientName: row.PATIENT_NAME,
-                Status: row.STATUS,
-                IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
-                PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                ActionItems: actionItems,
-                SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS) ? new HandoverSynthesis(row.SYNTHESIS) : null,
-                ShiftName: row.SHIFT_NAME ?? "Unknown",
-                CreatedBy: row.CREATED_BY ?? "system",
-                AssignedTo: row.ASSIGNED_TO ?? "system",
-                CreatedAt: row.CREATED_AT,
-                ReadyAt: row.READY_AT,
-                StartedAt: row.STARTED_AT,
-                AcceptedAt: row.ACCEPTED_AT,
-                CompletedAt: row.COMPLETED_AT,
-                CancelledAt: row.CANCELLED_AT,
-                RejectedAt: row.REJECTED_AT,
-                RejectionReason: row.REJECTION_REASON,
-                ExpiredAt: row.EXPIRED_AT,
-                HandoverType: row.HANDOVER_TYPE,
-                StateName: row.STATENAME ?? "Draft"
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get active handover for user {UserId}", userId);
-            throw;
-        }
-    }
 
     public IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId)
     {
@@ -857,6 +790,7 @@ public class OracleSetupRepository : ISetupRepository
             throw;
         }
     }
+
 
     public UserPreferencesRecord? GetUserPreferences(string userId)
     {

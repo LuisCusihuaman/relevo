@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
 import type {
-	ActiveHandoverData,
 	HandoverSection,
 	HandoverMessage,
 	HandoverActivityItem,
@@ -15,14 +14,6 @@ export const activeHandoverQueryKeys = {
 	sections: (handoverId: string) => ["handover", "sections", handoverId] as const,
 	pending: (userId: string) => ["handovers", "pending", userId] as const,
 };
-
-/**
- * Get active handover for current user
- */
-export async function getActiveHandover(): Promise<ActiveHandoverData> {
-	const { data } = await api.get<ActiveHandoverData>("/me/handovers/active");
-	return data;
-}
 
 /**
  * Update a handover section
@@ -40,18 +31,6 @@ export async function updateHandoverSection(
 	return data;
 }
 
-/**
- * Hook to get active handover
- */
-export function useActiveHandover(): ReturnType<typeof useQuery<ActiveHandoverData | undefined, Error>> {
-	return useQuery({
-		queryKey: activeHandoverQueryKeys.active,
-		queryFn: () => getActiveHandover(),
-		staleTime: 30 * 1000, // 30 seconds
-		gcTime: 5 * 60 * 1000, // 5 minutes
-		select: (data: ActiveHandoverData | undefined) => data,
-	});
-}
 
 /**
  * Hook to update handover section
