@@ -26,7 +26,7 @@ import { useHandover, useStartHandover, useReadyHandover, useAcceptHandover, use
 import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
-import { useRouteContext } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 
 interface HandoverProps {
   onBack?: () => void;
@@ -34,7 +34,7 @@ interface HandoverProps {
 
 export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Element {
   // Get route parameters
-  const { handoverId: routeHandoverId } = useRouteContext({ from: "/_authenticated/$patientSlug/$handoverId" });
+  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" });
 
   // Core state
   const [handoverComplete, setHandoverComplete] = useState(false);
@@ -66,7 +66,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
   const { user: currentUser, isLoading: userLoading } = useCurrentUser();
-  const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(routeHandoverId);
+  const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(handoverId);
   const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
   const { t } = useTranslation("handover");
 
@@ -78,14 +78,14 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { mutate: cancelState } = useCancelHandover();
   const { mutate: rejectState } = useRejectHandover();
 
-  const handoverId = handoverData?.id || routeHandoverId;
+  const currentHandoverId = handoverData?.id || handoverId;
 
-  const handleReady = (): void => { handoverId && readyState(handoverId); };
-  const handleStart = (): void => { handoverId && startState(handoverId); };
-  const handleAccept = (): void => { handoverId && acceptState(handoverId); };
-  const handleComplete = (): void => { handoverId && completeState(handoverId); };
-  const handleCancel = (): void => { handoverId && cancelState(handoverId); };
-  const handleReject = (): void => { handoverId && rejectState({ handoverId, reason: "No reason provided" }); };
+  const handleReady = (): void => { currentHandoverId && readyState(currentHandoverId); };
+  const handleStart = (): void => { currentHandoverId && startState(currentHandoverId); };
+  const handleAccept = (): void => { currentHandoverId && acceptState(currentHandoverId); };
+  const handleComplete = (): void => { currentHandoverId && completeState(currentHandoverId); };
+  const handleCancel = (): void => { currentHandoverId && cancelState(currentHandoverId); };
+  const handleReject = (): void => { currentHandoverId && rejectState({ handoverId: currentHandoverId, reason: "No reason provided" }); };
 
   // Event handlers
   const handleSyncStatusChange = (status: SyncStatus): void => {

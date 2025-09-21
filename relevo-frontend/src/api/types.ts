@@ -73,7 +73,7 @@ export type Handover = {
 	assignmentId: string;
 	patientId: string;
 	patientName?: string;
-	status: "Active" | "InProgress" | "Completed";
+	status: string;
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
 	actionItems: Array<HandoverActionItem>;

@@ -364,6 +364,12 @@ export function MainContent({
                 onRequestFullscreen={() =>
                   { handleOpenFullscreenEdit("situation-awareness", true); }
                 }
+                currentUser={{
+                  name: currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`,
+                  initials: (currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`).split(' ').map(n => n[0]).join('').toUpperCase(),
+                  role: currentUser.roles?.join(', ') ?? ''
+                }}
+                assignedPhysician={currentPatientData.assignedPhysician}
               />
             </div>
 
@@ -603,6 +609,12 @@ export function MainContent({
                 onRequestFullscreen={() =>
                   { handleOpenFullscreenEdit("situation-awareness", true); }
                 }
+                currentUser={{
+                  name: currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`,
+                  initials: (currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`).split(' ').map(n => n[0]).join('').toUpperCase(),
+                  role: currentUser.roles?.join(', ') ?? ''
+                }}
+                assignedPhysician={currentPatientData.assignedPhysician}
               />
             </div>
           </div>
@@ -1049,6 +1061,12 @@ export function MainContent({
                 onRequestFullscreen={() =>
                   { handleOpenFullscreenEdit("situation-awareness", true); }
                 }
+                currentUser={{
+                  name: currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`,
+                  initials: (currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`).split(' ').map(n => n[0]).join('').toUpperCase(),
+                  role: currentUser.roles?.join(', ') ?? ''
+                }}
+                assignedPhysician={currentPatientData.assignedPhysician}
               />
             </CollapsibleContent>
           </div>
