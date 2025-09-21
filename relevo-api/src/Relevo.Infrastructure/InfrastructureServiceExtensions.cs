@@ -48,8 +48,10 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<Relevo.UseCases.Setup.GetHandoverByIdUseCase>();
     services.AddScoped<Relevo.UseCases.Setup.GetPatientByIdUseCase>();
 
-    // Setup Application Service
+    // Setup Application Services
     services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();
+    services.AddScoped<Relevo.Core.Interfaces.ISetupQueryService, Repositories.OracleSetupRepository>();
+    services.AddScoped<Relevo.Core.Interfaces.ISetupCommandService, Repositories.OracleSetupRepository>();
 
     // Authentication and Authorization Services
     services.AddScoped<Relevo.Core.Interfaces.IAuthenticationService, Auth.ClerkAuthenticationService>();

@@ -32,11 +32,11 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       Status = handover.Status,
       IllnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
       {
-        Value = handover.IllnessSeverity.Value
+        Value = handover.IllnessSeverity.Severity
       },
       PatientSummary = new GetHandoverByIdResponse.PatientSummaryDto
       {
-        Value = handover.PatientSummary.Value
+        Value = handover.PatientSummary.Content
       },
       ActionItems = handover.ActionItems.Select(item => new GetHandoverByIdResponse.ActionItemDto
       {
@@ -47,7 +47,7 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       SituationAwarenessDocId = handover.SituationAwarenessDocId,
       Synthesis = handover.Synthesis != null ? new GetHandoverByIdResponse.SynthesisDto
       {
-        Value = handover.Synthesis.Value
+        Value = handover.Synthesis.Content
       } : null,
       ShiftName = handover.ShiftName,
       CreatedBy = handover.CreatedBy,
