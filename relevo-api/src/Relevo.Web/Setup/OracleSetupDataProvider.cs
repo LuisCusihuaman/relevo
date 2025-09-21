@@ -123,8 +123,9 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     const string handoverSql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       WHERE h.PATIENT_ID IN :patientIds
       ORDER BY h.CREATED_AT DESC
@@ -162,9 +163,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
+        ReceiverUserId: row.RECEIVER_USER_ID,
         CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
         ReadyAt: row.READY_AT,
         StartedAt: row.STARTED_AT,
+        AcknowledgedAt: row.ACKNOWLEDGED_AT,
         AcceptedAt: row.ACCEPTED_AT,
         CompletedAt: row.COMPLETED_AT,
         CancelledAt: row.CANCELLED_AT,
@@ -192,8 +195,9 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.ID = :handoverId";
@@ -226,9 +230,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       ShiftName: row.SHIFT_NAME ?? "Unknown",
       CreatedBy: row.CREATED_BY ?? "system",
       AssignedTo: row.ASSIGNED_TO ?? "system",
+      ReceiverUserId: row.RECEIVER_USER_ID,
       CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
       ReadyAt: row.READY_AT,
       StartedAt: row.STARTED_AT,
+      AcknowledgedAt: row.ACKNOWLEDGED_AT,
       AcceptedAt: row.ACCEPTED_AT,
       CompletedAt: row.COMPLETED_AT,
       CancelledAt: row.CANCELLED_AT,
@@ -357,8 +363,9 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.TO_DOCTOR_ID = :userId
@@ -401,9 +408,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
+        ReceiverUserId: row.RECEIVER_USER_ID,
         CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
         ReadyAt: row.READY_AT,
         StartedAt: row.STARTED_AT,
+        AcknowledgedAt: row.ACKNOWLEDGED_AT,
         AcceptedAt: row.ACCEPTED_AT,
         CompletedAt: row.COMPLETED_AT,
         CancelledAt: row.CANCELLED_AT,
@@ -432,8 +441,9 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.PATIENT_ID = :patientId
@@ -470,9 +480,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
+        ReceiverUserId: row.RECEIVER_USER_ID,
         CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
         ReadyAt: row.READY_AT,
         StartedAt: row.STARTED_AT,
+        AcknowledgedAt: row.ACKNOWLEDGED_AT,
         AcceptedAt: row.ACCEPTED_AT,
         CompletedAt: row.COMPLETED_AT,
         CancelledAt: row.CANCELLED_AT,
@@ -501,8 +513,9 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.FROM_DOCTOR_ID = :fromDoctorId AND h.TO_DOCTOR_ID = :toDoctorId
@@ -539,9 +552,11 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
         AssignedTo: row.ASSIGNED_TO ?? "system",
+        ReceiverUserId: row.RECEIVER_USER_ID,
         CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
         ReadyAt: row.READY_AT,
         StartedAt: row.STARTED_AT,
+        AcknowledgedAt: row.ACKNOWLEDGED_AT,
         AcceptedAt: row.ACCEPTED_AT,
         CompletedAt: row.COMPLETED_AT,
         CancelledAt: row.CANCELLED_AT,
