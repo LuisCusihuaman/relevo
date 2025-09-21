@@ -47,6 +47,10 @@ public class GetPatientHandoversUseCaseTests
                 RejectionReason: null,
                 ExpiredAt: null,
                 HandoverType: "ShiftToShift",
+                HandoverWindowDate: DateTime.Now.Date,
+                FromShiftId: "shift-day",
+                ToShiftId: "shift-night",
+                ToDoctorId: "user-123",
                 StateName: "Ready"
             )
         };
@@ -139,6 +143,10 @@ public class GetPatientHandoversUseCaseTests
                 RejectionReason: null,
                 ExpiredAt: null,
                 HandoverType: "ShiftToShift",
+                HandoverWindowDate: DateTime.Now.Date,
+                FromShiftId: "shift-day",
+                ToShiftId: "shift-night",
+                ToDoctorId: "user-789",
                 StateName: "Completed"
             ),
             new HandoverRecord(
@@ -165,6 +173,10 @@ public class GetPatientHandoversUseCaseTests
                 RejectionReason: null,
                 ExpiredAt: null,
                 HandoverType: "ShiftToShift",
+                HandoverWindowDate: DateTime.Now.Date,
+                FromShiftId: "shift-day",
+                ToShiftId: "shift-night",
+                ToDoctorId: "user-123",
                 StateName: "Ready"
             )
         };

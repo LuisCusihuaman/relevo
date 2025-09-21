@@ -100,6 +100,10 @@ public record HandoverRecord(
     string? RejectionReason,
     string? ExpiredAt,
     string? HandoverType,
+    DateTime? HandoverWindowDate,
+    string? FromShiftId,
+    string? ToShiftId,
+    string? ToDoctorId,
     string StateName
 );
 public record HandoverIllnessSeverity(string Severity);

@@ -191,6 +191,10 @@ public class NewHandoverFeaturesTests
             RejectionReason: null,
             ExpiredAt: null,
             HandoverType: "ShiftToShift",
+            HandoverWindowDate: DateTime.Now.Date,
+            FromShiftId: "shift-day",
+            ToShiftId: "shift-night",
+            ToDoctorId: "user-456",
             StateName: "Ready"
         );
 

@@ -12,6 +12,7 @@ public static class SetupServices
     {
         services.AddScoped<ISetupService, SetupService>();
         services.AddScoped<IShiftBoundaryResolver, ShiftBoundaryResolver>();
+        services.AddScoped<IHandoverStateService, HandoverStateService>();
         // Contributor services are registered elsewhere
         // services.AddScoped<IGetContributorByIdUseCase, GetContributorByIdUseCase>();
         // services.AddScoped<IListContributorsUseCase, ListContributorsUseCase>();

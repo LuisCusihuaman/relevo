@@ -45,6 +45,10 @@ public class GetHandoverByIdUseCaseTests
             RejectionReason: null,
             ExpiredAt: null,
             HandoverType: null,
+            HandoverWindowDate: DateTime.Now.Date,
+            FromShiftId: "shift-day",
+            ToShiftId: "shift-night",
+            ToDoctorId: null,
             StateName: "Draft"
         );
 
@@ -118,6 +122,10 @@ public class GetHandoverByIdUseCaseTests
             RejectionReason: null,
             ExpiredAt: null,
             HandoverType: "ShiftToShift",
+            HandoverWindowDate: DateTime.Now.Date,
+            FromShiftId: "shift-day",
+            ToShiftId: "shift-night",
+            ToDoctorId: "user-test",
             StateName: "InProgress"
         );
 
@@ -174,6 +182,10 @@ public class GetHandoverByIdUseCaseTests
             RejectionReason: null,
             ExpiredAt: null,
             HandoverType: "ShiftToShift",
+            HandoverWindowDate: DateTime.Now.Date,
+            FromShiftId: "shift-day",
+            ToShiftId: "shift-night",
+            ToDoctorId: "user-assigned-456",
             StateName: "Completed"
         );
 
@@ -239,6 +251,10 @@ public class GetHandoverByIdUseCaseTests
                 RejectionReason: null,
                 ExpiredAt: null,
                 HandoverType: "ShiftToShift",
+                HandoverWindowDate: DateTime.Now.Date,
+                FromShiftId: "shift-day",
+                ToShiftId: "shift-night",
+                ToDoctorId: "test-user",
                 StateName: status == "Active" ? "Ready" : status == "InProgress" ? "InProgress" : "Completed"
             );
 

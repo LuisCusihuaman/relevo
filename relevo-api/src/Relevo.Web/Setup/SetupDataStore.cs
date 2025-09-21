@@ -303,6 +303,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-day",
+        ToShiftId: "shift-night",
+        ToDoctorId: "user-123",
         StateName: "Draft"
       ),
       new HandoverRecord(
@@ -333,6 +337,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-night",
+        ToShiftId: "shift-day",
+        ToDoctorId: "user-123",
         StateName: "Draft"
       ),
       new HandoverRecord(
@@ -363,6 +371,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-day",
+        ToShiftId: "shift-night",
+        ToDoctorId: "user-123",
         StateName: "Draft"
       )
     };
@@ -423,6 +435,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-day",
+        ToShiftId: "shift-night",
+        ToDoctorId: userId,
         StateName: "Draft"
       )
     };
@@ -458,6 +474,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-day",
+        ToShiftId: "shift-night",
+        ToDoctorId: "user-456",
         StateName: "Draft"
       )
     };
@@ -493,6 +513,10 @@ public class SetupDataStore : ISetupDataProvider
         RejectionReason: null,
         ExpiredAt: null,
         HandoverType: null,
+        HandoverWindowDate: DateTime.Now.Date,
+        FromShiftId: "shift-day",
+        ToShiftId: "shift-night",
+        ToDoctorId: toDoctorId,
         StateName: "Draft"
       )
     };

@@ -121,8 +121,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     int offset = (p - 1) * ps;
 
     const string handoverSql = @"
-      SELECT h.ID, h.PATIENT_ID, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-             h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME
+      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
       FROM HANDOVERS h
       WHERE h.PATIENT_ID IN :patientIds
       ORDER BY h.CREATED_AT DESC
@@ -155,7 +157,7 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
         ActionItems: actionItems,
-        SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
+        SituationAwarenessDocId: null,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
         CreatedBy: row.CREATED_BY ?? "system",
@@ -170,6 +172,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         RejectionReason: row.REJECTION_REASON,
         ExpiredAt: row.EXPIRED_AT,
         HandoverType: row.HANDOVER_TYPE,
+        HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+        FromShiftId: row.FROM_SHIFT_ID,
+        ToShiftId: row.TO_SHIFT_ID,
+        ToDoctorId: row.TO_DOCTOR_ID,
         StateName: row.STATENAME ?? "Draft"
       );
 
@@ -230,6 +236,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       RejectionReason: row.REJECTION_REASON,
       ExpiredAt: row.EXPIRED_AT,
       HandoverType: row.HANDOVER_TYPE,
+      HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+      FromShiftId: row.FROM_SHIFT_ID,
+      ToShiftId: row.TO_SHIFT_ID,
+      ToDoctorId: row.TO_DOCTOR_ID,
       StateName: row.STATENAME ?? "Draft"
     );
   }
@@ -401,6 +411,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         RejectionReason: row.REJECTION_REASON,
         ExpiredAt: row.EXPIRED_AT,
         HandoverType: row.HANDOVER_TYPE,
+        HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+        FromShiftId: row.FROM_SHIFT_ID,
+        ToShiftId: row.TO_SHIFT_ID,
+        ToDoctorId: row.TO_DOCTOR_ID,
         StateName: row.STATENAME ?? "Draft"
       );
 
@@ -466,6 +480,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         RejectionReason: row.REJECTION_REASON,
         ExpiredAt: row.EXPIRED_AT,
         HandoverType: row.HANDOVER_TYPE,
+        HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+        FromShiftId: row.FROM_SHIFT_ID,
+        ToShiftId: row.TO_SHIFT_ID,
+        ToDoctorId: row.TO_DOCTOR_ID,
         StateName: row.STATENAME ?? "Draft"
       );
 
@@ -531,6 +549,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         RejectionReason: row.REJECTION_REASON,
         ExpiredAt: row.EXPIRED_AT,
         HandoverType: row.HANDOVER_TYPE,
+        HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+        FromShiftId: row.FROM_SHIFT_ID,
+        ToShiftId: row.TO_SHIFT_ID,
+        ToDoctorId: row.TO_DOCTOR_ID,
         StateName: row.STATENAME ?? "Draft"
       );
 

@@ -199,7 +199,11 @@ public class OracleSetupRepository : ISetupRepository
                  h.REJECTION_REASON,
                  TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
                  h.HANDOVER_TYPE,
-                 vws.StateName
+                 vws.StateName,
+                 h.HANDOVER_WINDOW_DATE,
+                 h.FROM_SHIFT_ID,
+                 h.TO_SHIFT_ID,
+                 h.TO_DOCTOR_ID
           FROM HANDOVERS h
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
@@ -250,6 +254,10 @@ public class OracleSetupRepository : ISetupRepository
                     RejectionReason: row.REJECTION_REASON,
                     ExpiredAt: row.EXPIRED_AT,
                     HandoverType: row.HANDOVER_TYPE,
+                    HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+                    FromShiftId: row.FROM_SHIFT_ID,
+                    ToShiftId: row.TO_SHIFT_ID,
+                    ToDoctorId: row.TO_DOCTOR_ID,
                     StateName: row.STATENAME ?? "Draft"
                 );
 
@@ -371,7 +379,11 @@ public class OracleSetupRepository : ISetupRepository
                      h.REJECTION_REASON,
                      TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
                      h.HANDOVER_TYPE,
-                     vws.StateName
+                     vws.StateName,
+                     h.HANDOVER_WINDOW_DATE,
+                     h.FROM_SHIFT_ID,
+                     h.TO_SHIFT_ID,
+                     h.TO_DOCTOR_ID
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
@@ -419,6 +431,10 @@ public class OracleSetupRepository : ISetupRepository
                     RejectionReason: row.REJECTION_REASON,
                     ExpiredAt: row.EXPIRED_AT,
                     HandoverType: row.HANDOVER_TYPE,
+                    HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+                    FromShiftId: row.FROM_SHIFT_ID,
+                    ToShiftId: row.TO_SHIFT_ID,
+                    ToDoctorId: row.TO_DOCTOR_ID,
                     StateName: row.STATENAME ?? "Draft"
                 );
 
@@ -453,7 +469,11 @@ public class OracleSetupRepository : ISetupRepository
                      h.REJECTION_REASON,
                      TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
                      h.HANDOVER_TYPE,
-                     vws.StateName
+                     vws.StateName,
+                     h.HANDOVER_WINDOW_DATE,
+                     h.FROM_SHIFT_ID,
+                     h.TO_SHIFT_ID,
+                     h.TO_DOCTOR_ID
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
@@ -501,6 +521,10 @@ public class OracleSetupRepository : ISetupRepository
                 RejectionReason: row.REJECTION_REASON,
                 ExpiredAt: row.EXPIRED_AT,
                 HandoverType: row.HANDOVER_TYPE,
+                HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
+                FromShiftId: row.FROM_SHIFT_ID,
+                ToShiftId: row.TO_SHIFT_ID,
+                ToDoctorId: row.TO_DOCTOR_ID,
                 StateName: row.STATENAME ?? "Draft"
             );
         }

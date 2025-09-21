@@ -92,6 +92,10 @@ export type Handover = {
 	rejectionReason?: string;
 	expiredAt?: string;
 	handoverType?: "ShiftToShift" | "TemporaryCoverage" | "Consult";
+	handoverWindowDate?: string;
+	fromShiftId?: string;
+	toShiftId?: string;
+	toDoctorId?: string;
 	stateName: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
 };
 
