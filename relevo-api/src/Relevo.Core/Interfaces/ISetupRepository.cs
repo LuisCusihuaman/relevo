@@ -90,6 +90,8 @@ public record HandoverRecord(
     string ShiftName,
     string CreatedBy,
     string AssignedTo,
+    string? CreatedByName,
+    string? AssignedToName,
     string? ReceiverUserId,
     string? CreatedAt,
     string? ReadyAt,

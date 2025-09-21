@@ -189,6 +189,7 @@ public class OracleSetupRepository : ISetupRepository
         const string handoverSql = @"
           SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                  h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+                 cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                  TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                  TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                  TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -208,6 +209,8 @@ public class OracleSetupRepository : ISetupRepository
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
           LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
+          LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
+          LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
           WHERE ua.USER_ID = :userId
           ORDER BY h.CREATED_AT DESC
           OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -241,6 +244,8 @@ public class OracleSetupRepository : ISetupRepository
                     ShiftName: row.SHIFT_NAME ?? "Unknown",
                     CreatedBy: row.CREATED_BY ?? "system",
                     AssignedTo: row.ASSIGNED_TO ?? "system",
+                    CreatedByName: row.CREATED_BY_NAME,
+                    AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
@@ -371,6 +376,7 @@ public class OracleSetupRepository : ISetupRepository
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                      h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+                     cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                      TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                      TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -389,6 +395,8 @@ public class OracleSetupRepository : ISetupRepository
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
+              LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
+              LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
               WHERE h.PATIENT_ID = :patientId
               ORDER BY h.CREATED_AT DESC";
 
@@ -420,6 +428,8 @@ public class OracleSetupRepository : ISetupRepository
                     ShiftName: row.SHIFT_NAME ?? "Unknown",
                     CreatedBy: row.CREATED_BY ?? "system",
                     AssignedTo: row.ASSIGNED_TO ?? "system",
+                    CreatedByName: row.CREATED_BY_NAME,
+                    AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
@@ -464,6 +474,7 @@ public class OracleSetupRepository : ISetupRepository
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                      h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      h.RECEIVER_USER_ID,
+                     cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                      TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                      TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -483,6 +494,8 @@ public class OracleSetupRepository : ISetupRepository
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
+              LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
+              LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
               WHERE h.ID = :handoverId";
 
             var row = conn.QueryFirstOrDefault(handoverSql, new { handoverId });
@@ -517,6 +530,8 @@ public class OracleSetupRepository : ISetupRepository
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
                 AssignedTo: row.ASSIGNED_TO ?? "system",
+                CreatedByName: row.CREATED_BY_NAME,
+                AssignedToName: row.ASSIGNED_TO_NAME,
                 ReceiverUserId: row.RECEIVER_USER_ID,
                 CreatedAt: row.CREATED_AT,
                 ReadyAt: row.READY_AT,
@@ -551,7 +566,7 @@ public class OracleSetupRepository : ISetupRepository
 
             const string patientSql = @"
               SELECT p.ID, p.NAME, p.DATE_OF_BIRTH, p.GENDER, p.ADMISSION_DATE,
-                     p.UNIT_ID, p.ROOM_NUMBER, p.DIAGNOSIS, p.ALLERGIES, p.MEDICATIONS, p.NOTES
+                     p.UNIT_ID, p.ROOM_NUMBER, p.DIAGNOSIS, p.ALLERGIES, p.MEDICATIONS, p.NOTES, p.MRN
               FROM PATIENTS p
               WHERE p.ID = :patientId";
 
@@ -569,7 +584,7 @@ public class OracleSetupRepository : ISetupRepository
             return new PatientDetailRecord(
                 Id: row.ID,
                 Name: row.NAME ?? "Unknown",
-                Mrn: GenerateMrn(row.ID), // Generate MRN from patient ID since it's not in the database
+                Mrn: row.MRN ?? GenerateMrn(row.ID), // Use MRN from database, fallback to generated
                 Dob: row.DATE_OF_BIRTH?.ToString("yyyy-MM-dd") ?? "",
                 Gender: row.GENDER ?? "Unknown",
                 AdmissionDate: row.ADMISSION_DATE?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",

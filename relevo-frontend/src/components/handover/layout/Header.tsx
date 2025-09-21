@@ -12,7 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -102,16 +101,6 @@ export function Header({
                 <span className="hidden sm:inline">{t("back")}</span>
               </Button>
             )}
-
-            {/* Logo */}
-            <div className="flex items-center space-x-3 flex-shrink-0">
-              <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
-                {t("title")}
-              </h1>
-            </div>
-
-            <Separator className="h-6 hidden lg:block" orientation="vertical" />
 
             {/* Patient Name + Essential Info */}
             <div className="flex items-center space-x-3 min-w-0 flex-1">

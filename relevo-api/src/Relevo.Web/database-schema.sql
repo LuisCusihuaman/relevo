@@ -209,6 +209,7 @@ CREATE TABLE PATIENTS (
     ALLERGIES VARCHAR2(1000),
     MEDICATIONS VARCHAR2(1000),
     NOTES VARCHAR2(1000),
+    MRN VARCHAR2(20), -- Medical Record Number
     CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
     UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
     CONSTRAINT FK_PATIENTS_UNIT FOREIGN KEY (UNIT_ID) REFERENCES UNITS(ID)
@@ -586,113 +587,78 @@ INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES ('shift-day', 'Mañan
 INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES ('shift-night', 'Noche', '19:00', '07:00');
 
 -- Insertar Pacientes para Unidad 1 (UCI) - 12 pacientes
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-001', 'María García', 'unit-1', TO_DATE('2010-03-15', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '201', 'Neumonía adquirida en comunidad', 'Penicilina', 'Amoxicilina, Oxígeno suplementario', 'Paciente estable, saturación de oxígeno 94%, requiere nebulizaciones cada 6 horas');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-002', 'Carlos Rodríguez', 'unit-1', TO_DATE('2008-07-22', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '202', 'Sepsis secundaria a infección urinaria', 'Sulfonamidas', 'Meropenem, Vasopresores', 'Paciente crítico, requiere monitoreo continuo de signos vitales y soporte hemodinámico');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-003', 'Ana López', 'unit-1', TO_DATE('2012-11-08', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '203', 'Estado asmático agudo', 'Ninguna', 'Salbutamol, Corticoides intravenosos', 'Paciente con mejoría progresiva, disminución en requerimiento de oxígeno');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-004', 'Miguel Hernández', 'unit-1', TO_DATE('2009-05-30', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 7, '204', 'Trauma craneoencefálico moderado', 'Látex', 'Manitol, Analgésicos', 'Glasgow 12/15, pupilas isocóricas, requiere monitoreo neurológico frecuente');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-005', 'Isabella González', 'unit-1', TO_DATE('2011-09-14', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 4, '205', 'Insuficiencia respiratoria aguda', 'Iodo', 'Ventilación mecánica, Sedantes', 'Paciente intubado, parámetros ventilatorios estables');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-006', 'David Pérez', 'unit-1', TO_DATE('2013-01-25', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 6, '206', 'Choque séptico', 'Ninguna', 'Antibióticos de amplio espectro, Fluidos', 'Paciente en shock distributivo, requiere soporte vasopresor');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-007', 'Sofia Martínez', 'unit-1', TO_DATE('2007-12-03', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 1, '207', 'Meningitis bacteriana', 'Penicilina', 'Ceftriaxona, Dexametasona', 'Paciente con mejoría clínica, cultivos pendientes');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-008', 'José Sánchez', 'unit-1', TO_DATE('2014-06-18', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 8, '208', 'Quemaduras de segundo grado', 'Ninguna', 'Analgésicos, Antibióticos tópicos', 'Quemaduras en 25% superficie corporal, requiere curas diarias');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-009', 'Carmen Díaz', 'unit-1', TO_DATE('2010-08-12', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 9, '209', 'Convulsiones febriles', 'Ninguna', 'Antiepilépticos, Antipiréticos', 'Paciente estable, sin recurrencia de convulsiones');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-010', 'Antonio Moreno', 'unit-1', TO_DATE('2006-04-07', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 12, '210', 'Intoxicación medicamentosa', 'Aspirina', 'Carbón activado, Soporte vital', 'Paciente estabilizado, requiere monitoreo de función hepática');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-011', 'Elena Jiménez', 'unit-1', TO_DATE('2012-02-28', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '211', 'Hipoglucemia severa', 'Ninguna', 'Glucosa intravenosa, Insulina', 'Episodio resuelto, requiere educación diabética');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-012', 'Francisco Ruiz', 'unit-1', TO_DATE('2008-10-19', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '212', 'Trauma abdominal', 'Ninguna', 'Analgésicos, Antibióticos profilácticos', 'Paciente estable, sin signos de peritonitis');
-
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-001', 'María García', 'unit-1', TO_DATE('2010-03-15', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '201', 'Neumonía adquirida en comunidad', 'Penicilina', 'Amoxicilina, Oxígeno suplementario', 'Paciente estable, saturación de oxígeno 94%, requiere nebulizaciones cada 6 horas', 'MRN001234');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-002', 'Carlos Rodríguez', 'unit-1', TO_DATE('2008-07-22', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '202', 'Sepsis secundaria a infección urinaria', 'Sulfonamidas', 'Meropenem, Vasopresores', 'Paciente crítico, requiere monitoreo continuo de signos vitales y soporte hemodinámico', 'MRN001235');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-003', 'Ana López', 'unit-1', TO_DATE('2012-11-08', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '203', 'Estado asmático agudo', 'Ninguna', 'Salbutamol, Corticoides intravenosos', 'Paciente con mejoría progresiva, disminución en requerimiento de oxígeno', 'MRN001236');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-004', 'Miguel Hernández', 'unit-1', TO_DATE('2009-05-30', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 7, '204', 'Trauma craneoencefálico moderado', 'Látex', 'Manitol, Analgésicos', 'Glasgow 12/15, pupilas isocóricas, requiere monitoreo neurológico frecuente', 'MRN001237');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-005', 'Isabella González', 'unit-1', TO_DATE('2011-09-14', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 4, '205', 'Insuficiencia respiratoria aguda', 'Iodo', 'Ventilación mecánica, Sedantes', 'Paciente intubado, parámetros ventilatorios estables', 'MRN001238');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-006', 'David Pérez', 'unit-1', TO_DATE('2013-01-25', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 6, '206', 'Choque séptico', 'Ninguna', 'Antibióticos de amplio espectro, Fluidos', 'Paciente en shock distributivo, requiere soporte vasopresor', 'MRN001239');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-007', 'Sofia Martínez', 'unit-1', TO_DATE('2007-12-03', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 1, '207', 'Meningitis bacteriana', 'Penicilina', 'Ceftriaxona, Dexametasona', 'Paciente con mejoría clínica, cultivos pendientes', 'MRN001240');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-008', 'José Sánchez', 'unit-1', TO_DATE('2014-06-18', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 8, '208', 'Quemaduras de segundo grado', 'Ninguna', 'Analgésicos, Antibióticos tópicos', 'Quemaduras en 25% superficie corporal, requiere curas diarias', 'MRN001241');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-009', 'Carmen Díaz', 'unit-1', TO_DATE('2010-08-12', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 9, '209', 'Convulsiones febriles', 'Ninguna', 'Antiepilépticos, Antipiréticos', 'Paciente estable, sin recurrencia de convulsiones', 'MRN001242');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-010', 'Antonio Moreno', 'unit-1', TO_DATE('2006-04-07', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 12, '210', 'Intoxicación medicamentosa', 'Aspirina', 'Carbón activado, Soporte vital', 'Paciente estabilizado, requiere monitoreo de función hepática', 'MRN001243');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-011', 'Elena Jiménez', 'unit-1', TO_DATE('2012-02-28', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '211', 'Hipoglucemia severa', 'Ninguna', 'Glucosa intravenosa, Insulina', 'Episodio resuelto, requiere educación diabética', 'MRN001244');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-012', 'Francisco Ruiz', 'unit-1', TO_DATE('2008-10-19', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '212', 'Trauma abdominal', 'Ninguna', 'Analgésicos, Antibióticos profilácticos', 'Paciente estable, sin signos de peritonitis', 'MRN001245');
 -- Insertar Pacientes para Unidad 2 (Pediatría General) - 12 pacientes
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-013', 'Lucía Álvarez', 'unit-2', TO_DATE('2015-03-12', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '301', 'Bronquiolitis', 'Ninguna', 'Salbutamol, Hidratación', 'Paciente con mejoría respiratoria, buena respuesta al tratamiento');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-014', 'Pablo Romero', 'unit-2', TO_DATE('2011-07-08', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 1, '302', 'Gastroenteritis aguda', 'Ninguna', 'Rehidratación oral, Ondansetrón', 'Paciente con buena tolerancia oral, sin vómitos');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-015', 'Valentina Navarro', 'unit-2', TO_DATE('2013-11-25', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '303', 'Otitis media aguda', 'Amoxicilina', 'Amoxicilina oral, Analgésicos', 'Paciente afebril, disminución del dolor otológico');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-016', 'Diego Torres', 'unit-2', TO_DATE('2009-09-14', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 4, '304', 'Neumonía adquirida en comunidad', 'Ninguna', 'Amoxicilina, Broncodilatadores', 'Paciente afebril, mejoría radiológica en progreso');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-017', 'Marta Ramírez', 'unit-2', TO_DATE('2014-05-30', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '305', 'Infección urinaria', 'Sulfonamidas', 'Cefuroxima, Analgésicos', 'Urocultivo positivo, tratamiento dirigido iniciado');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-018', 'Adrián Gil', 'unit-2', TO_DATE('2010-12-03', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '306', 'Fractura de antebrazo', 'Codeína', 'Ibuprofeno, Inmovilización', 'Fractura simple, alineación adecuada lograda');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-019', 'Clara Serrano', 'unit-2', TO_DATE('2012-08-17', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 1, '307', 'Varicela', 'Ninguna', 'Antihistamínicos, Antipiréticos', 'Lesiones en fase de costra, prurito controlado');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-020', 'Hugo Castro', 'unit-2', TO_DATE('2016-01-22', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 3, '308', 'Deshidratación moderada', 'Ninguna', 'Rehidratación intravenosa', 'Paciente hidratado, buena diuresis');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-021', 'Natalia Rubio', 'unit-2', TO_DATE('2013-04-09', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 6, '309', 'Apendicitis aguda', 'Ninguna', 'Antibióticos, Analgésicos', 'Paciente postoperatorio, evolución favorable');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-022', 'Iván Ortega', 'unit-2', TO_DATE('2008-11-14', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 2, '310', 'Asma agudizada', 'Ninguna', 'Salbutamol, Corticoides', 'Paciente con buen control sintomático');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-023', 'Paula Delgado', 'unit-2', TO_DATE('2011-06-27', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 7, '311', 'Faringoamigdalitis', 'Penicilina', 'Azitromicina, Analgésicos', 'Paciente afebril, mejoría de odinofagia');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-024', 'Mario Guerrero', 'unit-2', TO_DATE('2014-02-11', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 4, '312', 'Traumatismo craneoencefálico leve', 'Ninguna', 'Analgésicos, Observación', 'Glasgow 15/15, paciente asintomático');
-
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-013', 'Lucía Álvarez', 'unit-2', TO_DATE('2015-03-12', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '301', 'Bronquiolitis', 'Ninguna', 'Salbutamol, Hidratación', 'Paciente con mejoría respiratoria, buena respuesta al tratamiento', 'MRN001246');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-014', 'Pablo Romero', 'unit-2', TO_DATE('2011-07-08', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 1, '302', 'Gastroenteritis aguda', 'Ninguna', 'Rehidratación oral, Ondansetrón', 'Paciente con buena tolerancia oral, sin vómitos', 'MRN001247');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-015', 'Valentina Navarro', 'unit-2', TO_DATE('2013-11-25', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 3, '303', 'Otitis media aguda', 'Amoxicilina', 'Amoxicilina oral, Analgésicos', 'Paciente afebril, disminución del dolor otológico', 'MRN001248');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-016', 'Diego Torres', 'unit-2', TO_DATE('2009-09-14', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 4, '304', 'Neumonía adquirida en comunidad', 'Ninguna', 'Amoxicilina, Broncodilatadores', 'Paciente afebril, mejoría radiológica en progreso', 'MRN001249');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-017', 'Marta Ramírez', 'unit-2', TO_DATE('2014-05-30', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 2, '305', 'Infección urinaria', 'Sulfonamidas', 'Cefuroxima, Analgésicos', 'Urocultivo positivo, tratamiento dirigido iniciado', 'MRN001250');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-018', 'Adrián Gil', 'unit-2', TO_DATE('2010-12-03', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 5, '306', 'Fractura de antebrazo', 'Codeína', 'Ibuprofeno, Inmovilización', 'Fractura simple, alineación adecuada lograda', 'MRN001251');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-019', 'Clara Serrano', 'unit-2', TO_DATE('2012-08-17', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 1, '307', 'Varicela', 'Ninguna', 'Antihistamínicos, Antipiréticos', 'Lesiones en fase de costra, prurito controlado', 'MRN001252');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-020', 'Hugo Castro', 'unit-2', TO_DATE('2016-01-22', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 3, '308', 'Deshidratación moderada', 'Ninguna', 'Rehidratación intravenosa', 'Paciente hidratado, buena diuresis', 'MRN001253');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-021', 'Natalia Rubio', 'unit-2', TO_DATE('2013-04-09', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 6, '309', 'Apendicitis aguda', 'Ninguna', 'Antibióticos, Analgésicos', 'Paciente postoperatorio, evolución favorable', 'MRN001254');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-022', 'Iván Ortega', 'unit-2', TO_DATE('2008-11-14', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 2, '310', 'Asma agudizada', 'Ninguna', 'Salbutamol, Corticoides', 'Paciente con buen control sintomático', 'MRN001255');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-023', 'Paula Delgado', 'unit-2', TO_DATE('2011-06-27', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 7, '311', 'Faringoamigdalitis', 'Penicilina', 'Azitromicina, Analgésicos', 'Paciente afebril, mejoría de odinofagia', 'MRN001256');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-024', 'Mario Guerrero', 'unit-2', TO_DATE('2014-02-11', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 4, '312', 'Traumatismo craneoencefálico leve', 'Ninguna', 'Analgésicos, Observación', 'Glasgow 15/15, paciente asintomático', 'MRN001257');
 -- Insertar Pacientes para Unidad 3 (Pediatría Especializada) - 11 pacientes
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-025', 'Laura Flores', 'unit-3', TO_DATE('2009-07-05', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 10, '401', 'Cardiopatía congénita', 'Ninguna', 'Digoxina, Diuréticos', 'Paciente compensado, requiere seguimiento cardiológico');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-026', 'Álvaro Vargas', 'unit-3', TO_DATE('2010-12-18', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 8, '402', 'Diabetes mellitus tipo 1', 'Ninguna', 'Insulina, Control glucémico', 'Buen control metabólico, educación diabética en progreso');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-027', 'Cristina Medina', 'unit-3', TO_DATE('2007-09-23', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 15, '403', 'Fibrosis quística', 'Ninguna', 'Antibióticos, Enzimas pancreáticas', 'Paciente estable, requiere fisioterapia respiratoria');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-028', 'Sergio Herrera', 'unit-3', TO_DATE('2012-04-30', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 6, '404', 'Trastorno del espectro autista', 'Ninguna', 'No farmacológico', 'Paciente en programa de intervención temprana');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-029', 'Alicia Castro', 'unit-3', TO_DATE('2011-08-14', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 12, '405', 'Epilepsia refractaria', 'Ninguna', 'Antiepilépticos múltiples', 'Paciente con control parcial de convulsiones');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-030', 'Roberto Vega', 'unit-3', TO_DATE('2008-03-07', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 20, '406', 'Leucemia linfoblástica aguda', 'Ninguna', 'Quimioterapia, Soporte', 'Paciente en protocolo de tratamiento oncológico');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-031', 'Beatriz León', 'unit-3', TO_DATE('2013-11-29', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 9, '407', 'Síndrome de Down con cardiopatía', 'Ninguna', 'Medicamentos cardíacos', 'Paciente compensado hemodinámicamente');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-032', 'Manuel Peña', 'unit-3', TO_DATE('2006-06-12', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 25, '408', 'Parálisis cerebral', 'Ninguna', 'Antiespásticos, Fisioterapia', 'Paciente en programa de rehabilitación intensiva');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-033', 'Silvia Cortés', 'unit-3', TO_DATE('2014-01-16', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 7, '409', 'Prematuridad extrema', 'Ninguna', 'Nutrición especializada, Soporte respiratorio', 'Paciente en seguimiento de desarrollo neurológico');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-034', 'Fernando Aguilar', 'unit-3', TO_DATE('2010-05-03', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 11, '410', 'Trastorno de déficit de atención', 'Ninguna', 'Estimulantes, Terapia conductual', 'Paciente con buena respuesta al tratamiento');
-
-INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES)
-VALUES ('pat-035', 'Teresa Santana', 'unit-3', TO_DATE('2009-10-25', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 14, '411', 'Talasemia mayor', 'Ninguna', 'Transfusiones, Quelantes', 'Paciente en programa de trasfusiones crónicas');
-
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-025', 'Laura Flores', 'unit-3', TO_DATE('2009-07-05', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 10, '401', 'Cardiopatía congénita', 'Ninguna', 'Digoxina, Diuréticos', 'Paciente compensado, requiere seguimiento cardiológico', 'MRN001258');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-026', 'Álvaro Vargas', 'unit-3', TO_DATE('2010-12-18', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 8, '402', 'Diabetes mellitus tipo 1', 'Ninguna', 'Insulina, Control glucémico', 'Buen control metabólico, educación diabética en progreso', 'MRN001259');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-027', 'Cristina Medina', 'unit-3', TO_DATE('2007-09-23', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 15, '403', 'Fibrosis quística', 'Ninguna', 'Antibióticos, Enzimas pancreáticas', 'Paciente estable, requiere fisioterapia respiratoria', 'MRN001260');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-028', 'Sergio Herrera', 'unit-3', TO_DATE('2012-04-30', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 6, '404', 'Trastorno del espectro autista', 'Ninguna', 'No farmacológico', 'Paciente en programa de intervención temprana', 'MRN001261');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-029', 'Alicia Castro', 'unit-3', TO_DATE('2011-08-14', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 12, '405', 'Epilepsia refractaria', 'Ninguna', 'Antiepilépticos múltiples', 'Paciente con control parcial de convulsiones', 'MRN001262');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-030', 'Roberto Vega', 'unit-3', TO_DATE('2008-03-07', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 20, '406', 'Leucemia linfoblástica aguda', 'Ninguna', 'Quimioterapia, Soporte', 'Paciente en protocolo de tratamiento oncológico', 'MRN001263');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-031', 'Beatriz León', 'unit-3', TO_DATE('2013-11-29', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 9, '407', 'Síndrome de Down con cardiopatía', 'Ninguna', 'Medicamentos cardíacos', 'Paciente compensado hemodinámicamente', 'MRN001264');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-032', 'Manuel Peña', 'unit-3', TO_DATE('2006-06-12', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 25, '408', 'Parálisis cerebral', 'Ninguna', 'Antiespásticos, Fisioterapia', 'Paciente en programa de rehabilitación intensiva', 'MRN001265');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-033', 'Silvia Cortés', 'unit-3', TO_DATE('2014-01-16', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 7, '409', 'Prematuridad extrema', 'Ninguna', 'Nutrición especializada, Soporte respiratorio', 'Paciente en seguimiento de desarrollo neurológico', 'MRN001266');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-034', 'Fernando Aguilar', 'unit-3', TO_DATE('2010-05-03', 'YYYY-MM-DD'), 'Male', SYSTIMESTAMP - 11, '410', 'Trastorno de déficit de atención', 'Ninguna', 'Estimulantes, Terapia conductual', 'Paciente con buena respuesta al tratamiento', 'MRN001267');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN)
+VALUES ('pat-035', 'Teresa Santana', 'unit-3', TO_DATE('2009-10-25', 'YYYY-MM-DD'), 'Female', SYSTIMESTAMP - 14, '411', 'Talasemia mayor', 'Ninguna', 'Transfusiones, Quelantes', 'Paciente en programa de trasfusiones crónicas', 'MRN001268');
 -- Insertar asignaciones de usuario-paciente-turno (para crear handovers)
 INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
 VALUES ('assign-001', 'user_demo12345678901234567890123456', 'shift-day', 'pat-001', SYSTIMESTAMP);

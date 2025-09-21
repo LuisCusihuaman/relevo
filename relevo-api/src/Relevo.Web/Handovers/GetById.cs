@@ -52,6 +52,8 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       ShiftName = handover.ShiftName,
       CreatedBy = handover.CreatedBy,
       AssignedTo = handover.AssignedTo,
+      CreatedByName = handover.CreatedByName,
+      AssignedToName = handover.AssignedToName,
       ReceiverUserId = handover.ReceiverUserId,
       CreatedAt = handover.CreatedAt,
       ReadyAt = handover.ReadyAt,
@@ -95,6 +97,8 @@ public class GetHandoverByIdResponse
   public string ShiftName { get; set; } = string.Empty;
   public string CreatedBy { get; set; } = string.Empty;
   public string AssignedTo { get; set; } = string.Empty;
+  public string? CreatedByName { get; set; }
+  public string? AssignedToName { get; set; }
   public string? ReceiverUserId { get; set; }
   public string? CreatedAt { get; set; }
   public string? ReadyAt { get; set; }

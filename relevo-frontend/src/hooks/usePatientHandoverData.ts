@@ -100,9 +100,9 @@ export function usePatientHandoverData(handoverData?: Handover | null): {
 
 		// Create physician objects with handover data
 		const assignedPhysicianData = {
-			name: handover.createdBy || "Dr. Current",
+			name: handover.createdByName || handover.createdBy || "Dr. Current",
 			role: "Attending Physician",
-			initials: getInitials(handover.createdBy || "Dr. Current"),
+			initials: getInitials(handover.createdByName || handover.createdBy || "Dr. Current"),
 			color: "bg-blue-600",
 			shiftEnd: "17:00",
 			status: "handing-off" as const,
@@ -110,9 +110,9 @@ export function usePatientHandoverData(handoverData?: Handover | null): {
 		};
 
 		const receivingPhysicianData = {
-			name: handover.assignedTo || "Dr. Next",
+			name: handover.assignedToName || handover.assignedTo || "Dr. Next",
 			role: "Evening Attending",
-			initials: getInitials(handover.assignedTo || "Dr. Next"),
+			initials: getInitials(handover.assignedToName || handover.assignedTo || "Dr. Next"),
 			color: "bg-purple-600",
 			shiftStart: "17:00",
 			status: "ready-to-receive" as const,
