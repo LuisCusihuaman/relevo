@@ -234,6 +234,22 @@ public class SetupServiceTests
         {
             return Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
         }
+
+        // Patient Summaries
+        public Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
+        {
+            return Task.FromResult(_repository.GetPatientSummary(patientId));
+        }
+
+        public Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
+        {
+            return Task.FromResult(_repository.CreatePatientSummary(patientId, physicianId, summaryText, createdBy));
+        }
+
+        public Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
+        {
+            return Task.FromResult(_repository.UpdatePatientSummary(summaryId, summaryText, lastEditedBy));
+        }
     }
 
     [Fact]

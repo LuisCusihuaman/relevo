@@ -49,6 +49,33 @@ export type PaginatedPatientHandoverTimeline = {
 	items: Array<PatientHandoverTimelineItem>;
 };
 
+export type PatientSummary = {
+	id: string;
+	patientId: string;
+	physicianId: string;
+	summaryText: string;
+	createdAt: string;
+	updatedAt: string;
+	lastEditedBy: string;
+};
+
+export type PatientSummaryResponse = {
+	summary: PatientSummary | null;
+};
+
+export type CreatePatientSummaryRequest = {
+	summaryText: string;
+};
+
+export type UpdatePatientSummaryRequest = {
+	summaryText: string;
+};
+
+export type PatientSummaryUpdateResponse = {
+	success: boolean;
+	message: string;
+};
+
 // Handover types (matching the OpenAPI schema)
 export type HandoverActionItem = {
 	id: string;

@@ -41,6 +41,11 @@ public interface ISetupService
     Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted);
     Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId);
 
+    // Patient Summaries
+    Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId);
+    Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy);
+    Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy);
+
     // Handover Creation and Management
     Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request);
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId);

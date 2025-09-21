@@ -250,6 +250,7 @@ export function MainContent({
                 </Tooltip>
               </div>
               <PatientSummary
+                patientId={currentPatientData.id}
                 assignedPhysician={currentPatientData.assignedPhysician}
                 currentUser={currentUser}
                 focusMode={focusMode}
@@ -541,6 +542,7 @@ export function MainContent({
                 </div>
               </div>
               <PatientSummary
+                patientId={currentPatientData.id}
                 assignedPhysician={currentPatientData.assignedPhysician}
                 currentUser={currentUser}
                 focusMode={focusMode}
@@ -894,6 +896,7 @@ export function MainContent({
             <CollapsibleContent>
               <div className="p-6">
                 <PatientSummary
+                  patientId={currentPatientData.id}
                   assignedPhysician={currentPatientData.assignedPhysician}
                   currentUser={currentUser}
                   focusMode={focusMode}

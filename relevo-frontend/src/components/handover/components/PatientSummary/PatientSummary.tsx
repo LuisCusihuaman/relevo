@@ -6,8 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Clock, Edit, FileText, Lock, Save, Shield } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { usePatientSummary, createPatientSummary, updatePatientSummary } from "@/api/endpoints/patients";
+import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { patientQueryKeys } from "@/api/endpoints/patients";
 
 interface PatientSummaryProps {
+  patientId: string; // Required: ID of the patient whose summary to display
   onOpenThread?: (section: string) => void;
   focusMode?: boolean;
   fullscreenMode?: boolean;
@@ -32,6 +37,7 @@ interface PatientSummaryProps {
 }
 
 export function PatientSummary({
+  patientId,
   onOpenThread: _onOpenThread,
   focusMode = false,
   fullscreenMode = false,
@@ -47,30 +53,73 @@ export function PatientSummary({
   onContentChange,
 }: PatientSummaryProps): JSX.Element {
   const { t } = useTranslation("patientSummary");
-  const [summaryText, setSummaryText] = useState(t("initialSummary"));
+  const { authenticatedApiCall } = useAuthenticatedApi();
+  const queryClient = useQueryClient();
 
+  // Fetch patient summary data
+  const { data: summaryData, isLoading: isLoadingSummary } = usePatientSummary(patientId);
+
+  // Local state for editing
+  const [summaryText, setSummaryText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(
-    new Date("2024-03-17T09:30:00"),
-  );
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Update local state when summary data loads
+  useEffect(() => {
+    if (summaryData?.summary) {
+      setSummaryText(summaryData.summary.summaryText);
+    } else if (!isLoadingSummary) {
+      // If no summary exists, use default text
+      setSummaryText(t("initialSummary"));
+    }
+  }, [summaryData, isLoadingSummary, t]);
 
   // Check if current user can edit (only assigned physician)
   const canEdit = currentUser?.name === assignedPhysician?.name;
 
-  const handleSave = useCallback(() => {
+  // Mutations for creating/updating patient summary
+  const createSummaryMutation = useMutation({
+    mutationFn: (text: string) => createPatientSummary(authenticatedApiCall, patientId, { summaryText: text }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientQueryKeys.summaryById(patientId) });
+    },
+  });
+
+  const updateSummaryMutation = useMutation({
+    mutationFn: (text: string) => updatePatientSummary(authenticatedApiCall, patientId, { summaryText: text }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientQueryKeys.summaryById(patientId) });
+    },
+  });
+
+  const handleSave = useCallback(async () => {
+    if (!summaryText.trim()) return;
+
     setIsUpdating(true);
 
-    setTimeout(() => {
+    try {
+      // Determine if we need to create or update
+      const hasExistingSummary = summaryData?.summary != null;
+
+      if (hasExistingSummary) {
+        await updateSummaryMutation.mutateAsync(summaryText);
+      } else {
+        await createSummaryMutation.mutateAsync(summaryText);
+      }
+
       setIsEditing(false);
-      setLastUpdated(new Date());
-      setIsUpdating(false);
+
       // Call external save handler if provided
       if (onSave) {
         onSave();
       }
-    }, 1200);
-  }, [onSave]);
+    } catch (error) {
+      console.error("Failed to save patient summary:", error);
+      // Handle error - could show a toast notification here
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [summaryText, summaryData, createSummaryMutation, updateSummaryMutation, onSave]);
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
@@ -94,7 +143,11 @@ export function PatientSummary({
   };
 
   const getTimeAgo = () => {
+    const updatedAt = summaryData?.summary?.updatedAt;
+    if (!updatedAt) return t("time.never");
+
     const now = new Date();
+    const lastUpdated = new Date(updatedAt);
     const diffHours = Math.floor(
       (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60),
     );
@@ -123,6 +176,29 @@ export function PatientSummary({
 
   // In fullscreen mode, optimize for writing
   const contentHeight = fullscreenMode ? "min-h-[60vh]" : "h-80";
+
+  // Show loading state
+  if (isLoadingSummary) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-white border border-gray-200 rounded-t-none rounded-b-lg shadow-sm p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-7 h-7 bg-gray-100 rounded-md flex items-center justify-center">
+              <FileText className="w-4 h-4 text-gray-600" />
+            </div>
+            <h4 className="text-lg font-medium text-gray-800">
+              {t("view.title")}
+            </h4>
+          </div>
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

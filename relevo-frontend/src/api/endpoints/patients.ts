@@ -5,6 +5,10 @@ import type {
 	PaginatedPatientSummaryCards,
 	PatientDetail,
 	PaginatedHandovers,
+	PatientSummaryResponse,
+	CreatePatientSummaryRequest,
+	UpdatePatientSummaryRequest,
+	PatientSummaryUpdateResponse,
 } from "../types";
 
 // Query Keys for cache invalidation
@@ -23,6 +27,8 @@ export const patientQueryKeys = {
 		id: string,
 		parameters?: { page?: number; pageSize?: number }
 	) => [...patientQueryKeys.handoverTimeline(), id, parameters] as const,
+	summary: () => [...patientQueryKeys.all, "summary"] as const,
+	summaryById: (id: string) => [...patientQueryKeys.summary(), id] as const,
 };
 
 /**
@@ -73,6 +79,49 @@ export async function getPatientHandoverTimeline(
 ): Promise<PaginatedHandovers> {
 	const { data } = await api.get<PaginatedHandovers>(`/patients/${patientId}/handovers`, { params: parameters });
 	return data;
+}
+
+/**
+ * Get patient summary for a specific patient
+ */
+export async function getPatientSummary(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	patientId: string
+): Promise<PatientSummaryResponse> {
+	return authenticatedApiCall<PatientSummaryResponse>({
+		method: "GET",
+		url: `/patients/${patientId}/summary`,
+	});
+}
+
+/**
+ * Create patient summary for a specific patient
+ */
+export async function createPatientSummary(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	patientId: string,
+	request: CreatePatientSummaryRequest
+): Promise<PatientSummaryResponse> {
+	return authenticatedApiCall<PatientSummaryResponse>({
+		method: "POST",
+		url: `/patients/${patientId}/summary`,
+		data: request,
+	});
+}
+
+/**
+ * Update patient summary for a specific patient
+ */
+export async function updatePatientSummary(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	patientId: string,
+	request: UpdatePatientSummaryRequest
+): Promise<PatientSummaryUpdateResponse> {
+	return authenticatedApiCall<PatientSummaryUpdateResponse>({
+		method: "PUT",
+		url: `/patients/${patientId}/summary`,
+		data: request,
+	});
 }
 
 /**
@@ -140,5 +189,21 @@ export function usePatientHandoverTimeline(
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000, // 5 minutes
 		select: (data: PaginatedHandovers | undefined) => data,
+	});
+}
+
+/**
+ * Hook to get patient summary for a specific patient
+ */
+export function usePatientSummary(patientId: string): ReturnType<typeof useQuery<PatientSummaryResponse | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
+	return useQuery({
+		queryKey: patientQueryKeys.summaryById(patientId),
+		queryFn: () => getPatientSummary(authenticatedApiCall, patientId),
+		enabled: !!patientId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+		select: (data: PatientSummaryResponse | undefined) => data,
 	});
 }

@@ -44,6 +44,12 @@ public interface ISetupRepository
     string CreateHandoverActionItem(string handoverId, string description, string priority);
     bool UpdateHandoverActionItem(string handoverId, string itemId, bool isCompleted);
     bool DeleteHandoverActionItem(string handoverId, string itemId);
+
+    // Patient Summaries
+    PatientSummaryRecord? GetPatientSummary(string patientId);
+    PatientSummaryRecord CreatePatientSummary(string patientId, string physicianId, string summaryText, string createdBy);
+    bool UpdatePatientSummary(string summaryId, string summaryText, string lastEditedBy);
+
     Task<bool> StartHandover(string handoverId, string userId);
     Task<bool> ReadyHandover(string handoverId, string userId);
     Task<bool> AcceptHandover(string handoverId, string userId);
@@ -242,6 +248,17 @@ public record HandoverActionItemRecord(
 {
     public HandoverActionItemRecord() : this("", "", "", false, DateTime.MinValue, DateTime.MinValue, null) { }
 }
+
+// Patient Summaries
+public record PatientSummaryRecord(
+    string Id,
+    string PatientId,
+    string PhysicianId,
+    string SummaryText,
+    DateTime CreatedAt,
+    DateTime UpdatedAt,
+    string LastEditedBy
+);
 
 // Handover Creation Request
 public record CreateHandoverRequest(

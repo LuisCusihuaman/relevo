@@ -239,6 +239,22 @@ public class SetupService : ISetupService
         return await Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
     }
 
+    // Patient Summaries
+    public async Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
+    {
+        return await Task.FromResult(_repository.GetPatientSummary(patientId));
+    }
+
+    public async Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
+    {
+        return await Task.FromResult(_repository.CreatePatientSummary(patientId, physicianId, summaryText, createdBy));
+    }
+
+    public async Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
+    {
+        return await Task.FromResult(_repository.UpdatePatientSummary(summaryId, summaryText, lastEditedBy));
+    }
+
     // Handover Creation and Management
     public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
     {
