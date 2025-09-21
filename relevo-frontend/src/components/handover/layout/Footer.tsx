@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { Handover } from "@/api/types";
 
 interface FooterProps {
   focusMode: boolean;
@@ -9,18 +10,60 @@ interface FooterProps {
   getTimeUntilHandover: () => string;
   getSessionDuration: () => string;
   patientData: PatientHandoverData | null;
+  handoverState?: Handover["stateName"];
+  onReady?: () => void;
+  onStart?: () => void;
+  onAccept?: () => void;
+  onComplete?: () => void;
+  onCancel?: () => void;
+  onReject?: () => void;
 }
 
 export function Footer({
   focusMode,
   fullscreenEditing,
-  handoverComplete,
   getTimeUntilHandover,
   getSessionDuration,
   patientData,
-}: FooterProps): JSX.Element {
+  handoverState,
+  onAccept,
+  onCancel,
+  onComplete,
+  onReady,
+  onReject,
+  onStart,
+}: FooterProps): JSX.Element | null {
   const { t } = useTranslation("handover");
+
   if (focusMode || fullscreenEditing) return null;
+
+  const renderButtons = () => {
+    switch (handoverState) {
+      case "Draft":
+        return <Button onClick={onReady}>{t("footer.readyForHandover")}</Button>;
+      case "Ready":
+        return <Button onClick={onStart}>{t("footer.startHandover")}</Button>;
+      case "InProgress":
+        return (
+          <>
+            <Button variant="outline" onClick={onReject}>
+              {t("footer.reject")}
+            </Button>
+            <Button onClick={onAccept}>{t("footer.acceptHandover")}</Button>
+          </>
+        );
+      case "Accepted":
+        return <Button onClick={onComplete}>{t("footer.completeHandover")}</Button>;
+      case "Completed":
+        return (
+          <Button disabled className="bg-green-600 hover:bg-green-700 text-white">
+            {t("footer.handoverComplete")}
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-6 lg:px-8 py-4 z-30">
@@ -32,19 +75,7 @@ export function Footer({
           <span>•</span>
           <span>{t("session", { duration: getSessionDuration() })}</span>
         </div>
-        <Button
-          disabled={handoverComplete}
-          size="sm"
-          className={`w-full sm:w-auto ${
-            handoverComplete
-              ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-gray-900 hover:bg-gray-800 text-white"
-          }`}
-        >
-          {handoverComplete
-            ? t("handoverComplete")
-            : t("completeHandover")}
-        </Button>
+        <div className="flex items-center space-x-2">{renderButtons()}</div>
       </div>
     </div>
   );

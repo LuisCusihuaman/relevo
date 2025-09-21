@@ -22,7 +22,7 @@ import {
   MobileMenus,
   useHandoverSession,
 } from "../components/handover";
-import { useActiveHandover } from "@/api";
+import { useActiveHandover, useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api";
 import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
@@ -65,6 +65,23 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { patientData, isLoading: patientLoading } = usePatientHandoverData();
   const { data: activeHandoverData, isLoading: handoverLoading } = useActiveHandover();
   const { t } = useTranslation("handover");
+
+  // State transition mutations
+  const { mutate: readyState } = useReadyHandover();
+  const { mutate: startState } = useStartHandover();
+  const { mutate: acceptState } = useAcceptHandover();
+  const { mutate: completeState } = useCompleteHandover();
+  const { mutate: cancelState } = useCancelHandover();
+  const { mutate: rejectState } = useRejectHandover();
+
+  const handoverId = activeHandoverData?.handover?.id;
+
+  const handleReady = (): void => { handoverId && readyState(handoverId); };
+  const handleStart = (): void => { handoverId && startState(handoverId); };
+  const handleAccept = (): void => { handoverId && acceptState({ handoverId }); };
+  const handleComplete = (): void => { handoverId && completeState({ handoverId }); };
+  const handleCancel = (): void => { handoverId && cancelState(handoverId); };
+  const handleReject = (): void => { handoverId && rejectState({ handoverId, reason: "No reason provided" }); };
 
   // Event handlers
   const handleSyncStatusChange = (status: SyncStatus): void => {
@@ -245,7 +262,14 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             getSessionDuration={getSessionDuration}
             getTimeUntilHandover={getTimeUntilHandover}
             handoverComplete={handoverComplete}
+            handoverState={activeHandoverData?.handover.stateName}
             patientData={patientData}
+            onAccept={handleAccept}
+            onCancel={handleCancel}
+            onComplete={handleComplete}
+            onReady={handleReady}
+            onReject={handleReject}
+            onStart={handleStart}
           />
         </SidebarInset>
 
@@ -290,7 +314,10 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               fullscreenEditing={!!fullscreenEditing}
               getSessionDuration={getSessionDuration}
               getTimeUntilHandover={getTimeUntilHandover}
+              handoverId={activeHandoverData?.handover?.id}
               handleNavigateToSection={handleNavigateToSection}
+              participants={activeHandoverData?.participants || []}
+              patientData={patientData}
               setFocusMode={setFocusMode}
               setShowComments={setShowComments}
               setShowHistory={setShowHistory}
@@ -298,9 +325,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               showComments={showComments}
               showHistory={showHistory}
               showMobileMenu={showMobileMenu}
-              handoverId={activeHandoverData?.handover?.id}
-              participants={activeHandoverData?.participants || []}
-              patientData={patientData}
             />
         )}
       </SidebarProvider>

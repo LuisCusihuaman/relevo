@@ -44,6 +44,12 @@ public interface ISetupRepository
     string CreateHandoverActionItem(string handoverId, string description, string priority);
     bool UpdateHandoverActionItem(string handoverId, string itemId, bool isCompleted);
     bool DeleteHandoverActionItem(string handoverId, string itemId);
+    Task<bool> StartHandover(string handoverId, string userId);
+    Task<bool> ReadyHandover(string handoverId, string userId);
+    Task<bool> AcceptHandover(string handoverId, string userId);
+    Task<bool> CompleteHandover(string handoverId, string userId);
+    Task<bool> CancelHandover(string handoverId, string userId);
+    Task<bool> RejectHandover(string handoverId, string userId, string reason);
 }
 
 // Domain Records
@@ -84,7 +90,17 @@ public record HandoverRecord(
     string ShiftName,
     string CreatedBy,
     string AssignedTo,
-    string? CreatedAt
+    string? CreatedAt,
+    string? ReadyAt,
+    string? StartedAt,
+    string? AcceptedAt,
+    string? CompletedAt,
+    string? CancelledAt,
+    string? RejectedAt,
+    string? RejectionReason,
+    string? ExpiredAt,
+    string? HandoverType,
+    string StateName
 );
 public record HandoverIllnessSeverity(string Severity);
 public record HandoverPatientSummary(string Content);

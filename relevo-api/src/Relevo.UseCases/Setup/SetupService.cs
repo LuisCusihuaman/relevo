@@ -229,16 +229,12 @@ public class SetupService : ISetupService
 
     public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
     {
-        // Temporary implementation - should use use case
-        await Task.CompletedTask; // Make the compiler happy
-        throw new NotImplementedException("AcceptHandoverAsync should be implemented with proper use cases");
+        return await _repository.AcceptHandover(handoverId, userId);
     }
 
     public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
     {
-        // Temporary implementation - should use use case
-        await Task.CompletedTask; // Make the compiler happy
-        throw new NotImplementedException("CompleteHandoverAsync should be implemented with proper use cases");
+        return await _repository.CompleteHandover(handoverId, userId);
     }
 
     public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
@@ -260,5 +256,26 @@ public class SetupService : ISetupService
         // Temporary implementation - should use use case
         await Task.CompletedTask; // Make the compiler happy
         throw new NotImplementedException("GetShiftTransitionHandoversAsync should be implemented with proper use cases");
+    }
+
+    public async Task<bool> StartHandoverAsync(string handoverId, string userId)
+    {
+        // Call repository directly for this state transition
+        return await _repository.StartHandover(handoverId, userId);
+    }
+
+    public async Task<bool> ReadyHandoverAsync(string handoverId, string userId)
+    {
+        return await _repository.ReadyHandover(handoverId, userId);
+    }
+
+    public async Task<bool> CancelHandoverAsync(string handoverId, string userId)
+    {
+        return await _repository.CancelHandover(handoverId, userId);
+    }
+
+    public async Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason)
+    {
+        return await _repository.RejectHandover(handoverId, userId, reason);
     }
 }

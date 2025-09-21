@@ -1,20 +1,21 @@
 using FastEndpoints;
-using Relevo.Web.Setup;
+using Relevo.Core.Interfaces;
 
 namespace Relevo.Web.Handovers;
 
-public class CompleteHandoverEndpoint(ISetupDataProvider _dataProvider)
+public class CompleteHandoverEndpoint(ISetupService setupService)
   : Endpoint<CompleteHandoverRequest, CompleteHandoverResponse>
 {
   public override void Configure()
   {
-    Post("/handovers/{handoverId}/complete");
+    Post("/handovers/{HandoverId}/complete");
     AllowAnonymous(); // Let our custom middleware handle authentication
   }
 
   public override async Task HandleAsync(CompleteHandoverRequest req, CancellationToken ct)
   {
-    var success = await _dataProvider.CompleteHandoverAsync(req.HandoverId, req.UserId);
+    var userId = "user_demo12345678901234567890123456"; // Dummy user
+    var success = await setupService.CompleteHandoverAsync(req.HandoverId, userId);
 
     if (!success)
     {
@@ -36,7 +37,6 @@ public class CompleteHandoverEndpoint(ISetupDataProvider _dataProvider)
 public class CompleteHandoverRequest
 {
   public string HandoverId { get; set; } = string.Empty;
-  public string UserId { get; set; } = string.Empty;
 }
 
 public class CompleteHandoverResponse

@@ -189,10 +189,21 @@ public class OracleSetupRepository : ISetupRepository
         const string handoverSql = @"
           SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                  h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-                 TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+                 TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+                 TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+                 TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
+                 TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+                 TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+                 TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+                 TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+                 h.REJECTION_REASON,
+                 TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+                 h.HANDOVER_TYPE,
+                 vws.StateName
           FROM HANDOVERS h
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
+          LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
           WHERE ua.USER_ID = :userId
           ORDER BY h.CREATED_AT DESC
           OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -229,7 +240,17 @@ public class OracleSetupRepository : ISetupRepository
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
                     Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-                    CreatedAt: row.CREATED_AT
+                    CreatedAt: row.CREATED_AT,
+                    ReadyAt: row.READY_AT,
+                    StartedAt: row.STARTED_AT,
+                    AcceptedAt: row.ACCEPTED_AT,
+                    CompletedAt: row.COMPLETED_AT,
+                    CancelledAt: row.CANCELLED_AT,
+                    RejectedAt: row.REJECTED_AT,
+                    RejectionReason: row.REJECTION_REASON,
+                    ExpiredAt: row.EXPIRED_AT,
+                    HandoverType: row.HANDOVER_TYPE,
+                    StateName: row.STATENAME ?? "Draft"
                 );
 
             handovers.Add(handover);
@@ -332,9 +353,20 @@ public class OracleSetupRepository : ISetupRepository
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                      h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+                     TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+                     TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
+                     TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+                     TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+                     TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+                     TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+                     h.REJECTION_REASON,
+                     TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+                     h.HANDOVER_TYPE,
+                     vws.StateName
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+              LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               WHERE h.PATIENT_ID = :patientId
               ORDER BY h.CREATED_AT DESC";
 
@@ -369,7 +401,17 @@ public class OracleSetupRepository : ISetupRepository
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
                     Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-                    CreatedAt: row.CREATED_AT
+                    CreatedAt: row.CREATED_AT,
+                    ReadyAt: row.READY_AT,
+                    StartedAt: row.STARTED_AT,
+                    AcceptedAt: row.ACCEPTED_AT,
+                    CompletedAt: row.COMPLETED_AT,
+                    CancelledAt: row.CANCELLED_AT,
+                    RejectedAt: row.REJECTED_AT,
+                    RejectionReason: row.REJECTION_REASON,
+                    ExpiredAt: row.EXPIRED_AT,
+                    HandoverType: row.HANDOVER_TYPE,
+                    StateName: row.STATENAME ?? "Draft"
                 );
 
                 handovers.Add(handover);
@@ -393,9 +435,20 @@ public class OracleSetupRepository : ISetupRepository
             const string handoverSql = @"
               SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
                      h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT
+                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+                     TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+                     TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
+                     TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+                     TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+                     TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+                     TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+                     h.REJECTION_REASON,
+                     TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+                     h.HANDOVER_TYPE,
+                     vws.StateName
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+              LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               WHERE h.ID = :handoverId";
 
             var row = conn.QueryFirstOrDefault(handoverSql, new { handoverId });
@@ -430,7 +483,17 @@ public class OracleSetupRepository : ISetupRepository
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
                 AssignedTo: row.ASSIGNED_TO ?? "system",
-                CreatedAt: row.CREATED_AT
+                CreatedAt: row.CREATED_AT,
+                ReadyAt: row.READY_AT,
+                StartedAt: row.STARTED_AT,
+                AcceptedAt: row.ACCEPTED_AT,
+                CompletedAt: row.COMPLETED_AT,
+                CancelledAt: row.CANCELLED_AT,
+                RejectedAt: row.REJECTED_AT,
+                RejectionReason: row.REJECTION_REASON,
+                ExpiredAt: row.EXPIRED_AT,
+                HandoverType: row.HANDOVER_TYPE,
+                StateName: row.STATENAME ?? "Draft"
             );
         }
         catch (Exception ex)
@@ -513,7 +576,25 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             // Find the active handover for this user's assigned patients
-            const string handoverSql = "SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT FROM HANDOVERS h INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress') ORDER BY h.CREATED_AT DESC";
+            const string handoverSql = @"
+                SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
+                       h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+                       TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+                       TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+                       TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
+                       TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+                       TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+                       TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+                       TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+                       h.REJECTION_REASON,
+                       TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+                       h.HANDOVER_TYPE,
+                       vws.StateName
+                FROM HANDOVERS h
+                INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+                LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
+                WHERE h.TO_DOCTOR_ID = :userId AND h.STATUS IN ('Active', 'InProgress')
+                ORDER BY h.CREATED_AT DESC";
 
             var rows = conn.Query(handoverSql, new { userId }).ToList();
             var row = rows.FirstOrDefault();
@@ -544,7 +625,17 @@ public class OracleSetupRepository : ISetupRepository
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
                 AssignedTo: row.ASSIGNED_TO ?? "system",
-                CreatedAt: row.CREATED_AT
+                CreatedAt: row.CREATED_AT,
+                ReadyAt: row.READY_AT,
+                StartedAt: row.STARTED_AT,
+                AcceptedAt: row.ACCEPTED_AT,
+                CompletedAt: row.COMPLETED_AT,
+                CancelledAt: row.CANCELLED_AT,
+                RejectedAt: row.REJECTED_AT,
+                RejectionReason: row.REJECTION_REASON,
+                ExpiredAt: row.EXPIRED_AT,
+                HandoverType: row.HANDOVER_TYPE,
+                StateName: row.STATENAME ?? "Draft"
             );
         }
         catch (Exception ex)
@@ -1146,6 +1237,142 @@ public class OracleSetupRepository : ISetupRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to delete action item {ItemId} for handover {HandoverId}", itemId, handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> StartHandover(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+
+            // Optional: Check if handover is in a 'Ready' state before starting
+            var handover = GetHandoverById(handoverId);
+            if (handover?.StateName != "Ready")
+            {
+                _logger.LogWarning("Handover {HandoverId} cannot be started because it is not in 'Ready' state. Current state: {State}", handoverId, handover?.StateName);
+                // return false; // Or handle as needed
+            }
+
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET STARTED_AT = SYSTIMESTAMP,
+                    STATUS = 'InProgress',
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId AND STARTED_AT IS NULL";
+
+            var result = await conn.ExecuteAsync(sql, new { handoverId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> ReadyHandover(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET READY_AT = SYSTIMESTAMP,
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId AND READY_AT IS NULL";
+            var result = await conn.ExecuteAsync(sql, new { handoverId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to set handover {HandoverId} to ready", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> AcceptHandover(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET ACCEPTED_AT = SYSTIMESTAMP,
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId AND ACCEPTED_AT IS NULL";
+            var result = await conn.ExecuteAsync(sql, new { handoverId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to accept handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> CompleteHandover(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET COMPLETED_AT = SYSTIMESTAMP,
+                    STATUS = 'Completed',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    COMPLETED_BY = :userId
+                WHERE ID = :handoverId AND COMPLETED_AT IS NULL";
+            var result = await conn.ExecuteAsync(sql, new { handoverId, userId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to complete handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> CancelHandover(string handoverId, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET CANCELLED_AT = SYSTIMESTAMP,
+                    STATUS = 'Cancelled',
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId AND CANCELLED_AT IS NULL AND ACCEPTED_AT IS NULL";
+            var result = await conn.ExecuteAsync(sql, new { handoverId });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to cancel handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> RejectHandover(string handoverId, string userId, string reason)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET REJECTED_AT = SYSTIMESTAMP,
+                    REJECTION_REASON = :reason,
+                    STATUS = 'Rejected',
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId AND REJECTED_AT IS NULL AND ACCEPTED_AT IS NULL";
+            var result = await conn.ExecuteAsync(sql, new { handoverId, reason });
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to reject handover {HandoverId}", handoverId);
             throw;
         }
     }

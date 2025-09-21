@@ -435,7 +435,7 @@ export async function createHandover(request: {
 /**
  * Accept a handover (receiving doctor)
  */
-export async function acceptHandover(handoverId: string, userId: string): Promise<{
+export async function acceptHandover(handoverId: string): Promise<{
 	success: boolean;
 	handoverId: string;
 	message: string;
@@ -444,14 +444,14 @@ export async function acceptHandover(handoverId: string, userId: string): Promis
 		success: boolean;
 		handoverId: string;
 		message: string;
-	}>(`/handovers/${handoverId}/accept`, { handoverId, userId });
+	}>(`/handovers/${handoverId}/accept`);
 	return data;
 }
 
 /**
  * Complete a handover (receiving doctor)
  */
-export async function completeHandover(handoverId: string, userId: string): Promise<{
+export async function completeHandover(handoverId: string): Promise<{
 	success: boolean;
 	handoverId: string;
 	message: string;
@@ -460,7 +460,7 @@ export async function completeHandover(handoverId: string, userId: string): Prom
 		success: boolean;
 		handoverId: string;
 		message: string;
-	}>(`/handovers/${handoverId}/complete`, { handoverId, userId });
+	}>(`/handovers/${handoverId}/complete`);
 	return data;
 }
 
@@ -510,7 +510,7 @@ export function useCreateHandover() {
 			initiatedBy: string;
 			notes?: string;
 		}) => createHandover(request),
-		onSuccess: (data, variables) => {
+		onSuccess: (_data, variables) => {
 			// Invalidate pending handovers for the receiving doctor
 			queryClient.invalidateQueries({
 				queryKey: activeHandoverQueryKeys.pending(variables.toDoctorId)
@@ -528,12 +528,12 @@ export function useAcceptHandover() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ handoverId, userId }: { handoverId: string; userId: string }) =>
-			acceptHandover(handoverId, userId),
-		onSuccess: (_data, variables) => {
+		mutationFn: ({ handoverId }: { handoverId: string }) =>
+			acceptHandover(handoverId),
+		onSuccess: (_data, _variables) => {
 			// Invalidate pending handovers and active handover
 			queryClient.invalidateQueries({
-				queryKey: activeHandoverQueryKeys.pending(variables.userId)
+				queryKey: activeHandoverQueryKeys.pending("current-user") // Invalidate for current user
 			});
 			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
 		},
@@ -547,13 +547,77 @@ export function useCompleteHandover() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ handoverId, userId }: { handoverId: string; userId: string }) =>
-			completeHandover(handoverId, userId),
-		onSuccess: (_data, variables) => {
+		mutationFn: ({ handoverId }: { handoverId: string }) =>
+			completeHandover(handoverId),
+		onSuccess: (_data, _variables) => {
 			// Invalidate pending handovers and active handover
 			queryClient.invalidateQueries({
-				queryKey: activeHandoverQueryKeys.pending(variables.userId)
+				queryKey: activeHandoverQueryKeys.pending("current-user") // Invalidate for current user
 			});
+			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
+		},
+	});
+}
+
+// ========================================
+// HANDOVER STATE TRANSITIONS
+// ========================================
+
+export async function readyHandover(handoverId: string): Promise<boolean> {
+	const { data } = await api.post<boolean>(`/handovers/${handoverId}/ready`);
+	return data;
+}
+
+export function useReadyHandover() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (handoverId: string) => readyHandover(handoverId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
+		},
+	});
+}
+
+export async function startHandover(handoverId: string): Promise<boolean> {
+	const { data } = await api.post<boolean>(`/handovers/${handoverId}/start`);
+	return data;
+}
+
+export function useStartHandover() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (handoverId: string) => startHandover(handoverId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
+		},
+	});
+}
+
+export async function cancelHandover(handoverId: string): Promise<boolean> {
+	const { data } = await api.post<boolean>(`/handovers/${handoverId}/cancel`);
+	return data;
+}
+
+export function useCancelHandover() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (handoverId: string) => cancelHandover(handoverId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
+		},
+	});
+}
+
+export async function rejectHandover(handoverId: string, reason: string): Promise<boolean> {
+	const { data } = await api.post<boolean>(`/handovers/${handoverId}/reject`, { reason });
+	return data;
+}
+
+export function useRejectHandover() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, reason }: { handoverId: string; reason: string }) => rejectHandover(handoverId, reason),
+		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: activeHandoverQueryKeys.active });
 		},
 	});

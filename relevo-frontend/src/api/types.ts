@@ -83,6 +83,16 @@ export type Handover = {
 	createdBy: string;
 	assignedTo: string;
 	createdAt?: string; // Date when handover was created
+	readyAt?: string;
+	startedAt?: string;
+	acceptedAt?: string;
+	completedAt?: string;
+	cancelledAt?: string;
+	rejectedAt?: string;
+	rejectionReason?: string;
+	expiredAt?: string;
+	handoverType?: "ShiftToShift" | "TemporaryCoverage" | "Consult";
+	stateName: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
 };
 
 export type PaginatedHandovers = {

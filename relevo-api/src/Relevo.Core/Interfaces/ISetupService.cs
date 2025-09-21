@@ -49,4 +49,8 @@ public interface ISetupService
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId);
     Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId);
     Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId);
+    Task<bool> StartHandoverAsync(string handoverId, string userId);
+    Task<bool> ReadyHandoverAsync(string handoverId, string userId);
+    Task<bool> CancelHandoverAsync(string handoverId, string userId);
+    Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason);
 }
