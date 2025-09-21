@@ -76,10 +76,7 @@ public record HandoverParticipantRecord(
     string Status,
     DateTime JoinedAt,
     DateTime LastActivity
-)
-{
-    public HandoverParticipantRecord() : this("", "", "", null, "", DateTime.MinValue, DateTime.MinValue) { }
-}
+);
 
 public record HandoverSectionRecord(
     string Id,
@@ -89,10 +86,7 @@ public record HandoverSectionRecord(
     string? LastEditedBy,
     DateTime CreatedAt,
     DateTime UpdatedAt
-)
-{
-    public HandoverSectionRecord() : this("", "", null, "", null, DateTime.MinValue, DateTime.MinValue) { }
-}
+);
 
 public record HandoverSyncStatusRecord(
     string Id,

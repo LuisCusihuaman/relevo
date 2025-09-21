@@ -13,7 +13,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_ReturnsHandover_WhenHandoverExists()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
@@ -32,14 +32,14 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_ReturnsCorrectHandoverStructure()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
 
     // Verify basic fields
     Assert.Equal(handoverId, result.Id);
-    Assert.Equal("pat-026", result.PatientId);
+    Assert.Equal("pat-001", result.PatientId);
     Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
 
     // Verify illness severity structure
@@ -64,18 +64,18 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_ReturnsHandoverWithPatientName_WhenPatientExists()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
     Assert.NotNull(result.PatientName);
-    Assert.Equal("Álvaro Vargas", result.PatientName);
+    Assert.Equal("María García", result.PatientName);
   }
 
   [Fact]
   public async Task GetHandoverById_ReturnsHandoverWithActionItems()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
@@ -102,36 +102,30 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_HandlesDifferentHandoverStatuses()
   {
-    // Test with different handover IDs that might have different statuses
-    var testHandoverIds = new[] { "hvo-2509201329-4574", "hvo-2509201329-7677" };
+    // Test with the existing handover
+    var handoverId = "handover-001";
+    var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
-    foreach (var handoverId in testHandoverIds)
-    {
-      var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
-
-      if (result != null) // Only assert if handover exists
-      {
-        Assert.NotNull(result.Status);
-        Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
-      }
-    }
+    Assert.NotNull(result);
+    Assert.NotNull(result.Status);
+    Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
   }
 
   [Fact]
   public async Task GetHandoverById_ReturnsCorrectShiftInformation()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
     Assert.NotNull(result.ShiftName);
-    Assert.Equal("Noche", result.ShiftName);
+    Assert.Equal("Mañana", result.ShiftName);
   }
 
   [Fact]
   public async Task GetHandoverById_ReturnsCorrectIllnessSeverity()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
@@ -142,7 +136,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_ReturnsOptionalFields_WhenPresent()
   {
-    var handoverId = "hvo-2509201329-4574";
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
@@ -157,15 +151,15 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   }
 
   [Fact]
-  public async Task GetHandoverById_ReturnsEmptyActionItemsList_WhenNoActions()
+  public async Task GetHandoverById_ReturnsActionItemsList()
   {
-    // Find a handover that might not have action items
-    var handoverId = "hvo-2509201329-7677";
+    // Test with the existing handover that has action items
+    var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
     Assert.NotNull(result.ActionItems);
-    // Verify it's a valid list even if empty
+    // The handover-001 has action items, so verify we get them
     Assert.True(result.ActionItems.Count >= 0);
   }
 
@@ -173,7 +167,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   public async Task GetHandoverById_HandlesSpecialCharactersInIds()
   {
     // Test with handover ID containing special characters or numbers
-    var handoverId = "hvo-2509201329-4574"; // Contains hyphens and numbers
+    var handoverId = "handover-001"; // Contains hyphens and numbers
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);

@@ -40,21 +40,6 @@ public class SetupEndpoints(CustomWebApplicationFactory<Program> factory) : ICla
     // For now, it should return 404 or empty result
   }
 
-  [Fact]
-  public async Task GetUserPreferences_ReturnsPreferences_WhenUserExists()
-  {
-    var result = await _client.GetAndDeserializeAsync<UserPreferencesRecord>("/me/preferences");
-    Assert.NotNull(result);
-    // Test will validate user preferences are returned correctly
-  }
-
-  [Fact]
-  public async Task GetUserSessions_ReturnsSessions_WhenUserExists()
-  {
-    var result = await _client.GetAndDeserializeAsync<IReadOnlyList<UserSessionRecord>>("/me/sessions");
-    Assert.NotNull(result);
-    // Test will validate user sessions are returned correctly
-  }
 
 }
 

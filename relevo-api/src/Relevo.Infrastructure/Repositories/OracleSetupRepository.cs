@@ -533,8 +533,8 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string sql = @"
-                SELECT ID, USER_ID, USER_NAME, USER_ROLE, STATUS,
-                       JOINED_AT, LAST_ACTIVITY
+                SELECT ID, USER_ID as UserId, USER_NAME as UserName, USER_ROLE as UserRole, STATUS,
+                       JOINED_AT as JoinedAt, LAST_ACTIVITY as LastActivity
                 FROM HANDOVER_PARTICIPANTS
                 WHERE HANDOVER_ID = :handoverId
                 ORDER BY JOINED_AT";
@@ -582,8 +582,8 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string sql = @"
-                SELECT ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY,
-                       CREATED_AT, UPDATED_AT
+                SELECT ID, SECTION_TYPE as SectionType, CONTENT, STATUS, LAST_EDITED_BY as LastEditedBy,
+                       CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
                 FROM HANDOVER_SECTIONS
                 WHERE HANDOVER_ID = :handoverId
                 ORDER BY CREATED_AT";
