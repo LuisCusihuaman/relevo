@@ -26,11 +26,6 @@
     "itemsConfirmed": "{{completed}} de {{total}} elementos confirmados",
     "pending": "Confirmación pendiente"
   },
-  "focusMode": {
-    "title": "Síntesis por el Receptor",
-    "description": "{{name}} confirmará la finalización del traspaso",
-    "readOnly": "Modo de solo lectura - La confirmación está disponible en modo interactivo"
-  },
   "confirmationItems": {
     "illnessSeverity": {
       "label": "Entiendo la gravedad de la enfermedad actual y la estabilidad del paciente",

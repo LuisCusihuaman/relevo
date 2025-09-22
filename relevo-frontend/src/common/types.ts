@@ -564,7 +564,6 @@ export interface Alert {
 	handoverComplete: boolean;
 	showHistory: boolean;
 	showComments: boolean;
-	focusMode: boolean;
 	showActivityFeed: boolean;
 	showCollaborators: boolean;
 	showShareMenu: boolean;

@@ -24,7 +24,6 @@ import {
   FileText,
   History,
   MapPin,
-  Maximize2,
   MessageSquare,
   MoreHorizontal,
   Stethoscope,
@@ -34,10 +33,8 @@ import {
 import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
-  focusMode: boolean;
   showCollaborators: boolean;
   setShowCollaborators: (show: boolean) => void;
-  setFocusMode: (focus: boolean) => void;
   setShowComments: (show: boolean) => void;
   setShowHistory: (show: boolean) => void;
   setShowMobileMenu: (show: boolean) => void;
@@ -55,10 +52,8 @@ interface HeaderProps {
 }
 
 export function Header({
-  focusMode,
   showCollaborators,
   setShowCollaborators,
-  setFocusMode,
   setShowComments,
   setShowHistory,
   setShowMobileMenu,
@@ -75,8 +70,6 @@ export function Header({
   const activeUsers = activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",
   );
-
-  if (focusMode) return null;
 
   return (
     <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -277,18 +270,6 @@ export function Header({
               </span>
             </div>
 
-            {/* Focus Mode Exit */}
-            {focusMode && (
-              <Button
-                className="text-xs border-gray-200 bg-white hover:bg-gray-50"
-                size="sm"
-                variant="outline"
-                onClick={() => { setFocusMode(false); }}
-              >
-                <X className="w-3 h-3 sm:mr-1" />
-                <span className="hidden sm:inline">Exit Focus</span>
-              </Button>
-            )}
 
             {/* Mobile Menu */}
             <Button
@@ -302,15 +283,6 @@ export function Header({
 
             {/* Desktop Controls */}
             <div className="hidden md:flex items-center space-x-2">
-              {/* Focus Toggle */}
-              <Button
-                className="text-xs p-2 hover:bg-gray-100"
-                size="sm"
-                variant="ghost"
-                onClick={() => { setFocusMode(true); }}
-              >
-                <Maximize2 className="w-4 h-4" />
-              </Button>
               {/* Discussion */}
               <Button
                 size="sm"

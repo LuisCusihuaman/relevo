@@ -6,8 +6,6 @@
   "session": "Session: {{duration}}",
   "handoverComplete": "Handover Complete",
   "completeHandover": "Complete Handover",
-  "focusTitle": "I-PASS Handover Session",
-  "focusExit": "Press Esc to exit",
   "participants_one": "{{count}} participant",
   "participants_other": "{{count}} participants",
   "ipassGuidelines": {

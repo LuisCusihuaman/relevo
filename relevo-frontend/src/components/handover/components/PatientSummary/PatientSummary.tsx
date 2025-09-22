@@ -14,7 +14,6 @@ import { patientQueryKeys } from "@/api/endpoints/patients";
 interface PatientSummaryProps {
   patientId: string; // Required: ID of the patient whose summary to display
   onOpenThread?: (section: string) => void;
-  focusMode?: boolean;
   fullscreenMode?: boolean;
   autoEdit?: boolean;
   onRequestFullscreen?: () => void;
@@ -39,7 +38,6 @@ interface PatientSummaryProps {
 export function PatientSummary({
   patientId,
   onOpenThread: _onOpenThread,
-  focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
@@ -150,7 +148,7 @@ export function PatientSummary({
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK
   const handleClick = () => {
-    if (!canEdit || focusMode) return;
+    if (!canEdit) return;
 
     if (fullscreenMode) {
       // If in fullscreen, just start editing
@@ -194,7 +192,7 @@ export function PatientSummary({
 
   return (
     <div className="space-y-4">
-      {!focusMode && isEditing && canEdit ? (
+      {isEditing && canEdit ? (
         /* Editing Mode - Optimized border radius */
         <div className="space-y-4">
           <div className="relative">
@@ -311,21 +309,19 @@ export function PatientSummary({
         /* View Mode - Optimized border radius and click handling */
         <div className="relative group">
           <div
-            role={canEdit && !focusMode ? "button" : undefined}
-            tabIndex={canEdit && !focusMode ? 0 : undefined}
+            role={canEdit ? "button" : undefined}
+            tabIndex={canEdit ? 0 : undefined}
             aria-label={
-              canEdit && !focusMode ? t("view.editAriaLabel") : undefined
+              canEdit ? t("view.editAriaLabel") : undefined
             }
             className={`bg-white border border-gray-200 ${fullscreenMode ? "rounded-lg" : "rounded-t-none rounded-b-lg"} shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200 ${
-              canEdit && !focusMode ? "cursor-pointer" : ""
+              canEdit ? "cursor-pointer" : ""
             }`}
             onClick={handleClick}
             onKeyDown={(e) => {
               if (
                 (e.key === "Enter" || e.key === " ") &&
-                canEdit &&
-                !focusMode
-              ) {
+                canEdit) {
                 e.preventDefault();
                 handleClick();
               }
@@ -399,7 +395,7 @@ export function PatientSummary({
                   {displayText.split(" ").length} {t("view.words")}
                 </span>
               </div>
-              {canEdit && !focusMode && (
+              {canEdit && (
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="flex items-center space-x-1 text-xs text-gray-600">
                     <Edit className="w-3 h-3" />

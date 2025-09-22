@@ -1,11 +1,4 @@
 {
-  "focusMode": {
-    "title": "Sesión de Traspaso I-PASS",
-    "exitHint": "{{patientName}} • Presione Esc para salir",
-    "sessionDuration": "Sesión: {{duration}}",
-    "participants_one": "{{count}} participante",
-    "participants_other": "{{count}} participantes"
-  },
   "sections": {
     "illnessSeverity": "Gravedad de la Enfermedad",
     "patientSummary": "Resumen del Paciente",

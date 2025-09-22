@@ -30,7 +30,6 @@ interface ActionListProps {
   expanded?: boolean;
   collaborators?: Array<Collaborator>;
   onOpenThread?: (section: string) => void;
-  focusMode?: boolean;
   compact?: boolean;
   handoverId?: string;
   currentUser?: {
@@ -49,7 +48,6 @@ export function ActionList({
   expanded: _expanded,
   collaborators: _collaborators,
   onOpenThread: _onOpenThread,
-  focusMode = false,
   compact = false,
   handoverId,
   currentUser,
@@ -166,10 +164,7 @@ export function ActionList({
             <Checkbox
               checked={task.isCompleted}
               className={`mt-1 ${task.isCompleted ? "bg-gray-600 border-gray-600" : ""}`}
-              disabled={focusMode}
-              onCheckedChange={
-                focusMode ? undefined : () => { handleToggleComplete(task.id); }
-              }
+              onCheckedChange={() => { handleToggleComplete(task.id); }}
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-2">
@@ -192,8 +187,7 @@ export function ActionList({
           </div>
 
           {/* Delete button - Only for current shift tasks by assigned physician */}
-          {!focusMode &&
-            canDeleteTasks &&
+          {canDeleteTasks &&
             task.shift === t("shifts.dayToEvening") &&
             !task.isCompleted && (
               <Button
@@ -295,7 +289,7 @@ export function ActionList({
         )}
 
         {/* Add New Task - Compact Form */}
-        {!focusMode && !showNewTaskForm ? (
+        {!showNewTaskForm ? (
           <Button
             className="w-full text-xs border-gray-200 hover:bg-gray-50"
             size="sm"
@@ -306,8 +300,7 @@ export function ActionList({
             {t("addTask")}
           </Button>
         ) : (
-          !focusMode && (
-            <div className="p-3 border border-gray-200 rounded-lg bg-gray-25">
+          <div className="p-3 border border-gray-200 rounded-lg bg-gray-25">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h5 className="font-medium text-gray-900 text-sm">
@@ -406,7 +399,6 @@ export function ActionList({
                 </div>
               </div>
             </div>
-          )
         )}
       </div>
     );
@@ -518,7 +510,7 @@ export function ActionList({
       <Separator className="border-gray-200" />
 
       {/* Add New Task - Clean Form */}
-      {!focusMode && !showNewTaskForm ? (
+      {!showNewTaskForm ? (
         <Button
           className="w-full text-gray-600 border-gray-200 hover:bg-gray-50"
           variant="outline"
@@ -528,8 +520,7 @@ export function ActionList({
           {t("addActionItem")}
         </Button>
       ) : (
-        !focusMode && (
-          <div className="p-4 border border-gray-200 rounded-lg bg-gray-25">
+        <div className="p-4 border border-gray-200 rounded-lg bg-gray-25">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h5 className="font-medium text-gray-900">
@@ -646,7 +637,6 @@ export function ActionList({
               </div>
             </div>
           </div>
-        )
       )}
     </div>
   );

@@ -41,7 +41,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   // UI state
   const [showHistory, setShowHistory] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const [showCollaborators, setShowCollaborators] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -123,21 +122,19 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
     saveFunctionRef.current = saveFunction;
   }, []);
 
-  // Handle escape key to exit focus mode or fullscreen editing
+  // Handle escape key to exit fullscreen editing
   useEffect((): (() => void) => {
     const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
         if (fullscreenEditing) {
           setFullscreenEditing(null);
-        } else if (focusMode) {
-          setFocusMode(false);
         }
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return (): void => { document.removeEventListener("keydown", handleKeyDown); };
-  }, [focusMode, fullscreenEditing]);
+  }, [fullscreenEditing]);
 
   // Loading state
   if (userLoading || patientLoading || handoverLoading) {
@@ -227,7 +224,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
         )}
 
         {/* Desktop History Sidebar - Left side */}
-        {showHistory && !focusMode && !isMobile && !fullscreenEditing && (
+        {showHistory && !isMobile && !fullscreenEditing && (
           <Sidebar collapsible="offcanvas" side="left">
             <SidebarHeader className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -263,11 +260,9 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
         <SidebarInset className="min-h-screen bg-gray-50">
           {/* Header */}
           <Header
-            focusMode={focusMode}
             getSessionDuration={getSessionDuration}
             getSyncStatusDisplay={getSyncStatusDisplay}
             getTimeUntilHandover={getTimeUntilHandover}
-            setFocusMode={setFocusMode}
             setShowCollaborators={setShowCollaborators}
             setShowComments={setShowComments}
             setShowHistory={setShowHistory}
@@ -285,7 +280,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               <MainContent
                 currentUser={currentUser}
                 expandedSections={expandedSections}
-                focusMode={focusMode}
                 getSessionDuration={getSessionDuration}
                 handleOpenDiscussion={handleOpenDiscussion}
                 handleOpenFullscreenEdit={handleOpenFullscreenEdit}
@@ -301,7 +295,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
         </SidebarInset>
 
         {/* Desktop Collaboration Sidebar - Right side */}
-        {showComments && !focusMode && !isMobile && !fullscreenEditing && (
+        {showComments && !isMobile && !fullscreenEditing && (
           <Sidebar collapsible="offcanvas" side="right">
             <SidebarHeader className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -337,7 +331,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
         {isMobile && (
             <MobileMenus
               currentUser={currentUser}
-              focusMode={focusMode}
               fullscreenEditing={!!fullscreenEditing}
               getSessionDuration={getSessionDuration}
               getTimeUntilHandover={getTimeUntilHandover}
@@ -345,7 +338,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
               handleNavigateToSection={handleNavigateToSection}
               participants={[]}
               patientData={patientData}
-              setFocusMode={setFocusMode}
               setShowComments={setShowComments}
               setShowHistory={setShowHistory}
               setShowMobileMenu={setShowMobileMenu}

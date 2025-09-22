@@ -13,12 +13,12 @@ import {
     Activity,
     Clock,
     History,
-    Maximize2,
     MessageSquare,
     User,
     Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { activeCollaborators } from "../../../../common/constants";
 import { CollaborationPanel } from "../CollaborationPanel";
 import { HandoverHistory } from "../HandoverHistory";
@@ -31,8 +31,6 @@ interface MobileMenusProps {
   setShowHistory: (show: boolean) => void;
   showComments: boolean;
   setShowComments: (show: boolean) => void;
-  setFocusMode: (focus: boolean) => void;
-  focusMode: boolean;
   fullscreenEditing: boolean;
   getTimeUntilHandover: () => string;
   getSessionDuration: () => string;
@@ -50,8 +48,6 @@ export function MobileMenus({
   setShowHistory,
   showComments,
   setShowComments,
-  setFocusMode,
-  focusMode,
   fullscreenEditing,
   getTimeUntilHandover,
   getSessionDuration,
@@ -62,6 +58,7 @@ export function MobileMenus({
   patientData,
 }: MobileMenusProps): JSX.Element {
   const { t } = useTranslation("mobileMenus");
+  const isMobile = useIsMobile();
   const activeUsers = activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",
   );
@@ -187,23 +184,6 @@ export function MobileMenus({
               </div>
             </div>
 
-            {/* Focus Mode */}
-            <Button
-              className="w-full justify-start h-auto p-3"
-              variant="outline"
-              onClick={() => {
-                setFocusMode(true);
-                setShowMobileMenu(false);
-              }}
-            >
-              <Maximize2 className="w-4 h-4 mr-3" />
-              <div className="text-left">
-                <div className="text-sm font-medium">{t("focusMode.title")}</div>
-                <div className="text-xs opacity-75">
-                  {t("focusMode.description")}
-                </div>
-              </div>
-            </Button>
 
             {/* Active Team Members */}
             <div className="space-y-3">
@@ -273,7 +253,7 @@ export function MobileMenus({
       </Sheet>
 
       {/* Mobile History Sheet */}
-      {showHistory && !focusMode && !fullscreenEditing && (
+      {showHistory && !isMobile && !fullscreenEditing && (
         <Sheet open={showHistory} onOpenChange={setShowHistory}>
           <SheetContent
             className="w-80 bg-white border-r border-gray-200 p-0"
@@ -300,7 +280,7 @@ export function MobileMenus({
       )}
 
       {/* Mobile Collaboration Sheet */}
-      {showComments && !focusMode && !fullscreenEditing && (
+      {showComments && !isMobile && !fullscreenEditing && (
         <Sheet open={showComments} onOpenChange={setShowComments}>
           <SheetContent
             className="w-80 bg-white border-l border-gray-200 p-0"

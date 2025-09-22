@@ -20,10 +20,6 @@
     "history": "Handover History",
     "historyHint": "Previous records"
   },
-  "focusMode": {
-    "title": "Focus Mode",
-    "description": "Distraction-free view"
-  },
   "activeTeam": {
     "title": "Active Team",
     "online": "{{count}} online",

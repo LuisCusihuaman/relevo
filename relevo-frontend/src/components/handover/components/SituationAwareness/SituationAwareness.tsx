@@ -50,7 +50,6 @@ interface SituationAwarenessProps {
   handoverId: string; // Required: ID of the handover for this situation awareness
   collaborators?: Array<Collaborator>;
   onOpenThread?: (section: string) => void;
-  focusMode?: boolean;
   fullscreenMode?: boolean;
   autoEdit?: boolean;
   onRequestFullscreen?: () => void;
@@ -75,7 +74,6 @@ export function SituationAwareness({
   handoverId,
   collaborators: _collaborators = [],
   onOpenThread: _onOpenThread,
-  focusMode = false,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
@@ -88,6 +86,9 @@ export function SituationAwareness({
   onContentChange,
 }: SituationAwarenessProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
+
+  // Determine if current user can edit (typically the assigned physician can edit)
+  const canEdit = currentUser?.name === assignedPhysician?.name;
 
   // Fetch situation awareness data
   const { data: situationData, isLoading: isLoadingSituation } = useSituationAwareness(handoverId);
@@ -264,7 +265,6 @@ export function SituationAwareness({
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK
   const handleClick = () => {
-    if (focusMode) return;
 
     if (fullscreenMode) {
       // If in fullscreen, just start editing
@@ -445,21 +445,21 @@ export function SituationAwareness({
           /* View Mode - No top border radius */
           <div
             className="relative group"
-            role={!focusMode ? "button" : undefined}
-            tabIndex={!focusMode ? 0 : undefined}
+            role={canEdit ? "button" : undefined}
+            tabIndex={canEdit ? 0 : undefined}
             aria-label={
-              !focusMode ? t("view.editAriaLabel") : undefined
+              canEdit ? t("view.editAriaLabel") : undefined
             }
             onClick={handleClick}
             onKeyDown={(e) => {
-              if ((e.key === "Enter" || e.key === " ") && !focusMode) {
+              if ((e.key === "Enter" || e.key === " ") && canEdit) {
                 e.preventDefault();
                 handleClick();
               }
             }}
           >
             <div
-              className={`bg-white ${fullscreenMode ? "rounded-lg" : "rounded-t-none rounded-b-none"} transition-all duration-200 ${!focusMode ? "cursor-pointer" : ""}`}
+              className={`bg-white ${fullscreenMode ? "rounded-lg" : "rounded-t-none rounded-b-none"} transition-all duration-200 ${canEdit ? "cursor-pointer" : ""}`}
             >
               {/* Enhanced Header with top rounded corners */}
               <div
@@ -519,7 +519,7 @@ export function SituationAwareness({
                   </span>
                   <span>{t("view.lastUpdatedBy", { user: "Dr. Rodriguez" })}</span>
                 </div>
-                {!focusMode && (
+                {canEdit && (
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex items-center space-x-1 text-xs text-gray-500">
                       <Edit className="w-3 h-3" />
@@ -586,7 +586,7 @@ export function SituationAwareness({
                     </div>
 
                     {/* Delete button - Only for assigned physician */}
-                    {!focusMode && canDeletePlans && (
+                    {canDeletePlans && (
                       <Button
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
                         size="sm"
@@ -638,7 +638,7 @@ export function SituationAwareness({
           </div>
 
           {/* Add New Plan - Submit-Based Workflow */}
-          {!focusMode && !showNewPlanForm ? (
+          {!showNewPlanForm ? (
             <Button
               className="w-full text-gray-600 border-gray-200 hover:bg-gray-50"
               variant="outline"
@@ -648,8 +648,7 @@ export function SituationAwareness({
               {t("contingencyPlanning.addPlan")}
             </Button>
           ) : (
-            !focusMode && (
-              <div className="p-4 border border-gray-200 rounded-lg bg-gray-25">
+            <div className="p-4 border border-gray-200 rounded-lg bg-gray-25">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h5 className="font-medium text-gray-900">
@@ -767,7 +766,6 @@ export function SituationAwareness({
                   </div>
                 </div>
               </div>
-            )
           )}
         </div>
       )}

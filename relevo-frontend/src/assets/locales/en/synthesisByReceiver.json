@@ -26,11 +26,6 @@
     "itemsConfirmed": "{{completed}} of {{total}} items confirmed",
     "pending": "Confirmation pending"
   },
-  "focusMode": {
-    "title": "Synthesis by Receiver",
-    "description": "{{name}} will confirm handover completion",
-    "readOnly": "Read-only mode - Confirmation available in interactive mode"
-  },
   "confirmationItems": {
     "illnessSeverity": {
       "label": "I understand the patient's current illness severity and stability",

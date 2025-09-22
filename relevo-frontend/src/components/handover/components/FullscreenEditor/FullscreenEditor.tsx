@@ -247,7 +247,6 @@ export function FullscreenEditor({
                   assignedPhysician={patientData?.assignedPhysician}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser}
-                  focusMode={false}
                   syncStatus={syncStatus}
                   onContentChange={handleContentChange}
                   onOpenThread={handleOpenDiscussion}
@@ -266,7 +265,6 @@ export function FullscreenEditor({
                   hideControls
                   autoEdit={fullscreenEditing.autoEdit}
                   collaborators={activeCollaborators}
-                  focusMode={false}
                   syncStatus={syncStatus}
                   onContentChange={handleContentChange}
                   onOpenThread={handleOpenDiscussion}

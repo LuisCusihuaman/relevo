@@ -55,7 +55,6 @@ interface IllnessSeverityProps {
     initials: string;
     role: string;
   };
-  focusMode?: boolean;
   severityContent?: string | null;
   severityStatus?: string;
 }

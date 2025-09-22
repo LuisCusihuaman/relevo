@@ -1,11 +1,4 @@
 {
-  "focusMode": {
-    "title": "I-PASS Handover Session",
-    "exitHint": "{{patientName}} • Press Esc to exit",
-    "sessionDuration": "Session: {{duration}}",
-    "participants_one": "{{count}} participant",
-    "participants_other": "{{count}} participants"
-  },
   "sections": {
     "illnessSeverity": "Illness Severity",
     "patientSummary": "Patient Summary",

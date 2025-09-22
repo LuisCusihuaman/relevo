@@ -20,10 +20,6 @@
     "history": "Historial de Traspaso",
     "historyHint": "Registros anteriores"
   },
-  "focusMode": {
-    "title": "Modo de Enfoque",
-    "description": "Vista sin distracciones"
-  },
   "activeTeam": {
     "title": "Equipo Activo",
     "online": "{{count}} en línea",

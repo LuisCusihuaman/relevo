@@ -28,7 +28,6 @@ import {
 } from "..";
 
 interface MainContentProps {
-  focusMode: boolean;
   layoutMode: "single" | "columns";
   expandedSections: ExpandedSections;
   handleOpenDiscussion: () => void;
@@ -45,7 +44,6 @@ interface MainContentProps {
 }
 
 export function MainContent({
-  focusMode,
   layoutMode,
   expandedSections,
   handleOpenDiscussion,
@@ -127,309 +125,6 @@ export function MainContent({
     return "draft";
   };
 
-  if (focusMode) {
-    return (
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 space-y-4 sm:space-y-0">
-            <div>
-              <h2 className="text-lg font-medium text-gray-900">
-                {t("focusTitle")}
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                {currentPatientData.name} • {t("focusExit")}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">
-                {t("session", { duration: getSessionDuration() })}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t("participants", { count: activeUsers.length })}
-              </p>
-            </div>
-          </div>
-
-          {/* I-PASS Sections */}
-          <div className="space-y-8 sm:space-y-10">
-            {/* I - Illness Severity */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    I
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">
-                  {t("mainContent:sections.illnessSeverity")}
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-                    side="top"
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {ipassGuidelines.illness.title}
-                      </h4>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        {ipassGuidelines.illness.points.map((point, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start space-x-1"
-                          >
-                            <span className="text-gray-400 mt-0.5">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-                <IllnessSeverity
-                  currentUser={currentUser}
-                  assignedPhysician={handoverData ? {
-                    name: handoverData.createdBy || "Dr. Current",
-                    role: "Attending Physician",
-                    initials: (handoverData.createdBy || "Dr. Current").split(' ').map(n => n[0]).join('').toUpperCase(),
-                    color: "bg-blue-600",
-                    shiftEnd: "17:00",
-                    status: "handing-off" as const,
-                    patientAssignment: "assigned" as const,
-                  } : currentPatientData.assignedPhysician}
-                  focusMode={focusMode}
-                  severityContent={getSectionContent("illness_severity")}
-                  severityStatus={getSectionStatus("illness_severity")}
-                />
-            </div>
-
-            {/* P - Patient Summary */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    P
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">
-                  {t("mainContent:sections.patientSummary")}
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-                    side="top"
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {ipassGuidelines.patient.title}
-                      </h4>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        {ipassGuidelines.patient.points.map((point, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start space-x-1"
-                          >
-                            <span className="text-gray-400 mt-0.5">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <PatientSummary
-                patientId={currentPatientData.id}
-                assignedPhysician={currentPatientData.assignedPhysician}
-                currentUser={currentUser}
-                focusMode={focusMode}
-                syncStatus={syncStatus}
-                onOpenThread={handleOpenDiscussion}
-                onSyncStatusChange={setSyncStatus}
-                onRequestFullscreen={() =>
-                  { handleOpenFullscreenEdit("patient-summary", true); }
-                }
-              />
-            </div>
-
-            {/* A - Action List */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    A
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">
-                  {t("mainContent:sections.actionList")}
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-                    side="top"
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {ipassGuidelines.actions.title}
-                      </h4>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        {ipassGuidelines.actions.points.map((point, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start space-x-1"
-                          >
-                            <span className="text-gray-400 mt-0.5">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <ActionList
-                expanded
-                collaborators={activeCollaborators}
-                focusMode={focusMode}
-                onOpenThread={handleOpenDiscussion}
-                handoverId={handoverData?.id}
-                currentUser={currentUser}
-                assignedPhysician={currentUser}
-              />
-            </div>
-
-            {/* S - Current Situation */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    S
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">
-                  {t("mainContent:sections.situationAwareness")}
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-                    side="top"
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {ipassGuidelines.awareness.title}
-                      </h4>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        {ipassGuidelines.awareness.points.map(
-                          (point, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start space-x-1"
-                            >
-                              <span className="text-gray-400 mt-0.5">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <SituationAwareness
-                handoverId={handoverData.id}
-                collaborators={activeCollaborators}
-                focusMode={focusMode}
-                syncStatus={syncStatus}
-                onOpenThread={handleOpenDiscussion}
-                onSyncStatusChange={setSyncStatus}
-                onRequestFullscreen={() =>
-                  { handleOpenFullscreenEdit("situation-awareness", true); }
-                }
-                currentUser={{
-                  name: currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`,
-                  initials: (currentUser.fullName ?? `${currentUser.firstName} ${currentUser.lastName}`).split(' ').map(n => n[0]).join('').toUpperCase(),
-                  role: currentUser.roles?.join(', ') ?? ''
-                }}
-                assignedPhysician={currentPatientData.assignedPhysician}
-              />
-            </div>
-
-            {/* S - Synthesis by Receiver */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    S
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">
-                  {t("mainContent:sections.synthesisByReceiver")}
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-                    side="top"
-                  >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {ipassGuidelines.synthesis.title}
-                      </h4>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        {ipassGuidelines.synthesis.points.map(
-                          (point, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start space-x-1"
-                            >
-                              <span className="text-gray-400 mt-0.5">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <SynthesisByReceiver
-                currentUser={currentUser}
-                focusMode={focusMode}
-                receivingPhysician={currentPatientData.receivingPhysician}
-                onComplete={setHandoverComplete}
-                onOpenThread={handleOpenDiscussion}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Normal Mode
   return (
@@ -490,7 +185,6 @@ export function MainContent({
                 <IllnessSeverity
                   assignedPhysician={currentPatientData.assignedPhysician}
                   currentUser={currentUser}
-                  focusMode={focusMode}
                 />
               </div>
             </div>
@@ -546,7 +240,6 @@ export function MainContent({
                 patientId={currentPatientData.id}
                 assignedPhysician={currentPatientData.assignedPhysician}
                 currentUser={currentUser}
-                focusMode={focusMode}
                 syncStatus={syncStatus}
                 onOpenThread={handleOpenDiscussion}
                 onSyncStatusChange={setSyncStatus}
@@ -606,7 +299,6 @@ export function MainContent({
               <SituationAwareness
                 handoverId={handoverData.id}
                 collaborators={activeCollaborators}
-                focusMode={focusMode}
                 syncStatus={syncStatus}
                 onOpenThread={handleOpenDiscussion}
                 onSyncStatusChange={setSyncStatus}
@@ -680,7 +372,6 @@ export function MainContent({
                     compact
                     expanded
                     collaborators={activeCollaborators}
-                    focusMode={focusMode}
                     onOpenThread={handleOpenDiscussion}
                     handoverId={handoverData?.id}
                     currentUser={currentUser}
@@ -741,7 +432,6 @@ export function MainContent({
                 <div className="p-6">
                   <SynthesisByReceiver
                     currentUser={currentUser}
-                    focusMode={focusMode}
                     receivingPhysician={currentPatientData.receivingPhysician}
                     onComplete={setHandoverComplete}
                     onOpenThread={handleOpenDiscussion}
@@ -825,7 +515,6 @@ export function MainContent({
                 <IllnessSeverity
                   assignedPhysician={currentPatientData.assignedPhysician}
                   currentUser={currentUser}
-                  focusMode={focusMode}
                 />
               </div>
             </CollapsibleContent>
@@ -901,7 +590,6 @@ export function MainContent({
                   patientId={currentPatientData.id}
                   assignedPhysician={currentPatientData.assignedPhysician}
                   currentUser={currentUser}
-                  focusMode={focusMode}
                   syncStatus={syncStatus}
                   onOpenThread={handleOpenDiscussion}
                   onSyncStatusChange={setSyncStatus}
@@ -982,7 +670,6 @@ export function MainContent({
                 <ActionList
                   expanded
                   collaborators={activeCollaborators}
-                  focusMode={focusMode}
                   onOpenThread={handleOpenDiscussion}
                   handoverId={handoverData?.id}
                   currentUser={currentUser}
@@ -1060,7 +747,6 @@ export function MainContent({
               <SituationAwareness
                 handoverId={handoverData.id}
                 collaborators={activeCollaborators}
-                focusMode={focusMode}
                 syncStatus={syncStatus}
                 onOpenThread={handleOpenDiscussion}
                 onSyncStatusChange={setSyncStatus}
@@ -1145,7 +831,6 @@ export function MainContent({
               <div className="p-6">
                 <SynthesisByReceiver
                   currentUser={currentUser}
-                  focusMode={focusMode}
                   receivingPhysician={currentPatientData.receivingPhysician}
                   onComplete={setHandoverComplete}
                   onOpenThread={handleOpenDiscussion}

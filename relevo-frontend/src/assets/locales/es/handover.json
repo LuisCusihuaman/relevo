@@ -6,8 +6,6 @@
   "session": "Sesión: {{duration}}",
   "handoverComplete": "Por recibir",
   "completeHandover": "Completar Traspaso",
-  "focusTitle": "Sesión de Traspaso I-PASS",
-  "focusExit": "Presione Esc para salir",
   "participants_one": "{{count}} participante",
   "participants_other": "{{count}} participantes",
   "ipassGuidelines": {

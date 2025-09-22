@@ -17,7 +17,6 @@ import { useTranslation } from "react-i18next";
 interface SynthesisByReceiverProps {
   onOpenThread?: (section: string) => void;
   onComplete?: (completed: boolean) => void;
-  focusMode?: boolean;
   currentUser: {
     name: string;
     initials: string;
@@ -33,11 +32,14 @@ interface SynthesisByReceiverProps {
 export function SynthesisByReceiver({
   onOpenThread: _onOpenThread,
   onComplete,
-  focusMode = false,
   currentUser,
   receivingPhysician,
 }: SynthesisByReceiverProps): JSX.Element {
   const { t } = useTranslation("synthesisByReceiver");
+
+  // Check if current user is the receiving physician
+  const isReceiver = currentUser.name === receivingPhysician.name;
+
   // Confirmation checklist items
   const [confirmationItems, setConfirmationItems] = useState(() => [
     {
@@ -85,8 +87,8 @@ export function SynthesisByReceiver({
     },
   ]);
 
-  // Check if current user is the receiving physician
-  const canConfirm = currentUser.name === receivingPhysician.name;
+  // Check if current user can confirm (same as isReceiver)
+  const canConfirm = isReceiver;
 
   // Calculate completion
   const completedItems = confirmationItems.filter(
@@ -160,7 +162,7 @@ export function SynthesisByReceiver({
       )}
 
       {/* Progress Indicator */}
-      {!focusMode && (
+      {isReceiver && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-gray-900">
@@ -184,7 +186,7 @@ export function SynthesisByReceiver({
       )}
 
       {/* Confirmation Checklist */}
-      {!focusMode && (
+      {isReceiver && (
         <div className="space-y-4">
           <h4 className="font-medium text-gray-900 flex items-center space-x-2">
             <CheckSquare className="w-4 h-4 text-gray-600" />
@@ -253,7 +255,7 @@ export function SynthesisByReceiver({
       )}
 
       {/* Final Confirmation Button */}
-      {!focusMode && canConfirm && (
+      {isReceiver && canConfirm && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
           <div className="space-y-4">
             <div className="text-center">
@@ -294,7 +296,7 @@ export function SynthesisByReceiver({
       )}
 
       {/* Status Display for Non-Receiving Users */}
-      {!focusMode && !canConfirm && (
+      {!isReceiver && !canConfirm && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg text-center">
           <div className="space-y-2">
             <div className="flex items-center justify-center space-x-2">
@@ -316,15 +318,15 @@ export function SynthesisByReceiver({
       )}
 
       {/* Focus Mode - Read-Only Display */}
-      {focusMode && (
+      {!isReceiver && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
           <div className="text-center space-y-2">
-            <h4 className="font-medium text-gray-900">{t("focusMode.title")}</h4>
+            <h4 className="font-medium text-gray-900">{t(".title")}</h4>
             <p className="text-sm text-gray-600">
-              {t("focusMode.description", { name: receivingPhysician.name })}
+              {t(".description", { name: receivingPhysician.name })}
             </p>
             <div className="text-xs text-gray-500">
-              {t("focusMode.readOnly")}
+              {t(".readOnly")}
             </div>
           </div>
         </div>
