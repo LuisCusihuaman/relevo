@@ -123,8 +123,8 @@ export async function updateHandoverSection(
 // ----------------------------------------
 
 export async function getHandoverMessages(handoverId: string): Promise<HandoverMessage[]> {
-	const { data } = await api.get<HandoverMessage[]>(`/me/handovers/${handoverId}/messages`);
-	return data;
+	const { data } = await api.get<{messages: HandoverMessage[]}>(`/me/handovers/${handoverId}/messages`);
+	return data.messages;
 }
 
 export async function createHandoverMessage(
