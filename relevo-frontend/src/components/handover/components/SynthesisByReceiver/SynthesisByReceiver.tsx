@@ -27,6 +27,8 @@ interface SynthesisByReceiverProps {
     initials: string;
     role: string;
   };
+  handoverState?: string;
+  handoverComplete?: boolean;
 }
 
 export function SynthesisByReceiver({
@@ -34,6 +36,8 @@ export function SynthesisByReceiver({
   onComplete,
   currentUser,
   receivingPhysician,
+  handoverState,
+  handoverComplete = false,
 }: SynthesisByReceiverProps): JSX.Element {
   const { t } = useTranslation("synthesisByReceiver");
 
@@ -87,8 +91,12 @@ export function SynthesisByReceiver({
     },
   ]);
 
-  // Check if current user can confirm (same as isReceiver)
-  const canConfirm = isReceiver;
+  // Additional checks for confirmation permissions
+  const handoverInProgress = handoverState === "InProgress" || handoverState === "Accepted";
+  const handoverNotComplete = !handoverComplete;
+
+  // Check if current user can confirm (must be receiver, handover in progress, and not already complete)
+  const canConfirm = isReceiver && handoverInProgress && handoverNotComplete;
 
   // Calculate completion
   const completedItems = confirmationItems.filter(
@@ -186,76 +194,74 @@ export function SynthesisByReceiver({
       )}
 
       {/* Confirmation Checklist */}
-      {isReceiver && (
-        <div className="space-y-4">
-          <h4 className="font-medium text-gray-900 flex items-center space-x-2">
-            <CheckSquare className="w-4 h-4 text-gray-600" />
-            <span>{t("checklistTitle")}</span>
-          </h4>
+      <div className="space-y-4">
+        <h4 className="font-medium text-gray-900 flex items-center space-x-2">
+          <CheckSquare className="w-4 h-4 text-gray-600" />
+          <span>{t("checklistTitle")}</span>
+        </h4>
 
-          <div className="space-y-4">
-            {confirmationItems.map((item) => (
-              <div
-                key={item.id}
-                className={`p-4 border rounded-lg transition-all ${
-                  item.checked
-                    ? "border-green-200 bg-green-25"
-                    : item.critical
-                      ? "border-purple-200 bg-purple-25"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                } ${!canConfirm ? "opacity-60" : ""}`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 pt-1">
-                    <Checkbox
-                      checked={item.checked}
-                      disabled={!canConfirm}
-                      className={`${
-                        item.critical ? "border-purple-400" : "border-gray-300"
-                      } ${item.checked ? "bg-green-500 border-green-500" : ""}`}
-                      onCheckedChange={(checked) =>
-                        { handleItemChange(item.id, checked as boolean); }
-                      }
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <label
-                        className={`text-sm font-medium cursor-pointer ${
-                          item.checked ? "text-green-800" : "text-gray-900"
-                        } ${!canConfirm ? "cursor-not-allowed" : ""}`}
-                      >
-                        {item.label}
-                        {item.critical && (
-                          <Badge
-                            className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200"
-                            variant="outline"
-                          >
-                            {t("critical")}
-                          </Badge>
-                        )}
-                      </label>
-                      {item.checked && (
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 ml-2" />
-                      )}
-                    </div>
-                    <p
-                      className={`text-xs mt-1 ${
-                        item.checked ? "text-green-700" : "text-gray-600"
-                      }`}
+        <div className="space-y-4">
+          {confirmationItems.map((item) => (
+            <div
+              key={item.id}
+              className={`p-4 border rounded-lg transition-all ${
+                item.checked
+                  ? "border-green-200 bg-green-25"
+                  : item.critical
+                    ? "border-purple-200 bg-purple-25"
+                    : "border-gray-200 bg-white hover:border-gray-300"
+              } ${!canConfirm ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 pt-1">
+                  <Checkbox
+                    checked={item.checked}
+                    onCheckedChange={(checked) =>
+                      handleItemChange(item.id, checked as boolean)
+                    }
+                    disabled={!canConfirm}
+                    className={`${
+                      item.critical ? "border-purple-400" : "border-gray-300"
+                    } ${item.checked ? "bg-green-500 border-green-500" : ""}`}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <label
+                      className={`text-sm font-medium cursor-pointer ${
+                        item.checked ? "text-green-800" : "text-gray-900"
+                      } ${!canConfirm ? "cursor-not-allowed" : ""}`}
                     >
-                      {item.description}
-                    </p>
+                      {item.label}
+                      {item.critical && (
+                        <Badge
+                          variant="outline"
+                          className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200"
+                        >
+                          {t("critical")}
+                        </Badge>
+                      )}
+                    </label>
+                    {item.checked && (
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 ml-2" />
+                    )}
                   </div>
+                  <p
+                    className={`text-xs mt-1 ${
+                      item.checked ? "text-green-700" : "text-gray-600"
+                    }`}
+                  >
+                    {item.description}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Final Confirmation Button */}
-      {isReceiver && canConfirm && (
+      {canConfirm && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
           <div className="space-y-4">
             <div className="text-center">
@@ -268,14 +274,14 @@ export function SynthesisByReceiver({
             </div>
 
             <Button
+              onClick={handleFinalConfirmation}
               disabled={!isComplete}
-              size="lg"
               className={`w-full ${
                 isComplete
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
-              onClick={handleFinalConfirmation}
+              size="lg"
             >
               {isComplete ? (
                 <>
