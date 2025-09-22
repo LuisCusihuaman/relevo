@@ -117,7 +117,7 @@ echo $LD_LIBRARY_PATH
   "UseOracle": false,           // Set to true for Oracle
   "UseOracleForSetup": false,   // Alternative Oracle flag
   "Oracle": {
-    "ConnectionString": "User Id=system;Password=oracle;Data Source=localhost:1521/XE"
+    "ConnectionString": "User Id=RELEVO_APP;Password=oracle;Data Source=localhost:1521/XE"
   }
 }
 ```
@@ -128,7 +128,7 @@ For development, use `appsettings.Development.json`:
 {
   "UseOracle": true,
   "Oracle": {
-    "ConnectionString": "User Id=system;Password=oracle;Data Source=localhost:1521/XE"
+    "ConnectionString": "User Id=RELEVO_APP;Password=oracle;Data Source=localhost:1521/XE"
   }
 }
 ```

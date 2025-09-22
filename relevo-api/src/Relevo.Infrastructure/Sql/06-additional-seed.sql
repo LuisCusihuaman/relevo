@@ -1,6 +1,9 @@
 -- =============================================
-
 -- Handovers para el paciente pat-001 (John Doe)
+-- =============================================
+
+-- Connect as RELEVO_APP user
+CONNECT RELEVO_APP/TuPass123;
 INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
 VALUES ('h-001', 'assign-001', 'pat-001', 'Ready', 'Unstable',
     'John Doe, M, 68. Antecedentes de HTA, DM2, y cardiopatía isquémica con FEVI 35%. Ingresó por SCA sin elevación del ST hace 3 días, manejado con AAS, clopidogrel, enoxaparina y estatinas. Coronariografía ayer mostró enfermedad de 3 vasos no revascularizable percutáneamente. Se discutió con cirugía cardíaca y se aceptó para CRM programada. Durante la noche, presentó episodio de DPN que respondió a furosemida IV. Actualmente con dolor torácico leve, intermitente.',

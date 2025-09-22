@@ -20,7 +20,7 @@ public class SetupDataStore : ISetupDataProvider
   public SetupDataStore()
   {
     // Use Oracle database for testing
-    _connection = new OracleConnection("User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
+    _connection = new OracleConnection("User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
     _connection.Open();
 
     // Create tables with Oracle structure

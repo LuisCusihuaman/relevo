@@ -2,6 +2,9 @@
 -- VISTAS
 -- ========================================
 
+-- Connect as RELEVO_APP user
+CONNECT RELEVO_APP/TuPass123;
+
 CREATE OR REPLACE VIEW VW_HANDOVERS_STATE AS
 SELECT
   h.ID as HandoverId,

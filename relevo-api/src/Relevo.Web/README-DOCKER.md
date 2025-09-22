@@ -108,7 +108,7 @@ After database initialization, update your `appsettings.json`:
 {
   "UseOracle": true,
   "Oracle": {
-    "ConnectionString": "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE"
+    "ConnectionString": "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE"
   }
 }
 ```
@@ -118,7 +118,7 @@ Or for development, update `appsettings.Development.json`:
 {
   "UseOracle": true,
   "Oracle": {
-    "ConnectionString": "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE"
+    "ConnectionString": "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE"
   }
 }
 ```
@@ -221,7 +221,7 @@ cd relevo-api
 # {
 #   "UseOracle": true,
 #   "Oracle": {
-#     "ConnectionString": "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE"
+#     "ConnectionString": "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE"
 #   }
 # }
 

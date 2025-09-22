@@ -2,6 +2,9 @@
 -- INSERTAR DATOS DE SEMILLA
 -- ========================================
 
+-- Connect as RELEVO_APP user
+CONNECT RELEVO_APP/TuPass123;
+
 -- Insertar Unidades
 INSERT INTO UNITS (ID, NAME, DESCRIPTION) VALUES ('unit-1', 'UCI', 'Unidad de Cuidados Intensivos');
 INSERT INTO UNITS (ID, NAME, DESCRIPTION) VALUES ('unit-2', 'Pediatría General', 'Unidad de Pediatría General');

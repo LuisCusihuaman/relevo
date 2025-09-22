@@ -105,7 +105,7 @@ public abstract class BaseDapperTestFixture : IDisposable
   protected static IDbConnection CreateNewConnection()
   {
     // Use Oracle connection for integration tests
-    var connection = new OracleConnection("User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
+    var connection = new OracleConnection("User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
     connection.Open();
     return connection;
   }

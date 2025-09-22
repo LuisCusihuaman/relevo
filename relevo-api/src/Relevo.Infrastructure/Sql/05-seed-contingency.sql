@@ -2,6 +2,9 @@
 -- PLANIFICACIÓN DE CONTINGENCIA EN ESPAÑOL PARA TODOS LOS PACIENTES
 -- ========================================
 
+-- Connect as RELEVO_APP user
+CONNECT RELEVO_APP/TuPass123;
+
 -- Planificación de Contingencia para handover-001 (Paciente con neumonía - pat-001)
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
 VALUES ('contingency-001', 'handover-001', 'Si el paciente desarrolla dificultad respiratoria aguda o saturación de oxígeno < 92%', 'Administrar oxígeno suplementario, llamar a terapia respiratoria, considerar BIPAP, contactar al médico tratante inmediatamente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);

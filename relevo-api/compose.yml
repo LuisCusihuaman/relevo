@@ -5,9 +5,8 @@ services:
     ports:
       - "1521:1521"
     environment:
-      ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
-      ORACLE_SID: XE
       ORACLE_PASSWORD: TuPass123
+      APP_USER: RELEVO_APP
+      APP_USER_PASSWORD: TuPass123
     volumes:
       - ./src/Relevo.Infrastructure/Sql:/container-entrypoint-initdb.d
-

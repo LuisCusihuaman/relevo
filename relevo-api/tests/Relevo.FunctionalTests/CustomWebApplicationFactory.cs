@@ -64,8 +64,8 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           {
             { "UseOracle", "true" },
             { "UseOracleForSetup", "true" },
-            { "ConnectionStrings:Oracle", "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" },
-            { "Oracle:ConnectionString", "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" }
+            { "ConnectionStrings:Oracle", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" },
+            { "Oracle:ConnectionString", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" }
           })
           .Build();
 

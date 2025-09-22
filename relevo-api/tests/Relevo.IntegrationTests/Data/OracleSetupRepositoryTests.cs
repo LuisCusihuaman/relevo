@@ -32,7 +32,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new[]
             {
-                new KeyValuePair<string, string?>("Oracle:ConnectionString", "User Id=system;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15")
+                new KeyValuePair<string, string?>("Oracle:ConnectionString", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15")
             })
             .Build();
 

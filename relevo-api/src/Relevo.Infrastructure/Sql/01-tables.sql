@@ -2,6 +2,9 @@
 -- CREAR TABLAS
 -- ========================================
 
+-- Connect as RELEVO_APP user to create tables in that schema
+CONNECT RELEVO_APP/TuPass123;
+
 -- Tabla UNITS
 CREATE TABLE UNITS (
     ID VARCHAR2(50) PRIMARY KEY,
