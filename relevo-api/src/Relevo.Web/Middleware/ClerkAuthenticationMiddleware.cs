@@ -72,7 +72,7 @@ public class ClerkAuthenticationMiddleware
             // Fall back to demo user if no valid token
             var demoUser = new Relevo.Core.Models.User
             {
-                Id = "user_2demo12345678901234567890123456", // Clerk-like format for consistency
+                Id = "user_demo12345678901234567890123456", // Matches existing user in database
                 Email = "demo@example.com",
                 FirstName = "Demo",
                 LastName = "User",
@@ -123,7 +123,7 @@ public class ClerkAuthenticationMiddleware
                     // Create a demo user for development
                     var demoUser = new Relevo.Core.Models.User
                     {
-                        Id = "user_2demo12345678901234567890123456", // Clerk-like format for consistency
+                        Id = "user_demo12345678901234567890123456", // Matches existing user in database
                         Email = "demo@example.com",
                         FirstName = "Demo",
                         LastName = "User",

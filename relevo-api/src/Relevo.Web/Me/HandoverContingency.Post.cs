@@ -24,12 +24,23 @@ public class CreateContingencyPlanEndpoint(
             return;
         }
 
+        // Ensure user exists in database, fallback to demo user if not
+        var effectiveUserId = user.Id;
+
+        // Check if the user exists in the database by trying to get their preferences
+        var userPreferences = await _setupService.GetUserPreferencesAsync(user.Id);
+        if (userPreferences == null)
+        {
+            // User doesn't exist in database, use demo user that exists
+            effectiveUserId = "user_demo12345678901234567890123456";
+        }
+
         var contingencyPlan = await _setupService.CreateContingencyPlanAsync(
             req.HandoverId,
             req.ConditionText,
             req.ActionText,
             req.Priority,
-            user.Id
+            effectiveUserId
         );
 
         Response = new CreateContingencyPlanResponse { Success = true, ContingencyPlan = contingencyPlan };

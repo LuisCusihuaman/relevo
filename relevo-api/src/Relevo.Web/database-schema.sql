@@ -734,6 +734,35 @@ VALUES ('handover-001', 'assign-001', 'pat-001', 'Ready', 'Stable',
         'Paciente estable, evolución favorable. Continuar tratamiento actual.',
         'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
+-- Insertar handovers adicionales para todos los pacientes
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-002', 'assign-002', 'pat-002', 'Ready', 'Critical',
+        'Paciente de 12 años con sepsis secundaria a infección urinaria. Paciente crítico, requiere monitoreo continuo.',
+        'doc-002',
+        'Paciente en estado crítico. Continuar soporte vasopresor y antibióticos.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 1, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-003', 'assign-003', 'pat-003', 'Ready', 'Unstable',
+        'Paciente de 13 años con estado asmático agudo. Mejoría progresiva, disminución en requerimiento de oxígeno.',
+        'doc-003',
+        'Mejoría respiratoria evidente. Continuar tratamiento actual con reducción gradual.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 2, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-004', 'assign-004', 'pat-004', 'Ready', 'Unstable',
+        'Paciente de 13 años con trauma craneoencefálico moderado. Glasgow 12/15, requiere monitoreo neurológico.',
+        'doc-004',
+        'Estable neurológicamente. Continuar monitoreo frecuente y evaluación neuroquirúrgica.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 3, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-005', 'assign-005', 'pat-005', 'Ready', 'Critical',
+        'Paciente de 13 años con insuficiencia respiratoria aguda. Ventilación mecánica invasiva.',
+        'doc-005',
+        'Parámetros ventilatorios estables. Continuar sedación y monitoreo continuo.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 4, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
 -- Insertar action items del handover
 INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
 VALUES ('action-001', 'handover-001', 'Realizar nebulizaciones cada 6 horas', 0);
@@ -868,21 +897,89 @@ VALUES ('message-004', 'handover-001', 'user_demo12345678901234567890123456', 'A
 INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
 VALUES ('message-005', 'handover-001', 'user_demo12345678901234567890123457', 'Family called - they want to discuss the discharge plan. Should I arrange a meeting for tomorrow?', 'message', SYSTIMESTAMP - INTERVAL '15' SECOND);
 
--- Insertar planes de contingencia de ejemplo
+-- ========================================
+-- PLANIFICACIÓN DE CONTINGENCIA EN ESPAÑOL PARA TODOS LOS PACIENTES
+-- ========================================
+
+-- Planificación de Contingencia para handover-001 (Paciente con neumonía - pat-001)
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-001', 'handover-001', 'If patient develops acute shortness of breath', 'Administer supplemental oxygen, call respiratory therapy, consider BIPAP, contact attending physician immediately', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+VALUES ('contingency-001', 'handover-001', 'Si el paciente desarrolla dificultad respiratoria aguda o saturación de oxígeno < 92%', 'Administrar oxígeno suplementario, llamar a terapia respiratoria, considerar BIPAP, contactar al médico tratante inmediatamente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-002', 'handover-001', 'If blood pressure drops below 90/60', 'Increase IV fluids, notify physician, consider vasopressors if unresponsive', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+VALUES ('contingency-002', 'handover-001', 'Si la temperatura axilar supera los 38.5°C', 'Administrar antipiréticos según protocolo, evaluar foco infeccioso, contactar médico si persiste fiebre', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-003', 'handover-001', 'If patient complains of chest pain', 'Assess vital signs, administer nitroglycerin if appropriate, ECG within 10 minutes, call cardiology', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+VALUES ('contingency-003', 'handover-001', 'Si aparecen signos de insuficiencia respiratoria (taquipnea > 30/min, tiraje)', 'Aumentar FiO2, preparar para posible intubación, llamar a intensivista, contactar médico tratante', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-004', 'handover-001', 'If patient becomes confused or agitated', 'Assess for pain, medication side effects, or metabolic abnormalities. Consider haloperidol if needed.', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+VALUES ('contingency-004', 'handover-001', 'Si el paciente presenta reacción alérgica a penicilina', 'Suspender antibiótico inmediatamente, administrar epinefrina si anafilaxia, contactar alergólogo', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-005', 'handover-001', 'If urine output decreases below 30ml/hour', 'Assess volume status, check bladder scan, consider foley catheter if retention suspected', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+VALUES ('contingency-005', 'handover-001', 'Si no hay mejoría radiológica en 48-72 horas', 'Repetir radiografía de tórax, considerar cambio de antibiótico, consultar infectólogo', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Planificación de Contingencia para handover-002 (Paciente con sepsis - pat-002)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-006', 'handover-002', 'Si la presión arterial sistólica < 90 mmHg o requiere aumento de vasopresores', 'Aumentar fluidos IV, incrementar dosis de vasopresores, llamar a intensivista, monitoreo continuo', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-007', 'handover-002', 'Si el paciente presenta oliguria (< 1ml/kg/hora) o anuria', 'Evaluar estado de hidratación, ecografía renal, considerar catéter vesical, ajustar fluidos', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-008', 'handover-002', 'Si aparecen nuevos focos infecciosos o empeoramiento clínico', 'Cultivos adicionales, evaluación por imágenes, escalar antibióticos, consultar infectólogo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-009', 'handover-002', 'Si el paciente presenta alteración del estado mental', 'Evaluar causas metabólicas, infección SNC, ajustar sedación, consultar neurología', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-010', 'handover-002', 'Si persiste fiebre > 48 horas con tratamiento antibiótico', 'Repetir hemocultivos, evaluación de foco oculto, cambio empírico de antibióticos', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Planificación de Contingencia para handover-003 (Paciente con asma - pat-003)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-011', 'handover-003', 'Si el paciente presenta crisis asmática severa con pobre respuesta a tratamiento', 'Administrar adrenalina subcutánea, preparar para intubación, llamar a intensivista', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-012', 'handover-003', 'Si requiere oxígeno suplementario > 2L/min persistentemente', 'Aumentar dosis de corticoides, considerar terapia inhalatoria adicional, evaluación intensiva', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-013', 'handover-003', 'Si aparecen signos de fatiga muscular respiratoria', 'Preparar para ventilación no invasiva, evaluar necesidad de intubación, monitoreo continuo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-014', 'handover-003', 'Si el paciente presenta taquicardia > 150/min persistente', 'Evaluar causa (hipoxemia, ansiedad, efectos medicamentosos), ajustar tratamiento', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-015', 'handover-003', 'Si no hay mejoría clínica en 24 horas', 'Reevaluar tratamiento, considerar inmunomoduladores, consultar alergólogo/inmunólogo', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Planificación de Contingencia para handover-004 (Paciente con trauma craneoencefálico - pat-004)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-016', 'handover-004', 'Si disminución del nivel de conciencia (Glasgow < 12)', 'Evaluar urgencia neuroquirúrgica, tomografía cerebral inmediata, preparar para cirugía', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-017', 'handover-004', 'Si anisocoria o midriasis unilateral', 'Medición de presión intraocular, evaluación neuroquirúrgica urgente, preparar para cirugía', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-018', 'handover-004', 'Si convulsiones o movimientos anormales', 'Administrar anticonvulsivantes, evaluación neurológica, monitoreo EEG continuo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-019', 'handover-004', 'Si hipertensión endocraneana (presión > 20 mmHg)', 'Aumentar dosis de manitol, hiperventilación, consultar neurocirugía para drenaje', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-020', 'handover-004', 'Si náuseas o vómitos incoercibles', 'Administrar antieméticos, evaluar aumento de presión endocraneana, monitoreo neurológico', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Planificación de Contingencia para handover-005 (Paciente con insuficiencia respiratoria - pat-005)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-021', 'handover-005', 'Si desaturación < 88% o desconexión accidental del ventilador', 'Reintubar inmediatamente, verificar parámetros ventilatorios, llamar a intensivista', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-022', 'handover-005', 'Si neumotórax o deterioro respiratorio agudo', 'Drenaje pleural urgente, ajuste ventilatorio, radiografía de tórax inmediata', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-023', 'handover-005', 'Si hemorragia por vía aérea artificial', 'Verificar posición del tubo, aspirar, evaluar sangrado, preparar cambio de tubo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-024', 'handover-005', 'Si agitación o dolor no controlado con sedación actual', 'Aumentar dosis de sedantes, evaluar causa (neumotórax, etc.), consulta anestésica', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '15' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-025', 'handover-005', 'Si infección nosocomial o neumonía asociada a ventilador', 'Cultivos bronquiales, antibióticos de amplio espectro, consultar infectólogo', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
 
 -- Insertar registro de actividad de ejemplo
 INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
