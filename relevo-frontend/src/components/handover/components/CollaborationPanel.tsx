@@ -40,7 +40,7 @@ export function CollaborationPanel({
     i18n.language === "es" ? recentActivityES : recentActivity;
 
   // Transform API messages to component format
-  const transformedMessages = messages
+  const transformedMessages = messages && Array.isArray(messages)
     ? messages.map((msg) => ({
         id: parseInt(msg.id) || Math.random(),
         user: msg.userName,
