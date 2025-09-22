@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
+import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type {
 	PaginatedHandovers,
 	Handover,
@@ -122,20 +123,28 @@ export async function updateHandoverSection(
 // HANDOVER MESSAGES
 // ----------------------------------------
 
-export async function getHandoverMessages(handoverId: string): Promise<HandoverMessage[]> {
-	const { data } = await api.get<{messages: HandoverMessage[]}>(`/me/handovers/${handoverId}/messages`);
+export async function getHandoverMessages(
+	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
+	handoverId: string
+): Promise<HandoverMessage[]> {
+	const data = await authenticatedApiCall<{messages: HandoverMessage[]}>({
+		method: "GET",
+		url: `/me/handovers/${handoverId}/messages`,
+	});
 	return data.messages;
 }
 
 export async function createHandoverMessage(
+	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	messageText: string,
 	messageType: "message" | "system" | "notification" = "message"
 ): Promise<{ success: boolean; message: HandoverMessage }> {
-	const { data } = await api.post<{ success: boolean; message: HandoverMessage }>(
-		`/me/handovers/${handoverId}/messages`,
-		{ messageText, messageType }
-	);
+	const data = await authenticatedApiCall<{ success: boolean; message: HandoverMessage }>({
+		method: "POST",
+		url: `/me/handovers/${handoverId}/messages`,
+		data: { messageText, messageType },
+	});
 	return data;
 }
 
@@ -377,9 +386,11 @@ export function useUpdateHandoverSection() {
 // ----------------------------------------
 
 export function useHandoverMessages(handoverId: string) {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useQuery({
 		queryKey: handoverQueryKeys.messages(handoverId),
-		queryFn: () => getHandoverMessages(handoverId),
+		queryFn: () => getHandoverMessages(authenticatedApiCall, handoverId),
 		enabled: !!handoverId,
 		staleTime: 30 * 1000, // 30 seconds
 	});
@@ -387,6 +398,7 @@ export function useHandoverMessages(handoverId: string) {
 
 export function useCreateHandoverMessage() {
 	const queryClient = useQueryClient();
+	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -397,7 +409,7 @@ export function useCreateHandoverMessage() {
 			handoverId: string;
 			messageText: string;
 			messageType?: "message" | "system" | "notification";
-		}) => createHandoverMessage(handoverId, messageText, messageType),
+		}) => createHandoverMessage(authenticatedApiCall, handoverId, messageText, messageType),
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.messages(variables.handoverId),

@@ -187,17 +187,17 @@ export function CollaborationPanel({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="text-sm font-medium text-gray-900">
-                          {t(`discussion.${message.user.replace("Dr. ", "user").toLowerCase()}.user`)}
+                          {message.user}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {t(`discussion.${message.user.replace("Dr. ", "user").toLowerCase()}.role`)}
+                          {message.role}
                         </span>
                         <span className="text-xs text-gray-400">
-                          {t(`discussion.${message.user.replace("Dr. ", "user").toLowerCase()}.time`)}
+                          {message.timestamp}
                         </span>
                       </div>
                       <div className="text-sm text-gray-700 leading-relaxed">
-                        {t(`discussion.${message.user.replace("Dr. ", "user").toLowerCase()}.message`)}
+                        {message.message}
                       </div>
                     </div>
                   </div>

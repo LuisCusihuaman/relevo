@@ -1023,11 +1023,10 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
             const string sql = @"
                 SELECT hm.ID, hm.HANDOVER_ID as HandoverId, hm.USER_ID as UserId,
-                       u.FIRST_NAME || ' ' || u.LAST_NAME as UserName,
+                       hm.USER_NAME as UserName,
                        hm.MESSAGE_TEXT as MessageText, hm.MESSAGE_TYPE as MessageType,
                        hm.CREATED_AT as CreatedAt, hm.UPDATED_AT as UpdatedAt
                 FROM HANDOVER_MESSAGES hm
-                INNER JOIN USERS u ON hm.USER_ID = u.ID
                 WHERE hm.HANDOVER_ID = :handoverId
                 ORDER BY hm.CREATED_AT ASC";
 
@@ -1049,10 +1048,7 @@ public class OracleSetupRepository : ISetupRepository
 
             const string sql = @"
                 INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT, UPDATED_AT)
-                VALUES (:id, :handoverId, :userId, :userName, :messageText, :messageType, SYSTIMESTAMP, SYSTIMESTAMP)
-                RETURNING ID, HANDOVER_ID as HandoverId, USER_ID as UserId, USER_NAME as UserName,
-                         MESSAGE_TEXT as MessageText, MESSAGE_TYPE as MessageType,
-                         CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt INTO :newRecord";
+                VALUES (:id, :handoverId, :userId, :userName, :messageText, :messageType, SYSTIMESTAMP, SYSTIMESTAMP)";
 
             var parameters = new
             {
