@@ -1,6 +1,7 @@
 {
   "title": "Synthesis by Receiver",
   "description": "Confirmation by the Receiver",
+  "readOnly": "Read-only view",
   "receivingPhysician": "Receiving Physician",
   "confirmationRequired": "Confirmation Required",
   "onlyReceiverConfirms": "Only {{name}} can confirm this handover",

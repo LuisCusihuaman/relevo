@@ -392,7 +392,7 @@ export function MainContent({
                         {t("mainContent:sections.synthesisByReceiver")}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {t("synthesisByReceiver.description")}
+                        {t("mainContent:sections.synthesisByReceiverDescription")}
                       </p>
                     </div>
                     <Tooltip>
@@ -813,7 +813,7 @@ export function MainContent({
                         </Tooltip>
                       </div>
                       <p className="text-sm text-gray-700">
-                        {t("synthesisByReceiver.description")}
+                        {t("mainContent:sections.synthesisByReceiverDescription")}
                       </p>
                     </div>
                   </div>

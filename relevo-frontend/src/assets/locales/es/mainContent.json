@@ -5,6 +5,7 @@
     "actionList": "Lista de Acciones",
     "situationAwareness": "Conocimiento de la Situación",
     "synthesisByReceiver": "Síntesis por el Receptor",
+    "synthesisByReceiverDescription": "Confirmación del médico receptor y aceptación del traspaso",
     "illnessSeverityDescription": "Evaluar la condición y estabilidad del paciente",
     "patientSummaryDescription": "Registro estático del paciente copiado de traspasos anteriores",
     "situationAwarenessDescription": "Estado del paciente y actualizaciones en tiempo real",

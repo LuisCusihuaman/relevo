@@ -321,12 +321,12 @@ export function SynthesisByReceiver({
       {!isReceiver && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
           <div className="text-center space-y-2">
-            <h4 className="font-medium text-gray-900">{t(".title")}</h4>
+            <h4 className="font-medium text-gray-900">{t("title")}</h4>
             <p className="text-sm text-gray-600">
-              {t(".description", { name: receivingPhysician.name })}
+              {t("description", { name: receivingPhysician.name })}
             </p>
             <div className="text-xs text-gray-500">
-              {t(".readOnly")}
+              {t("readOnly")}
             </div>
           </div>
         </div>

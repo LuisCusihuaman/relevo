@@ -1,6 +1,7 @@
 {
   "title": "Síntesis por el Receptor",
   "description": "Confirmación por el Receptor",
+  "readOnly": "Vista de solo lectura",
   "receivingPhysician": "Médico Receptor",
   "confirmationRequired": "Confirmación Requerida",
   "onlyReceiverConfirms": "Solo {{name}} puede confirmar este traspaso",

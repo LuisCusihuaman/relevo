@@ -5,6 +5,7 @@
     "actionList": "Action List",
     "situationAwareness": "Situation Awareness",
     "synthesisByReceiver": "Synthesis by Receiver",
+    "synthesisByReceiverDescription": "Receiving physician confirmation and handover acceptance",
     "illnessSeverityDescription": "Evaluate patient condition and stability",
     "patientSummaryDescription": "Static patient record copied from previous handovers",
     "situationAwarenessDescription": "Real-time patient status and updates",
