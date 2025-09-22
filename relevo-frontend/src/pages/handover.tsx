@@ -23,7 +23,6 @@ import {
   useHandoverSession,
 } from "../components/handover";
 import { useHandover, useStartHandover, useReadyHandover, useAcceptHandover, useCompleteHandover, useCancelHandover, useRejectHandover } from "@/api/endpoints/handovers";
-import { Footer } from "../components/handover/layout/Footer";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
 import { useParams } from "@tanstack/react-router";
@@ -299,23 +298,6 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             </div>
           </div>
 
-          {/* Footer */}
-          <Footer
-            focusMode={focusMode}
-            fullscreenEditing={!!fullscreenEditing}
-            getSessionDuration={getSessionDuration}
-            getTimeUntilHandover={getTimeUntilHandover}
-            handoverComplete={handoverComplete}
-            handover={handoverData}
-            currentUser={currentUser}
-            patientData={patientData}
-            onAccept={handleAccept}
-            onCancel={handleCancel}
-            onComplete={handleComplete}
-            onReady={handleReady}
-            onReject={handleReject}
-            onStart={handleStart}
-          />
         </SidebarInset>
 
         {/* Desktop Collaboration Sidebar - Right side */}
