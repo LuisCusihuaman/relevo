@@ -1152,6 +1152,129 @@ VALUES ('contingency-054', 'handover-015', 'Si mastoiditis aguda', 'Antibiótico
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
 VALUES ('contingency-055', 'handover-015', 'Si dolor persistente a pesar de analgesia', 'Reevaluar causa, posible paracentesis, consulta otorrinolaringología', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
 
+-- PLANES DE CONTINGENCIA PARA HANDOVERS DINÁMICOS (hvo-*)
+-- Cada handover dinámico usa los mismos planes que su paciente correspondiente
+
+-- Planificación de Contingencia para hvo-2509212155-1155 (José Sánchez - Quemaduras)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-056', 'hvo-2509212155-1155', 'Si signos de infección en quemaduras (fiebre, eritema, secreción purulenta)', 'Cultivos locales, antibióticos intravenosos, evaluación quirúrgica urgente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-057', 'hvo-2509212155-1155', 'Si dolor incontrolable a pesar de analgesia multimodal', 'Consultar servicio de dolor, evaluar necesidad de sedación profunda', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-058', 'hvo-2509212155-1155', 'Si hipovolemia por pérdidas insensibles', 'Aumentar fluidos IV según fórmula de Parkland, monitoreo hemodinámico', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-1879 (Carlos Rodríguez - Sepsis)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-059', 'hvo-2509212155-1879', 'Si la presión arterial sistólica < 90 mmHg o requiere aumento de vasopresores', 'Aumentar fluidos IV, incrementar dosis de vasopresores, llamar a intensivista, monitoreo continuo', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-060', 'hvo-2509212155-1879', 'Si el paciente presenta oliguria (< 1ml/kg/hora) o anuria', 'Evaluar estado de hidratación, ecografía renal, considerar catéter vesical, ajustar fluidos', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-061', 'hvo-2509212155-1879', 'Si aparecen nuevos focos infecciosos o empeoramiento clínico', 'Cultivos adicionales, evaluación por imágenes, escalar antibióticos, consultar infectólogo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-2184 (Carmen Díaz - Convulsiones)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-062', 'hvo-2509212155-2184', 'Si convulsión prolongada (> 5 minutos)', 'Administrar diazepam IV, preparar para intubación, monitoreo post-ictal', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-063', 'hvo-2509212155-2184', 'Si estado post-ictal prolongado (> 30 minutos)', 'Evaluar causa metabólica, tomografía cerebral, consulta neurológica', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-064', 'hvo-2509212155-2184', 'Si recurrencia de convulsiones febriles', 'Repetir estudios etiológicos, considerar profilaxis antiepiléptica', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-2333 (Isabella González - Insuficiencia respiratoria)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-065', 'hvo-2509212155-2333', 'Si desaturación < 88% o desconexión accidental del ventilador', 'Reintubar inmediatamente, verificar parámetros ventilatorios, llamar a intensivista', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-066', 'hvo-2509212155-2333', 'Si neumotórax o deterioro respiratorio agudo', 'Drenaje pleural urgente, ajuste ventilatorio, radiografía de tórax inmediata', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-067', 'hvo-2509212155-2333', 'Si hemorragia por vía aérea artificial', 'Verificar posición del tubo, aspirar, evaluar sangrado, preparar cambio de tubo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-2356 (Miguel Hernández - Trauma craneoencefálico)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-068', 'hvo-2509212155-2356', 'Si disminución del nivel de conciencia (Glasgow < 12)', 'Evaluar urgencia neuroquirúrgica, tomografía cerebral inmediata, preparar para cirugía', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-069', 'hvo-2509212155-2356', 'Si anisocoria o midriasis unilateral', 'Medición de presión intraocular, evaluación neuroquirúrgica urgente, preparar para cirugía', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-070', 'hvo-2509212155-2356', 'Si convulsiones o movimientos anormales', 'Administrar anticonvulsivantes, evaluación neurológica, monitoreo EEG continuo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-2977 (Elena Jiménez - Hipoglucemia)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-071', 'hvo-2509212155-2977', 'Si hipoglucemia recurrente (< 60 mg/dL)', 'Ajustar esquema insulínico, evaluar adherencia, consulta endocrinología', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-072', 'hvo-2509212155-2977', 'Si cetosis o cetoacidosis', 'Insulina intravenosa continua, fluidos, monitoreo gasométrico frecuente', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-073', 'hvo-2509212155-2977', 'Si convulsiones por hipoglucemia', 'Glucosa hipertónica IV, benzodiazepinas si convulsiones, evaluación neurológica', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-3050 (David Pérez - Choque séptico)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-074', 'hvo-2509212155-3050', 'Si hipotensión refractaria (< 65 mmHg) a pesar de vasopresores', 'Escalar vasopresores, evaluar necesidad de balón intraaórtico, consultar cardiología', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-075', 'hvo-2509212155-3050', 'Si anuria persistente > 6 horas', 'Iniciar hemodiálisis urgente, evaluar necesidad de catéter venoso central', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-076', 'hvo-2509212155-3050', 'Si acidosis láctica > 4 mmol/L', 'Aumentar soporte ventilatorio, evaluar perfusión tisular, considerar bicarbonato', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-3640 (María García - Neumonía)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-077', 'hvo-2509212155-3640', 'Si el paciente desarrolla dificultad respiratoria aguda o saturación de oxígeno < 92%', 'Administrar oxígeno suplementario, llamar a terapia respiratoria, considerar BIPAP, contactar al médico tratante inmediatamente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-078', 'hvo-2509212155-3640', 'Si la temperatura axilar supera los 38.5°C', 'Administrar antipiréticos según protocolo, evaluar foco infeccioso, contactar médico si persiste fiebre', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-079', 'hvo-2509212155-3640', 'Si aparecen signos de insuficiencia respiratoria (taquipnea > 30/min, tiraje)', 'Aumentar FiO2, preparar para posible intubación, llamar a intensivista, contactar médico tratante', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-4664 (Antonio Moreno - Intoxicación)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-080', 'hvo-2509212155-4664', 'Si deterioro del nivel de conciencia', 'Evaluar Glasgow, soporte ventilatorio, antídoto específico según tóxico', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-081', 'hvo-2509212155-4664', 'Si insuficiencia hepática aguda', 'Factor VII recombinante, plasma fresco congelado, consulta hepatología', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-082', 'hvo-2509212155-4664', 'Si arritmias cardíacas por toxicidad', 'Antiarrítmicos específicos, monitoreo continuo, consulta cardiología', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-8934 (Ana López - Asma)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-083', 'hvo-2509212155-8934', 'Si el paciente presenta crisis asmática severa con pobre respuesta a tratamiento', 'Administrar adrenalina subcutánea, preparar para intubación, llamar a intensivista', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-084', 'hvo-2509212155-8934', 'Si requiere oxígeno suplementario > 2L/min persistentemente', 'Aumentar dosis de corticoides, considerar terapia inhalatoria adicional, evaluación intensiva', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-085', 'hvo-2509212155-8934', 'Si aparecen signos de fatiga muscular respiratoria', 'Preparar para ventilación no invasiva, evaluar necesidad de intubación, monitoreo continuo', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-9170 (Francisco Ruiz - Trauma abdominal)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-086', 'hvo-2509212155-9170', 'Si signos de peritonitis (rigidez abdominal, rebote)', 'Cirugía urgente, antibióticos de amplio espectro, soporte hemodinámico', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-087', 'hvo-2509212155-9170', 'Si hipotensión por sangrado interno', 'Fluidos cristaloides, sangre tipo específico, evaluación radiológica urgente', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-088', 'hvo-2509212155-9170', 'Si dolor abdominal incontrolable', 'Analgesia multimodal, evaluación por dolor agudo, consulta cirugía', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para hvo-2509212155-9450 (Sofia Martínez - Meningitis)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-089', 'hvo-2509212155-9450', 'Si deterioro neurológico agudo (disminución Glasgow > 2 puntos)', 'Repetir tomografía cerebral urgente, preparar para intervención neuroquirúrgica', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-090', 'hvo-2509212155-9450', 'Si convulsiones recurrentes a pesar de tratamiento', 'Administrar fenitoína en carga, monitoreo EEG continuo, consultar neurología', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-091', 'hvo-2509212155-9450', 'Si hipertensión endocraneana (presión > 20 mmHg)', 'Administrar manitol, hiperventilación controlada, preparar para drenaje ventricular', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
 -- Insertar registro de actividad de ejemplo
 INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
 VALUES ('activity-001', 'handover-001', 'user_demo12345678901234567890123456', 'section_updated', 'Updated illness severity section', 'illness_severity', '{"severity": "stable"}', SYSTIMESTAMP - INTERVAL '45' MINUTE);
