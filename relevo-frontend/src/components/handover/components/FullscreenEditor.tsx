@@ -16,8 +16,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Clock, Save, Stethoscope, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PatientSummary } from "../PatientSummary";
-import { SituationAwareness } from "../SituationAwareness";
+import { PatientSummary } from "./PatientSummary";
+import { SituationAwareness } from "./SituationAwareness";
 
 interface FullscreenEditorProps {
   fullscreenEditing: FullscreenEditingState;

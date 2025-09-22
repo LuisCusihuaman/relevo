@@ -19,10 +19,10 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { activeCollaborators } from "../../../../common/constants";
-import { CollaborationPanel } from "../CollaborationPanel";
-import { HandoverHistory } from "../HandoverHistory";
-import type { PatientHandoverData } from "../../../../hooks/usePatientHandoverData";
+import { activeCollaborators } from "../../../common/constants";
+import { CollaborationPanel } from "./CollaborationPanel";
+import { HandoverHistory } from "./HandoverHistory";
+import type { PatientHandoverData } from "../../../hooks/usePatientHandoverData";
 
 interface MobileMenusProps {
   showMobileMenu: boolean;

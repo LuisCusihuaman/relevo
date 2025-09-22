@@ -1,1 +1,0 @@
-export { SynthesisByReceiver } from "./SynthesisByReceiver";

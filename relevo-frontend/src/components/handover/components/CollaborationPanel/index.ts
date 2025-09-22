@@ -1,1 +1,0 @@
-export { CollaborationPanel } from "./CollaborationPanel";
