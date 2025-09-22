@@ -763,6 +763,77 @@ VALUES ('handover-005', 'assign-005', 'pat-005', 'Ready', 'Critical',
         'Parámetros ventilatorios estables. Continuar sedación y monitoreo continuo.',
         'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 4, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
+-- Crear handovers adicionales para todos los pacientes restantes
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-006', 'assign-001', 'pat-006', 'Ready', 'Critical',
+        'Paciente de 11 años con choque séptico. Antibióticos de amplio espectro y soporte hemodinámico.',
+        'doc-006',
+        'Paciente en shock distributivo, requiere soporte vasopresor continuo.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 5, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-007', 'assign-002', 'pat-007', 'Ready', 'Unstable',
+        'Paciente de 16 años con meningitis bacteriana. Ceftriaxona y dexametasona.',
+        'doc-007',
+        'Paciente con mejoría clínica, cultivos pendientes de resultado.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 6, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-008', 'assign-003', 'pat-008', 'Ready', 'Unstable',
+        'Paciente de 10 años con quemaduras de segundo grado en 25% de superficie corporal.',
+        'doc-008',
+        'Quemaduras extensas requieren curas diarias y analgesia adecuada.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 7, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-009', 'assign-004', 'pat-009', 'Ready', 'Stable',
+        'Paciente de 14 años con convulsiones febriles. Antiepilépticos y antipiréticos.',
+        'doc-009',
+        'Paciente estable, sin recurrencia de convulsiones.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 8, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-010', 'assign-005', 'pat-010', 'Ready', 'Unstable',
+        'Paciente de 17 años con intoxicación medicamentosa. Carbón activado y soporte vital.',
+        'doc-010',
+        'Paciente estabilizado, requiere monitoreo de función hepática.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 9, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-011', 'assign-001', 'pat-011', 'Ready', 'Stable',
+        'Paciente de 13 años con hipoglucemia severa. Glucosa intravenosa e insulina.',
+        'doc-011',
+        'Episodio resuelto, requiere educación diabética.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 10, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-012', 'assign-002', 'pat-012', 'Ready', 'Stable',
+        'Paciente de 12 años con trauma abdominal. Analgésicos y antibióticos profilácticos.',
+        'doc-012',
+        'Paciente estable, sin signos de peritonitis.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 11, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-013', 'assign-003', 'pat-013', 'Ready', 'Stable',
+        'Paciente de 8 años con bronquiolitis. Salbutamol y hidratación.',
+        'doc-013',
+        'Paciente con mejoría respiratoria, buena respuesta al tratamiento.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 12, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-014', 'assign-004', 'pat-014', 'Ready', 'Stable',
+        'Paciente de 11 años con gastroenteritis aguda. Rehidratación oral y ondansetrón.',
+        'doc-014',
+        'Paciente con buena tolerancia oral, sin vómitos.',
+        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', SYSDATE - 13, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-015', 'assign-005', 'pat-015', 'Ready', 'Stable',
+        'Paciente de 10 años con otitis media aguda. Amoxicilina oral y analgésicos.',
+        'doc-015',
+        'Paciente afebril, disminución del dolor otológico.',
+        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', SYSDATE - 14, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
 -- Insertar action items del handover
 INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
 VALUES ('action-001', 'handover-001', 'Realizar nebulizaciones cada 6 horas', 0);
@@ -980,6 +1051,106 @@ VALUES ('contingency-024', 'handover-005', 'Si agitación o dolor no controlado 
 
 INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
 VALUES ('contingency-025', 'handover-005', 'Si infección nosocomial o neumonía asociada a ventilador', 'Cultivos bronquiales, antibióticos de amplio espectro, consultar infectólogo', 'medium', 'planned', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '10' MINUTE);
+
+-- Planificación de Contingencia para handover-006 (Paciente con choque séptico - pat-006)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-026', 'handover-006', 'Si hipotensión refractaria (< 65 mmHg) a pesar de vasopresores', 'Escalar vasopresores, evaluar necesidad de balón intraaórtico, consultar cardiología', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-027', 'handover-006', 'Si anuria persistente > 6 horas', 'Iniciar hemodiálisis urgente, evaluar necesidad de catéter venoso central', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-028', 'handover-006', 'Si acidosis láctica > 4 mmol/L', 'Aumentar soporte ventilatorio, evaluar perfusión tisular, considerar bicarbonato', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-007 (Paciente con meningitis - pat-007)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-029', 'handover-007', 'Si deterioro neurológico agudo (disminución Glasgow > 2 puntos)', 'Repetir tomografía cerebral urgente, preparar para intervención neuroquirúrgica', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-030', 'handover-007', 'Si convulsiones recurrentes a pesar de tratamiento', 'Administrar fenitoína en carga, monitoreo EEG continuo, consultar neurología', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-031', 'handover-007', 'Si hipertensión endocraneana (presión > 20 mmHg)', 'Administrar manitol, hiperventilación controlada, preparar para drenaje ventricular', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-008 (Paciente con quemaduras - pat-008)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-032', 'handover-008', 'Si signos de infección en quemaduras (fiebre, eritema, secreción purulenta)', 'Cultivos locales, antibióticos intravenosos, evaluación quirúrgica urgente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-033', 'handover-008', 'Si dolor incontrolable a pesar de analgesia multimodal', 'Consultar servicio de dolor, evaluar necesidad de sedación profunda', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-034', 'handover-008', 'Si hipovolemia por pérdidas insensibles', 'Aumentar fluidos IV según fórmula de Parkland, monitoreo hemodinámico', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-009 (Paciente con convulsiones - pat-009)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-035', 'handover-009', 'Si convulsión prolongada (> 5 minutos)', 'Administrar diazepam IV, preparar para intubación, monitoreo post-ictal', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-036', 'handover-009', 'Si estado post-ictal prolongado (> 30 minutos)', 'Evaluar causa metabólica, tomografía cerebral, consulta neurológica', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-037', 'handover-009', 'Si recurrencia de convulsiones febriles', 'Repetir estudios etiológicos, considerar profilaxis antiepiléptica', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-010 (Paciente con intoxicación - pat-010)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-038', 'handover-010', 'Si deterioro del nivel de conciencia', 'Evaluar Glasgow, soporte ventilatorio, antídoto específico según tóxico', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-039', 'handover-010', 'Si insuficiencia hepática aguda', 'Factor VII recombinante, plasma fresco congelado, consulta hepatología', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-040', 'handover-010', 'Si arritmias cardíacas por toxicidad', 'Antiarrítmicos específicos, monitoreo continuo, consulta cardiología', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-011 (Paciente con hipoglucemia - pat-011)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-041', 'handover-011', 'Si hipoglucemia recurrente (< 60 mg/dL)', 'Ajustar esquema insulínico, evaluar adherencia, consulta endocrinología', 'medium', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-042', 'handover-011', 'Si cetosis o cetoacidosis', 'Insulina intravenosa continua, fluidos, monitoreo gasométrico frecuente', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-043', 'handover-011', 'Si convulsiones por hipoglucemia', 'Glucosa hipertónica IV, benzodiazepinas si convulsiones, evaluación neurológica', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-012 (Paciente con trauma abdominal - pat-012)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-044', 'handover-012', 'Si signos de peritonitis (rigidez abdominal, rebote)', 'Cirugía urgente, antibióticos de amplio espectro, soporte hemodinámico', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-045', 'handover-012', 'Si hipotensión por sangrado interno', 'Fluidos cristaloides, sangre tipo específico, evaluación radiológica urgente', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-046', 'handover-012', 'Si dolor abdominal incontrolable', 'Analgesia multimodal, evaluación por dolor agudo, consulta cirugía', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-013 (Paciente con bronquiolitis - pat-013)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-047', 'handover-013', 'Si insuficiencia respiratoria progresiva', 'Oxígeno suplementario, preparar para ventilación no invasiva, consulta intensivista', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-048', 'handover-013', 'Si deshidratación por dificultad respiratoria', 'Fluidos IV, monitoreo electrolitos, ajuste respiratorio para minimizar trabajo', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-049', 'handover-013', 'Si apnea o bradicardia', 'Estimulación, ventilación con ambú, preparar para intubación', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-014 (Paciente con gastroenteritis - pat-014)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-050', 'handover-014', 'Si deshidratación severa (pérdida > 10% peso)', 'Fluidos IV isotónicos, monitoreo electrolitos, evaluación cardíaca', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-051', 'handover-014', 'Si vómitos incoercibles a pesar de ondansetrón', 'Antieméticos parenterales, evaluación causa, posible sonda nasogástrica', 'medium', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-052', 'handover-014', 'Si sangre en deposiciones', 'Evaluación endoscópica urgente, antibióticos, monitoreo hemodinámico', 'high', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
+
+-- Planificación de Contingencia para handover-015 (Paciente con otitis media - pat-015)
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-053', 'handover-015', 'Si complicación intracraneal (meningitis, absceso)', 'Antibióticos intravenosos de amplio espectro, evaluación neurológica urgente', 'high', 'active', 'user_demo12345678901234567890123456', SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-054', 'handover-015', 'Si mastoiditis aguda', 'Antibióticos intravenosos, evaluación otorrinolaringológica urgente', 'high', 'active', 'user_demo12345678901234567890123457', SYSTIMESTAMP - INTERVAL '25' MINUTE);
+
+INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
+VALUES ('contingency-055', 'handover-015', 'Si dolor persistente a pesar de analgesia', 'Reevaluar causa, posible paracentesis, consulta otorrinolaringología', 'medium', 'planned', 'user_demo12345678901234567890123458', SYSTIMESTAMP - INTERVAL '20' MINUTE);
 
 -- Insertar registro de actividad de ejemplo
 INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, METADATA, CREATED_AT)
