@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Clock, Edit, FileText, Lock, Save, Shield } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
-import { usePatientSummary, createPatientSummary, updatePatientSummary } from "@/api/endpoints/patients";
-import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { patientQueryKeys } from "@/api/endpoints/patients";
+import {
+	usePatientData,
+	useUpdatePatientData,
+} from "@/api/endpoints/handovers";
 
 interface PatientSummaryProps {
-  patientId: string; // Required: ID of the patient whose summary to display
+  handoverId: string; // Required: ID of the handover
   onOpenThread?: (section: string) => void;
   fullscreenMode?: boolean;
   autoEdit?: boolean;
@@ -36,7 +36,7 @@ interface PatientSummaryProps {
 }
 
 export function PatientSummary({
-  patientId,
+  handoverId,
   onOpenThread: _onOpenThread,
   fullscreenMode = false,
   autoEdit = false,
@@ -49,13 +49,12 @@ export function PatientSummary({
   currentUser,
   assignedPhysician,
   onContentChange,
-}: PatientSummaryProps): JSX.Element {
+}: PatientSummaryProps): ReactElement {
   const { t } = useTranslation("patientSummary");
-  const { authenticatedApiCall } = useAuthenticatedApi();
-  const queryClient = useQueryClient();
 
-  // Fetch patient summary data
-  const { data: summaryData, isLoading: isLoadingSummary } = usePatientSummary(patientId);
+  // Fetch patient summary data using the new hook
+  const { data: patientData, isLoading: isLoadingSummary } =
+    usePatientData(handoverId);
 
   // Local state for editing
   const [isEditing, setIsEditing] = useState(false);
@@ -63,26 +62,14 @@ export function PatientSummary({
   const [editingText, setEditingText] = useState("");
 
   // Get the current summary text, defaulting to empty string if no data
-  const displayText = summaryData?.summary?.summaryText || "";
+  const displayText = patientData?.patientData?.summaryText || "";
   const currentText = isEditing ? editingText : displayText;
 
   // Check if current user can edit (only assigned physician)
   const canEdit = currentUser?.name === assignedPhysician?.name;
 
   // Mutations for creating/updating patient summary
-  const createSummaryMutation = useMutation({
-    mutationFn: (text: string) => createPatientSummary(authenticatedApiCall, patientId, { summaryText: text }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: patientQueryKeys.summaryById(patientId) });
-    },
-  });
-
-  const updateSummaryMutation = useMutation({
-    mutationFn: (text: string) => updatePatientSummary(authenticatedApiCall, patientId, { summaryText: text }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: patientQueryKeys.summaryById(patientId) });
-    },
-  });
+  const updateSummaryMutation = useUpdatePatientData();
 
   const handleSave = useCallback(async () => {
     if (!editingText.trim()) return;
@@ -90,14 +77,13 @@ export function PatientSummary({
     setIsUpdating(true);
 
     try {
-      // Determine if we need to create or update
-      const hasExistingSummary = summaryData?.summary != null;
-
-      if (hasExistingSummary) {
-        await updateSummaryMutation.mutateAsync(editingText);
-      } else {
-        await createSummaryMutation.mutateAsync(editingText);
-      }
+      // The new endpoint handles both create and update (upsert)
+      await updateSummaryMutation.mutateAsync({
+        handoverId,
+        summaryText: editingText,
+        illnessSeverity: patientData?.patientData?.illnessSeverity || "Stable", // Default to stable if not present
+        status: "completed",
+      });
 
       setIsEditing(false);
       setEditingText("");
@@ -112,7 +98,13 @@ export function PatientSummary({
     } finally {
       setIsUpdating(false);
     }
-  }, [editingText, summaryData, createSummaryMutation, updateSummaryMutation, onSave]);
+  }, [
+    editingText,
+    handoverId,
+    updateSummaryMutation,
+    onSave,
+    patientData,
+  ]);
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
@@ -131,7 +123,7 @@ export function PatientSummary({
 
 
   const getTimeAgo = () => {
-    const updatedAt = summaryData?.summary?.updatedAt;
+    const updatedAt = patientData?.patientData?.updatedAt;
     if (!updatedAt) return t("time.never");
 
     const now = new Date();

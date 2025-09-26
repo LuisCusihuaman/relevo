@@ -4,7 +4,6 @@ import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type {
 	PaginatedHandovers,
 	Handover,
-	HandoverSection,
 	HandoverMessage,
 	HandoverActivityItem,
 	HandoverChecklistItem,
@@ -14,7 +13,12 @@ import type {
 	CreateContingencyPlanRequest,
 	UpdateSituationAwarenessRequest,
 	ApiResponse,
+	PatientDataResponse,
+	SynthesisResponse,
+	UpdatePatientDataRequest,
 } from "../types";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 // ========================================
 // QUERY KEYS
@@ -32,6 +36,8 @@ export const handoverQueryKeys = {
 	checklists: (id: string) => [...handoverQueryKeys.detail(id), "checklists"] as const,
 	contingencyPlans: (id: string) => [...handoverQueryKeys.detail(id), "contingency-plans"] as const,
 	situationAwareness: (id: string) => [...handoverQueryKeys.detail(id), "situation-awareness"] as const,
+    patientData: (id: string) => [...handoverQueryKeys.detail(id), "patient-data"] as const,
+    synthesis: (id: string) => [...handoverQueryKeys.detail(id), "synthesis"] as const,
 };
 
 // ========================================
@@ -107,17 +113,14 @@ export async function getPendingHandovers(userId: string): Promise<{ handovers: 
 // HANDOVER SECTIONS
 // ----------------------------------------
 
-export async function updateHandoverSection(
-	handoverId: string,
-	sectionId: string,
-	content: string,
-	status: string
-): Promise<{ success: boolean; message: string }> {
-	const { data } = await api.put<{ success: boolean; message: string }>(
-		`/me/handovers/${handoverId}/sections/${sectionId}`,
-		{ content, status }
-	);
+export async function getPatientData(handoverId: string): Promise<PatientDataResponse> {
+	const { data } = await api.get<PatientDataResponse>(`/handovers/${handoverId}/patient-data`);
 	return data;
+}
+
+export async function getSynthesis(handoverId: string): Promise<SynthesisResponse> {
+    const { data } = await api.get<SynthesisResponse>(`/handovers/${handoverId}/synthesis`);
+    return data;
 }
 
 // HANDOVER MESSAGES
@@ -360,28 +363,6 @@ export function usePendingHandovers(userId: string) {
 // HOOKS: HANDOVER SECTIONS
 // ----------------------------------------
 
-export function useUpdateHandoverSection() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			sectionId,
-			content,
-			status,
-		}: {
-			handoverId: string;
-			sectionId: string;
-			content: string;
-			status: string;
-		}) => updateHandoverSection(handoverId, sectionId, content, status),
-		onSuccess: (_data, { handoverId }) => {
-			queryClient.invalidateQueries({ queryKey: handoverQueryKeys.detail(handoverId) });
-		},
-	});
-}
-
-
 // HOOKS: HANDOVER MESSAGES
 // ----------------------------------------
 
@@ -582,9 +563,19 @@ export async function getSituationAwareness(handoverId: string): Promise<Situati
 	return data;
 }
 
+export async function updatePatientData(handoverId: string, request: UpdatePatientDataRequest): Promise<ApiResponse> {
+    const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/patient-data`, request);
+    return data;
+}
+
 export async function updateSituationAwareness(handoverId: string, request: UpdateSituationAwarenessRequest): Promise<ApiResponse> {
 	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/situation-awareness`, request);
 	return data;
+}
+
+export async function updateSynthesis(handoverId: string, request: { content?: string; status: string }): Promise<ApiResponse> {
+    const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/synthesis`, request);
+    return data;
 }
 
 export async function getContingencyPlans(handoverId: string): Promise<ContingencyPlansResponse> {
@@ -625,6 +616,41 @@ export function useSituationAwareness(handoverId: string) {
 	});
 }
 
+export function usePatientData(handoverId: string) {
+    return useQuery({
+        queryKey: handoverQueryKeys.patientData(handoverId),
+        queryFn: () => getPatientData(handoverId),
+        enabled: !!handoverId,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+}
+
+export function useSynthesis(handoverId: string) {
+    return useQuery({
+        queryKey: handoverQueryKeys.synthesis(handoverId),
+        queryFn: () => getSynthesis(handoverId),
+        enabled: !!handoverId,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+}
+
+export function useUpdatePatientData() {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: ({ handoverId, ...request }: { handoverId: string } & UpdatePatientDataRequest) =>
+            updatePatientData(handoverId, request),
+        onSuccess: (_, { handoverId }) => {
+            toast.success(t("api.handovers.updatePatientData.success"));
+            return queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(handoverId) });
+        },
+        onError: () => {
+            toast.error(t("api.handovers.updatePatientData.error"));
+        },
+    });
+}
+
 export function useUpdateSituationAwareness() {
 	const queryClient = useQueryClient();
 
@@ -642,6 +668,27 @@ export function useUpdateSituationAwareness() {
 			});
 		},
 	});
+}
+
+export function useUpdateSynthesis() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            handoverId,
+            content,
+            status,
+        }: {
+            handoverId: string;
+            content?: string;
+            status: string;
+        }) => updateSynthesis(handoverId, { content, status }),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: handoverQueryKeys.synthesis(variables.handoverId),
+            });
+        },
+    });
 }
 
 export function useContingencyPlans(handoverId: string) {
@@ -698,7 +745,3 @@ export function useDeleteContingencyPlan() {
 // ========================================
 // HELPER FUNCTIONS
 // ========================================
-
-export function getSectionByType(sections: HandoverSection[], sectionType: string): HandoverSection | undefined {
-	return sections.find(section => section.sectionType === sectionType);
-}

@@ -15,9 +15,7 @@ public interface ISetupRepository
     (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize);
     HandoverRecord? GetHandoverById(string handoverId);
     IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId);
-    IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId);
     HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId);
-    bool UpdateHandoverSection(string handoverId, string sectionId, string content, string status, string userId);
     UserPreferencesRecord? GetUserPreferences(string userId);
     IReadOnlyList<UserSessionRecord> GetUserSessions(string userId);
     bool UpdateUserPreferences(string userId, UserPreferencesRecord preferences);
@@ -55,6 +53,15 @@ public interface ISetupRepository
     Task<bool> CompleteHandover(string handoverId, string userId);
     Task<bool> CancelHandover(string handoverId, string userId);
     Task<bool> RejectHandover(string handoverId, string userId, string reason);
+
+    // Singleton Sections
+    Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId);
+    Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
+    Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId);
+
+    Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId);
+    Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
+    Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
 }
 
 // Domain Records
@@ -124,6 +131,35 @@ public record HandoverIllnessSeverity(string Severity);
 public record HandoverPatientSummary(string Content);
 public record HandoverSynthesis(string Content);
 public record HandoverActionItem(string Id, string Description, bool IsCompleted);
+
+// Singleton Section Records
+public record HandoverPatientDataRecord(
+    string HandoverId,
+    string IllnessSeverity,
+    string? SummaryText,
+    string? LastEditedBy,
+    string Status,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);
+
+public record HandoverSituationAwarenessRecord(
+    string HandoverId,
+    string? Content,
+    string Status,
+    string? LastEditedBy,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);
+
+public record HandoverSynthesisRecord(
+    string HandoverId,
+    string? Content,
+    string Status,
+    string? LastEditedBy,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);
 
 public record HandoverParticipantRecord(
     string Id,

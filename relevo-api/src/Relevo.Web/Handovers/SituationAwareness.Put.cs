@@ -4,21 +4,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Relevo.Web.Handovers;
 
-public class UpdateSituationAwareness(
+public class PutSituationAwareness(
     ISetupService _setupService,
     IUserContext _userContext,
-    ILogger<UpdateSituationAwareness> _logger)
-  : Endpoint<UpdateSituationAwarenessRequest, UpdateSituationAwarenessResponse>
+    ILogger<PutSituationAwareness> _logger)
+  : Endpoint<PutSituationAwarenessRequest, ApiResponse>
 {
   public override void Configure()
   {
     Put("/handovers/{handoverId}/situation-awareness");
-    AllowAnonymous(); // Let our custom middleware handle authentication
+    AllowAnonymous(); // Middleware handles auth
   }
 
-  public override async Task HandleAsync(UpdateSituationAwarenessRequest req, CancellationToken ct)
+  public override async Task HandleAsync(PutSituationAwarenessRequest req, CancellationToken ct)
   {
-    // Get authenticated user from context
     var user = _userContext.CurrentUser;
     if (user == null)
     {
@@ -26,25 +25,9 @@ public class UpdateSituationAwareness(
       return;
     }
 
-    _logger.LogInformation("UpdateSituationAwareness - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
+    _logger.LogInformation("PutSituationAwareness - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    // First get the situation awareness section
-    var sections = await _setupService.GetHandoverSectionsAsync(req.HandoverId);
-    var situationAwarenessSection = sections.FirstOrDefault(s => s.SectionType == "situation_awareness");
-
-    if (situationAwarenessSection == null)
-    {
-      await SendNotFoundAsync(ct);
-      return;
-    }
-
-    var success = await _setupService.UpdateHandoverSectionAsync(
-        req.HandoverId,
-        situationAwarenessSection.Id,
-        req.Content ?? "",
-        "completed", // Mark as completed when updated
-        user.Id
-    );
+    var success = await _setupService.UpdateSituationAwarenessAsync(req.HandoverId, req.Content, req.Status, user.Id);
 
     if (!success)
     {
@@ -52,23 +35,18 @@ public class UpdateSituationAwareness(
       return;
     }
 
-    Response = new UpdateSituationAwarenessResponse
-    {
-        Success = true,
-        Message = "Situation awareness updated successfully"
-    };
-
-    await SendAsync(Response, cancellation: ct);
+    await SendAsync(new ApiResponse { Success = true, Message = "Situation awareness updated successfully." }, cancellation: ct);
   }
 }
 
-public class UpdateSituationAwarenessRequest
+public class PutSituationAwarenessRequest
 {
     public required string HandoverId { get; set; }
-    public required string Content { get; set; }
+    public string? Content { get; set; }
+    public string Status { get; set; } = "draft";
 }
 
-public class UpdateSituationAwarenessResponse
+public class ApiResponse
 {
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;

@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 // Use specific types from Core layer to avoid conflicts
 using HandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 using HandoverParticipantRecord = Relevo.Core.Interfaces.HandoverParticipantRecord;
-using HandoverSectionRecord = Relevo.Core.Interfaces.HandoverSectionRecord;
+using HandoverPatientDataRecord = Relevo.Core.Interfaces.HandoverPatientDataRecord;
+using HandoverSituationAwarenessRecord = Relevo.Core.Interfaces.HandoverSituationAwarenessRecord;
+using HandoverSynthesisRecord = Relevo.Core.Interfaces.HandoverSynthesisRecord;
 using HandoverSyncStatusRecord = Relevo.Core.Interfaces.HandoverSyncStatusRecord;
 using UserPreferencesRecord = Relevo.Core.Interfaces.UserPreferencesRecord;
 using UserSessionRecord = Relevo.Core.Interfaces.UserSessionRecord;
@@ -43,19 +45,9 @@ public class SetupServiceTests
             return Task.FromResult(_repository.GetHandoverParticipants(handoverId));
         }
 
-        public Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId)
-        {
-            return Task.FromResult(_repository.GetHandoverSections(handoverId));
-        }
-
         public Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId)
         {
             return Task.FromResult(_repository.GetHandoverSyncStatus(handoverId, userId));
-        }
-
-        public Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId)
-        {
-            return Task.FromResult(_repository.UpdateHandoverSection(handoverId, sectionId, content, status, userId));
         }
 
         public Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId)
@@ -115,6 +107,36 @@ public class SetupServiceTests
         public Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
         {
             return Task.FromResult(_repository.DeleteContingencyPlan(handoverId, contingencyId));
+        }
+
+        public Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId)
+        {
+            return _repository.GetPatientDataAsync(handoverId);
+        }
+
+        public Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId)
+        {
+            return _repository.GetSituationAwarenessAsync(handoverId);
+        }
+
+        public Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId)
+        {
+            return _repository.GetSynthesisAsync(handoverId);
+        }
+
+        public Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId)
+        {
+            return _repository.UpdatePatientDataAsync(handoverId, illnessSeverity, summaryText, status, userId);
+        }
+
+        public Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId)
+        {
+            return _repository.UpdateSituationAwarenessAsync(handoverId, content, status, userId);
+        }
+
+        public Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId)
+        {
+            return _repository.UpdateSynthesisAsync(handoverId, content, status, userId);
         }
 
         public Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
@@ -299,47 +321,6 @@ public class SetupServiceTests
     }
 
     [Fact]
-    public async Task GetHandoverSectionsAsync_ReturnsEmptyList_WhenNoSections()
-    {
-        // Arrange
-        var handoverId = "handover-001";
-        _repository.GetHandoverSections(handoverId).Returns(new List<HandoverSectionRecord>());
-
-        // Act
-        var result = await _setupService.GetHandoverSectionsAsync(handoverId);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().BeEmpty();
-        _repository.Received(1).GetHandoverSections(handoverId);
-    }
-
-    [Fact]
-    public async Task GetHandoverSectionsAsync_ReturnsSections_WhenSectionsExist()
-    {
-        // Arrange
-        var handoverId = "handover-001";
-        var sections = new List<HandoverSectionRecord>
-        {
-            new HandoverSectionRecord("section-001", handoverId, "illness_severity", "Patient is stable", "completed",
-                                    "user-123", System.DateTime.Now, System.DateTime.Now),
-            new HandoverSectionRecord("section-002", handoverId, "patient_summary", "Patient summary content", "draft",
-                                    "user-456", System.DateTime.Now, System.DateTime.Now)
-        };
-        _repository.GetHandoverSections(handoverId).Returns(sections);
-
-        // Act
-        var result = await _setupService.GetHandoverSectionsAsync(handoverId);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(2);
-        result[0].SectionType.Should().Be("illness_severity");
-        result[1].SectionType.Should().Be("patient_summary");
-        _repository.Received(1).GetHandoverSections(handoverId);
-    }
-
-    [Fact]
     public async Task GetHandoverSyncStatusAsync_ReturnsNull_WhenNoSyncStatus()
     {
         // Arrange
@@ -374,43 +355,6 @@ public class SetupServiceTests
         _repository.Received(1).GetHandoverSyncStatus(handoverId, userId);
     }
 
-    [Fact]
-    public async Task UpdateHandoverSectionAsync_ReturnsFalse_WhenUpdateFails()
-    {
-        // Arrange
-        var handoverId = "handover-001";
-        var sectionId = "section-001";
-        var content = "Updated content";
-        var status = "completed";
-        var userId = "user-123";
-        _repository.UpdateHandoverSection(handoverId, sectionId, content, status, userId).Returns(false);
-
-        // Act
-        var result = await _setupService.UpdateHandoverSectionAsync(handoverId, sectionId, content, status, userId);
-
-        // Assert
-        result.Should().BeFalse();
-        _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
-    }
-
-    [Fact]
-    public async Task UpdateHandoverSectionAsync_ReturnsTrue_WhenUpdateSucceeds()
-    {
-        // Arrange
-        var handoverId = "handover-001";
-        var sectionId = "section-001";
-        var content = "Updated content";
-        var status = "completed";
-        var userId = "user-123";
-        _repository.UpdateHandoverSection(handoverId, sectionId, content, status, userId).Returns(true);
-
-        // Act
-        var result = await _setupService.UpdateHandoverSectionAsync(handoverId, sectionId, content, status, userId);
-
-        // Assert
-        result.Should().BeTrue();
-        _repository.Received(1).UpdateHandoverSection(handoverId, sectionId, content, status, userId);
-    }
 
     [Fact]
     public async Task GetUserPreferencesAsync_ReturnsNull_WhenNoPreferences()

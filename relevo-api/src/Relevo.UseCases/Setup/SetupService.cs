@@ -139,23 +139,10 @@ public class SetupService : ISetupService
         return await Task.FromResult(_repository.GetHandoverParticipants(handoverId));
     }
 
-    public async Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId)
-    {
-        // Call repository directly - no use case needed for simple retrieval
-        return await Task.FromResult(_repository.GetHandoverSections(handoverId));
-    }
-
     public async Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId)
     {
         // Call repository directly - no use case needed for simple retrieval
         return await Task.FromResult(_repository.GetHandoverSyncStatus(handoverId, userId));
-    }
-
-    public async Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId)
-    {
-        // This would need a new use case - for now return false
-        // TODO: Implement UpdateHandoverSectionUseCase
-        return await Task.FromResult(false);
     }
 
     public async Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId)
@@ -320,5 +307,36 @@ public class SetupService : ISetupService
     public async Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason)
     {
         return await _repository.RejectHandover(handoverId, userId, reason);
+    }
+
+    // Singleton Sections
+    public async Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId)
+    {
+        return await _repository.GetPatientDataAsync(handoverId);
+    }
+
+    public async Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId)
+    {
+        return await _repository.GetSituationAwarenessAsync(handoverId);
+    }
+
+    public async Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId)
+    {
+        return await _repository.GetSynthesisAsync(handoverId);
+    }
+
+    public async Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId)
+    {
+        return await _repository.UpdatePatientDataAsync(handoverId, illnessSeverity, summaryText, status, userId);
+    }
+
+    public async Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId)
+    {
+        return await _repository.UpdateSituationAwarenessAsync(handoverId, content, status, userId);
+    }
+
+    public async Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId)
+    {
+        return await _repository.UpdateSynthesisAsync(handoverId, content, status, userId);
     }
 }

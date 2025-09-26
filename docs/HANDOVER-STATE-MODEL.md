@@ -11,9 +11,21 @@ This document describes how handovers and doctor-related states are modeled in t
   - **Context**: `PATIENT_ID`, `SHIFT_NAME`, `ILLNESS_SEVERITY`, `PATIENT_SUMMARY`, `SYNTHESIS`
   - Indices: `STATUS`, `FROM_DOCTOR_ID`, `TO_DOCTOR_ID`, `PATIENT_ID`, `CREATED_BY`
 
-- **Handover Sections (`HANDOVER_SECTIONS`)**
-  - **Section type**: `illness_severity` | `patient_summary` | `action_items` | `situation_awareness` | `synthesis`
-  - **Section status**: `draft` | `in_progress` | `completed`
+- **Patient Data (`HANDOVER_PATIENT_DATA`)**
+  - **Illness severity**: `Stable` | `Watcher` | `Unstable` | `Critical`
+  - **Patient summary**: Free text content
+  - **Status**: `draft` | `in_progress` | `completed`
+  - **Last edited by**: User reference
+
+- **Situation Awareness (`HANDOVER_SITUATION_AWARENESS`)**
+  - **Content**: Free text content
+  - **Status**: `draft` | `in_progress` | `completed`
+  - **Last edited by**: User reference
+
+- **Synthesis (`HANDOVER_SYNTHESIS`)**
+  - **Content**: Free text content
+  - **Status**: `draft` | `in_progress` | `completed`
+  - **Last edited by**: User reference
 
 - **Participants (`HANDOVER_PARTICIPANTS`)**
   - **Status**: `active` | `inactive` | `viewing`
@@ -62,11 +74,14 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 
 ### Section Workflow (I-PASS)
 
-- Sections exist per handover and carry their own status independent of the handover’s global status.
-- Suggested usage:
-  - `draft`: Newly created or partly filled
-  - `in_progress`: Being edited collaboratively
-  - `completed`: Finalized for handover
+- **Patient Data**: Contains illness severity and patient summary with collaborative editing capabilities
+- **Situation Awareness**: Free-form content documenting current patient situation and team awareness
+- **Synthesis**: Handover synthesis and key takeaways for the receiving team
+
+Each singleton section carries its own status independent of the handover's global status:
+- `draft`: Newly created or partly filled
+- `in_progress`: Being edited collaboratively
+- `completed`: Finalized for handover
 
 ### Participants and Presence
 
@@ -96,6 +111,16 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 - `GET /patients/{patientId}/handovers`
   - Historical per-patient list, regardless of doctor.
 
+- **Singleton Data Endpoints:**
+  - `GET|PUT /api/handovers/{id}/patient-data`
+  - `GET|PUT /api/handovers/{id}/situation-awareness`
+  - `GET|PUT /api/handovers/{id}/synthesis`
+
+- **Collection Endpoints:**
+  - `GET|POST /api/handovers/{id}/action-items`
+  - `GET|POST /api/handovers/{id}/contingency-plans`
+  - `GET|POST /api/handovers/{id}/messages`
+
 ### Known Pitfalls / Historical Issues with "Active" Handover (RESOLVED)
 
 - **RESOLVED**: The "active handover" concept has been removed. Users now navigate to the most recent handover for a patient regardless of status.
@@ -115,6 +140,15 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 - **Section completion gating**
   - Decide if handover can be completed only when certain sections reach `completed`.
 
+### Data Structure Migration
+
+- **From sections to singletons**: The system has migrated from a generic `HANDOVER_SECTIONS` table with dynamic section types to dedicated singleton tables:
+  - `HANDOVER_PATIENT_DATA` for illness severity and patient summary
+  - `HANDOVER_SITUATION_AWARENESS` for situation awareness content
+  - `HANDOVER_SYNTHESIS` for handover synthesis
+- **API changes**: Replaced generic `/sections/{sectionId}` endpoints with explicit singleton endpoints
+- **Frontend changes**: Replaced generic section functions with typed hooks and mutations
+
 ### Troubleshooting Checklist
 
 - Verify `TO_DOCTOR_ID` equals the current user ID.
@@ -126,6 +160,9 @@ WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'
 
 - **Receiving doctor**: The doctor assigned to take over care (`TO_DOCTOR_ID`).
 - **Sending doctor**: The doctor handing off care (`FROM_DOCTOR_ID`).
+- **Patient Data**: Singleton containing illness severity and patient summary information.
+- **Situation Awareness**: Singleton containing current patient situation and team awareness documentation.
+- **Synthesis**: Singleton containing handover synthesis and key takeaways.
 - **Active handover** (deprecated): This concept has been removed. Users now work with the most recent handover regardless of status.
 
 

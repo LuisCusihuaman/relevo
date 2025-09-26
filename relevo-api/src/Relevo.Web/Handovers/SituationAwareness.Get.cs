@@ -28,22 +28,24 @@ public class GetSituationAwareness(
 
     _logger.LogInformation("GetSituationAwareness - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var sections = await _setupService.GetHandoverSectionsAsync(req.HandoverId);
-    var situationAwarenessSection = sections.FirstOrDefault(s => s.SectionType == "situation_awareness");
+    var situationAwarenessSection = await _setupService.GetSituationAwarenessAsync(req.HandoverId);
+
+    if (situationAwarenessSection == null)
+    {
+      await SendNotFoundAsync(ct);
+      return;
+    }
 
     Response = new GetSituationAwarenessResponse
     {
-        Section = situationAwarenessSection != null ? new SituationAwarenessSectionDto
+        Section = new SituationAwarenessSectionDto
         {
-            Id = situationAwarenessSection.Id,
             HandoverId = situationAwarenessSection.HandoverId,
-            SectionType = situationAwarenessSection.SectionType,
             Content = situationAwarenessSection.Content,
             Status = situationAwarenessSection.Status,
             LastEditedBy = situationAwarenessSection.LastEditedBy,
-            CreatedAt = situationAwarenessSection.CreatedAt,
             UpdatedAt = situationAwarenessSection.UpdatedAt
-        } : null
+        }
     };
 
     await SendAsync(Response, cancellation: ct);
@@ -62,12 +64,9 @@ public class GetSituationAwarenessResponse
 
 public class SituationAwarenessSectionDto
 {
-    public string Id { get; set; } = string.Empty;
     public string HandoverId { get; set; } = string.Empty;
-    public string SectionType { get; set; } = string.Empty;
     public string? Content { get; set; }
     public string Status { get; set; } = string.Empty;
     public string? LastEditedBy { get; set; }
-    public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

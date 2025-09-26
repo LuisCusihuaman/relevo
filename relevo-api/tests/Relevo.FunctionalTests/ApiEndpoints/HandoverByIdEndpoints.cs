@@ -1,5 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
-using Relevo.Web.Models;
+using Relevo.Web.Handovers;
 using Relevo.Core.Interfaces;
 using Xunit;
 
@@ -21,9 +21,9 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     Assert.NotNull(result.AssignmentId);
     Assert.NotNull(result.PatientId);
     Assert.NotNull(result.Status);
-    Assert.NotNull(result.IllnessSeverity);
-    Assert.NotNull(result.PatientSummary);
-    Assert.NotNull(result.ActionItems);
+    Assert.NotNull(result.illnessSeverity);
+    Assert.NotNull(result.patientSummary);
+    Assert.NotNull(result.actionItems);
     Assert.NotNull(result.ShiftName);
     Assert.NotNull(result.CreatedBy);
     Assert.NotNull(result.AssignedTo);
@@ -42,17 +42,17 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     Assert.Equal("pat-001", result.PatientId);
     Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
 
-    // Verify illness severity structure
-    Assert.NotNull(result.IllnessSeverity);
-    Assert.NotNull(result.IllnessSeverity.Value);
-    Assert.Contains(result.IllnessSeverity.Value, new[] { "Stable", "Watcher", "Unstable" });
+    // Verify illness severity structure - using actual property names
+    Assert.NotNull(result.illnessSeverity);
+    Assert.NotNull(result.illnessSeverity.severity);
+    Assert.Contains(result.illnessSeverity.severity, new[] { "Stable", "Watcher", "Unstable" });
 
-    // Verify patient summary structure
-    Assert.NotNull(result.PatientSummary);
-    Assert.NotNull(result.PatientSummary.Value);
+    // Verify patient summary structure - using actual property names
+    Assert.NotNull(result.patientSummary);
+    Assert.NotNull(result.patientSummary.content);
 
     // Verify action items structure
-    Assert.NotNull(result.ActionItems);
+    Assert.NotNull(result.actionItems);
 
     // Verify other required fields
     Assert.NotNull(result.AssignmentId);
@@ -79,12 +79,12 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
-    Assert.NotNull(result.ActionItems);
+    Assert.NotNull(result.actionItems);
     // This handover may or may not have action items, so we just verify the structure
-    foreach (var actionItem in result.ActionItems)
+    foreach (var actionItem in result.actionItems)
     {
-      Assert.NotNull(actionItem.Id);
-      Assert.NotNull(actionItem.Description);
+      Assert.NotNull(actionItem.id);
+      Assert.NotNull(actionItem.description);
       // IsCompleted should be boolean
     }
   }
@@ -119,7 +119,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
 
     Assert.NotNull(result);
     Assert.NotNull(result.ShiftName);
-    Assert.Equal("Mañana", result.ShiftName);
+    Assert.Equal("Mañana → Noche", result.ShiftName);
   }
 
   [Fact]
@@ -129,8 +129,8 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
-    Assert.NotNull(result.IllnessSeverity);
-    Assert.Equal("Stable", result.IllnessSeverity.Value);
+    Assert.NotNull(result.illnessSeverity);
+    Assert.Equal("Stable", result.illnessSeverity.severity);
   }
 
   [Fact]
@@ -158,9 +158,9 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
-    Assert.NotNull(result.ActionItems);
+    Assert.NotNull(result.actionItems);
     // The handover-001 has action items, so verify we get them
-    Assert.True(result.ActionItems.Count >= 0);
+    Assert.True(result.actionItems.Count >= 0);
   }
 
   [Fact]
@@ -182,34 +182,34 @@ public class GetHandoverByIdResponse
   public string PatientId { get; set; } = string.Empty;
   public string? PatientName { get; set; }
   public string Status { get; set; } = string.Empty;
-  public IllnessSeverityDto IllnessSeverity { get; set; } = new();
-  public PatientSummaryDto PatientSummary { get; set; } = new();
-  public List<ActionItemDto> ActionItems { get; set; } = [];
-  public string? SituationAwarenessDocId { get; set; }
-  public SynthesisDto? Synthesis { get; set; }
+  public IllnessSeverityDto illnessSeverity { get; set; } = new();
+  public PatientSummaryDto patientSummary { get; set; } = new();
+  public List<ActionItemDto> actionItems { get; set; } = [];
+  public string? situationAwarenessDocId { get; set; }
+  public SynthesisDto? synthesis { get; set; }
   public string ShiftName { get; set; } = string.Empty;
   public string CreatedBy { get; set; } = string.Empty;
   public string AssignedTo { get; set; } = string.Empty;
 
   public class IllnessSeverityDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string severity { get; set; } = string.Empty;
   }
 
   public class PatientSummaryDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string content { get; set; } = string.Empty;
   }
 
   public class ActionItemDto
   {
-    public string Id { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public bool IsCompleted { get; set; }
+    public string id { get; set; } = string.Empty;
+    public string description { get; set; } = string.Empty;
+    public bool isCompleted { get; set; }
   }
 
   public class SynthesisDto
   {
-    public string Value { get; set; } = string.Empty;
+    public string content { get; set; } = string.Empty;
   }
 }

@@ -13,9 +13,7 @@ public interface ISetupService
     Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize);
     Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId);
     Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId);
-    Task<IReadOnlyList<HandoverSectionRecord>> GetHandoverSectionsAsync(string handoverId);
     Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId);
-    Task<bool> UpdateHandoverSectionAsync(string handoverId, string sectionId, string content, string status, string userId);
     Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId);
     Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId);
     Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences);
@@ -58,4 +56,13 @@ public interface ISetupService
     Task<bool> CompleteHandoverAsync(string handoverId, string userId);
     Task<bool> CancelHandoverAsync(string handoverId, string userId);
     Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason);
+
+    // Singleton Sections
+    Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId);
+    Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
+    Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId);
+
+    Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId);
+    Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
+    Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
 }

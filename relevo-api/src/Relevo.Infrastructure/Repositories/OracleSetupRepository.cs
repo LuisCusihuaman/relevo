@@ -242,8 +242,11 @@ public class OracleSetupRepository : ISetupRepository
 
         // Get handovers with pagination
         const string handoverSql = @"
-          SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                 h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+          SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS,
+                 pd.ILLNESS_SEVERITY, pd.SUMMARY_TEXT as PATIENT_SUMMARY,
+                 sa.CONTENT as SITUATION_AWARENESS_CONTENT, sa.LAST_EDITED_BY as SITUATION_AWARENESS_LAST_EDITED_BY,
+                 syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_LAST_EDITED_BY,
+                 h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                  cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                  TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                  TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
@@ -266,6 +269,9 @@ public class OracleSetupRepository : ISetupRepository
           LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
           LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
           LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+          LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
+          LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
+          LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
           WHERE ua.USER_ID = :userId
           ORDER BY h.CREATED_AT DESC
           OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -303,8 +309,8 @@ public class OracleSetupRepository : ISetupRepository
                     AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
                     PatientName: row.PATIENT_NAME,
-                    SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+                    SituationAwarenessDocId: row.SITUATION_AWARENESS_LAST_EDITED_BY,
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
                     CreatedAt: row.CREATED_AT,
                     ReadyAt: row.READY_AT,
                     StartedAt: row.STARTED_AT,
@@ -429,8 +435,11 @@ public class OracleSetupRepository : ISetupRepository
             int offset = (p - 1) * ps;
 
             const string handoverSql = @"
-              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS,
+                     pd.ILLNESS_SEVERITY, pd.SUMMARY_TEXT as PATIENT_SUMMARY,
+                     sa.CONTENT as SITUATION_AWARENESS_CONTENT, sa.LAST_EDITED_BY as SITUATION_AWARENESS_LAST_EDITED_BY,
+                     syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_LAST_EDITED_BY,
+                     h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                      TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
@@ -452,6 +461,9 @@ public class OracleSetupRepository : ISetupRepository
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
               LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+              LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
+              LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
+              LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
               WHERE h.PATIENT_ID = :patientId
               ORDER BY h.CREATED_AT DESC";
 
@@ -487,8 +499,8 @@ public class OracleSetupRepository : ISetupRepository
                     AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
                     PatientName: row.PATIENT_NAME,
-                    SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
+                    SituationAwarenessDocId: row.SITUATION_AWARENESS_LAST_EDITED_BY,
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
                     CreatedAt: row.CREATED_AT,
                     ReadyAt: row.READY_AT,
                     StartedAt: row.STARTED_AT,
@@ -526,8 +538,11 @@ public class OracleSetupRepository : ISetupRepository
             using IDbConnection conn = _factory.CreateConnection();
 
             const string handoverSql = @"
-              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY,
-                     h.SITUATION_AWARENESS_DOC_ID, h.SYNTHESIS, h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
+              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS,
+                     pd.ILLNESS_SEVERITY, pd.SUMMARY_TEXT as PATIENT_SUMMARY,
+                     sa.CONTENT as SITUATION_AWARENESS_CONTENT, sa.LAST_EDITED_BY as SITUATION_AWARENESS_LAST_EDITED_BY,
+                     syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_LAST_EDITED_BY,
+                     h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      h.RECEIVER_USER_ID,
                      cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
@@ -551,6 +566,9 @@ public class OracleSetupRepository : ISetupRepository
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
               LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+              LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
+              LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
+              LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
               WHERE h.ID = :handoverId";
 
             var row = conn.QueryFirstOrDefault(handoverSql, new { handoverId });
@@ -580,8 +598,8 @@ public class OracleSetupRepository : ISetupRepository
                 IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                 PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
                 ActionItems: actionItems,
-                SituationAwarenessDocId: row.SITUATION_AWARENESS_DOC_ID,
-                Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS) ? new HandoverSynthesis(row.SYNTHESIS) : null,
+                SituationAwarenessDocId: row.SITUATION_AWARENESS_LAST_EDITED_BY,
+                Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? new HandoverSynthesis(row.SYNTHESIS_CONTENT) : null,
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
                 AssignedTo: row.ASSIGNED_TO ?? "system",
@@ -730,88 +748,6 @@ public class OracleSetupRepository : ISetupRepository
         }
     }
 
-    public IReadOnlyList<HandoverSectionRecord> GetHandoverSections(string handoverId)
-    {
-        try
-        {
-            using IDbConnection conn = _factory.CreateConnection();
-
-            const string sql = @"
-                SELECT ID, HANDOVER_ID as HandoverId, SECTION_TYPE as SectionType, CONTENT, STATUS, LAST_EDITED_BY as LastEditedBy,
-                       CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
-                FROM HANDOVER_SECTIONS
-                WHERE HANDOVER_ID = :handoverId
-                ORDER BY CREATED_AT";
-
-            var sections = conn.Query<HandoverSectionRecord>(sql, new { handoverId }).ToList();
-
-            // If no sections exist, create default empty sections
-            if (!sections.Any())
-            {
-                sections = new List<HandoverSectionRecord>
-                {
-                    new HandoverSectionRecord(
-                        Id: $"section-{handoverId}-severity",
-                        HandoverId: handoverId,
-                        SectionType: "illness_severity",
-                        Content: "Stable",
-                        Status: "draft",
-                        LastEditedBy: null,
-                        CreatedAt: DateTime.Now,
-                        UpdatedAt: DateTime.Now
-                    ),
-                    new HandoverSectionRecord(
-                        Id: $"section-{handoverId}-summary",
-                        HandoverId: handoverId,
-                        SectionType: "patient_summary",
-                        Content: "",
-                        Status: "draft",
-                        LastEditedBy: null,
-                        CreatedAt: DateTime.Now,
-                        UpdatedAt: DateTime.Now
-                    ),
-                    new HandoverSectionRecord(
-                        Id: $"section-{handoverId}-actions",
-                        HandoverId: handoverId,
-                        SectionType: "action_items",
-                        Content: "",
-                        Status: "draft",
-                        LastEditedBy: null,
-                        CreatedAt: DateTime.Now,
-                        UpdatedAt: DateTime.Now
-                    ),
-                    new HandoverSectionRecord(
-                        Id: $"section-{handoverId}-awareness",
-                        HandoverId: handoverId,
-                        SectionType: "situation_awareness",
-                        Content: "",
-                        Status: "draft",
-                        LastEditedBy: null,
-                        CreatedAt: DateTime.Now,
-                        UpdatedAt: DateTime.Now
-                    ),
-                    new HandoverSectionRecord(
-                        Id: $"section-{handoverId}-synthesis",
-                        HandoverId: handoverId,
-                        SectionType: "synthesis",
-                        Content: "",
-                        Status: "draft",
-                        LastEditedBy: null,
-                        CreatedAt: DateTime.Now,
-                        UpdatedAt: DateTime.Now
-                    )
-                };
-            }
-
-            return sections;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get sections for handover {HandoverId}", handoverId);
-            return Array.Empty<HandoverSectionRecord>();
-        }
-    }
-
     public HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId)
     {
         try
@@ -847,52 +783,143 @@ public class OracleSetupRepository : ISetupRepository
         }
     }
 
-    public bool UpdateHandoverSection(string handoverId, string sectionId, string content, string status, string userId)
+    // Singleton Sections
+    public async Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId)
     {
         try
         {
             using IDbConnection conn = _factory.CreateConnection();
-
-            // First check if the section exists
-            const string checkSql = "SELECT COUNT(1) FROM HANDOVER_SECTIONS WHERE ID = :sectionId AND HANDOVER_ID = :handoverId";
-            var exists = conn.ExecuteScalar<int>(checkSql, new { sectionId, handoverId }) > 0;
-
-            if (exists)
-            {
-                // Update existing section
-                const string updateSql = @"
-                    UPDATE HANDOVER_SECTIONS
-                    SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
-                    WHERE ID = :sectionId AND HANDOVER_ID = :handoverId";
-
-                var rowsAffected = conn.Execute(updateSql, new { sectionId, handoverId, content, status, userId });
-                return rowsAffected > 0;
-            }
-            else
-            {
-                // Insert new section
-                const string insertSql = @"
-                    INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
-                    VALUES (:sectionId, :handoverId, :sectionType, :content, :status, :userId, SYSTIMESTAMP, SYSTIMESTAMP)";
-
-                // Extract section type from sectionId (e.g., "section-h1-severity" -> "illness_severity")
-                var sectionType = sectionId.Contains("severity") ? "illness_severity" :
-                                 sectionId.Contains("summary") ? "patient_summary" :
-                                 sectionId.Contains("actions") ? "action_items" :
-                                 sectionId.Contains("awareness") ? "situation_awareness" :
-                                 "synthesis";
-
-                var rowsAffected = conn.Execute(insertSql, new { sectionId, handoverId, sectionType, content, status, userId });
-                return rowsAffected > 0;
-            }
+            const string sql = @"
+                SELECT HANDOVER_ID as HandoverId, ILLNESS_SEVERITY as IllnessSeverity, SUMMARY_TEXT as SummaryText,
+                       LAST_EDITED_BY as LastEditedBy, STATUS, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+                FROM HANDOVER_PATIENT_DATA
+                WHERE HANDOVER_ID = :handoverId";
+            
+            return await conn.QueryFirstOrDefaultAsync<HandoverPatientDataRecord>(sql, new { handoverId });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to update handover section {SectionId}", sectionId);
+            _logger.LogError(ex, "Failed to get patient data for handover {HandoverId}", handoverId);
             throw;
         }
     }
 
+    public async Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT HANDOVER_ID as HandoverId, CONTENT as Content, STATUS,
+                       LAST_EDITED_BY as LastEditedBy, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+                FROM HANDOVER_SITUATION_AWARENESS
+                WHERE HANDOVER_ID = :handoverId";
+
+            return await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get situation awareness for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                SELECT HANDOVER_ID as HandoverId, CONTENT as Content, STATUS,
+                       LAST_EDITED_BY as LastEditedBy, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+                FROM HANDOVER_SYNTHESIS
+                WHERE HANDOVER_ID = :handoverId";
+
+            return await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get synthesis for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                MERGE INTO HANDOVER_PATIENT_DATA pd
+                USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (pd.HANDOVER_ID = src.HANDOVER_ID)
+                WHEN MATCHED THEN
+                    UPDATE SET
+                        ILLNESS_SEVERITY = :illnessSeverity,
+                        SUMMARY_TEXT = :summaryText,
+                        STATUS = :status,
+                        LAST_EDITED_BY = :userId,
+                        UPDATED_AT = SYSTIMESTAMP
+                WHEN NOT MATCHED THEN
+                    INSERT (HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, STATUS, LAST_EDITED_BY, UPDATED_AT)
+                    VALUES (:handoverId, :illnessSeverity, :summaryText, :status, :userId, SYSTIMESTAMP)";
+
+            var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, illnessSeverity, summaryText, status, userId });
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update patient data for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                MERGE INTO HANDOVER_SITUATION_AWARENESS s
+                USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (s.HANDOVER_ID = src.HANDOVER_ID)
+                WHEN MATCHED THEN
+                    UPDATE SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+                WHEN NOT MATCHED THEN
+                    INSERT (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, UPDATED_AT)
+                    VALUES (:handoverId, :content, :status, :userId, SYSTIMESTAMP)";
+
+            var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, content, status, userId });
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update situation awareness for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            const string sql = @"
+                MERGE INTO HANDOVER_SYNTHESIS s
+                USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (s.HANDOVER_ID = src.HANDOVER_ID)
+                WHEN MATCHED THEN
+                    UPDATE SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+                WHEN NOT MATCHED THEN
+                    INSERT (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, UPDATED_AT)
+                    VALUES (:handoverId, :content, :status, :userId, SYSTIMESTAMP)";
+
+            var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, content, status, userId });
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update synthesis for handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
 
     public UserPreferencesRecord? GetUserPreferences(string userId)
     {

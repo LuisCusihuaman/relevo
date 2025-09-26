@@ -422,34 +422,6 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         participants[0].UserId.Should().NotBeNullOrEmpty();
     }
 
-    [Fact]
-    public void GetHandoverSections_ReturnsSections_WhenHandoverHasSections()
-    {
-        if (_connection == null)
-        {
-            Assert.True(true, _oracleUnavailableMessage);
-            return;
-        }
-
-        // Arrange
-        var handoverId = "test-handover-sections";
-        var patientId = "test-patient-1";
-        var assignmentId = "test-assignment-sections";
-        var userId = "test-user-sections";
-
-        // Create handover with sections
-        CreateTestHandoverWithSections(handoverId, patientId, assignmentId, userId);
-
-        // Act
-        var sections = _repository.GetHandoverSections(handoverId);
-
-        // Assert
-        sections.Should().NotBeNull();
-        sections.Should().NotBeEmpty();
-        sections.Should().HaveCountGreaterThan(0);
-        sections[0].HandoverId.Should().Be(handoverId);
-        sections[0].SectionType.Should().NotBeNullOrEmpty();
-    }
 
     [Fact]
     public void GetHandoverSyncStatus_ReturnsSyncStatus_WhenSyncStatusExists()

@@ -157,16 +157,6 @@ export type HandoverParticipant = {
 	lastActivity: string;
 };
 
-export type HandoverSection = {
-	id: string;
-	sectionType: "illness_severity" | "patient_summary" | "action_items" | "situation_awareness" | "synthesis";
-	content?: string;
-	status: "draft" | "in_progress" | "completed";
-	lastEditedBy?: string;
-	createdAt: string;
-	updatedAt: string;
-};
-
 export type HandoverSyncStatus = {
 	id: string;
 	syncStatus: "synced" | "syncing" | "pending" | "offline" | "error";
@@ -242,6 +232,38 @@ export type ContingencyPlansResponse = {
 	plans: HandoverContingencyPlan[];
 };
 
+export type PatientDataDto = {
+    handoverId: string;
+    illnessSeverity: string;
+    summaryText?: string;
+    lastEditedBy?: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type PatientDataResponse = {
+    patientData: PatientDataDto | null;
+};
+
+export type UpdatePatientDataRequest = {
+    illnessSeverity: string;
+    summaryText?: string;
+    status: string;
+};
+
+export type SynthesisDto = {
+    handoverId: string;
+    content?: string;
+    status: string;
+    lastEditedBy?: string;
+    updatedAt: string;
+};
+
+export type SynthesisResponse = {
+    synthesis: SynthesisDto | null;
+};
+
 export type CreateContingencyPlanRequest = {
 	conditionText: string;
 	actionText: string;
@@ -255,13 +277,6 @@ export type UpdateSituationAwarenessRequest = {
 export type ApiResponse = {
 	success: boolean;
 	message: string;
-};
-
-export type ActiveHandoverData = {
-	handover: Handover;
-	participants: Array<HandoverParticipant>;
-	sections: Array<HandoverSection>;
-	syncStatus?: HandoverSyncStatus;
 };
 
 // Additional types for Daily Setup

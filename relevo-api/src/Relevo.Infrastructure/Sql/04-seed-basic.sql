@@ -138,112 +138,63 @@ VALUES ('session-002', 'user_demo12345678901234567890123457', '192.168.1.101', '
 COMMIT;
 
 -- Insertar handover de ejemplo
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-001', 'assign-001', 'pat-001', 'Ready', 'Stable',
-        'Paciente de 14 años con neumonía adquirida en comunidad. Estable, saturación de oxígeno 94%, requiere nebulizaciones cada 6 horas.',
-        'doc-001',
-        'Paciente estable, evolución favorable. Continuar tratamiento actual.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE), SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-001', 'assign-001', 'pat-001', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE), SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
 -- Insertar handovers adicionales para todos los pacientes
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-002', 'assign-002', 'pat-002', 'Ready', 'Critical',
-        'Paciente de 12 años con sepsis secundaria a infección urinaria. Paciente crítico, requiere monitoreo continuo.',
-        'doc-002',
-        'Paciente en estado crítico. Continuar soporte vasopresor y antibióticos.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 1, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-002', 'assign-002', 'pat-002', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 1, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-003', 'assign-003', 'pat-003', 'Ready', 'Unstable',
-        'Paciente de 13 años con estado asmático agudo. Mejoría progresiva, disminución en requerimiento de oxígeno.',
-        'doc-003',
-        'Mejoría respiratoria evidente. Continuar tratamiento actual con reducción gradual.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 2, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-003', 'assign-003', 'pat-003', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 2, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-004', 'assign-004', 'pat-004', 'Ready', 'Unstable',
-        'Paciente de 13 años con trauma craneoencefálico moderado. Glasgow 12/15, requiere monitoreo neurológico.',
-        'doc-004',
-        'Estable neurológicamente. Continuar monitoreo frecuente y evaluación neuroquirúrgica.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 3, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-004', 'assign-004', 'pat-004', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 3, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-005', 'assign-005', 'pat-005', 'Ready', 'Critical',
-        'Paciente de 13 años con insuficiencia respiratoria aguda. Ventilación mecánica invasiva.',
-        'doc-005',
-        'Parámetros ventilatorios estables. Continuar sedación y monitoreo continuo.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 4, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-005', 'assign-005', 'pat-005', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 4, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
 -- Crear handovers adicionales para todos los pacientes restantes
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-006', 'assign-001', 'pat-006', 'Ready', 'Critical',
-        'Paciente de 11 años con choque séptico. Antibióticos de amplio espectro y soporte hemodinámico.',
-        'doc-006',
-        'Paciente en shock distributivo, requiere soporte vasopresor continuo.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 5, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-006', 'assign-001', 'pat-006', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 5, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-007', 'assign-002', 'pat-007', 'Ready', 'Unstable',
-        'Paciente de 16 años con meningitis bacteriana. Ceftriaxona y dexametasona.',
-        'doc-007',
-        'Paciente con mejoría clínica, cultivos pendientes de resultado.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 6, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-007', 'assign-002', 'pat-007', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 6, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-008', 'assign-003', 'pat-008', 'Ready', 'Unstable',
-        'Paciente de 10 años con quemaduras de segundo grado en 25% de superficie corporal.',
-        'doc-008',
-        'Quemaduras extensas requieren curas diarias y analgesia adecuada.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 7, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-008', 'assign-003', 'pat-008', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 7, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-009', 'assign-004', 'pat-009', 'Ready', 'Stable',
-        'Paciente de 14 años con convulsiones febriles. Antiepilépticos y antipiréticos.',
-        'doc-009',
-        'Paciente estable, sin recurrencia de convulsiones.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 8, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-009', 'assign-004', 'pat-009', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 8, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-010', 'assign-005', 'pat-010', 'Ready', 'Unstable',
-        'Paciente de 17 años con intoxicación medicamentosa. Carbón activado y soporte vital.',
-        'doc-010',
-        'Paciente estabilizado, requiere monitoreo de función hepática.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 9, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-010', 'assign-005', 'pat-010', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 9, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-011', 'assign-001', 'pat-011', 'Ready', 'Stable',
-        'Paciente de 13 años con hipoglucemia severa. Glucosa intravenosa e insulina.',
-        'doc-011',
-        'Episodio resuelto, requiere educación diabética.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 10, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-011', 'assign-001', 'pat-011', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 10, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-012', 'assign-002', 'pat-012', 'Ready', 'Stable',
-        'Paciente de 12 años con trauma abdominal. Analgésicos y antibióticos profilácticos.',
-        'doc-012',
-        'Paciente estable, sin signos de peritonitis.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 11, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-012', 'assign-002', 'pat-012', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 11, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-013', 'assign-003', 'pat-013', 'Ready', 'Stable',
-        'Paciente de 8 años con bronquiolitis. Salbutamol y hidratación.',
-        'doc-013',
-        'Paciente con mejoría respiratoria, buena respuesta al tratamiento.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 12, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-013', 'assign-003', 'pat-013', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 12, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-014', 'assign-004', 'pat-014', 'Ready', 'Stable',
-        'Paciente de 15 años con apendicitis aguda. Preparado para apendicectomía.',
-        'doc-014',
-        'Paciente en espera de cirugía, mantener en ayunas.',
-        'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 13, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-014', 'assign-004', 'pat-014', 'Ready', 'Noche → Mañana', 'shift-night', 'shift-day', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123458', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 13, SYSTIMESTAMP - INTERVAL '30' MINUTE);
 
-INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS_DOC_ID, SYNTHESIS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
-VALUES ('handover-015', 'assign-005', 'pat-015', 'Ready', 'Stable',
-        'Paciente de 9 años con fractura de fémur. Tracción esquelética.',
-        'doc-015',
-        'Paciente con buen control del dolor, requiere vigilancia neurovascular.',
-        'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 14, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+INSERT INTO HANDOVERS (ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID, CREATED_BY, HANDOVER_WINDOW_DATE, READY_AT)
+VALUES ('handover-015', 'assign-005', 'pat-015', 'Ready', 'Mañana → Noche', 'shift-day', 'shift-night', 'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 'user_demo12345678901234567890123456', TRUNC(SYSDATE) - 14, SYSTIMESTAMP - INTERVAL '30' MINUTE);
+
+-- Seed data for singleton tables
+-- For handover-001
+INSERT INTO HANDOVER_PATIENT_DATA(HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, STATUS, LAST_EDITED_BY)
+VALUES ('handover-001', 'Stable', 'Paciente de 14 años con neumonía adquirida en comunidad. Ingreso hace 3 días. Tratamiento con Amoxicilina y oxígeno suplementario.', 'completed', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SITUATION_AWARENESS(HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('handover-001', 'Paciente estable, sin complicaciones. Buena respuesta al tratamiento antibiótico.', 'completed', 'user_demo12345678901234567890123456');
+
+INSERT INTO HANDOVER_SYNTHESIS(HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY)
+VALUES ('handover-001', 'Continuar tratamiento actual. Alta probable en 48-72 horas si evolución favorable.', 'draft', 'user_demo12345678901234567890123456');
 
 COMMIT;
 
@@ -266,30 +217,6 @@ VALUES ('participant-002', 'handover-001', 'user_demo12345678901234567890123457'
 
 INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS)
 VALUES ('participant-003', 'handover-001', 'user_demo12345678901234567890123458', 'Dr. Carlos Martinez', 'Resident', 'active');
-
--- Insertar secciones I-PASS del handover
-INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
-VALUES ('section-001', 'handover-001', 'illness_severity', 'Stable - Paciente con evolución favorable', 'completed', 'user_demo12345678901234567890123456');
-
-INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
-VALUES ('section-002', 'handover-001', 'patient_summary',
-        'María García, 14 años, neumonía adquirida en comunidad. Ingreso hace 3 días. Tratamiento con Amoxicilina y oxígeno suplementario.',
-        'completed', 'user_demo12345678901234567890123456');
-
-INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
-VALUES ('section-003', 'handover-001', 'action_items',
-        'Nebulizaciones cada 6 horas, monitoreo de saturación de oxígeno, control de temperatura cada 4 horas',
-        'in_progress', 'user_demo12345678901234567890123456');
-
-INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
-VALUES ('section-004', 'handover-001', 'situation_awareness',
-        'Paciente estable, sin complicaciones. Buena respuesta al tratamiento antibiótico.',
-        'completed', 'user_demo12345678901234567890123456');
-
-INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY)
-VALUES ('section-005', 'handover-001', 'synthesis',
-        'Continuar tratamiento actual. Alta probable en 48-72 horas si evolución favorable.',
-        'draft', 'user_demo12345678901234567890123456');
 
 -- Insertar estado de sincronización
 INSERT INTO HANDOVER_SYNC_STATUS (ID, HANDOVER_ID, USER_ID, SYNC_STATUS, VERSION)
@@ -366,18 +293,18 @@ INSERT INTO HANDOVER_CHECKLISTS (ID, HANDOVER_ID, USER_ID, ITEM_ID, ITEM_CATEGOR
 VALUES ('checklist-006', 'handover-001', 'user_demo12345678901234567890123456', 'communication', 'Communication', 'Know who to contact', 'I know who to contact for questions or concerns during this shift', 1, 0);
 
 -- Insertar algunos mensajes de discusión de ejemplo
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-001', 'handover-001', 'user_demo12345678901234567890123456', 'Just reviewed the case. The heart failure seems stable today. Any concerns about the fluid balance?', 'message', SYSTIMESTAMP - INTERVAL '5' MINUTE);
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-001', 'handover-001', 'user_demo12345678901234567890123456', 'Dr. John Johnson', 'Just reviewed the case. The heart failure seems stable today. Any concerns about the fluid balance?', 'message', SYSTIMESTAMP - INTERVAL '5' MINUTE);
 
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-002', 'handover-001', 'user_demo12345678901234567890123457', 'Patient has been net negative 500ml today. Responded well to the lasix adjustment this morning. Current weight is down 2kg from admission.', 'message', SYSTIMESTAMP - INTERVAL '3' MINUTE);
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-002', 'handover-001', 'user_demo12345678901234567890123457', 'Dr. Priya Patel', 'Patient has been net negative 500ml today. Responded well to the lasix adjustment this morning. Current weight is down 2kg from admission.', 'message', SYSTIMESTAMP - INTERVAL '3' MINUTE);
 
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-003', 'handover-001', 'user_demo12345678901234567890123458', 'Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.', 'message', SYSTIMESTAMP - INTERVAL '1' MINUTE);
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-003', 'handover-001', 'user_demo12345678901234567890123458', 'Dr. Carlos Martinez', 'Should we continue the current diuretic dose overnight? BUN/Cr stable at 1.2.', 'message', SYSTIMESTAMP - INTERVAL '1' MINUTE);
 
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-004', 'handover-001', 'user_demo12345678901234567890123456', 'Agreed, let''s maintain current dose and recheck labs tomorrow morning.', 'message', SYSTIMESTAMP - INTERVAL '30' SECOND);
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-004', 'handover-001', 'user_demo12345678901234567890123456', 'Dr. John Johnson', 'Agreed, let''s maintain current dose and recheck labs tomorrow morning.', 'message', SYSTIMESTAMP - INTERVAL '30' SECOND);
 
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-005', 'handover-001', 'user_demo12345678901234567890123457', 'Family called - they want to discuss the discharge plan. Should I arrange a meeting for tomorrow?', 'message', SYSTIMESTAMP - INTERVAL '15' SECOND);
+INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
+VALUES ('message-005', 'handover-001', 'user_demo12345678901234567890123457', 'Dr. Priya Patel', 'Family called - they want to discuss the discharge plan. Should I arrange a meeting for tomorrow?', 'message', SYSTIMESTAMP - INTERVAL '15' SECOND);
 
