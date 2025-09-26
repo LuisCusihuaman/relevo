@@ -49,16 +49,17 @@ public class OracleSetupRepository : ISetupRepository
             WHEN h.READY_AT IS NOT NULL THEN 'Ready'
             ELSE 'Draft'
           END AS Status,
-          h.ILLNESS_SEVERITY AS Severity
+          hpd.ILLNESS_SEVERITY AS Severity
           FROM (
             SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
             FROM PATIENTS WHERE UNIT_ID = :unitId
           ) p
           LEFT JOIN (
-            SELECT PATIENT_ID, ILLNESS_SEVERITY, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+            SELECT ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
                    ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
             FROM HANDOVERS
           ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+          LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
           WHERE p.RN BETWEEN :startRow AND :endRow";
 
         int total = conn.ExecuteScalar<int>(countSql, new { unitId });
