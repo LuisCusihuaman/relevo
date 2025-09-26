@@ -36,7 +36,17 @@ public class OracleSetupRepository : ISetupRepository
         using IDbConnection conn = _factory.CreateConnection();
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
-        const string countSql = "SELECT COUNT(1) FROM PATIENTS WHERE UNIT_ID = :unitId";
+
+        // Count patients in unit that are not already assigned to any user
+        const string countSql = @"
+            SELECT COUNT(1) FROM PATIENTS p
+            WHERE p.UNIT_ID = :unitId
+            AND NOT EXISTS (
+                SELECT 1 FROM USER_ASSIGNMENTS ua
+                WHERE ua.PATIENT_ID = p.ID
+            )";
+
+        // Get patients in unit that are not already assigned to any user
         const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
           FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
           CASE
@@ -52,7 +62,12 @@ public class OracleSetupRepository : ISetupRepository
           hpd.ILLNESS_SEVERITY AS Severity
           FROM (
             SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
-            FROM PATIENTS WHERE UNIT_ID = :unitId
+            FROM PATIENTS
+            WHERE UNIT_ID = :unitId
+            AND NOT EXISTS (
+                SELECT 1 FROM USER_ASSIGNMENTS ua
+                WHERE ua.PATIENT_ID = PATIENTS.ID
+            )
           ) p
           LEFT JOIN (
             SELECT ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
@@ -120,120 +135,21 @@ public class OracleSetupRepository : ISetupRepository
             _logger.LogInformation("🔍 Assignment Debug - Storing assignment for UserId: {UserId}, ShiftId: {ShiftId}, PatientCount: {PatientCount}",
                 userId, shiftId, patientIds.Count());
 
-            // Remove existing handover-related records first (to avoid FK constraint violations)
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_MENTIONS
-                WHERE MESSAGE_ID IN (
-                    SELECT ID FROM HANDOVER_MESSAGES
-                    WHERE HANDOVER_ID IN (
-                        SELECT ID FROM HANDOVERS
-                        WHERE ASSIGNMENT_ID IN (
-                            SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                        )
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_MESSAGES
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_CONTINGENCY
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_CHECKLISTS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_SYNC_STATUS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_PARTICIPANTS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_SYNTHESIS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_SITUATION_AWARENESS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_PATIENT_DATA
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVER_ACTION_ITEMS
-                WHERE HANDOVER_ID IN (
-                    SELECT ID FROM HANDOVERS
-                    WHERE ASSIGNMENT_ID IN (
-                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                    )
-                )", new { userId });
-
-            // Now remove active handovers (completed/cancelled/rejected/expired handovers are allowed to remain)
-            await conn.ExecuteAsync(@"
-                DELETE FROM HANDOVERS
-                WHERE ASSIGNMENT_ID IN (
-                    SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                )
-                AND COMPLETED_AT IS NULL
-                AND CANCELLED_AT IS NULL
-                AND REJECTED_AT IS NULL
-                AND EXPIRED_AT IS NULL", new { userId });
-
-            // Remove existing assignments for this user
-            await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
-                new { userId });
-
-            _logger.LogInformation("Removed existing assignments and handovers for user {UserId}", userId);
-
             // Insert new assignments with explicit ASSIGNMENT_ID
             foreach (var patientId in patientIds)
             {
+                // Check if patient is already assigned to someone else
+                var existingAssignment = await conn.ExecuteScalarAsync<string>(
+                    "SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE PATIENT_ID = :patientId",
+                    new { patientId });
+
+                if (existingAssignment != null)
+                {
+                    _logger.LogWarning("Patient {PatientId} is already assigned (assignment: {ExistingAssignment}), skipping assignment for user {UserId}",
+                        patientId, existingAssignment, userId);
+                    continue;
+                }
+
                 var assignmentId = $"assign-{userId}-{shiftId}-{patientId}-{DateTime.Now.ToString("yyyyMMddHHmmss")}";
 
                 await conn.ExecuteAsync(@"
@@ -246,7 +162,7 @@ public class OracleSetupRepository : ISetupRepository
                     patientId, userId, assignmentId);
             }
 
-            _logger.LogInformation("Successfully assigned {Count} patients to user {UserId}", patientIds.Count(), userId);
+            _logger.LogInformation("Successfully assigned {Count} patients to user {UserId}. Assignment IDs: {@AssignmentIds}", assignmentIds.Count, userId, assignmentIds);
         }
         catch (Exception ex)
         {
@@ -461,6 +377,9 @@ public class OracleSetupRepository : ISetupRepository
     {
         try
         {
+            _logger.LogInformation("Starting handover creation for assignment {AssignmentId}, user {UserId}, window {WindowDate}, from {FromShiftId} to {ToShiftId}",
+                assignmentId, userId, windowDate, fromShiftId, toShiftId);
+
             // Ensure the user exists in the database before creating handovers
             EnsureUserExists(userId, null, null, null, null);
 
@@ -470,6 +389,8 @@ public class OracleSetupRepository : ISetupRepository
             var assignment = await conn.QueryFirstOrDefaultAsync<dynamic>(
                 "SELECT USER_ID, SHIFT_ID, PATIENT_ID FROM USER_ASSIGNMENTS WHERE ASSIGNMENT_ID = :assignmentId",
                 new { assignmentId });
+
+            _logger.LogInformation("Assignment lookup result: {@Assignment}", assignment != null ? (object)assignment : new { Message = "Assignment not found" });
 
             if (assignment == null)
             {
@@ -537,6 +458,28 @@ public class OracleSetupRepository : ISetupRepository
                 HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, LAST_EDITED_BY
             ) VALUES (
                 :handoverId, 'Stable', 'Handover iniciado - información pendiente de completar', :userId
+            )", new {
+                handoverId,
+                userId
+            });
+
+            // Create situation awareness record
+            await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVER_SITUATION_AWARENESS (
+                HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+            ) VALUES (
+                :handoverId, '', 'Draft', :userId, SYSDATE, SYSDATE
+            )", new {
+                handoverId,
+                userId
+            });
+
+            // Create synthesis record
+            await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVER_SYNTHESIS (
+                HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+            ) VALUES (
+                :handoverId, '', 'Draft', :userId, SYSDATE, SYSDATE
             )", new {
                 handoverId,
                 userId
@@ -947,7 +890,23 @@ public class OracleSetupRepository : ISetupRepository
                 FROM HANDOVER_SITUATION_AWARENESS
                 WHERE HANDOVER_ID = :handoverId";
 
-            return await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+            var result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+
+            // If no record exists, create a default one
+            if (result == null)
+            {
+                await conn.ExecuteAsync(@"
+                INSERT INTO HANDOVER_SITUATION_AWARENESS (
+                    HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+                ) VALUES (
+                    :handoverId, '', 'Draft', 'system', SYSDATE, SYSDATE
+                )", new { handoverId });
+
+                // Return the newly created record
+                result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -967,7 +926,23 @@ public class OracleSetupRepository : ISetupRepository
                 FROM HANDOVER_SYNTHESIS
                 WHERE HANDOVER_ID = :handoverId";
 
-            return await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+            var result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+
+            // If no record exists, create a default one
+            if (result == null)
+            {
+                await conn.ExecuteAsync(@"
+                INSERT INTO HANDOVER_SYNTHESIS (
+                    HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+                ) VALUES (
+                    :handoverId, '', 'Draft', 'system', SYSDATE, SYSDATE
+                )", new { handoverId });
+
+                // Return the newly created record
+                result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+            }
+
+            return result;
         }
         catch (Exception ex)
         {

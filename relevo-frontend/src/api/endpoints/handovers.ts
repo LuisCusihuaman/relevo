@@ -17,8 +17,6 @@ import type {
 	SynthesisResponse,
 	UpdatePatientDataRequest,
 } from "../types";
-import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 
 // ========================================
 // QUERY KEYS
@@ -104,8 +102,8 @@ export async function rejectHandover(handoverId: string, reason: string): Promis
 // PENDING HANDOVERS
 // ----------------------------------------
 
-export async function getPendingHandovers(userId: string): Promise<{ handovers: Handover[] }> {
-	const { data } = await api.get<{ handovers: Handover[] }>(`/handovers/pending?userId=${userId}`);
+export async function getPendingHandovers(userId: string): Promise<{ handovers: Array<Handover> }> {
+	const { data } = await api.get<{ handovers: Array<Handover> }>(`/handovers/pending?userId=${userId}`);
 	return data;
 }
 
@@ -129,8 +127,8 @@ export async function getSynthesis(handoverId: string): Promise<SynthesisRespons
 export async function getHandoverMessages(
 	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
-): Promise<HandoverMessage[]> {
-	const data = await authenticatedApiCall<{messages: HandoverMessage[]}>({
+): Promise<Array<HandoverMessage>> {
+	const data = await authenticatedApiCall<{messages: Array<HandoverMessage>}>({
 		method: "GET",
 		url: `/me/handovers/${handoverId}/messages`,
 	});
@@ -154,16 +152,16 @@ export async function createHandoverMessage(
 // HANDOVER ACTIVITY LOG
 // ----------------------------------------
 
-export async function getHandoverActivityLog(handoverId: string): Promise<HandoverActivityItem[]> {
-	const { data } = await api.get<HandoverActivityItem[]>(`/me/handovers/${handoverId}/activity`);
+export async function getHandoverActivityLog(handoverId: string): Promise<Array<HandoverActivityItem>> {
+	const { data } = await api.get<Array<HandoverActivityItem>>(`/me/handovers/${handoverId}/activity`);
 	return data;
 }
 
 // HANDOVER CHECKLISTS
 // ----------------------------------------
 
-export async function getHandoverChecklists(handoverId: string): Promise<HandoverChecklistItem[]> {
-	const { data } = await api.get<HandoverChecklistItem[]>(`/me/handovers/${handoverId}/checklists`);
+export async function getHandoverChecklists(handoverId: string): Promise<Array<HandoverChecklistItem>> {
+	const { data } = await api.get<Array<HandoverChecklistItem>>(`/me/handovers/${handoverId}/checklists`);
 	return data;
 }
 
@@ -245,8 +243,8 @@ export async function deleteActionItem(
 // HANDOVER CONTINGENCY PLANS
 // ----------------------------------------
 
-export async function getHandoverContingencyPlans(handoverId: string): Promise<HandoverContingencyPlan[]> {
-	const { data } = await api.get<HandoverContingencyPlan[]>(`/me/handovers/${handoverId}/contingency-plans`);
+export async function getHandoverContingencyPlans(handoverId: string): Promise<Array<HandoverContingencyPlan>> {
+	const { data } = await api.get<Array<HandoverContingencyPlan>>(`/me/handovers/${handoverId}/contingency-plans`);
 	return data;
 }
 
@@ -636,17 +634,12 @@ export function useSynthesis(handoverId: string) {
 
 export function useUpdatePatientData() {
     const queryClient = useQueryClient();
-    const { t } = useTranslation();
 
     return useMutation({
         mutationFn: ({ handoverId, ...request }: { handoverId: string } & UpdatePatientDataRequest) =>
             updatePatientData(handoverId, request),
         onSuccess: (_, { handoverId }) => {
-            toast.success(t("api.handovers.updatePatientData.success"));
             return queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(handoverId) });
-        },
-        onError: () => {
-            toast.error(t("api.handovers.updatePatientData.error"));
         },
     });
 }

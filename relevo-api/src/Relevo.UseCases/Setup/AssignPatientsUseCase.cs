@@ -17,13 +17,18 @@ public class AssignPatientsUseCase
     {
         // First, assign patients to the user for the shift
         var assignmentIds = await _repository.AssignAsync(userId, shiftId, patientIds);
-        
+
+        Console.WriteLine($"🚀 AssignPatients - User: {userId}, Shift: {shiftId}, Patients: {string.Join(",", patientIds)}, AssignmentIds: {string.Join(",", assignmentIds)}");
+
         // Resolve handover window. It's the same for all assignments in this batch.
         var (windowDate, toShiftId) = _shiftBoundaryResolver.Resolve(DateTime.Now, shiftId);
+
+        Console.WriteLine($"🔄 Shift Boundary - WindowDate: {windowDate}, ToShiftId: {toShiftId}");
 
         // Then, create handovers for each assignment
         foreach (var assignmentId in assignmentIds)
         {
+            Console.WriteLine($"📋 Creating handover for assignment: {assignmentId}");
             await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId, windowDate, shiftId, toShiftId);
         }
     }
