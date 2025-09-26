@@ -96,14 +96,15 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         WHEN h.READY_AT IS NOT NULL THEN 'Ready'
         ELSE 'Draft'
       END AS Status,
-      h.ILLNESS_SEVERITY AS Severity
+      hpd.ILLNESS_SEVERITY AS Severity
       FROM PATIENTS p
       INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
       LEFT JOIN (
-        SELECT PATIENT_ID, ILLNESS_SEVERITY, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+        SELECT ID AS HANDOVER_ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
                ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
         FROM HANDOVERS
       ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.HANDOVER_ID = hpd.HANDOVER_ID
       WHERE ua.USER_ID = :userId
       ORDER BY p.ID
       OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -139,11 +140,17 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     const string handoverSql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
-             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.STATUS,
+             hpd.ILLNESS_SEVERITY,
+             hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
+             hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+      LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
+      LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.PATIENT_ID IN :patientIds
       ORDER BY h.CREATED_AT DESC
       OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -213,11 +220,16 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
-             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.STATUS,
+             hpd.ILLNESS_SEVERITY,
+             hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
+             hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+      LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
       LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       WHERE h.ID = :handoverId";
 
@@ -326,23 +338,21 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         participantId2 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
       });
 
-    // Create default sections
+    // Create default singleton sections
     conn.Execute(@"
-      INSERT INTO HANDOVER_SECTIONS (ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, CREATED_AT)
-      VALUES
-      (:illnessId, :handoverId, 'illness_severity', 'Stable - Patient condition stable', 'draft', SYSTIMESTAMP),
-      (:patientId, :handoverId, 'patient_summary', '', 'draft', SYSTIMESTAMP),
-      (:actionsId, :handoverId, 'action_items', '', 'draft', SYSTIMESTAMP),
-      (:awarenessId, :handoverId, 'situation_awareness', '', 'draft', SYSTIMESTAMP),
-      (:synthesisId, :handoverId, 'synthesis', '', 'draft', SYSTIMESTAMP)",
-      new {
-        handoverId,
-        illnessId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
-        patientId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
-        actionsId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
-        awarenessId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}",
-        synthesisId = $"section-{Guid.NewGuid().ToString().Substring(0, 8)}"
-      });
+      INSERT INTO HANDOVER_PATIENT_DATA (HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+      VALUES (:handoverId, 'Stable', '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+      new { handoverId, initiatedBy = request.InitiatedBy });
+
+    conn.Execute(@"
+      INSERT INTO HANDOVER_SITUATION_AWARENESS (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+      VALUES (:handoverId, '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+      new { handoverId, initiatedBy = request.InitiatedBy });
+
+    conn.Execute(@"
+      INSERT INTO HANDOVER_SYNTHESIS (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+      VALUES (:handoverId, '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+      new { handoverId, initiatedBy = request.InitiatedBy });
 
     // Return the created handover
     return GetHandoverById(handoverId) ?? throw new InvalidOperationException("Failed to create handover");
@@ -465,12 +475,17 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
-             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.STATUS,
+             hpd.ILLNESS_SEVERITY,
+             hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
+             hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+      LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
       WHERE h.PATIENT_ID = :patientId
       ORDER BY h.CREATED_AT DESC";
 
@@ -539,12 +554,17 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
-             h.STATUS, h.ILLNESS_SEVERITY, h.PATIENT_SUMMARY, h.SYNTHESIS,
+             h.STATUS,
+             hpd.ILLNESS_SEVERITY,
+             hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
+             hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+      LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
       WHERE h.FROM_DOCTOR_ID = :fromDoctorId AND h.TO_DOCTOR_ID = :toDoctorId
       ORDER BY h.INITIATED_AT DESC";
 
