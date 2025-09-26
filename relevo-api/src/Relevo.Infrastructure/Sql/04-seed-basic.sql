@@ -225,53 +225,6 @@ VALUES ('sync-001', 'handover-001', 'user_demo12345678901234567890123456', 'sync
 INSERT INTO HANDOVER_SYNC_STATUS (ID, HANDOVER_ID, USER_ID, SYNC_STATUS, VERSION)
 VALUES ('sync-002', 'handover-001', 'user_demo12345678901234567890123457', 'syncing', 1);
 
--- Insertar plantillas I-PASS
-INSERT INTO IPASS_TEMPLATES (ID, TEMPLATE_ID, SECTION, TITLE, TEMPLATE_CONTENT, IS_ACTIVE)
-VALUES ('template-001', 'illness-update', 'illness', 'Illness Severity Update', 'Patient condition: [condition]\nVital signs: [vitals]\nRecent changes: [changes]\nConcerns: [concerns]', 1);
-
-INSERT INTO IPASS_TEMPLATES (ID, TEMPLATE_ID, SECTION, TITLE, TEMPLATE_CONTENT, IS_ACTIVE)
-VALUES ('template-002', 'patient-summary', 'patient', 'Patient Summary Template', 'Patient: [name], [age] years old\nAdmission: [date]\nDiagnosis: [diagnosis]\nCurrent status: [status]', 1);
-
-INSERT INTO IPASS_TEMPLATES (ID, TEMPLATE_ID, SECTION, TITLE, TEMPLATE_CONTENT, IS_ACTIVE)
-VALUES ('template-003', 'action-item', 'actions', 'Action Item Template', 'Action: [action]\nPriority: [priority]\nDue: [due_date]\nResponsible: [person]', 1);
-
-INSERT INTO IPASS_TEMPLATES (ID, TEMPLATE_ID, SECTION, TITLE, TEMPLATE_CONTENT, IS_ACTIVE)
-VALUES ('template-004', 'situation-awareness', 'awareness', 'Situation Awareness Template', 'Current situation: [situation]\nTeam awareness: [awareness]\nContingency plans: [plans]', 1);
-
-INSERT INTO IPASS_TEMPLATES (ID, TEMPLATE_ID, SECTION, TITLE, TEMPLATE_CONTENT, IS_ACTIVE)
-VALUES ('template-005', 'synthesis-note', 'synthesis', 'Synthesis Note Template', 'Key takeaways: [takeaways]\nHandover to: [next_team]\nCritical information: [critical]', 1);
-
--- Insertar plantillas de secciones
-INSERT INTO SECTION_TEMPLATES (ID, SECTION_TYPE, TEMPLATE_NAME, TEMPLATE_CONTENT, IS_DEFAULT)
-VALUES ('section-template-001', 'patient_summary', 'Standard Patient Summary',
-'Patient Summary:
-• Name: [patient_name]
-• Age: [patient_age]
-• Diagnosis: [diagnosis]
-• Current medications: [medications]
-• Allergies: [allergies]
-• Recent vital signs: [vitals]
-• Key concerns: [concerns]', 1);
-
-INSERT INTO SECTION_TEMPLATES (ID, SECTION_TYPE, TEMPLATE_NAME, TEMPLATE_CONTENT, IS_DEFAULT)
-VALUES ('section-template-002', 'situation_awareness', 'Standard Situation Awareness',
-'Current Situation:
-• Patient location: [location]
-• Current interventions: [interventions]
-• Response to treatment: [response]
-• Team communication: [communication]
-• Equipment needs: [equipment]
-• Family involvement: [family]', 1);
-
-INSERT INTO SECTION_TEMPLATES (ID, SECTION_TYPE, TEMPLATE_NAME, TEMPLATE_CONTENT, IS_DEFAULT)
-VALUES ('section-template-003', 'synthesis', 'Standard Synthesis',
-'Handover Synthesis:
-• Key clinical decisions: [decisions]
-• Outstanding tasks: [tasks]
-• Follow-up requirements: [followup]
-• Communication with family: [family_comm]
-• Discharge planning: [discharge]
-• Next steps: [next_steps]', 1);
 
 -- Insertar elementos de lista de verificación de confirmación por defecto
 INSERT INTO HANDOVER_CHECKLISTS (ID, HANDOVER_ID, USER_ID, ITEM_ID, ITEM_CATEGORY, ITEM_LABEL, ITEM_DESCRIPTION, IS_REQUIRED, IS_CHECKED)
