@@ -120,12 +120,110 @@ public class OracleSetupRepository : ISetupRepository
             _logger.LogInformation("🔍 Assignment Debug - Storing assignment for UserId: {UserId}, ShiftId: {ShiftId}, PatientCount: {PatientCount}",
                 userId, shiftId, patientIds.Count());
 
-            // Remove existing handovers for this user first (to avoid FK constraint violation)
+            // Remove existing handover-related records first (to avoid FK constraint violations)
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_MENTIONS
+                WHERE MESSAGE_ID IN (
+                    SELECT ID FROM HANDOVER_MESSAGES
+                    WHERE HANDOVER_ID IN (
+                        SELECT ID FROM HANDOVERS
+                        WHERE ASSIGNMENT_ID IN (
+                            SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                        )
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_MESSAGES
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_CONTINGENCY
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_CHECKLISTS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_SYNC_STATUS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_PARTICIPANTS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_SYNTHESIS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_SITUATION_AWARENESS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_PATIENT_DATA
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            await conn.ExecuteAsync(@"
+                DELETE FROM HANDOVER_ACTION_ITEMS
+                WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS
+                    WHERE ASSIGNMENT_ID IN (
+                        SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
+                    )
+                )", new { userId });
+
+            // Now remove active handovers (completed/cancelled/rejected/expired handovers are allowed to remain)
             await conn.ExecuteAsync(@"
                 DELETE FROM HANDOVERS
                 WHERE ASSIGNMENT_ID IN (
                     SELECT ASSIGNMENT_ID FROM USER_ASSIGNMENTS WHERE USER_ID = :userId
-                )", new { userId });
+                )
+                AND COMPLETED_AT IS NULL
+                AND CANCELLED_AT IS NULL
+                AND REJECTED_AT IS NULL
+                AND EXPIRED_AT IS NULL", new { userId });
 
             // Remove existing assignments for this user
             await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId",
@@ -390,15 +488,36 @@ public class OracleSetupRepository : ISetupRepository
             var fromShiftName = await conn.ExecuteScalarAsync<string>("SELECT NAME FROM SHIFTS WHERE ID = :fromShiftId", new { fromShiftId }) ?? "Unknown";
             var toShiftName = await conn.ExecuteScalarAsync<string>("SELECT NAME FROM SHIFTS WHERE ID = :toShiftId", new { toShiftId }) ?? "Unknown";
 
+            // Check if there's already an active handover for this patient/window/shift combination
+            var existingActiveHandover = await conn.ExecuteScalarAsync<string>(@"
+                SELECT ID FROM HANDOVERS
+                WHERE PATIENT_ID = :patientId
+                AND HANDOVER_WINDOW_DATE = :windowDate
+                AND FROM_SHIFT_ID = :fromShiftId
+                AND TO_SHIFT_ID = :toShiftId
+                AND COMPLETED_AT IS NULL
+                AND CANCELLED_AT IS NULL
+                AND REJECTED_AT IS NULL
+                AND EXPIRED_AT IS NULL", new {
+                    patientId = assignment.PATIENT_ID,
+                    windowDate,
+                    fromShiftId,
+                    toShiftId
+                });
+
+            if (existingActiveHandover != null)
+            {
+                _logger.LogInformation("Skipping handover creation for assignment {AssignmentId} - active handover {ExistingHandoverId} already exists for patient {PatientId}", new object[] { assignmentId, existingActiveHandover, assignment.PATIENT_ID });
+                return;
+            }
+
             // Create handover
             await conn.ExecuteAsync(@"
             INSERT INTO HANDOVERS (
-                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
-                PATIENT_SUMMARY, SHIFT_NAME, CREATED_BY, FROM_DOCTOR_ID,
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, CREATED_BY, FROM_DOCTOR_ID,
                 HANDOVER_WINDOW_DATE, FROM_SHIFT_ID, TO_SHIFT_ID
             ) VALUES (
-                :handoverId, :assignmentId, :patientId, 'Draft', 'Stable',
-                'Handover iniciado - información pendiente de completar', :shiftName, :userId, :userId,
+                :handoverId, :assignmentId, :patientId, 'Draft', :shiftName, :userId, :userId,
                 :windowDate, :fromShiftId, :toShiftId
             )", new {
                 handoverId,
@@ -409,6 +528,17 @@ public class OracleSetupRepository : ISetupRepository
                 windowDate,
                 fromShiftId,
                 toShiftId
+            });
+
+            // Create handover patient data
+            await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVER_PATIENT_DATA (
+                HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, LAST_EDITED_BY
+            ) VALUES (
+                :handoverId, 'Stable', 'Handover iniciado - información pendiente de completar', :userId
+            )", new {
+                handoverId,
+                userId
             });
 
             _logger.LogInformation("Created handover {HandoverId} for assignment {AssignmentId}", handoverId, assignmentId);
