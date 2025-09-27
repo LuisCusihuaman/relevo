@@ -710,13 +710,6 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
                 '{handoverId}', '{assignmentId}', '{patientId}', 'Active',
                 'Stable', 'Handover with sections', 'Test Shift', '{userId}', '{userId}'
             )");
-
-        ExecuteSql($@"
-            INSERT INTO HANDOVER_SECTIONS (
-                ID, HANDOVER_ID, SECTION_TYPE, CONTENT, STATUS, LAST_EDITED_BY
-            ) VALUES (
-                'section-001', '{handoverId}', 'illness_severity', 'Patient condition assessment', 'completed', '{userId}'
-            )");
     }
 
     private void CreateTestHandoverWithSyncStatus(string handoverId, string patientId, string assignmentId, string userId)
