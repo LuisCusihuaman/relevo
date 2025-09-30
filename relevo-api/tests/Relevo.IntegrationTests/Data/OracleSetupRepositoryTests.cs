@@ -111,7 +111,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         var userId = "test-user-1";
 
         // Act
-        await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId, DateTime.Now, "test-shift-1", "test-shift-2");
+        await _repository.CreateHandoverForAssignmentAsync(assignmentId, userId, "Test User", DateTime.Now, "test-shift-1", "test-shift-2");
 
         // Assert
         var handoverExists = CheckHandoverExists(assignmentId);
@@ -133,7 +133,7 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _repository.CreateHandoverForAssignmentAsync(nonExistentAssignmentId, userId, DateTime.Now, "test-shift-1", "test-shift-2"));
+            _repository.CreateHandoverForAssignmentAsync(nonExistentAssignmentId, userId, "Test User", DateTime.Now, "test-shift-1", "test-shift-2"));
     }
 
     [Fact]

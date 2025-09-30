@@ -374,7 +374,7 @@ public class OracleSetupRepository : ISetupRepository
             new { userId, defaultEmail, firstName, lastName, fullName });
     }
 
-    public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, DateTime windowDate, string fromShiftId, string toShiftId)
+    public async Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, string userName, DateTime windowDate, string fromShiftId, string toShiftId)
     {
         try
         {
@@ -437,10 +437,12 @@ public class OracleSetupRepository : ISetupRepository
             // Create handover
             await conn.ExecuteAsync(@"
             INSERT INTO HANDOVERS (
-                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, CREATED_BY, FROM_DOCTOR_ID,
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, CREATED_BY, CREATED_BY_NAME,
+                ASSIGNED_TO, ASSIGNED_TO_NAME, FROM_DOCTOR_ID,
                 HANDOVER_WINDOW_DATE, FROM_SHIFT_ID, TO_SHIFT_ID
             ) VALUES (
-                :handoverId, :assignmentId, :patientId, 'Draft', :shiftName, :userId, :userId,
+                :handoverId, :assignmentId, :patientId, 'Draft', :shiftName, :userId, :userName,
+                'system', 'System', :userId,
                 :windowDate, :fromShiftId, :toShiftId
             )", new {
                 handoverId,
@@ -448,6 +450,7 @@ public class OracleSetupRepository : ISetupRepository
                 patientId = assignment.PATIENT_ID,
                 shiftName = $"{fromShiftName} → {toShiftName}",
                 userId,
+                userName,
                 windowDate,
                 fromShiftId,
                 toShiftId
