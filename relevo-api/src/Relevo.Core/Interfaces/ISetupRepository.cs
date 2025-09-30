@@ -101,7 +101,6 @@ public record HandoverRecord(
     string Status,
     HandoverIllnessSeverity IllnessSeverity,
     HandoverPatientSummary PatientSummary,
-    IReadOnlyList<HandoverActionItem> ActionItems,
     string? SituationAwarenessDocId,
     HandoverSynthesis? Synthesis,
     string ShiftName,

@@ -287,7 +287,6 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
         result.Status.Should().Be("Active");
         result.IllnessSeverity.Severity.Should().Be("Stable");
         result.PatientSummary.Content.Should().Be("Test handover for GetHandoverById");
-        result.ActionItems.Should().NotBeNull();
         result.ShiftName.Should().Be("Test Shift");
         result.CreatedBy.Should().Be("test-user-getbyid");
         result.AssignedTo.Should().Be("test-user-getbyid");
@@ -334,10 +333,6 @@ public class OracleSetupRepositoryTests : BaseDapperTestFixture
 
         // Assert
         result.Should().NotBeNull();
-        result!.ActionItems.Should().NotBeNull();
-        result.ActionItems.Should().HaveCountGreaterThan(0);
-        result.ActionItems[0].Id.Should().NotBeNullOrEmpty();
-        result.ActionItems[0].Description.Should().NotBeNullOrEmpty();
     }
 
     [Fact]

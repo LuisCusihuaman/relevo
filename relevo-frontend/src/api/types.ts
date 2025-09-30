@@ -103,7 +103,6 @@ export type Handover = {
 	status: string;
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
-	actionItems: Array<HandoverActionItem>;
 	situationAwarenessDocId?: string;
 	synthesis?: HandoverSynthesis;
 	shiftName: string;

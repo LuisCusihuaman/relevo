@@ -40,12 +40,6 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       {
         content = handover.PatientSummary.Content
       },
-      actionItems = handover.ActionItems.Select(item => new GetHandoverByIdResponse.ActionItemDto
-      {
-        id = item.Id,
-        description = item.Description,
-        isCompleted = item.IsCompleted
-      }).ToList(),
       situationAwarenessDocId = handover.SituationAwarenessDocId,
       synthesis = handover.Synthesis != null ? new GetHandoverByIdResponse.SynthesisDto
       {
@@ -220,7 +214,6 @@ public class GetHandoverByIdResponse
   public string Status { get; set; } = string.Empty;
   public IllnessSeverityDto illnessSeverity { get; set; } = new();
   public PatientSummaryDto patientSummary { get; set; } = new();
-  public List<ActionItemDto> actionItems { get; set; } = [];
   public string? situationAwarenessDocId { get; set; }
   public SynthesisDto? synthesis { get; set; }
   public string ShiftName { get; set; } = string.Empty;
@@ -254,12 +247,6 @@ public class GetHandoverByIdResponse
     public string content { get; set; } = string.Empty;
   }
 
-  public class ActionItemDto
-  {
-    public string id { get; set; } = string.Empty;
-    public string description { get; set; } = string.Empty;
-    public bool isCompleted { get; set; }
-  }
 
   public class SynthesisDto
   {

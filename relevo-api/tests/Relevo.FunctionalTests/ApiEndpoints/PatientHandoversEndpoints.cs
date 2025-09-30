@@ -62,7 +62,6 @@ public class PatientHandoversEndpoints(CustomWebApplicationFactory<Program> fact
       Assert.NotNull(handover.Status);
       Assert.NotNull(handover.IllnessSeverity);
       Assert.NotNull(handover.PatientSummary);
-      Assert.NotNull(handover.ActionItems);
       Assert.NotNull(handover.ShiftName);
       Assert.NotNull(handover.CreatedBy);
       Assert.NotNull(handover.AssignedTo);

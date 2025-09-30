@@ -163,15 +163,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     {
       var handoverId = row.ID;
 
-      const string actionItemsSql = @"
-        SELECT ID, DESCRIPTION, IS_COMPLETED
-        FROM HANDOVER_ACTION_ITEMS
-        WHERE HANDOVER_ID = :handoverId
-        ORDER BY CREATED_AT";
-
-      var actionItems = conn.Query(actionItemsSql, new { handoverId })
-        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-        .ToList();
 
       var handover = new HandoverRecord(
         Id: row.ID,
@@ -181,7 +172,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-        ActionItems: actionItems,
         SituationAwarenessDocId: null,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
@@ -255,7 +245,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       Status: row.STATUS,
       IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
       PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-      ActionItems: actionItems,
       SituationAwarenessDocId: null,
       Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
       ShiftName: row.SHIFT_NAME ?? "Unknown",
@@ -417,15 +406,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     {
       var handoverId = row.ID;
 
-      const string actionItemsSql = @"
-        SELECT ID, DESCRIPTION, IS_COMPLETED
-        FROM HANDOVER_ACTION_ITEMS
-        WHERE HANDOVER_ID = :handoverId
-        ORDER BY CREATED_AT";
-
-      var actionItems = conn.Query(actionItemsSql, new { handoverId })
-        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-        .ToList();
 
       var handover = new HandoverRecord(
         Id: row.ID,
@@ -435,7 +415,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-        ActionItems: actionItems,
         SituationAwarenessDocId: null,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
@@ -496,15 +475,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     {
       var handoverId = row.ID;
 
-      const string actionItemsSql = @"
-        SELECT ID, DESCRIPTION, IS_COMPLETED
-        FROM HANDOVER_ACTION_ITEMS
-        WHERE HANDOVER_ID = :handoverId
-        ORDER BY CREATED_AT";
-
-      var actionItems = conn.Query(actionItemsSql, new { handoverId })
-        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-        .ToList();
 
       var handover = new HandoverRecord(
         Id: row.ID,
@@ -514,7 +484,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-        ActionItems: actionItems,
         SituationAwarenessDocId: null,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",
@@ -575,15 +544,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     {
       var handoverId = row.ID;
 
-      const string actionItemsSql = @"
-        SELECT ID, DESCRIPTION, IS_COMPLETED
-        FROM HANDOVER_ACTION_ITEMS
-        WHERE HANDOVER_ID = :handoverId
-        ORDER BY CREATED_AT";
-
-      var actionItems = conn.Query(actionItemsSql, new { handoverId })
-        .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-        .ToList();
 
       var handover = new HandoverRecord(
         Id: row.ID,
@@ -593,7 +553,6 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         Status: row.STATUS,
         IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
         PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-        ActionItems: actionItems,
         SituationAwarenessDocId: null,
         Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
         ShiftName: row.SHIFT_NAME ?? "Unknown",

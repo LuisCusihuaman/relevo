@@ -301,15 +301,6 @@ public class OracleSetupRepository : ISetupRepository
         {
             var handoverId = row.ID;
 
-            const string actionItemsSql = @"
-            SELECT ID, DESCRIPTION, IS_COMPLETED
-            FROM HANDOVER_ACTION_ITEMS
-            WHERE HANDOVER_ID = :handoverId
-            ORDER BY CREATED_AT";
-
-            var actionItems = conn.Query(actionItemsSql, new { handoverId })
-                .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-                .ToList();
 
                 var handover = new HandoverRecord(
                     Id: row.ID,
@@ -318,7 +309,6 @@ public class OracleSetupRepository : ISetupRepository
                     Status: row.STATUS,
                     IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                     PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                    ActionItems: actionItems,
                     ShiftName: row.SHIFT_NAME ?? "Unknown",
                     CreatedBy: row.CREATED_BY ?? "system",
                     AssignedTo: row.ASSIGNED_TO ?? "system",
@@ -553,15 +543,6 @@ public class OracleSetupRepository : ISetupRepository
 
             foreach (var row in handoverRows)
             {
-                const string actionItemsSql = @"
-                SELECT ID, DESCRIPTION, IS_COMPLETED
-                FROM HANDOVER_ACTION_ITEMS
-                WHERE HANDOVER_ID = :handoverId
-                ORDER BY CREATED_AT";
-
-                var actionItems = conn.Query(actionItemsSql, new { handoverId = row.ID })
-                    .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-                    .ToList();
 
                 var handover = new HandoverRecord(
                     Id: row.ID,
@@ -570,7 +551,6 @@ public class OracleSetupRepository : ISetupRepository
                     Status: row.STATUS,
                     IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                     PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                    ActionItems: actionItems,
                     ShiftName: row.SHIFT_NAME ?? "Unknown",
                     CreatedBy: row.CREATED_BY ?? "system",
                     AssignedTo: row.ASSIGNED_TO ?? "system",
@@ -658,15 +638,6 @@ public class OracleSetupRepository : ISetupRepository
             }
 
             // Get action items for the handover
-            const string actionItemsSql = @"
-            SELECT ID, DESCRIPTION, IS_COMPLETED
-            FROM HANDOVER_ACTION_ITEMS
-            WHERE HANDOVER_ID = :handoverId
-            ORDER BY CREATED_AT";
-
-            var actionItems = conn.Query(actionItemsSql, new { handoverId })
-                .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
-                .ToList();
 
             return new HandoverRecord(
                 Id: row.ID,
@@ -676,7 +647,6 @@ public class OracleSetupRepository : ISetupRepository
                 Status: row.STATUS,
                 IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                 PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                ActionItems: actionItems,
                 SituationAwarenessDocId: row.SITUATION_AWARENESS_LAST_EDITED_BY,
                 Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? new HandoverSynthesis(row.SYNTHESIS_CONTENT) : null,
                 ShiftName: row.SHIFT_NAME ?? "Unknown",

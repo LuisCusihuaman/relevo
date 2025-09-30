@@ -242,11 +242,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient is stable post-surgery with good vital signs."),
-        ActionItems: new List<HandoverActionItem>
-        {
-          new HandoverActionItem("act-001", "Monitor vital signs every 4 hours", false),
-          new HandoverActionItem("act-002", "Administer pain medication as needed", true)
-        },
         SituationAwarenessDocId: "hvo-001-sa",
         Synthesis: null,
         ShiftName: "Mañana",
@@ -280,11 +275,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Watcher"),
         PatientSummary: new HandoverPatientSummary("Patient showing signs of improvement with reduced oxygen requirements."),
-        ActionItems: new List<HandoverActionItem>
-        {
-          new HandoverActionItem("act-003", "Wean oxygen support gradually", true),
-          new HandoverActionItem("act-004", "Continue chest physiotherapy", true)
-        },
         SituationAwarenessDocId: "hvo-002-sa",
         Synthesis: new HandoverSynthesis("Patient ready for step-down care. Continue monitoring respiratory status."),
         ShiftName: "Noche",
@@ -318,11 +308,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "InProgress",
         IllnessSeverity: new HandoverIllnessSeverity("Unstable"),
         PatientSummary: new HandoverPatientSummary("Patient requires close monitoring due to fluctuating vital signs."),
-        ActionItems: new List<HandoverActionItem>
-        {
-          new HandoverActionItem("act-005", "Continuous vital signs monitoring", false),
-          new HandoverActionItem("act-006", "Prepare emergency medications", false)
-        },
         SituationAwarenessDocId: "hvo-003-sa",
         Synthesis: null,
         ShiftName: "Mañana",
@@ -390,7 +375,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "Ready",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient awaiting handover acceptance."),
-        ActionItems: new List<HandoverActionItem>(),
         SituationAwarenessDocId: null,
         Synthesis: null,
         ShiftName: "Mañana → Noche",
@@ -433,7 +417,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Patient handover completed."),
-        ActionItems: new List<HandoverActionItem>(),
         SituationAwarenessDocId: null,
         Synthesis: new HandoverSynthesis("Handover completed successfully."),
         ShiftName: "Mañana → Noche",
@@ -476,7 +459,6 @@ public class SetupDataStore : ISetupDataProvider
         Status: "Completed",
         IllnessSeverity: new HandoverIllnessSeverity("Stable"),
         PatientSummary: new HandoverPatientSummary("Shift transition handover completed."),
-        ActionItems: new List<HandoverActionItem>(),
         SituationAwarenessDocId: null,
         Synthesis: new HandoverSynthesis("Successful shift transition."),
         ShiftName: "Mañana → Noche",
