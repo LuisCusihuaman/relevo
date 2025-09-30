@@ -52,6 +52,10 @@ public static class InfrastructureServiceExtensions
     // Setup Application Service
     services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();
 
+    // Physician shift services following hexagonal architecture
+    services.AddScoped<IPhysicianShiftRepository, Repositories.OraclePhysicianShiftRepository>();
+    services.AddScoped<IPhysicianShiftService, PhysicianShiftService>();
+
     // Add core services including ShiftBoundaryResolver
     services.AddCoreServices();
 

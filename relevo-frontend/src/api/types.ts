@@ -99,7 +99,7 @@ export type Handover = {
 	id: string;
 	assignmentId: string;
 	patientId: string;
-	patientName?: string;
+	patientName?: string; // For display in lists/cards - full patient data comes from /patient endpoint
 	status: string;
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
@@ -109,8 +109,6 @@ export type Handover = {
 	shiftName: string;
 	createdBy: string;
 	assignedTo: string;
-	createdByName?: string;
-	assignedToName?: string;
 	receiverUserId?: string;
 	createdAt?: string; // Date when handover was created
 	readyAt?: string;
@@ -312,4 +310,41 @@ export type ShiftsResponse = {
 export type SetupPatientsResponse = {
 	patients?: Array<SetupPatient>;
 	Patients?: Array<SetupPatient>;
+};
+
+// Patient Handover Data - Complete patient data for handover (consolidated from /patient and /patient-data)
+export type PatientHandoverData = {
+	id: string;
+	name: string;
+	dob: string; // Raw DOB, frontend calculates age
+	mrn: string;
+	admissionDate: string;
+	currentDateTime: string;
+	primaryTeam: string;
+	primaryDiagnosis: string;
+	room: string;
+	unit: string;
+	assignedPhysician: {
+		name: string;
+		role: string;
+		color: string;
+		shiftEnd?: string;
+		shiftStart?: string;
+		status: string;
+		patientAssignment: string;
+	} | null;
+	receivingPhysician: {
+		name: string;
+		role: string;
+		color: string;
+		shiftEnd?: string;
+		shiftStart?: string;
+		status: string;
+		patientAssignment: string;
+	} | null;
+	// Medical status data (consolidated from /patient-data endpoint)
+	illnessSeverity?: string;
+	summaryText?: string;
+	lastEditedBy?: string;
+	updatedAt?: string;
 };

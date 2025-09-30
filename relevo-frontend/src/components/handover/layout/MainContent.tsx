@@ -4,6 +4,7 @@ import type {
 	FullscreenComponent,
 	SyncStatus,
 } from "@/common/types";
+import type { PatientHandoverData } from "@/api";
 import type { Handover, User } from "@/api";
 import {
 	Collapsible,
@@ -18,7 +19,6 @@ import {
 import { ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
-	usePatientData,
 	useSituationAwareness,
 	useSynthesis,
 } from "@/api/endpoints/handovers";
@@ -44,6 +44,7 @@ interface MainContentProps {
 	setHandoverComplete: (complete: boolean) => void;
 	currentUser: User | null;
 	handoverData?: Handover;
+    patientData: PatientHandoverData | null;
 }
 
 const toPhysician = (
@@ -64,18 +65,23 @@ const toPhysician = (
 	};
 };
 
-const toPhysicianById = (
-	name?: string,
-): { name: string; initials: string; role: string } => ({
-	name: name ?? "",
-	initials:
-		name
-			?.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase() ?? "",
-	role: "Physician",
-});
+const formatPhysician = (
+	physician: PatientHandoverData["assignedPhysician"],
+): { name: string; initials: string; role: string } => {
+	if (!physician) {
+		return { name: "Unknown", initials: "U", role: "Doctor" };
+	}
+	return {
+		name: physician.name,
+		initials:
+			physician.name
+				?.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase() || "U",
+		role: physician.role || "Doctor",
+	};
+};
 
 export function MainContent({
 	layoutMode,
@@ -87,13 +93,12 @@ export function MainContent({
 	setHandoverComplete,
 	currentUser,
 	handoverData,
+    patientData,
 }: MainContentProps): React.JSX.Element {
 	const { t } = useTranslation(["handover", "mainContent"]);
 	const ipassGuidelines = getIpassGuidelines(t);
 	const handoverId = handoverData?.id;
 
-	const { isLoading: isPatientDataLoading, error: patientError } =
-		usePatientData(handoverId ?? "");
 	const {
 		isLoading: isSituationAwarenessLoading,
 		error: situationAwarenessError,
@@ -102,7 +107,7 @@ export function MainContent({
 		handoverId ?? "",
 	);
 
-	if (isPatientDataLoading || isSituationAwarenessLoading || isSynthesisLoading) {
+	if (isSituationAwarenessLoading || isSynthesisLoading) {
 		return (
 			<div className="flex items-center justify-center p-8">
 				<div className="text-center">
@@ -115,7 +120,7 @@ export function MainContent({
 		);
 	}
 
-	if (patientError || situationAwarenessError || synthesisError) {
+	if (situationAwarenessError || synthesisError) {
 		return (
 			<div className="flex items-center justify-center p-8">
 				<div className="text-center">
@@ -124,8 +129,7 @@ export function MainContent({
 						{t("mainContent:errorLoadingPatientData")}
 					</p>
 					<p className="text-sm text-gray-500 mt-2">
-						{patientError?.message ||
-							situationAwarenessError?.message ||
+						{situationAwarenessError?.message ||
 							synthesisError?.message}
 					</p>
 				</div>
@@ -202,7 +206,7 @@ export function MainContent({
 							</div>
 							<div className="p-6">
 								<IllnessSeverity
-									assignedPhysician={toPhysicianById(handoverData.createdByName)}
+									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 									currentUser={toPhysician(currentUser)}
 								/>
 							</div>
@@ -256,7 +260,8 @@ export function MainContent({
 								</div>
 							</div>
 							<PatientSummary
-								assignedPhysician={toPhysicianById(handoverData.createdByName)}
+								patientData={patientData}
+								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
 								syncStatus={syncStatus}
@@ -316,7 +321,7 @@ export function MainContent({
 								</div>
 							</div>
 							<SituationAwareness
-								assignedPhysician={toPhysicianById(handoverData.createdByName)}
+								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
@@ -389,8 +394,8 @@ export function MainContent({
 										collaborators={[]}
 										currentUser={toPhysician(currentUser)}
 										handoverId={handoverData?.id}
-										assignedPhysician={toPhysicianById(
-											handoverData.createdByName,
+										assignedPhysician={formatPhysician(
+											patientData?.assignedPhysician,
 										)}
 										onOpenThread={handleOpenDiscussion}
 									/>
@@ -453,8 +458,8 @@ export function MainContent({
 										currentUser={toPhysician(currentUser)}
 										handoverComplete={handoverData.status === "Completed"}
 										handoverState={handoverData.status}
-										receivingPhysician={toPhysicianById(
-											handoverData.assignedToName,
+										receivingPhysician={formatPhysician(
+											patientData?.receivingPhysician,
 										)}
 										onComplete={setHandoverComplete}
 										onOpenThread={handleOpenDiscussion}
@@ -536,7 +541,7 @@ export function MainContent({
 						<CollapsibleContent>
 							<div className="p-6">
 								<IllnessSeverity
-									assignedPhysician={toPhysicianById(handoverData.createdByName)}
+									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 									currentUser={toPhysician(currentUser)}
 								/>
 							</div>
@@ -610,7 +615,8 @@ export function MainContent({
 						<CollapsibleContent>
 							<div className="p-6">
 								<PatientSummary
-									assignedPhysician={toPhysicianById(handoverData.createdByName)}
+									patientData={patientData}
+									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 									currentUser={toPhysician(currentUser)}
 									handoverId={handoverData.id}
 									syncStatus={syncStatus}
@@ -695,8 +701,8 @@ export function MainContent({
 									collaborators={[]}
 									currentUser={toPhysician(currentUser)}
 									handoverId={handoverData?.id}
-									assignedPhysician={toPhysicianById(
-										handoverData.createdByName,
+									assignedPhysician={formatPhysician(
+										patientData?.assignedPhysician,
 									)}
 									onOpenThread={handleOpenDiscussion}
 								/>
@@ -772,7 +778,7 @@ export function MainContent({
 						</CollapsibleTrigger>
 						<CollapsibleContent>
 							<SituationAwareness
-								assignedPhysician={toPhysicianById(handoverData.createdByName)}
+								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
@@ -858,8 +864,8 @@ export function MainContent({
 									currentUser={toPhysician(currentUser)}
 									handoverComplete={handoverData.status === "Completed"}
 									handoverState={handoverData.status}
-									receivingPhysician={toPhysicianById(
-										handoverData.assignedToName,
+									receivingPhysician={formatPhysician(
+										patientData?.receivingPhysician,
 									)}
 									onComplete={setHandoverComplete}
 									onOpenThread={handleOpenDiscussion}

@@ -2,7 +2,7 @@ import {
   activeCollaborators,
   currentlyPresent,
 } from "@/common/constants";
-import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { PatientHandoverData } from "@/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,9 +26,7 @@ import {
   MapPin,
   MessageSquare,
   MoreHorizontal,
-  Stethoscope,
   UserPlus,
-  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -66,6 +64,39 @@ export function Header({
   patientData,
 }: HeaderProps): JSX.Element {
   const { t } = useTranslation(["header", "handover", "patientHeader"]);
+
+  // Calculate age from DOB
+  const calculateAgeFromDob = (dobString: string): number => {
+    if (!dobString) return 0;
+
+    try {
+      const birthDate = new Date(dobString);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      // Adjust if birthday hasn't occurred this year
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return age;
+    } catch {
+      return 0;
+    }
+  };
+
+  // Generate initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .filter(n => n.length > 0)
+      .map(n => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
   
   const activeUsers = activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",
@@ -94,13 +125,13 @@ export function Header({
             {/* Patient Name + Essential Info */}
             <div className="flex items-center space-x-3 min-w-0 flex-1">
               <h2 className="font-medium text-gray-900 truncate">
-                {patientData.name}
+                {patientData?.name || "Unknown Patient"}
               </h2>
               <Badge
                 className="text-gray-700 border-gray-200 bg-gray-50 flex-shrink-0"
                 variant="outline"
               >
-                {patientData.room}
+                {patientData?.room || "Unknown"}
               </Badge>
 
               {/* Session duration - realistic medical tracking */}
@@ -316,22 +347,24 @@ export function Header({
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
-              <span>{t("age", { age: patientData.age, ns: "patientHeader" })}</span>
+              <span>{t("age", { age: calculateAgeFromDob(patientData?.dob || ""), ns: "patientHeader" })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
-              <span className="font-mono text-xs">{t("mrn", { mrn: patientData.mrn, ns: "patientHeader" })}</span>
+              <span className="font-mono text-xs">{t("mrn", { mrn: patientData?.mrn || "Unknown", ns: "patientHeader" })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <MapPin className="w-3 h-3" />
-              <span>{patientData.unit}</span>
+              <span>{patientData?.unit || "Unknown"}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Activity className="w-3 h-3" />
               <span>
-                {patientData.primaryDiagnosis.includes('.') 
-                  ? t(patientData.primaryDiagnosis, { ns: 'patientHeader' }) 
-                  : patientData.primaryDiagnosis}
+                {patientData?.primaryDiagnosis
+                  ? (patientData.primaryDiagnosis.includes('.')
+                    ? t(patientData.primaryDiagnosis, { ns: 'patientHeader' })
+                    : patientData.primaryDiagnosis)
+                  : "Unknown"}
               </span>
             </div>
           </div>
@@ -342,9 +375,9 @@ export function Header({
                 <TooltipTrigger asChild>
                   <Avatar className="w-5 h-5 cursor-pointer hover:ring-2 hover:ring-blue-200">
                     <AvatarFallback
-                      className={`${patientData.assignedPhysician.color} text-white text-xs`}
+                      className={`${patientData?.assignedPhysician?.color || "bg-gray-400"} text-white text-xs`}
                     >
-                      {patientData.assignedPhysician.initials}
+                      {getInitials(patientData?.assignedPhysician?.name || "")}
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
@@ -354,10 +387,10 @@ export function Header({
                 >
                   <div className="text-center">
                     <div className="font-medium">
-                      {patientData.assignedPhysician.name}
+                      {patientData?.assignedPhysician?.name || "Physician data not available"}
                     </div>
                     <div className="text-gray-300">
-                      {patientData.assignedPhysician.role}
+                      {patientData?.assignedPhysician?.role || "Role not available"}
                     </div>
                   </div>
                 </TooltipContent>
@@ -367,9 +400,9 @@ export function Header({
                 <TooltipTrigger asChild>
                   <Avatar className="w-5 h-5 cursor-pointer hover:ring-2 hover:ring-purple-200">
                     <AvatarFallback
-                      className={`${patientData.receivingPhysician.color} text-white text-xs`}
+                      className={`${patientData?.receivingPhysician?.color || "bg-gray-400"} text-white text-xs`}
                     >
-                      {patientData.receivingPhysician.initials}
+                      {getInitials(patientData?.receivingPhysician?.name || "")}
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
@@ -379,10 +412,10 @@ export function Header({
                 >
                   <div className="text-center">
                     <div className="font-medium">
-                      {patientData.receivingPhysician.name}
+                      {patientData?.receivingPhysician?.name || "Physician data not available"}
                     </div>
                     <div className="text-gray-300">
-                      {patientData.receivingPhysician.role}
+                      {patientData?.receivingPhysician?.role || "Role not available"}
                     </div>
                   </div>
                 </TooltipContent>

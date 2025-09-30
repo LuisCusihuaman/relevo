@@ -12,7 +12,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
 import { useUser } from "@clerk/clerk-react";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
-import type { User } from "@/api";
 import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
@@ -66,31 +65,20 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
   const { user: clerkUser } = useUser();
 
-  // Transform Clerk user to match API User type
-  const currentUser: User | null = clerkUser ? {
-    id: clerkUser.id,
-    email: clerkUser.primaryEmailAddress?.emailAddress || '',
-    firstName: clerkUser.firstName || '',
-    lastName: clerkUser.lastName || '',
-    fullName: clerkUser.fullName || '',
-    roles: ['Physician'], // Default role, could be enhanced later
-    isActive: true
-  } : null;
-
-  // Simplified user object for components that only need name, initials, role
-  const simplifiedCurrentUser = currentUser ? {
-    name: currentUser.fullName || `${currentUser.firstName} ${currentUser.lastName}`.trim() || 'Unknown User',
-    initials: (currentUser.fullName || `${currentUser.firstName} ${currentUser.lastName}`)
+  // Simplified user object from Clerk user for components that need basic user info
+  const currentUser = clerkUser ? {
+    name: clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'Unknown User',
+    initials: (clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`)
       ?.split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase() || 'U',
-    role: currentUser.roles?.join(", ") || 'Physician'
-  } : undefined;
+    role: 'Doctor' // All users are Doctors for now
+  } : null;
 
   const userLoading = false; // Clerk user is available synchronously
   const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(handoverId);
-  const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
+  const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverId);
 
   const { t } = useTranslation("handover");
 
@@ -246,7 +234,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             syncStatus={syncStatus}
             patientData={patientData}
             handoverData={handoverData ? { id: handoverData.id } : undefined}
-            currentUser={simplifiedCurrentUser}
+            currentUser={currentUser ?? undefined}
           />
         )}
 
@@ -315,6 +303,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
                 setSyncStatus={handleSyncStatusChange}
                 syncStatus={syncStatus}
                 handoverData={handoverData}
+                patientData={patientData}
               />
             </div>
           </div>

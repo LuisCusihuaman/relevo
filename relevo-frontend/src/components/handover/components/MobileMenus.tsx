@@ -22,7 +22,27 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { activeCollaborators } from "../../../common/constants";
 import { CollaborationPanel } from "./CollaborationPanel";
 import { HandoverHistory } from "./HandoverHistory";
-import type { PatientHandoverData } from "../../../hooks/usePatientHandoverData";
+import type { PatientHandoverData } from "@/api";
+
+const calculateAgeFromDob = (dobString: string): number => {
+  if (!dobString) return 0;
+
+  try {
+    const birthDate = new Date(dobString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  } catch {
+    return 0;
+  }
+};
 
 interface MobileMenusProps {
   showMobileMenu: boolean;
@@ -93,7 +113,7 @@ export function MobileMenus({
                 <div className="flex justify-between">
                   <span className="text-blue-700">{t("patientInfo.age")}</span>
                   <span className="text-blue-900 font-medium">
-                    {patientData?.age || "N/A"}
+                    {patientData?.dob ? calculateAgeFromDob(patientData.dob) : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -270,7 +290,11 @@ export function MobileMenus({
             <div className="flex-1 overflow-auto">
               <HandoverHistory
                 hideHeader
-                patientData={patientData}
+                patientData={patientData ? {
+                  name: patientData.name,
+                  mrn: patientData.mrn,
+                  admissionDate: patientData.admissionDate
+                } : { name: "", mrn: "", admissionDate: "" }}
                 handoverId={handoverId || ""}
                 onClose={() => { setShowHistory(false); }}
               />

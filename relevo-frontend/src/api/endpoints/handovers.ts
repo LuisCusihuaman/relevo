@@ -13,9 +13,9 @@ import type {
 	CreateContingencyPlanRequest,
 	UpdateSituationAwarenessRequest,
 	ApiResponse,
-	PatientDataResponse,
 	SynthesisResponse,
 	UpdatePatientDataRequest,
+	PatientHandoverData,
 } from "../types";
 
 // ========================================
@@ -35,6 +35,7 @@ export const handoverQueryKeys = {
 	contingencyPlans: (id: string) => [...handoverQueryKeys.detail(id), "contingency-plans"] as const,
 	situationAwareness: (id: string) => [...handoverQueryKeys.detail(id), "situation-awareness"] as const,
     patientData: (id: string) => [...handoverQueryKeys.detail(id), "patient-data"] as const,
+    patientHandoverData: (id: string) => [...handoverQueryKeys.detail(id), "patient-handover-data"] as const,
     synthesis: (id: string) => [...handoverQueryKeys.detail(id), "synthesis"] as const,
 };
 
@@ -55,6 +56,11 @@ export async function getHandovers(parameters?: {
 
 export async function getHandover(handoverId: string): Promise<Handover> {
 	const { data } = await api.get<Handover>(`/handovers/${handoverId}`);
+	return data;
+}
+
+export async function getPatientHandoverData(handoverId: string): Promise<PatientHandoverData> {
+	const { data } = await api.get<PatientHandoverData>(`/handovers/${handoverId}/patient`);
 	return data;
 }
 
@@ -110,11 +116,7 @@ export async function getPendingHandovers(userId: string): Promise<{ handovers: 
 
 // HANDOVER SECTIONS
 // ----------------------------------------
-
-export async function getPatientData(handoverId: string): Promise<PatientDataResponse> {
-	const { data } = await api.get<PatientDataResponse>(`/handovers/${handoverId}/patient-data`);
-	return data;
-}
+// Removed getPatientData - data now consolidated into getPatientHandoverData
 
 export async function getSynthesis(handoverId: string): Promise<SynthesisResponse> {
     const { data } = await api.get<SynthesisResponse>(`/handovers/${handoverId}/synthesis`);
@@ -614,14 +616,7 @@ export function useSituationAwareness(handoverId: string) {
 	});
 }
 
-export function usePatientData(handoverId: string) {
-    return useQuery({
-        queryKey: handoverQueryKeys.patientData(handoverId),
-        queryFn: () => getPatientData(handoverId),
-        enabled: !!handoverId,
-        staleTime: 5 * 60 * 1000, // 5 minutes
-    });
-}
+// Removed usePatientData - data now consolidated into usePatientHandoverData
 
 export function useSynthesis(handoverId: string) {
     return useQuery({
@@ -732,6 +727,16 @@ export function useDeleteContingencyPlan() {
 				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
 			});
 		},
+	});
+}
+
+export function usePatientHandoverData(handoverId: string): ReturnType<typeof useQuery<PatientHandoverData | undefined, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.patientHandoverData(handoverId),
+		queryFn: () => getPatientHandoverData(handoverId),
+		enabled: !!handoverId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 }
 

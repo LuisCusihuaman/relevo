@@ -527,20 +527,18 @@ export interface Alert {
   export interface PatientData {
 	id: string;
 	name: string;
-	age: number;
+	dob: string; // Raw DOB from backend, calculate age in UI
 	mrn: string;
 	admissionDate: string;
 	currentDateTime: string;
 	primaryTeam: string;
 	primaryDiagnosis: string;
-	severity: string;
-	handoverStatus: string;
-	shift: string;
 	room: string;
 	unit: string;
-	assignedPhysician: Physician;
-	receivingPhysician: Physician;
-	handoverTime: string;
+	assignedPhysician: Physician | null;
+	receivingPhysician: Physician | null;
+	// Removed: severity, handoverStatus, shift, handoverTime
+	// These come from the handover endpoint
   }
   
   export interface Collaborator {

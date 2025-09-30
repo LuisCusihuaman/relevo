@@ -1,4 +1,5 @@
 import type { SyncStatus } from "@/common/types";
+import type { PatientHandoverData } from "@/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,12 +8,12 @@ import { Clock, Edit, FileText, Lock, Save, Shield } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import {
-	usePatientData,
 	useUpdatePatientData,
 } from "@/api/endpoints/handovers";
 
 interface PatientSummaryProps {
   handoverId: string; // Required: ID of the handover
+  patientData?: PatientHandoverData; // Patient data including summary text
   onOpenThread?: (section: string) => void;
   fullscreenMode?: boolean;
   autoEdit?: boolean;
@@ -37,6 +38,7 @@ interface PatientSummaryProps {
 
 export function PatientSummary({
   handoverId,
+  patientData: patientDataProp,
   onOpenThread: _onOpenThread,
   fullscreenMode = false,
   autoEdit = false,
@@ -52,9 +54,7 @@ export function PatientSummary({
 }: PatientSummaryProps): ReactElement {
   const { t } = useTranslation("patientSummary");
 
-  // Fetch patient summary data using the new hook
-  const { data: patientData, isLoading: isLoadingSummary } =
-    usePatientData(handoverId);
+  // Patient data now comes as prop instead of separate API call
 
   // Local state for editing
   const [isEditing, setIsEditing] = useState(false);
@@ -62,7 +62,7 @@ export function PatientSummary({
   const [editingText, setEditingText] = useState("");
 
   // Get the current summary text, defaulting to empty string if no data
-  const displayText = patientData?.patientData?.summaryText || "";
+  const displayText = patientDataProp?.summaryText || "";
   const currentText = isEditing ? editingText : displayText;
 
   // Check if current user can edit (only assigned physician)
@@ -81,7 +81,7 @@ export function PatientSummary({
       await updateSummaryMutation.mutateAsync({
         handoverId,
         summaryText: editingText,
-        illnessSeverity: patientData?.patientData?.illnessSeverity || "Stable", // Default to stable if not present
+        illnessSeverity: patientDataProp?.illnessSeverity || "Stable", // Default to stable if not present
         status: "completed",
       });
 
@@ -103,7 +103,7 @@ export function PatientSummary({
     handoverId,
     updateSummaryMutation,
     onSave,
-    patientData,
+    patientDataProp,
   ]);
 
   // Auto-start editing when in fullscreen with autoEdit
@@ -123,7 +123,7 @@ export function PatientSummary({
 
 
   const getTimeAgo = () => {
-    const updatedAt = patientData?.patientData?.updatedAt;
+    const updatedAt = patientDataProp?.updatedAt;
     if (!updatedAt) return t("time.never");
 
     const now = new Date();
@@ -159,28 +159,6 @@ export function PatientSummary({
   // In fullscreen mode, optimize for writing
   const contentHeight = fullscreenMode ? "min-h-[60vh]" : "h-80";
 
-  // Show loading state
-  if (isLoadingSummary) {
-    return (
-      <div className="space-y-4">
-        <div className="bg-white border border-gray-200 rounded-t-none rounded-b-lg shadow-sm p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-7 h-7 bg-gray-100 rounded-md flex items-center justify-center">
-              <FileText className="w-4 h-4 text-gray-600" />
-            </div>
-            <h4 className="text-lg font-medium text-gray-800">
-              {t("view.title")}
-            </h4>
-          </div>
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">

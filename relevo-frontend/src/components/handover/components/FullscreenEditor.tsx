@@ -2,7 +2,7 @@ import React from "react";
 import {
     activeCollaborators,
 } from "@/common/constants";
-import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { PatientHandoverData } from "@/api";
 import type { FullscreenEditingState, SyncStatus } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { PatientHandoverData } from "@/api";
 
 type UiState = {
 	isSearchOpen: boolean;
