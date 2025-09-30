@@ -33,6 +33,7 @@ import {
 interface MainContentProps {
 	layoutMode: "single" | "columns";
 	expandedSections: ExpandedSections;
+	getSessionDuration: () => string;
 	handleOpenDiscussion: () => void;
 	handleOpenFullscreenEdit: (
 		component: FullscreenComponent,
@@ -41,22 +42,27 @@ interface MainContentProps {
 	syncStatus: SyncStatus;
 	setSyncStatus: (status: SyncStatus) => void;
 	setHandoverComplete: (complete: boolean) => void;
-	currentUser: User;
+	currentUser: User | null;
 	handoverData?: Handover;
 }
 
 const toPhysician = (
-	user: User,
-): { name: string; initials: string; role: string } => ({
-	name: user.fullName ?? `${user.firstName} ${user.lastName}`,
-	initials:
-		(user.fullName ?? `${user.firstName} ${user.lastName}`)
-			?.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase() ?? "",
-	role: user.roles?.join(", ") ?? "",
-});
+	user: User | null,
+): { name: string; initials: string; role: string } => {
+	if (!user) {
+		return { name: "Unknown User", initials: "U", role: "Unknown" };
+	}
+	return {
+		name: user.fullName ?? `${user.firstName} ${user.lastName}`,
+		initials:
+			(user.fullName ?? `${user.firstName} ${user.lastName}`)
+				?.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase() ?? "",
+		role: user.roles?.join(", ") ?? "",
+	};
+};
 
 const toPhysicianById = (
 	name?: string,

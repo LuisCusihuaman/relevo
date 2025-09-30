@@ -9,7 +9,6 @@ import {
 import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useUser, useClerk } from "@clerk/clerk-react";
-import { useUserStore } from "@/store/user.store";
 
 type UserMenuPopoverProps = {
   onOpenMobileMenu?: () => void;
@@ -19,11 +18,9 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
   const { t } = useTranslation("home");
   const { user: clerkUser } = useUser();
   const { signOut } = useClerk();
-  const { fullName, email } = useUserStore();
 
-  // Use store data if available, fallback to Clerk data
-  const displayName = fullName || clerkUser?.fullName || "";
-  const primaryEmail = email || clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || "";
+  const displayName = clerkUser?.fullName || "";
+  const primaryEmail = clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || "";
 
   return (
     <>

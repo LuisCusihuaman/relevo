@@ -2,9 +2,9 @@ import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ChevronRight, Trash2 } from "lucide-react";
+import { useUser } from "@clerk/clerk-react";
 
 import type { Patient } from "./types";
-import { useUserStore } from "@/store/user.store";
 import { useTranslation } from "react-i18next";
 import { NotificationsPopover } from "./NotificationsPopover";
 import { UserMenuPopover } from "./UserMenuPopover";
@@ -24,8 +24,19 @@ export const AppHeader: FC<AppHeaderProps> = ({
 	isMobileMenuOpen,
     setIsMobileMenuOpen,
 }) => {
-	const { doctorName, unitName } = useUserStore();
+	const { user } = useUser();
     const { t } = useTranslation("home");
+
+	const doctorName = user?.fullName || "Doctor";
+	const unitName = "UCIP"; // For now, hardcoded as per previous usage
+
+	// Debug logs
+	console.log("AppHeader Debug Info:");
+	console.log("- isPatientView:", isPatientView);
+	console.log("- currentPatient:", currentPatient);
+	console.log("- doctorName:", doctorName);
+	console.log("- unitName:", unitName);
+	console.log("- user:", user);
 	return (
 		<header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-6">
 			<div className="flex items-center gap-3">
@@ -42,7 +53,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 									className="text-base font-medium text-gray-900 hover:text-gray-700"
 									onClick={() => (window.location.href = "/")}
 								>
-									Relevo de Luis Cusihuaman
+									Relevo de {doctorName || "Doctor"}
 								</button>
 								<ChevronRight className="h-4 w-4 text-gray-400" />
 								<div className="flex items-center gap-2">
@@ -61,13 +72,23 @@ export const AppHeader: FC<AppHeaderProps> = ({
 						) : (
 							<div className="flex items-center gap-2">
 								<span className="text-base font-medium text-gray-900">
-									Relevo de {doctorName || "Luis Cusihuaman"}
+									Relevo de {doctorName || "Doctor"}
 								</span>
 								<ChevronRight className="h-4 w-4 text-gray-400" />
-								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
-									<span className="text-white text-xs font-bold">v</span>
+								<div className="flex items-center gap-2">
+									<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+										<span className="text-white text-xs font-bold">v</span>
+									</div>
+									<span className="text-base font-medium text-gray-900">
+										{unitName || "UCIP"}
+									</span>
 								</div>
-								<span className="text-base font-medium text-gray-900">{unitName || "UCIP"}</span>
+								<ChevronRight className="h-4 w-4 text-gray-400" />
+								{currentPatient && (
+									<span className="text-base font-medium text-gray-900">
+										{currentPatient.name}
+									</span>
+								)}
 							</div>
 						)}
 					</div>

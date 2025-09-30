@@ -10,11 +10,10 @@ import {
 	Moon,
 	LogOut,
 } from "lucide-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 import type { Patient } from "./types";
-import { useUserStore } from "@/store/user.store";
 import { useTranslation } from "react-i18next";
-import { useUser, useClerk } from "@clerk/clerk-react";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
@@ -27,11 +26,12 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 	currentPatient,
 	setIsMobileMenuOpen,
 }) => {
-    const { doctorName, unitName } = useUserStore();
-    const { t } = useTranslation("home");
     const { user } = useUser();
     const { signOut } = useClerk();
-    const displayName = user?.fullName ?? doctorName ?? "";
+    const { t } = useTranslation("home");
+
+    const unitName = "UCIP"; // For now, hardcoded as per previous usage
+    const displayName = user?.fullName || "";
     const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 	return (
 		<div className="fixed inset-0 z-[9999] bg-white md:hidden">
@@ -50,23 +50,37 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 					<div className="flex items-center gap-2">
 						{isPatientView ? (
 							<div className="flex items-center gap-2">
+								<span className="font-medium text-base text-gray-900">
+									Relevo de {displayName || "Doctor"}
+								</span>
+								<ChevronRight className="h-4 w-4 text-gray-500" />
 								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
 									<span className="text-white text-xs font-bold">v</span>
 								</div>
 								<span className="font-medium text-base text-gray-900">
-									{currentPatient?.unit ?? "UCIP"}
+									{unitName || "UCIP"}
+								</span>
+								<ChevronRight className="h-4 w-4 text-gray-500" />
+								<span className="font-medium text-base text-gray-900">
+									{currentPatient?.name}
 								</span>
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<span className="font-medium text-base text-gray-900">
-									Relevo de {doctorName || "Luis Cusihuaman"}
+									Relevo de {displayName || "Doctor"}
 								</span>
 								<ChevronRight className="h-4 w-4 text-gray-500" />
 								<div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
 									<span className="text-white text-xs font-bold">v</span>
 								</div>
 								<span className="font-medium text-base text-gray-900">{unitName || "UCIP"}</span>
+								<ChevronRight className="h-4 w-4 text-gray-500" />
+								{currentPatient && (
+									<span className="font-medium text-base text-gray-900">
+										{currentPatient.name}
+									</span>
+								)}
 							</div>
 						)}
 					</div>

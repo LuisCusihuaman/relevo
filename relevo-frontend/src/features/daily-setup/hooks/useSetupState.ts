@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
-import { useUserStore } from "@/store/user.store";
 import { useNavigate } from "@tanstack/react-router";
 import { useAssignPatients, usePatientsByUnit, useReadyHandover, usePendingHandovers } from "@/api";
 import { formatDiagnosis } from "@/lib/formatters";
@@ -10,8 +9,7 @@ import { useDailySetupStore } from "@/store/daily-setup.store";
 
 export function useSetupState(): SetupState & SetupActions {
 	const navigate = useNavigate();
-	const { user, isLoaded } = useUser();
-	const { setDoctorName: setDoctorNameInStore, setUnitName } = useUserStore();
+	const { user } = useUser();
 	const { signOut } = useClerk();
 	const assignMutation = useAssignPatients();
 	const readyHandoverMutation = useReadyHandover();
@@ -94,21 +92,6 @@ export function useSetupState(): SetupState & SetupActions {
 		};
 	}, [checkIsMobile]);
 
-	// Populate doctor name from Clerk and Zustand
-	useEffect(() => {
-		if (doctorName) return; // If we already have a name from the store, don't override
-		if (!isLoaded) return;
-		const fullName = user?.fullName ?? [user?.firstName, user?.lastName].filter(Boolean).join(" ");
-		if (fullName) {
-			setDoctorName(fullName);
-			setDoctorNameInStore(fullName);
-		}
-	}, [isLoaded, user, doctorName, setDoctorName, setDoctorNameInStore]);
-
-	// Keep global unit in sync
-	useEffect(() => {
-		if (unit) setUnitName(unit);
-	}, [unit, setUnitName]);
 
 	const togglePatientSelection = useCallback((rowIndex: number): void => {
 		setSelectedIndexes(
@@ -193,10 +176,9 @@ export function useSetupState(): SetupState & SetupActions {
 
 	const handleSignOut = useCallback(async (): Promise<void> => {
 		return signOut().finally(() => {
-			setDoctorNameInStore("");
 			resetPersistentState();
 		});
-	}, [signOut, setDoctorNameInStore, resetPersistentState]);
+	}, [signOut, resetPersistentState]);
 
 	return {
 		// State

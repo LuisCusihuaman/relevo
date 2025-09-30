@@ -1,8 +1,8 @@
+import React from "react";
 import {
     activeCollaborators,
 } from "@/common/constants";
 import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
-import type { CurrentUserData } from "@/hooks/useCurrentUser";
 import type { FullscreenEditingState, SyncStatus } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,12 @@ interface FullscreenEditorProps {
   syncStatus: SyncStatus;
   setSyncStatus: (status: SyncStatus) => void;
   patientData: PatientHandoverData | null;
-  currentUser: CurrentUserData | null;
+  handoverData?: { id: string };
+  currentUser: {
+    name: string;
+    initials: string;
+    role: string;
+  } | undefined;
 }
 
 export function FullscreenEditor({
@@ -40,6 +45,7 @@ export function FullscreenEditor({
   syncStatus,
   setSyncStatus,
   patientData,
+  handoverData,
   currentUser,
 }: FullscreenEditorProps): JSX.Element {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -244,6 +250,7 @@ export function FullscreenEditor({
                 <PatientSummary
                   fullscreenMode
                   hideControls
+                  handoverId={handoverData?.id || ""}
                   assignedPhysician={patientData?.assignedPhysician}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser}
@@ -261,6 +268,13 @@ export function FullscreenEditor({
             {fullscreenEditing.component === "situation-awareness" && (
               <div className="h-full">
                 <SituationAwareness
+                  handoverId={handoverData?.id || ""}
+                  currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
+                  assignedPhysician={patientData?.assignedPhysician ? {
+                    name: patientData.assignedPhysician.name,
+                    initials: patientData.assignedPhysician.initials,
+                    role: patientData.assignedPhysician.role
+                  } : { name: "Unknown", initials: "U", role: "Unknown" }}
                   fullscreenMode
                   hideControls
                   autoEdit={fullscreenEditing.autoEdit}
@@ -268,7 +282,6 @@ export function FullscreenEditor({
                   syncStatus={syncStatus}
                   onContentChange={handleContentChange}
                   onOpenThread={handleOpenDiscussion}
-                  onRequestFullscreen={() => {}}
                   onSave={handleFullscreenSave}
                   onSyncStatusChange={setSyncStatus}
                 />

@@ -10,8 +10,9 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useUser } from "@clerk/clerk-react";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
+import type { User } from "@/api";
 import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
@@ -63,7 +64,31 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const isMobile = useIsMobile();
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
-  const { user: currentUser, isLoading: userLoading } = useCurrentUser();
+  const { user: clerkUser } = useUser();
+
+  // Transform Clerk user to match API User type
+  const currentUser: User | null = clerkUser ? {
+    id: clerkUser.id,
+    email: clerkUser.primaryEmailAddress?.emailAddress || '',
+    firstName: clerkUser.firstName || '',
+    lastName: clerkUser.lastName || '',
+    fullName: clerkUser.fullName || '',
+    roles: ['Physician'], // Default role, could be enhanced later
+    isActive: true
+  } : null;
+
+  // Simplified user object for components that only need name, initials, role
+  const simplifiedCurrentUser = currentUser ? {
+    name: currentUser.fullName || `${currentUser.firstName} ${currentUser.lastName}`.trim() || 'Unknown User',
+    initials: (currentUser.fullName || `${currentUser.firstName} ${currentUser.lastName}`)
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || 'U',
+    role: currentUser.roles?.join(", ") || 'Physician'
+  } : undefined;
+
+  const userLoading = false; // Clerk user is available synchronously
   const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(handoverId);
   const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
   const { t } = useTranslation("handover");
@@ -219,7 +244,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             setSyncStatus={handleSyncStatusChange}
             syncStatus={syncStatus}
             patientData={patientData}
-            currentUser={currentUser}
+            handoverData={handoverData ? { id: handoverData.id } : undefined}
+            currentUser={simplifiedCurrentUser}
           />
         )}
 
