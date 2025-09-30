@@ -58,17 +58,6 @@ export function Home({
 		return assignedPatientsData.items.map(mapPatientSummaryToPatient);
 	}, [assignedPatientsData]);
 
-	useEffect(() => {
-		console.log("Home.tsx Debug:");
-		console.log("- patientSlug:", patientSlug);
-		console.log("- patients:", patients);
-		const patient: Patient | null = patientSlug
-			? patients.find((p: Patient): boolean => p.url === patientSlug) ?? null
-			: null;
-		console.log("- found patient:", patient);
-		actions.setCurrentPatient(patient);
-	}, [patientSlug, patients, actions]);
-
 	const isPatientView: boolean = Boolean(currentPatient);
 
 	// Show loading state

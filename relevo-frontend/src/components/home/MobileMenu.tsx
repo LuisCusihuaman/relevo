@@ -12,12 +12,12 @@ import {
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 
-import type { Patient } from "./types";
+import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useTranslation } from "react-i18next";
 
 type MobileMenuProps = {
 	isPatientView: boolean;
-	currentPatient: Patient | null;
+	currentPatient: PatientHandoverData | null;
 	setIsMobileMenuOpen: (isOpen: boolean) => void;
 };
 

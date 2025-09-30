@@ -4,17 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronRight, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
-import type { Patient } from "./types";
+import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useTranslation } from "react-i18next";
 import { NotificationsPopover } from "./NotificationsPopover";
 import { UserMenuPopover } from "./UserMenuPopover";
 
 type AppHeaderProps = {
 	isPatientView: boolean;
-	currentPatient: Patient | null;
+	currentPatient: PatientHandoverData | null;
 	setIsSearchOpen: (isOpen: boolean) => void;
 	isMobileMenuOpen: boolean;
-    setIsMobileMenuOpen: (isOpen: boolean) => void;
+	setIsMobileMenuOpen: (isOpen: boolean) => void;
 };
 
 export const AppHeader: FC<AppHeaderProps> = ({
@@ -22,10 +22,10 @@ export const AppHeader: FC<AppHeaderProps> = ({
 	currentPatient,
 	setIsSearchOpen,
 	isMobileMenuOpen,
-    setIsMobileMenuOpen,
+	setIsMobileMenuOpen,
 }) => {
 	const { user } = useUser();
-    const { t } = useTranslation("home");
+	const { t } = useTranslation("home");
 
 	const doctorName = user?.fullName || "Doctor";
 	const unitName = "UCIP"; // For now, hardcoded as per previous usage
@@ -144,7 +144,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					title="Clear localStorage (Debug)"
 					variant="ghost"
 					onClick={() => {
-						if (window.confirm("Are you sure you want to clear all localStorage data?")) {
+						if (
+							window.confirm(
+								"Are you sure you want to clear all localStorage data?"
+							)
+						) {
 							localStorage.clear();
 							window.location.reload();
 						}
@@ -154,7 +158,11 @@ export const AppHeader: FC<AppHeaderProps> = ({
 				</Button>
 
 				{/* User Avatar + Mobile Menu */}
-				<UserMenuPopover onOpenMobileMenu={() => { setIsMobileMenuOpen(true); }} />
+				<UserMenuPopover
+					onOpenMobileMenu={() => {
+						setIsMobileMenuOpen(true);
+					}}
+				/>
 			</div>
 		</header>
 	);

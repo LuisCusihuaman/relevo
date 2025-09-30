@@ -91,6 +91,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   const userLoading = false; // Clerk user is available synchronously
   const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(handoverId);
   const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverData);
+
   const { t } = useTranslation("handover");
 
   // State transition mutations

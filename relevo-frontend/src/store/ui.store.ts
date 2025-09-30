@@ -1,14 +1,14 @@
 import { create } from "zustand";
-import type { Patient } from "@/components/home/types";
+import type { PatientHandoverData } from "@/hooks/usePatientHandoverData";
 
 type UiState = {
 	isSearchOpen: boolean;
 	isMobileMenuOpen: boolean;
-	currentPatient: Patient | null;
+	currentPatient: PatientHandoverData | null;
 	actions: {
 		setIsSearchOpen: (isOpen: boolean) => void;
 		setIsMobileMenuOpen: (isOpen: boolean) => void;
-		setCurrentPatient: (patient: Patient | null) => void;
+		setCurrentPatient: (patient: PatientHandoverData | null) => void;
 	};
 };
 
@@ -23,7 +23,7 @@ export const useUiStore = create<UiState>((set) => ({
 		setIsMobileMenuOpen: (isOpen: boolean): void => {
 			set({ isMobileMenuOpen: isOpen });
 		},
-		setCurrentPatient: (patient: Patient | null): void => {
+		setCurrentPatient: (patient: PatientHandoverData | null): void => {
 			set({ currentPatient: patient });
 		},
 	},
