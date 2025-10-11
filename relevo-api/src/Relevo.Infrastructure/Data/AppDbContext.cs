@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Ardalis.SharedKernel;
-using Relevo.Core.ContributorAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Relevo.Infrastructure.Data;
@@ -9,7 +8,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
 {
   private readonly IDomainEventDispatcher? _dispatcher = dispatcher;
 
-  public DbSet<Contributor> Contributors => Set<Contributor>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

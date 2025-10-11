@@ -1,5 +1,4 @@
 ﻿using Ardalis.ListStartupServices;
-using Relevo.Core.ContributorAggregate;
 using Relevo.Core.Interfaces;
 using Relevo.Infrastructure.Data;
 using FastEndpoints;
@@ -10,7 +9,7 @@ namespace Relevo.Web.Configurations;
 
 public static class WebApplicationConfigs
 {
-  public static async Task<IApplicationBuilder> UseAppMiddleware(this WebApplication app)
+  public static IApplicationBuilder UseAppMiddleware(this WebApplication app)
   {
     if (app.Environment.IsDevelopment())
     {
@@ -28,12 +27,12 @@ public static class WebApplicationConfigs
 
     app.UseHttpsRedirection();
 
-    await SeedDatabase(app);
+    SeedDatabase(app);
 
     return app;
   }
 
-  static async Task SeedDatabase(WebApplication app)
+  static void SeedDatabase(WebApplication app)
   {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
@@ -41,33 +40,13 @@ public static class WebApplicationConfigs
 
     try
     {
-      // Always use Oracle now
-      var contributorService = services.GetRequiredService<IContributorService>();
-      await SeedOracleData(contributorService, logger);
+      // Database seeding removed - contributors functionality deleted
+      logger.LogInformation("Database seeding skipped - contributor functionality removed");
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "An error occurred seeding the DB. {exceptionMessage}", ex.Message);
+      logger.LogError(ex, "An error occurred during database initialization. {exceptionMessage}", ex.Message);
     }
   }
 
-  static async Task SeedOracleData(IContributorService contributorService, ILogger logger)
-  {
-    // Check if data already exists (basic check - we could implement a more sophisticated check)
-    var contributors = await contributorService.GetAllAsync();
-    if (contributors.Any())
-    {
-      logger.LogInformation("Database already seeded, skipping Oracle seeding");
-      return;
-    }
-
-    // Add test data using Dapper
-    var contributor1 = new Contributor("Ardalis");
-    var contributor2 = new Contributor("Snowfrog");
-
-    await contributorService.CreateAsync(contributor1);
-    await contributorService.CreateAsync(contributor2);
-
-    logger.LogInformation("Oracle database seeded with test data");
-  }
 }

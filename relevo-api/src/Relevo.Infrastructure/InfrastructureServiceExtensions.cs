@@ -3,8 +3,6 @@ using Ardalis.SharedKernel;
 using Relevo.Core.Interfaces;
 using Relevo.Core.Services;
 using Relevo.Infrastructure.Data;
-using Relevo.Infrastructure.Data.Queries;
-using Relevo.UseCases.Contributors.List;
 using Relevo.UseCases.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,9 +28,6 @@ public static class InfrastructureServiceExtensions
     logger.LogInformation("Oracle database configured - using Oracle repositories");
 
     // Always use Oracle implementations
-    services.AddScoped<Relevo.Core.Interfaces.IContributorService, OracleContributorService>();
-    services.AddScoped<IListContributorsQueryService, Data.Queries.OracleListContributorsQueryService>();
-    services.AddScoped<IDeleteContributorService, DeleteContributorService>();
 
     // Always use Oracle setup repository
     services.AddScoped<ISetupRepository, Repositories.OracleSetupRepository>();

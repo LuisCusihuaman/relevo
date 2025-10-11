@@ -66,7 +66,7 @@ app.UseCors(CorsPolicyName);
 // Add authentication middleware
 app.UseClerkAuthentication();
 
-await app.UseAppMiddleware();
+app.UseAppMiddleware();
 
 app.Run();
 

@@ -103,11 +103,6 @@ VALUES ('assign-004', 'user_demo12345678901234567890123456', 'shift-night', 'pat
 INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
 VALUES ('assign-005', 'user_demo12345678901234567890123456', 'shift-day', 'pat-005', SYSTIMESTAMP - 4);
 
--- Insertar colaboradores de ejemplo
-INSERT INTO CONTRIBUTORS (ID, NAME, EMAIL, PHONE_NUMBER) VALUES (1, 'Dra. María García', 'maria.garcia@hospital.com.ar', '+54-11-555-0123');
-INSERT INTO CONTRIBUTORS (ID, NAME, EMAIL, PHONE_NUMBER) VALUES (2, 'Dr. Carlos López', 'carlos.lopez@hospital.com.ar', '+54-11-555-0124');
-INSERT INTO CONTRIBUTORS (ID, NAME, EMAIL, PHONE_NUMBER) VALUES (3, 'Dra. Ana Martínez', 'ana.martinez@hospital.com.ar', '+54-11-555-0125');
-
 -- Insertar usuarios de ejemplo
 INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, AVATAR_URL, ROLE, IS_ACTIVE, LAST_LOGIN)
 VALUES ('user_demo12345678901234567890123456', 'dr.johnson@hospital.com', 'John', 'Johnson', 'Dr. John Johnson', 'https://example.com/avatar1.jpg', 'doctor', 1, SYSTIMESTAMP);
