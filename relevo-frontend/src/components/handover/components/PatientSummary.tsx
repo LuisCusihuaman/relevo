@@ -24,15 +24,16 @@ interface PatientSummaryProps {
   syncStatus?: SyncStatus;
   onSyncStatusChange?: (status: SyncStatus) => void;
   currentUser?: {
+    id: string;
     name: string;
     initials: string;
     role: string;
   };
-  assignedPhysician?: {
+  responsiblePhysician?: {
+    id: string;
     name: string;
-    initials: string;
-    role: string;
   };
+  handoverStateName?: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
   onContentChange?: () => void;
 }
 
@@ -49,7 +50,8 @@ export function PatientSummary({
   syncStatus: _syncStatus = "synced",
   onSyncStatusChange: _onSyncStatusChange,
   currentUser,
-  assignedPhysician,
+  responsiblePhysician,
+  handoverStateName,
   onContentChange,
 }: PatientSummaryProps): ReactElement {
   const { t } = useTranslation("patientSummary");
@@ -65,8 +67,12 @@ export function PatientSummary({
   const displayText = patientDataProp?.summaryText || "";
   const currentText = isEditing ? editingText : displayText;
 
-  // Check if current user can edit (only assigned physician)
-  const canEdit = currentUser?.name === assignedPhysician?.name;
+  // Check if current user can edit (only responsible physician for drafts)
+  const canEdit =
+    handoverStateName === "Draft" &&
+    !!currentUser?.id &&
+    !!responsiblePhysician?.id &&
+    currentUser.id === responsiblePhysician.id;
 
   // Mutations for creating/updating patient summary
   const updateSummaryMutation = useUpdatePatientData();
@@ -316,8 +322,7 @@ export function PatientSummary({
                     variant="outline"
                   >
                     <Shield className="w-3 h-3 mr-1" />
-                    {assignedPhysician?.name || "Unknown Physician"}
-                    {t("view.only")}
+                    {t("responsiblePhysician")}: {responsiblePhysician?.name || t("unassigned")}
                   </Badge>
                 </div>
               </div>
@@ -382,7 +387,7 @@ export function PatientSummary({
               <div className="flex items-center space-x-2 text-sm text-orange-700">
                 <Lock className="w-4 h-4" />
                 <span>
-                  {t("permission.only")} {assignedPhysician?.name || "Unknown Physician"}{" "}
+                  {t("permission.only")} {responsiblePhysician?.name || t("unassigned")}{" "}
                   {t("permission.canModify")}
                 </span>
               </div>

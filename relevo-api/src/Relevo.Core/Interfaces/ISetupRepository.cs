@@ -109,6 +109,8 @@ public record HandoverRecord(
     string? CreatedByName,
     string? AssignedToName,
     string? ReceiverUserId,
+    string ResponsiblePhysicianId,
+    string ResponsiblePhysicianName,
     string? CreatedAt,
     string? ReadyAt,
     string? StartedAt,

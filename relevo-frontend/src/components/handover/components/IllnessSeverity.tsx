@@ -51,7 +51,7 @@ interface IllnessSeverityProps {
     initials: string;
     role: string;
   };
-  assignedPhysician: {
+  assignedPhysician?: {
     name: string;
     initials: string;
     role: string;
@@ -80,7 +80,9 @@ export function IllnessSeverity({
     return "stable";
   });
 
-  const [canEdit] = useState(currentUser.name === assignedPhysician.name);
+  const [canEdit] = useState(
+    assignedPhysician ? currentUser.name === assignedPhysician.name : true,
+  );
   const [realtimeUpdate, setRealtimeUpdate] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(t("justNow"));
 

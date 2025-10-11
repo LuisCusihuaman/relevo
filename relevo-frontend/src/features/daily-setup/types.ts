@@ -28,7 +28,7 @@ export type SetupStep = 0 | 1 | 2 | 3;
 export type SetupState = {
 	currentStep: SetupStep;
 	isMobile: boolean;
-	doctorName: string;
+	doctorName: string; // Derived from Clerk user
 	unit: string;
 	shift: string;
 	selectedIndexes: Array<number>;
@@ -40,7 +40,6 @@ export type SetupState = {
 
 export type SetupActions = {
 	setCurrentStep: (step: SetupStep) => void;
-	setDoctorName: (name: string) => void;
 	setUnit: (unit: string) => void;
 	setShift: (shift: string) => void;
 	setSelectedIndexes: (indexes: Array<number>) => void;

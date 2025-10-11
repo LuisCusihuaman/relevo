@@ -4,8 +4,7 @@ import type {
 	FullscreenComponent,
 	SyncStatus,
 } from "@/common/types";
-import type { PatientHandoverData } from "@/api";
-import type { Handover, User } from "@/api";
+import type { Handover, PatientHandoverData, User } from "@/api";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -49,11 +48,17 @@ interface MainContentProps {
 
 const toPhysician = (
 	user: User | null,
-): { name: string; initials: string; role: string } => {
+): { id: string; name: string; initials: string; role: string } => {
 	if (!user) {
-		return { name: "Unknown User", initials: "U", role: "Unknown" };
+		return {
+			id: "unknown",
+			name: "Unknown User",
+			initials: "U",
+			role: "Unknown",
+		};
 	}
 	return {
+		id: user.id,
 		name: user.fullName ?? `${user.firstName} ${user.lastName}`,
 		initials:
 			(user.fullName ?? `${user.firstName} ${user.lastName}`)
@@ -66,10 +71,14 @@ const toPhysician = (
 };
 
 const formatPhysician = (
-	physician: PatientHandoverData["assignedPhysician"],
+	physician: PatientHandoverData["assignedPhysician"] | PatientHandoverData["receivingPhysician"] | null | undefined,
 ): { name: string; initials: string; role: string } => {
 	if (!physician) {
-		return { name: "Unknown", initials: "U", role: "Doctor" };
+		return {
+			name: "Unknown",
+			initials: "U",
+			role: "Doctor",
+		};
 	}
 	return {
 		name: physician.name,
@@ -150,6 +159,18 @@ export function MainContent({
 		);
 	}
 
+	const assignedPhysician = {
+		id: handoverData.responsiblePhysicianId,
+		name: handoverData.responsiblePhysicianName,
+		initials:
+			(handoverData.responsiblePhysicianName || "")
+				.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.toUpperCase() || "U",
+		role: "Doctor",
+	};
+
 	return (
 		<div className="space-y-6">
 			{/* I-PASS Sections - Column Layout for Desktop */}
@@ -196,7 +217,7 @@ export function MainContent({
 																<span className="text-gray-400 mt-0.5">•</span>
 																<span>{point}</span>
 															</li>
-														),
+														)
 													)}
 												</ul>
 											</div>
@@ -206,7 +227,7 @@ export function MainContent({
 							</div>
 							<div className="p-6">
 								<IllnessSeverity
-									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
+									assignedPhysician={assignedPhysician}
 									currentUser={toPhysician(currentUser)}
 								/>
 							</div>
@@ -251,7 +272,7 @@ export function MainContent({
 																<span className="text-gray-400 mt-0.5">•</span>
 																<span>{point}</span>
 															</li>
-														),
+														)
 													)}
 												</ul>
 											</div>
@@ -260,16 +281,20 @@ export function MainContent({
 								</div>
 							</div>
 							<PatientSummary
-								patientData={patientData}
-								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
+								handoverStateName={handoverData.stateName}
+								patientData={patientData || undefined}
+								responsiblePhysician={{
+									id: handoverData.responsiblePhysicianId,
+									name: handoverData.responsiblePhysicianName,
+								}}
 								syncStatus={syncStatus}
 								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
 								onRequestFullscreen={() => {
 									handleOpenFullscreenEdit("patient-summary");
 								}}
+								onSyncStatusChange={setSyncStatus}
 							/>
 						</div>
 
@@ -312,7 +337,7 @@ export function MainContent({
 																<span className="text-gray-400 mt-0.5">•</span>
 																<span>{point}</span>
 															</li>
-														),
+														)
 													)}
 												</ul>
 											</div>
@@ -321,7 +346,6 @@ export function MainContent({
 								</div>
 							</div>
 							<SituationAwareness
-								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
@@ -338,7 +362,7 @@ export function MainContent({
 					{/* Right Column */}
 					<div className="xl:col-span-1 space-y-6">
 						{/* A - Action List */}
-						<div className="sticky top-32">
+						<div className=" top-32">
 							<div className="bg-white rounded-lg border border-gray-100">
 								<div className="p-4 border-b border-gray-100">
 									<div className="flex items-center space-x-3">
@@ -374,12 +398,10 @@ export function MainContent({
 																	key={index}
 																	className="flex items-start space-x-1"
 																>
-																	<span className="text-gray-400 mt-0.5">
-																		•
-																	</span>
+																	<span className="text-gray-400 mt-0.5">•</span>
 																	<span>{point}</span>
 																</li>
-															),
+															)
 														)}
 													</ul>
 												</div>
@@ -389,82 +411,77 @@ export function MainContent({
 								</div>
 								<div className="p-6">
 									<ActionList
-										compact
 										expanded
+										assignedPhysician={assignedPhysician}
 										collaborators={[]}
 										currentUser={toPhysician(currentUser)}
 										handoverId={handoverData?.id}
-										assignedPhysician={formatPhysician(
-											patientData?.assignedPhysician,
-										)}
 										onOpenThread={handleOpenDiscussion}
 									/>
 								</div>
 							</div>
+						</div>
 
-							{/* S - Synthesis by Receiver */}
-							<div className="bg-white rounded-lg border border-gray-100 mt-6">
-								<div className="p-4 border-b border-gray-100">
-									<div className="flex items-center space-x-3">
-										<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-purple-700">S</span>
-										</div>
-										<div className="flex-1">
-											<h3 className="font-medium text-gray-900">
-												{t("mainContent:sections.synthesisByReceiver")}
-											</h3>
-											<p className="text-sm text-gray-600">
-												{t(
-													"mainContent:sections.synthesisByReceiverDescription",
-												)}
-											</p>
-										</div>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-													<Info className="w-4 h-4 text-gray-400" />
-												</button>
-											</TooltipTrigger>
-											<TooltipContent
-												className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-												side="top"
-											>
-												<div className="space-y-2">
-													<h4 className="font-medium text-gray-900 text-sm">
-														{ipassGuidelines.synthesis.title}
-													</h4>
-													<ul className="space-y-1 text-xs text-gray-600">
-														{ipassGuidelines.synthesis.points.map(
-															(point, index) => (
-																<li
-																	key={index}
-																	className="flex items-start space-x-1"
-																>
-																	<span className="text-gray-400 mt-0.5">
-																		•
-																	</span>
-																	<span>{point}</span>
-																</li>
-															),
-														)}
-													</ul>
-												</div>
-											</TooltipContent>
-										</Tooltip>
+						{/* S - Synthesis by Receiver */}
+						<div className="bg-white rounded-lg border border-gray-100 mt-6">
+							<div className="p-4 border-b border-gray-100">
+								<div className="flex items-center space-x-3">
+									<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+										<span className="font-bold text-purple-700">S</span>
 									</div>
+									<div className="flex-1">
+										<h3 className="font-medium text-gray-900">
+											{t("mainContent:sections.synthesisByReceiver")}
+										</h3>
+										<p className="text-sm text-gray-600">
+											{t(
+												"mainContent:sections.synthesisByReceiverDescription",
+											)}
+										</p>
+									</div>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+												<Info className="w-4 h-4 text-gray-400" />
+											</button>
+										</TooltipTrigger>
+										<TooltipContent
+											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
+											side="top"
+										>
+											<div className="space-y-2">
+												<h4 className="font-medium text-gray-900 text-sm">
+													{ipassGuidelines.synthesis.title}
+												</h4>
+												<ul className="space-y-1 text-xs text-gray-600">
+													{ipassGuidelines.synthesis.points.map(
+														(point, index) => (
+															<li
+																key={index}
+																className="flex items-start space-x-1"
+															>
+																<span className="text-gray-400 mt-0.5">•</span>
+																<span>{point}</span>
+															</li>
+														)
+													)}
+												</ul>
+											</div>
+										</TooltipContent>
+									</Tooltip>
 								</div>
-								<div className="p-6">
-									<SynthesisByReceiver
-										currentUser={toPhysician(currentUser)}
-										handoverComplete={handoverData.status === "Completed"}
-										handoverState={handoverData.status}
-										receivingPhysician={formatPhysician(
-											patientData?.receivingPhysician,
-										)}
-										onComplete={setHandoverComplete}
-										onOpenThread={handleOpenDiscussion}
-									/>
-								</div>
+							</div>
+							<div className="p-6">
+								<SynthesisByReceiver
+									currentUser={toPhysician(currentUser)}
+									handoverComplete={handoverData.status === "Completed"}
+									handoverState={handoverData.status}
+									receivingPhysician={formatPhysician(
+										patientData?.receivingPhysician,
+									)}
+									onComplete={setHandoverComplete}
+									onOpenThread={handleOpenDiscussion}
+								/>
 							</div>
 						</div>
 					</div>
@@ -511,12 +528,10 @@ export function MainContent({
 																			key={index}
 																			className="flex items-start space-x-1"
 																		>
-																			<span className="text-gray-400 mt-0.5">
-																				•
-																			</span>
+																			<span className="text-gray-400 mt-0.5">•</span>
 																			<span>{point}</span>
 																		</li>
-																	),
+																	)
 																)}
 															</ul>
 														</div>
@@ -527,13 +542,13 @@ export function MainContent({
 												{t("mainContent:sections.illnessSeverityDescription")}
 											</p>
 										</div>
-									</div>
-									<div className="flex items-center">
-										{expandedSections.illness ? (
-											<ChevronUp className="w-4 h-4 text-gray-500" />
-										) : (
-											<ChevronDown className="w-4 h-4 text-gray-500" />
-										)}
+										<div className="flex items-center">
+											{expandedSections.illness ? (
+												<ChevronUp className="w-4 h-4 text-gray-500" />
+											) : (
+												<ChevronDown className="w-4 h-4 text-gray-500" />
+											)}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -541,7 +556,7 @@ export function MainContent({
 						<CollapsibleContent>
 							<div className="p-6">
 								<IllnessSeverity
-									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
+									assignedPhysician={assignedPhysician}
 									currentUser={toPhysician(currentUser)}
 								/>
 							</div>
@@ -585,12 +600,10 @@ export function MainContent({
 																			key={index}
 																			className="flex items-start space-x-1"
 																		>
-																			<span className="text-gray-400 mt-0.5">
-																				•
-																			</span>
+																			<span className="text-gray-400 mt-0.5">•</span>
 																			<span>{point}</span>
 																		</li>
-																	),
+																	)
 																)}
 															</ul>
 														</div>
@@ -601,13 +614,13 @@ export function MainContent({
 												{t("mainContent:sections.patientSummaryDescription")}
 											</p>
 										</div>
-									</div>
-									<div className="flex items-center">
-										{expandedSections.patient ? (
-											<ChevronUp className="w-4 h-4 text-gray-500" />
-										) : (
-											<ChevronDown className="w-4 h-4 text-gray-500" />
-										)}
+										<div className="flex items-center">
+											{expandedSections.patient ? (
+												<ChevronUp className="w-4 h-4 text-gray-500" />
+											) : (
+												<ChevronDown className="w-4 h-4 text-gray-500" />
+											)}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -615,16 +628,20 @@ export function MainContent({
 						<CollapsibleContent>
 							<div className="p-6">
 								<PatientSummary
-									patientData={patientData}
-									assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 									currentUser={toPhysician(currentUser)}
 									handoverId={handoverData.id}
+									handoverStateName={handoverData.stateName}
+									patientData={patientData || undefined}
+									responsiblePhysician={{
+										id: handoverData.responsiblePhysicianId,
+										name: handoverData.responsiblePhysicianName,
+									}}
 									syncStatus={syncStatus}
 									onOpenThread={handleOpenDiscussion}
-									onSyncStatusChange={setSyncStatus}
 									onRequestFullscreen={() => {
 										handleOpenFullscreenEdit("patient-summary");
 									}}
+									onSyncStatusChange={setSyncStatus}
 								/>
 							</div>
 						</CollapsibleContent>
@@ -667,12 +684,10 @@ export function MainContent({
 																			key={index}
 																			className="flex items-start space-x-1"
 																		>
-																			<span className="text-gray-400 mt-0.5">
-																				•
-																			</span>
+																			<span className="text-gray-400 mt-0.5">•</span>
 																			<span>{point}</span>
 																		</li>
-																	),
+																	)
 																)}
 															</ul>
 														</div>
@@ -683,13 +698,13 @@ export function MainContent({
 												{t("mainContent:sections.actionListDescription")}
 											</p>
 										</div>
-									</div>
-									<div className="flex items-center">
-										{expandedSections.actions ? (
-											<ChevronUp className="w-4 h-4 text-gray-500" />
-										) : (
-											<ChevronDown className="w-4 h-4 text-gray-500" />
-										)}
+										<div className="flex items-center">
+											{expandedSections.actions ? (
+												<ChevronUp className="w-4 h-4 text-gray-500" />
+											) : (
+												<ChevronDown className="w-4 h-4 text-gray-500" />
+											)}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -698,12 +713,10 @@ export function MainContent({
 							<div className="p-6">
 								<ActionList
 									expanded
+									assignedPhysician={assignedPhysician}
 									collaborators={[]}
 									currentUser={toPhysician(currentUser)}
 									handoverId={handoverData?.id}
-									assignedPhysician={formatPhysician(
-										patientData?.assignedPhysician,
-									)}
 									onOpenThread={handleOpenDiscussion}
 								/>
 							</div>
@@ -747,12 +760,10 @@ export function MainContent({
 																			key={index}
 																			className="flex items-start space-x-1"
 																		>
-																			<span className="text-gray-400 mt-0.5">
-																				•
-																			</span>
+																			<span className="text-gray-400 mt-0.5">•</span>
 																			<span>{point}</span>
 																		</li>
-																	),
+																	)
 																)}
 															</ul>
 														</div>
@@ -765,20 +776,19 @@ export function MainContent({
 												)}
 											</p>
 										</div>
-									</div>
-									<div className="flex items-center">
-										{expandedSections.awareness ? (
-											<ChevronUp className="w-4 h-4 text-gray-500" />
-										) : (
-											<ChevronDown className="w-4 h-4 text-gray-500" />
-										)}
+										<div className="flex items-center">
+											{expandedSections.awareness ? (
+												<ChevronUp className="w-4 h-4 text-gray-500" />
+											) : (
+												<ChevronDown className="w-4 h-4 text-gray-500" />
+											)}
+										</div>
 									</div>
 								</div>
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
 							<SituationAwareness
-								assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
 								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
@@ -829,12 +839,10 @@ export function MainContent({
 																			key={index}
 																			className="flex items-start space-x-1"
 																		>
-																			<span className="text-gray-400 mt-0.5">
-																				•
-																			</span>
+																			<span className="text-gray-400 mt-0.5">•</span>
 																			<span>{point}</span>
 																		</li>
-																	),
+																	)
 																)}
 															</ul>
 														</div>
@@ -847,13 +855,13 @@ export function MainContent({
 												)}
 											</p>
 										</div>
-									</div>
-									<div className="flex items-center">
-										{expandedSections.synthesis ? (
-											<ChevronUp className="w-4 h-4 text-gray-500" />
-										) : (
-											<ChevronDown className="w-4 h-4 text-gray-500" />
-										)}
+										<div className="flex items-center">
+											{expandedSections.synthesis ? (
+												<ChevronUp className="w-4 h-4 text-gray-500" />
+											) : (
+												<ChevronDown className="w-4 h-4 text-gray-500" />
+											)}
+										</div>
 									</div>
 								</div>
 							</div>

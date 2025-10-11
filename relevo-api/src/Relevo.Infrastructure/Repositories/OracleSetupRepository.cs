@@ -265,6 +265,8 @@ public class OracleSetupRepository : ISetupRepository
                 syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_EDITOR,
                  h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                  cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
+                 COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
+                 rp.FULL_NAME as RESPONSIBLE_PHYSICIAN_NAME,
                  TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                  TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                  TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -286,6 +288,7 @@ public class OracleSetupRepository : ISetupRepository
           LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
           LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
           LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+          LEFT JOIN USERS rp ON rp.ID = COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY)
           LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
           LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
           LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
@@ -315,6 +318,8 @@ public class OracleSetupRepository : ISetupRepository
                     CreatedByName: row.CREATED_BY_NAME,
                     AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
+                    ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID,
+                    ResponsiblePhysicianName: row.RESPONSIBLE_PHYSICIAN_NAME,
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
                     Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
@@ -427,20 +432,19 @@ public class OracleSetupRepository : ISetupRepository
             // Create handover
             await conn.ExecuteAsync(@"
             INSERT INTO HANDOVERS (
-                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, CREATED_BY, CREATED_BY_NAME,
-                ASSIGNED_TO, ASSIGNED_TO_NAME, FROM_DOCTOR_ID,
-                HANDOVER_WINDOW_DATE, FROM_SHIFT_ID, TO_SHIFT_ID
+                ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, SHIFT_NAME, CREATED_BY,
+                TO_DOCTOR_ID, RECEIVER_USER_ID, FROM_DOCTOR_ID,
+                HANDOVER_WINDOW_DATE, FROM_SHIFT_ID, TO_SHIFT_ID, RESPONSIBLE_PHYSICIAN_ID
             ) VALUES (
-                :handoverId, :assignmentId, :patientId, 'Draft', :shiftName, :userId, :userName,
-                'system', 'System', :userId,
-                :windowDate, :fromShiftId, :toShiftId
+                :handoverId, :assignmentId, :patientId, 'Draft', :shiftName, :userId,
+                null, null, :userId,
+                :windowDate, :fromShiftId, :toShiftId, :userId
             )", new {
                 handoverId,
                 assignmentId,
                 patientId = assignment.PATIENT_ID,
                 shiftName = $"{fromShiftName} → {toShiftName}",
                 userId,
-                userName,
                 windowDate,
                 fromShiftId,
                 toShiftId
@@ -510,6 +514,8 @@ public class OracleSetupRepository : ISetupRepository
                      syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_EDITOR,
                      h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
+                     COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
+                     rp.FULL_NAME as RESPONSIBLE_PHYSICIAN_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                      TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                      TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -530,6 +536,7 @@ public class OracleSetupRepository : ISetupRepository
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
               LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+              LEFT JOIN USERS rp ON rp.ID = COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY)
               LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
               LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
               LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
@@ -557,6 +564,8 @@ public class OracleSetupRepository : ISetupRepository
                     CreatedByName: row.CREATED_BY_NAME,
                     AssignedToName: row.ASSIGNED_TO_NAME,
                     ReceiverUserId: row.RECEIVER_USER_ID,
+                    ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID,
+                    ResponsiblePhysicianName: row.RESPONSIBLE_PHYSICIAN_NAME,
                     PatientName: row.PATIENT_NAME,
                     SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
                     Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
@@ -604,6 +613,8 @@ public class OracleSetupRepository : ISetupRepository
                      h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
                      h.RECEIVER_USER_ID,
                      cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
+                     COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
+                     rp.FULL_NAME as RESPONSIBLE_PHYSICIAN_NAME,
                      TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
                      TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
                      TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
@@ -625,6 +636,7 @@ public class OracleSetupRepository : ISetupRepository
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
               LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
               LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+              LEFT JOIN USERS rp ON rp.ID = COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY)
               LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
               LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
               LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
@@ -655,6 +667,8 @@ public class OracleSetupRepository : ISetupRepository
                 CreatedByName: row.CREATED_BY_NAME,
                 AssignedToName: row.ASSIGNED_TO_NAME,
                 ReceiverUserId: row.RECEIVER_USER_ID,
+                ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID,
+                ResponsiblePhysicianName: row.RESPONSIBLE_PHYSICIAN_NAME,
                 CreatedAt: row.CREATED_AT,
                 ReadyAt: row.READY_AT,
                 StartedAt: row.STARTED_AT,
@@ -858,6 +872,18 @@ public class OracleSetupRepository : ISetupRepository
         try
         {
             using IDbConnection conn = _factory.CreateConnection();
+
+            // First check if the handover exists
+            var handoverExists = await conn.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM HANDOVERS WHERE ID = :handoverId",
+                new { handoverId });
+
+            // If handover doesn't exist, return null
+            if (handoverExists == 0)
+            {
+                return null;
+            }
+
             const string sql = @"
                 SELECT HANDOVER_ID as HandoverId, CONTENT as Content, STATUS,
                        LAST_EDITED_BY as LastEditedBy, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
@@ -869,12 +895,17 @@ public class OracleSetupRepository : ISetupRepository
             // If no record exists, create a default one
             if (result == null)
             {
+                // Get the handover's created_by to use as last_edited_by
+                var createdBy = await conn.ExecuteScalarAsync<string>(
+                    "SELECT CREATED_BY FROM HANDOVERS WHERE ID = :handoverId",
+                    new { handoverId });
+
                 await conn.ExecuteAsync(@"
                 INSERT INTO HANDOVER_SITUATION_AWARENESS (
                     HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
                 ) VALUES (
-                    :handoverId, '', 'Draft', 'system', SYSDATE, SYSDATE
-                )", new { handoverId });
+                    :handoverId, '', 'Draft', :createdBy, SYSDATE, SYSDATE
+                )", new { handoverId, createdBy });
 
                 // Return the newly created record
                 result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
@@ -905,12 +936,17 @@ public class OracleSetupRepository : ISetupRepository
             // If no record exists, create a default one
             if (result == null)
             {
+                // Get the handover's created_by to use as last_edited_by
+                var createdBy = await conn.ExecuteScalarAsync<string>(
+                    "SELECT CREATED_BY FROM HANDOVERS WHERE ID = :handoverId",
+                    new { handoverId });
+
                 await conn.ExecuteAsync(@"
                 INSERT INTO HANDOVER_SYNTHESIS (
                     HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
                 ) VALUES (
-                    :handoverId, '', 'Draft', 'system', SYSDATE, SYSDATE
-                )", new { handoverId });
+                    :handoverId, '', 'Draft', :createdBy, SYSDATE, SYSDATE
+                )", new { handoverId, createdBy });
 
                 // Return the newly created record
                 result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });

@@ -109,6 +109,8 @@ export type Handover = {
 	createdBy: string;
 	assignedTo: string;
 	receiverUserId?: string;
+	responsiblePhysicianId: string;
+	responsiblePhysicianName: string;
 	createdAt?: string; // Date when handover was created
 	readyAt?: string;
 	startedAt?: string;

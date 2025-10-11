@@ -62,7 +62,7 @@ interface SituationAwarenessProps {
     initials: string;
     role: string;
   };
-  assignedPhysician: {
+  assignedPhysician?: {
     name: string;
     initials: string;
     role: string;
@@ -88,7 +88,7 @@ export function SituationAwareness({
   const { t } = useTranslation("situationAwareness");
 
   // Determine if current user can edit (typically the assigned physician can edit)
-  const canEdit = currentUser?.name === assignedPhysician?.name;
+  const canEdit = assignedPhysician ? currentUser?.name === assignedPhysician?.name : true;
 
   // Fetch situation awareness data
   const { data: situationData, isLoading: isLoadingSituation } = useSituationAwareness(handoverId);
@@ -192,7 +192,7 @@ export function SituationAwareness({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check if current user can delete plans (only assigned physician)
-  const canDeletePlans = currentUser.name === assignedPhysician.name;
+  const canDeletePlans = assignedPhysician ? currentUser.name === assignedPhysician.name : false;
 
   // Handle situation documentation changes with real auto-save
   const handleSituationChange = async (value: string) => {

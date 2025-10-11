@@ -20,7 +20,6 @@ export function useSetupState(): SetupState & SetupActions {
 	// Zustand state
 	const {
 		currentStep,
-		doctorName,
 		unit,
 		shift,
 		selectedIndexes,
@@ -34,7 +33,6 @@ export function useSetupState(): SetupState & SetupActions {
 	const isEditing = false;
 
 	const setCurrentStep = useCallback((step: SetupStep): void => { setPersistentState({ currentStep: step }); }, [setPersistentState]);
-	const setDoctorName = useCallback((name: string): void => { setPersistentState({ doctorName: name }); }, [setPersistentState]);
 	
 	const setUnit = useCallback((newUnit: string): void => {
 		// Only reset selections if the unit is actually changing to a new value
@@ -114,7 +112,7 @@ export function useSetupState(): SetupState & SetupActions {
 	const canProceedToNextStep = useCallback((): boolean => {
 		switch (currentStep) {
 			case 0:
-				return doctorName.trim() !== "";
+				return (user?.fullName || "").trim() !== "";
 			case 1:
 				return unit !== "";
 			case 2:
@@ -124,7 +122,7 @@ export function useSetupState(): SetupState & SetupActions {
 			default:
 				return false;
 		}
-	}, [currentStep, doctorName, unit, shift, patients.length, selectedIndexes.length]);
+	}, [currentStep, user?.fullName, unit, shift, patients.length, selectedIndexes.length]);
 
 	const handleNextStep = useCallback((patients: Array<SetupPatient>): void => {
 		if (currentStep === 3 && selectedIndexes.length === 0) {
@@ -184,7 +182,7 @@ export function useSetupState(): SetupState & SetupActions {
 		// State
 		currentStep,
 		isMobile,
-		doctorName,
+		doctorName: user?.fullName || "",
 		unit,
 		shift,
 		selectedIndexes,
@@ -195,7 +193,6 @@ export function useSetupState(): SetupState & SetupActions {
 
 		// Actions
 		setCurrentStep: stableSetCurrentStep,
-		setDoctorName,
 		setUnit,
 		setShift,
 		setSelectedIndexes,

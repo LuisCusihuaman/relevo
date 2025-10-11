@@ -32,6 +32,8 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       PatientId = handover.PatientId,
       PatientName = handover.PatientName, // For display in lists/cards
       Status = handover.Status,
+      ResponsiblePhysicianId = handover.ResponsiblePhysicianId,
+      ResponsiblePhysicianName = handover.ResponsiblePhysicianName,
       illnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
       {
         severity = handover.IllnessSeverity.Severity
@@ -212,6 +214,8 @@ public class GetHandoverByIdResponse
   public string PatientId { get; set; } = string.Empty;
   public string? PatientName { get; set; } // For display in lists/cards
   public string Status { get; set; } = string.Empty;
+    public string ResponsiblePhysicianId { get; set; } = string.Empty;
+    public string ResponsiblePhysicianName { get; set; } = string.Empty;
   public IllnessSeverityDto illnessSeverity { get; set; } = new();
   public PatientSummaryDto patientSummary { get; set; } = new();
   public string? situationAwarenessDocId { get; set; }
