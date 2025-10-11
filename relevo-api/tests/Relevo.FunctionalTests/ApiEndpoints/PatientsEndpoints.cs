@@ -34,8 +34,8 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
         var patientIds = result.Items.Select(p => p.Id).ToList();
         patientIds.Should().Contain(p => p.StartsWith("pat-"));
 
-        // Verify we have the expected number of patients (2 in current test data)
-        result.Pagination.TotalItems.Should().Be(2);
+        // Verify we have the expected number of patients (35 in current test data)
+        result.Pagination.TotalItems.Should().Be(35);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
 
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
-        result.Pagination.TotalItems.Should().Be(2); // Total should still be correct
+        result.Pagination.TotalItems.Should().Be(35); // Total should still be correct
         result.Pagination.Page.Should().Be(highPage);
     }
 
@@ -127,8 +127,8 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
 
         result.Should().NotBeNull();
 
-        // With 2 total items and pageSize 10, we should have 1 page
-        var expectedTotalPages = (int)Math.Ceiling(2.0 / pageSize);
+        // With 35 total items and pageSize 10, we should have 4 pages
+        var expectedTotalPages = (int)Math.Ceiling(35.0 / pageSize);
         result.Pagination.TotalPages.Should().Be(expectedTotalPages);
     }
 
@@ -140,8 +140,8 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
         var result = await _client.GetAndDeserializeAsync<GetAllPatientsResponse>(route);
 
         result.Should().NotBeNull();
-        result.Items.Count.Should().Be(2); // Should return all 2 patients
-        result.Pagination.TotalItems.Should().Be(2);
+        result.Items.Count.Should().Be(35); // Should return all 35 patients
+        result.Pagination.TotalItems.Should().Be(35);
         result.Pagination.TotalPages.Should().Be(1);
     }
 }

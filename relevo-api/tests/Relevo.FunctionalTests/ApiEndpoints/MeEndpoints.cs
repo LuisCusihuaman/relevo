@@ -20,7 +20,7 @@ public class MeEndpoints(CustomWebApplicationFactory<Program> factory) : IClassF
     var payload = new PostAssignmentsRequest
     {
       ShiftId = "shift-day",
-      PatientIds = new() { "pat-001", "pat-002" }
+      PatientIds = new() { "pat-025", "pat-026" }
     };
 
     // POST assignment and verify success
@@ -31,7 +31,7 @@ public class MeEndpoints(CustomWebApplicationFactory<Program> factory) : IClassF
     var assignmentUserId = postResp.Headers.GetValues("X-Debug-UserId").FirstOrDefault();
     var assignmentPatientIds = postResp.Headers.GetValues("X-Debug-PatientIds").FirstOrDefault();
     Assert.Equal(testUserId, assignmentUserId);
-    Assert.Equal("pat-001,pat-002", assignmentPatientIds);
+    Assert.Equal("pat-025,pat-026", assignmentPatientIds);
 
     // GET my patients using the same token (same user context)
     var getResp = await _client.GetAsync("/me/patients?page=1&pageSize=25");
@@ -46,8 +46,8 @@ public class MeEndpoints(CustomWebApplicationFactory<Program> factory) : IClassF
 
     // Verify patients are returned
     Assert.True(result.Pagination.TotalCount >= 2);
-    Assert.Contains(result.Items, p => p.Id == "pat-001");
-    Assert.Contains(result.Items, p => p.Id == "pat-002");
+    Assert.Contains(result.Items, p => p.Id == "pat-025");
+    Assert.Contains(result.Items, p => p.Id == "pat-026");
 
     // Log for debugging consistency
     Console.WriteLine($"Test completed - Assignment UserId: {assignmentUserId}, Retrieval UserId: {retrievalUserId}");

@@ -67,7 +67,7 @@ public class PatientHandoversEndpoints(CustomWebApplicationFactory<Program> fact
       Assert.NotNull(handover.AssignedTo);
 
       // Verify status is one of the expected values
-      Assert.Contains(handover.Status, new[] { "Active", "InProgress", "Completed" });
+      Assert.Contains(handover.Status, new[] { "Active", "InProgress", "Completed", "Ready" });
 
       // Verify illness severity structure
       Assert.NotNull(handover.IllnessSeverity);

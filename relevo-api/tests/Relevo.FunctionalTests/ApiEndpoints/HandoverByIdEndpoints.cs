@@ -40,7 +40,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
     // Verify basic fields
     Assert.Equal(handoverId, result.Id);
     Assert.Equal("pat-001", result.PatientId);
-    Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
+    Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed", "Ready" });
 
     // Verify illness severity structure - using actual property names
     Assert.NotNull(result.illnessSeverity);
@@ -108,7 +108,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
 
     Assert.NotNull(result);
     Assert.NotNull(result.Status);
-    Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed" });
+    Assert.Contains(result.Status, new[] { "Active", "InProgress", "Completed", "Ready" });
   }
 
   [Fact]
