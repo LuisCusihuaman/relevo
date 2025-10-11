@@ -21,6 +21,7 @@ public interface ISetupDataProvider
 
   // Handover Creation and Management
   Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request);
+  Task<bool> StartHandoverAsync(string handoverId, string userId);
   Task<bool> AcceptHandoverAsync(string handoverId, string userId);
   Task<bool> CompleteHandoverAsync(string handoverId, string userId);
   Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId);

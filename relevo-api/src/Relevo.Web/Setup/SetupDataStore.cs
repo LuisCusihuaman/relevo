@@ -355,6 +355,12 @@ public class SetupDataStore : ISetupDataProvider
     throw new NotImplementedException("CreateHandoverAsync not implemented in test data store");
   }
 
+  public async Task<bool> StartHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask; // Make async
+    throw new NotImplementedException("StartHandoverAsync not implemented in test data store");
+  }
+
   public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
   {
     await Task.CompletedTask; // Make async

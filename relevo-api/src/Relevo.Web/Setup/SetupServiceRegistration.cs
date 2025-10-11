@@ -7,8 +7,9 @@ public static class SetupServiceRegistration
 {
   public static IServiceCollection AddSetupProvider(this IServiceCollection services, ConfigurationManager config)
   {
-    var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
-    bool useOracleForSetup = environmentName == "Testing" ? false : config.GetValue("UseOracleForSetup", false);
+    // Check configuration value for UseOracleForSetup
+    // This allows functional tests to override the default behavior
+    bool useOracleForSetup = config.GetValue("UseOracleForSetup", false);
     
     if (useOracleForSetup)
     {

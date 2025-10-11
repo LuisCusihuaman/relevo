@@ -37,16 +37,12 @@ public class OracleSetupRepository : ISetupRepository
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
 
-        // Count patients in unit that are not already assigned to any user
+        // Count all patients in unit (assignment status tracked via handover state)
         const string countSql = @"
             SELECT COUNT(1) FROM PATIENTS p
-            WHERE p.UNIT_ID = :unitId
-            AND NOT EXISTS (
-                SELECT 1 FROM USER_ASSIGNMENTS ua
-                WHERE ua.PATIENT_ID = p.ID
-            )";
+            WHERE p.UNIT_ID = :unitId";
 
-        // Get patients in unit that are not already assigned to any user
+        // Get all patients in unit (assignment status tracked via handover state)
         const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
           FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
           CASE
@@ -64,10 +60,6 @@ public class OracleSetupRepository : ISetupRepository
             SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
             FROM PATIENTS
             WHERE UNIT_ID = :unitId
-            AND NOT EXISTS (
-                SELECT 1 FROM USER_ASSIGNMENTS ua
-                WHERE ua.PATIENT_ID = PATIENTS.ID
-            )
           ) p
           LEFT JOIN (
             SELECT ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
@@ -1496,7 +1488,7 @@ public class OracleSetupRepository : ISetupRepository
                 UPDATE HANDOVERS
                 SET ACCEPTED_AT = SYSTIMESTAMP,
                     UPDATED_AT = SYSTIMESTAMP
-                WHERE ID = :handoverId AND ACCEPTED_AT IS NULL";
+                WHERE ID = :handoverId AND STARTED_AT IS NOT NULL AND ACCEPTED_AT IS NULL";
             var result = await conn.ExecuteAsync(sql, new { handoverId });
             return result > 0;
         }
@@ -1518,7 +1510,7 @@ public class OracleSetupRepository : ISetupRepository
                     STATUS = 'Completed',
                     UPDATED_AT = SYSTIMESTAMP,
                     COMPLETED_BY = :userId
-                WHERE ID = :handoverId AND COMPLETED_AT IS NULL";
+                WHERE ID = :handoverId AND ACCEPTED_AT IS NOT NULL AND COMPLETED_AT IS NULL";
             var result = await conn.ExecuteAsync(sql, new { handoverId, userId });
             return result > 0;
         }

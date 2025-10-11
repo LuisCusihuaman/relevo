@@ -285,23 +285,28 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     var handoverId = $"handover-{Guid.NewGuid().ToString().Substring(0, 8)}";
     var assignmentId = $"assign-{Guid.NewGuid().ToString().Substring(0, 8)}";
 
-    // Create user assignment if it doesn't exist
+    // Create user assignment if it doesn't exist (using MERGE for Oracle)
     conn.Execute(@"
-      INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
-      VALUES (:assignmentId, :toDoctorId, :toShiftId, :patientId, SYSTIMESTAMP)
-      ON DUPLICATE KEY UPDATE ASSIGNED_AT = SYSTIMESTAMP",
+      MERGE INTO USER_ASSIGNMENTS ua
+      USING (SELECT :assignmentId AS ASSIGNMENT_ID, :toDoctorId AS USER_ID, :toShiftId AS SHIFT_ID, :patientId AS PATIENT_ID FROM DUAL) src
+      ON (ua.ASSIGNMENT_ID = src.ASSIGNMENT_ID)
+      WHEN MATCHED THEN
+        UPDATE SET ua.ASSIGNED_AT = SYSTIMESTAMP
+      WHEN NOT MATCHED THEN
+        INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
+        VALUES (src.ASSIGNMENT_ID, src.USER_ID, src.SHIFT_ID, src.PATIENT_ID, SYSTIMESTAMP)",
       new { assignmentId, toDoctorId = request.ToDoctorId, toShiftId = request.ToShiftId, patientId = request.PatientId });
 
     // Create handover
     conn.Execute(@"
       INSERT INTO HANDOVERS (
-        ID, ASSIGNMENT_ID, PATIENT_ID, STATUS, ILLNESS_SEVERITY,
+        ID, ASSIGNMENT_ID, PATIENT_ID, STATUS,
         SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID,
-        CREATED_BY, CREATED_AT, INITIATED_AT
+        CREATED_BY, CREATED_AT, INITIATED_AT, HANDOVER_TYPE, HANDOVER_WINDOW_DATE
       ) VALUES (
-        :handoverId, :assignmentId, :patientId, 'Active', 'Stable',
+        :handoverId, :assignmentId, :patientId, 'Draft',
         :shiftName, :fromShiftId, :toShiftId, :fromDoctorId, :toDoctorId,
-        :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP
+        :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP, 'ShiftToShift', SYSTIMESTAMP
       )",
       new {
         handoverId,
@@ -315,19 +320,22 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         initiatedBy = request.InitiatedBy
       });
 
-    // Add participants
+    // Add participants (with default names if users don't exist)
     conn.Execute(@"
       INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS, JOINED_AT)
-      SELECT :participantId1, :handoverId, :fromDoctorId, u.FULL_NAME, 'Handing Over Doctor', 'active', SYSTIMESTAMP
-      FROM USERS u WHERE u.ID = :fromDoctorId
-      UNION ALL
-      SELECT :participantId2, :handoverId, :toDoctorId, u.FULL_NAME, 'Receiving Doctor', 'active', SYSTIMESTAMP
-      FROM USERS u WHERE u.ID = :toDoctorId",
+      VALUES (:participantId1, :handoverId, :fromDoctorId, 'Doctor A', 'Handing Over Doctor', 'active', SYSTIMESTAMP)",
       new {
         handoverId,
         fromDoctorId = request.FromDoctorId,
+        participantId1 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
+      });
+    
+    conn.Execute(@"
+      INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS, JOINED_AT)
+      VALUES (:participantId2, :handoverId, :toDoctorId, 'Doctor B', 'Receiving Doctor', 'active', SYSTIMESTAMP)",
+      new {
+        handoverId,
         toDoctorId = request.ToDoctorId,
-        participantId1 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}",
         participantId2 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
       });
 
@@ -351,6 +359,20 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     return GetHandoverById(handoverId) ?? throw new InvalidOperationException("Failed to create handover");
   }
 
+  public async Task<bool> StartHandoverAsync(string handoverId, string userId)
+  {
+    await Task.CompletedTask;
+    using IDbConnection conn = _factory.CreateConnection();
+
+    var affected = conn.Execute(@"
+      UPDATE HANDOVERS
+      SET STARTED_AT = SYSTIMESTAMP, STATUS = 'InProgress', UPDATED_AT = SYSTIMESTAMP
+      WHERE ID = :handoverId AND READY_AT IS NOT NULL AND STARTED_AT IS NULL",
+      new { handoverId, userId });
+
+    return affected > 0;
+  }
+
   public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
   {
     await Task.CompletedTask; // Make async
@@ -359,7 +381,7 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     var affected = conn.Execute(@"
       UPDATE HANDOVERS
       SET ACCEPTED_AT = SYSTIMESTAMP
-      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND READY_AT IS NOT NULL AND ACCEPTED_AT IS NULL",
+      WHERE ID = :handoverId AND STARTED_AT IS NOT NULL AND ACCEPTED_AT IS NULL",
       new { handoverId, userId });
 
     return affected > 0;
@@ -372,8 +394,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
     var affected = conn.Execute(@"
       UPDATE HANDOVERS
-      SET STATUS = 'Completed', COMPLETED_AT = SYSTIMESTAMP, COMPLETED_BY = :userId
-      WHERE ID = :handoverId AND TO_DOCTOR_ID = :userId AND STATUS = 'InProgress'",
+      SET STATUS = 'Completed', COMPLETED_AT = SYSTIMESTAMP, COMPLETED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+      WHERE ID = :handoverId AND ACCEPTED_AT IS NOT NULL AND COMPLETED_AT IS NULL",
       new { handoverId, userId });
 
     return affected > 0;
