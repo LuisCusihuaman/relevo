@@ -30,6 +30,8 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         try
         {
             var (fromShiftId, toShiftId, patientId) = await GetTestDataAsync();
+            
+            // No cleanup needed - we use pat-002 which doesn't have seed data conflicts
 
             var request = new CreateHandoverRequestDto
             {
@@ -85,6 +87,8 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         try
         {
             var (fromShiftId, toShiftId, patientId) = await GetTestDataAsync();
+            
+            // No cleanup needed - we use pat-002 which doesn't have seed data conflicts
 
             // Create first handover
             var request1 = new CreateHandoverRequestDto
@@ -220,7 +224,7 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
 
         string? testPatientId = null;
 
-        // Find a unit with patients
+        // Find a unit with patients, but skip pat-001 since it has seed data
         foreach (var unit in units.Units)
         {
             var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=10");
@@ -229,8 +233,9 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
                 var patientsResult = await patientsResponse.Content.ReadFromJsonAsync<PatientListResponse>();
                 if (patientsResult?.Patients?.Any() == true)
                 {
-                    testPatientId = patientsResult.Patients[0].Id;
-                    break;
+                    // Use pat-002 or any patient other than pat-001 to avoid seed data conflicts
+                    testPatientId = patientsResult.Patients.FirstOrDefault(p => p.Id != "pat-001")?.Id;
+                    if (testPatientId != null) break;
                 }
             }
         }
@@ -267,14 +272,14 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
             connection.Execute(@"
                 MERGE INTO USERS u
                 USING (
-                    SELECT :DoctorAId AS ID, 'Doctor A' AS NAME, 'doctorA@e2etest.com' AS EMAIL FROM DUAL
+                    SELECT :DoctorAId AS ID, 'Doctor A' AS FULL_NAME, 'doctorA@e2etest.com' AS EMAIL FROM DUAL
                     UNION ALL
-                    SELECT :DoctorBId AS ID, 'Doctor B' AS NAME, 'doctorB@e2etest.com' AS EMAIL FROM DUAL
+                    SELECT :DoctorBId AS ID, 'Doctor B' AS FULL_NAME, 'doctorB@e2etest.com' AS EMAIL FROM DUAL
                 ) src
                 ON (u.ID = src.ID)
                 WHEN NOT MATCHED THEN
-                    INSERT (ID, NAME, EMAIL, CREATED_AT)
-                    VALUES (src.ID, src.NAME, src.EMAIL, SYSTIMESTAMP)",
+                    INSERT (ID, FULL_NAME, EMAIL, CREATED_AT)
+                    VALUES (src.ID, src.FULL_NAME, src.EMAIL, SYSTIMESTAMP)",
                 new { DoctorAId = doctorAId, DoctorBId = doctorBId });
         }
         catch
@@ -325,6 +330,74 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         {
             // Silently ignore connection errors during cleanup
         }
+    }
+
+    private void CleanupPatientHandovers(string patientId, string fromShiftId, string toShiftId)
+    {
+        try
+        {
+            using var connection = new Oracle.ManagedDataAccess.Client.OracleConnection(
+                "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
+            connection.Open();
+
+            // Simple: just delete everything for this patient/shift/date
+            connection.Execute(@"
+                DELETE FROM HANDOVER_CHECKLISTS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_MESSAGES WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_PARTICIPANTS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_SYNC_STATUS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_ACTIVITY_LOG WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_ACTION_ITEMS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_CONTINGENCY WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_SYNTHESIS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_SITUATION_AWARENESS WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            connection.Execute(@"
+                DELETE FROM HANDOVER_PATIENT_DATA WHERE HANDOVER_ID IN (
+                    SELECT ID FROM HANDOVERS WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+                )", new { p = patientId, f = fromShiftId, t = toShiftId });
+            
+            // Delete handovers
+            connection.Execute(@"
+                DELETE FROM HANDOVERS 
+                WHERE PATIENT_ID = :p AND FROM_SHIFT_ID = :f AND TO_SHIFT_ID = :t AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)",
+                new { p = patientId, f = fromShiftId, t = toShiftId });
+        }
+        catch { /* Ignore cleanup errors */ }
     }
 
     #endregion

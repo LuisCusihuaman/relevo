@@ -337,7 +337,7 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       ) VALUES (
         :handoverId, :assignmentId, :patientId, 'Draft',
         :shiftName, :fromShiftId, :toShiftId, :fromDoctorId, :toDoctorId,
-        :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP, 'ShiftToShift', SYSTIMESTAMP
+        :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP, 'ShiftToShift', TRUNC(SYSDATE)
       )",
       new {
         handoverId,
