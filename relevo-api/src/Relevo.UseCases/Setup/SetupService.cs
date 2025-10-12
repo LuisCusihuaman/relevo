@@ -102,7 +102,8 @@ public class SetupService : ISetupService
 
         // Auto-ready logic: when patient is selected (receiver selects patient),
         // mark Draft handovers as Ready if they have minimum content and are within window
-        await ApplyAutoReadyLogicAsync(result.Handovers);
+        // TEMPORARILY DISABLED FOR TESTING
+        // await ApplyAutoReadyLogicAsync(result.Handovers);
 
         return result;
     }

@@ -208,8 +208,10 @@ public class ExpireHandoversJobTests : IDisposable
         var handoverId = "h_exp_test_" + Guid.NewGuid().ToString("N")[..8];
         _testHandoverIds.Add(handoverId);
 
+        // Ensure unique window tuple for UQ_ACTIVE_HANDOVER_WINDOW: (PATIENT_ID, FROM_SHIFT_ID, TO_SHIFT_ID, HANDOVER_WINDOW_DATE)
+        // Create unique patient to avoid collisions with seeded data
         var assignmentId = $"assign-{Guid.NewGuid():N}";
-        var patientId = await GetTestPatientIdAsync();
+        var patientId = await CreateTestPatientAsync();
         var (fromShiftId, toShiftId) = await GetTestShiftIdsAsync();
         const string doctorId = "user_test123456789012345678901234567";
 
@@ -282,15 +284,25 @@ public class ExpireHandoversJobTests : IDisposable
         return handover;
     }
 
-    private async Task<string> GetTestPatientIdAsync()
+    private async Task<string> CreateTestPatientAsync()
     {
-        var patientId = await _connection.QueryFirstOrDefaultAsync<string>(
-            "SELECT ID FROM PATIENTS WHERE ROWNUM = 1");
-
-        if (string.IsNullOrEmpty(patientId))
+        var patientId = $"pat_test_{Guid.NewGuid():N}";
+        // Ensure at least one unit exists and pick one
+        var unitId = await _connection.QueryFirstOrDefaultAsync<string>("SELECT ID FROM UNITS WHERE ROWNUM = 1");
+        if (string.IsNullOrEmpty(unitId))
         {
-            throw new InvalidOperationException("No test patients found in database");
+            // Create a fallback unit
+            unitId = "unit_test";
+            await _connection.ExecuteAsync(@"INSERT INTO UNITS (ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT)
+                                             VALUES (:Id, 'Test Unit', 'Integration Test Unit', SYSTIMESTAMP, SYSTIMESTAMP)",
+                                             new { Id = unitId });
         }
+
+        await _connection.ExecuteAsync(@"INSERT INTO PATIENTS (
+                                            ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT)
+                                          VALUES (
+                                            :Id, 'Integration Test Patient', :UnitId, TO_DATE('2010-01-01','YYYY-MM-DD'), 'Unknown', SYSTIMESTAMP, '999', 'Test', SYSTIMESTAMP, SYSTIMESTAMP)",
+                                          new { Id = patientId, UnitId = unitId });
 
         return patientId;
     }
@@ -341,6 +353,9 @@ public class ExpireHandoversJobTests : IDisposable
 
                 _connection.Execute(
                     "DELETE FROM USER_ASSIGNMENTS WHERE ASSIGNMENT_ID LIKE 'assign-%'");
+
+                _connection.Execute("DELETE FROM PATIENTS WHERE ID LIKE 'pat_test_%'");
+                _connection.Execute("DELETE FROM UNITS WHERE ID = 'unit_test'");
             }
             catch
             {

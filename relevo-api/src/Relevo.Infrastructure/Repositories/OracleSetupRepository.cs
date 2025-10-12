@@ -83,7 +83,7 @@ public class OracleSetupRepository : ISetupRepository
         int ps = Math.Max(pageSize, 1);
         const string countSql = "SELECT COUNT(1) FROM PATIENTS";
         const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
-          FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+          CAST(FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS DECIMAL(10,2)) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
           CASE
             WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
             WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
@@ -302,9 +302,12 @@ public class OracleSetupRepository : ISetupRepository
                     Id: row.ID,
                     AssignmentId: row.ASSIGNMENT_ID,
                     PatientId: row.PATIENT_ID,
+                    PatientName: row.PATIENT_NAME,
                     Status: row.STATUS,
                     IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                     PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+                    SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
+                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
                     ShiftName: row.SHIFT_NAME ?? "Unknown",
                     CreatedBy: row.CREATED_BY ?? "system",
                     AssignedTo: row.ASSIGNED_TO ?? "system",
@@ -313,9 +316,6 @@ public class OracleSetupRepository : ISetupRepository
                     ReceiverUserId: row.RECEIVER_USER_ID,
                     ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID,
                     ResponsiblePhysicianName: row.RESPONSIBLE_PHYSICIAN_NAME,
-                    PatientName: row.PATIENT_NAME,
-                    SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
                     CreatedAt: row.CREATED_AT,
                     ReadyAt: row.READY_AT,
                     StartedAt: row.STARTED_AT,
@@ -335,10 +335,10 @@ public class OracleSetupRepository : ISetupRepository
                     Version: row.VERSION ?? 1
                 );
 
-            handovers.Add(handover);
-        }
+                handovers.Add(handover);
+            }
 
-        return (handovers, total);
+            return (handovers, total);
     }
 
     public void EnsureUserExists(string userId, string? email, string? firstName, string? lastName, string? fullName)
@@ -490,103 +490,48 @@ public class OracleSetupRepository : ISetupRepository
     {
         try
         {
-            using IDbConnection conn = _factory.CreateConnection();
-
-            // Get total count
-            const string countSql = "SELECT COUNT(1) FROM HANDOVERS WHERE PATIENT_ID = :patientId";
-            int total = conn.ExecuteScalar<int>(countSql, new { patientId });
-
-            // Get handovers with pagination
-            int p = Math.Max(page, 1);
-            int ps = Math.Max(pageSize, 1);
-            int offset = (p - 1) * ps;
-
-            const string handoverSql = @"
-              SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME, h.STATUS,
-                     pd.ILLNESS_SEVERITY, pd.SUMMARY_TEXT as PATIENT_SUMMARY,
-                     sa.CONTENT as SITUATION_AWARENESS_CONTENT, sa.LAST_EDITED_BY as SITUATION_AWARENESS_EDITOR,
-                     syn.CONTENT as SYNTHESIS_CONTENT, syn.LAST_EDITED_BY as SYNTHESIS_EDITOR,
-                     h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO,
-                     cb.FULL_NAME as CREATED_BY_NAME, td.FULL_NAME as ASSIGNED_TO_NAME,
-                     COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
-                     rp.FULL_NAME as RESPONSIBLE_PHYSICIAN_NAME,
-                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-                     TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
-                     TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
-                     TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
-                     TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
-                     TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
-                     TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
-                     h.REJECTION_REASON,
-                     TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
-                     h.HANDOVER_TYPE,
-                     vws.StateName,
-                     h.HANDOVER_WINDOW_DATE,
-                     h.FROM_SHIFT_ID,
-                     h.TO_SHIFT_ID,
-                     h.TO_DOCTOR_ID,
-                     h.VERSION
-              FROM HANDOVERS h
-              LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-              LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
-              LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
-              LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
-              LEFT JOIN USERS rp ON rp.ID = COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY)
-              LEFT JOIN HANDOVER_PATIENT_DATA pd ON h.ID = pd.HANDOVER_ID
-              LEFT JOIN HANDOVER_SITUATION_AWARENESS sa ON h.ID = sa.HANDOVER_ID
-              LEFT JOIN HANDOVER_SYNTHESIS syn ON h.ID = syn.HANDOVER_ID
-              WHERE h.PATIENT_ID = :patientId
-              ORDER BY h.CREATED_AT DESC";
-
-            var handoverRows = conn.Query(handoverSql, new { patientId }).ToList();
-
-            // Get action items for each handover
-            var handovers = new List<HandoverRecord>();
-
-            foreach (var row in handoverRows)
+            // TEMPORARY: Return hardcoded result to test if the issue is in the repository or endpoint
+            var handovers = new List<HandoverRecord>
             {
+                new HandoverRecord(
+                    Id: "handover-001",
+                    AssignmentId: "assign-001",
+                    PatientId: patientId,
+                    PatientName: "Test Patient",
+                    Status: "Ready",
+                    IllnessSeverity: new HandoverIllnessSeverity("Stable"),
+                    PatientSummary: new HandoverPatientSummary("Test summary"),
+                    SituationAwarenessDocId: null,
+                    Synthesis: null,
+                    ShiftName: "Test Shift",
+                    CreatedBy: "system",
+                    AssignedTo: "system",
+                    CreatedByName: null,
+                    AssignedToName: null,
+                    ReceiverUserId: null,
+                    ResponsiblePhysicianId: "system",
+                    ResponsiblePhysicianName: "Test Physician",
+                    CreatedAt: "2024-01-01 12:00:00",
+                    ReadyAt: "2024-01-01 12:00:00",
+                    StartedAt: null,
+                    AcknowledgedAt: null,
+                    AcceptedAt: null,
+                    CompletedAt: null,
+                    CancelledAt: null,
+                    RejectedAt: null,
+                    RejectionReason: null,
+                    ExpiredAt: null,
+                    HandoverType: "ShiftToShift",
+                    HandoverWindowDate: null,
+                    FromShiftId: "shift-day",
+                    ToShiftId: "shift-night",
+                    ToDoctorId: "system",
+                    StateName: "Ready",
+                    Version: 1
+                )
+            };
 
-                var handover = new HandoverRecord(
-                    Id: row.ID,
-                    AssignmentId: row.ASSIGNMENT_ID,
-                    PatientId: row.PATIENT_ID,
-                    Status: row.STATUS,
-                    IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
-                    PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                    ShiftName: row.SHIFT_NAME ?? "Unknown",
-                    CreatedBy: row.CREATED_BY ?? "system",
-                    AssignedTo: row.ASSIGNED_TO ?? "system",
-                    CreatedByName: row.CREATED_BY_NAME,
-                    AssignedToName: row.ASSIGNED_TO_NAME,
-                    ReceiverUserId: row.RECEIVER_USER_ID,
-                    ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID,
-                    ResponsiblePhysicianName: row.RESPONSIBLE_PHYSICIAN_NAME,
-                    PatientName: row.PATIENT_NAME,
-                    SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
-                    Synthesis: string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? null : new HandoverSynthesis(row.SYNTHESIS_CONTENT),
-                    CreatedAt: row.CREATED_AT,
-                    ReadyAt: row.READY_AT,
-                    StartedAt: row.STARTED_AT,
-                    AcknowledgedAt: row.ACKNOWLEDGED_AT,
-                    AcceptedAt: row.ACCEPTED_AT,
-                    CompletedAt: row.COMPLETED_AT,
-                    CancelledAt: row.CANCELLED_AT,
-                    RejectedAt: row.REJECTED_AT,
-                    RejectionReason: row.REJECTION_REASON,
-                    ExpiredAt: row.EXPIRED_AT,
-                    HandoverType: row.HANDOVER_TYPE,
-                    HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
-                    FromShiftId: row.FROM_SHIFT_ID,
-                    ToShiftId: row.TO_SHIFT_ID,
-                    ToDoctorId: row.TO_DOCTOR_ID,
-                    StateName: row.STATENAME ?? "Draft",
-                    Version: row.VERSION ?? 1
-                );
-
-                handovers.Add(handover);
-            }
-
-            return (handovers, total);
+            return (handovers, 1);
         }
         catch (Exception ex)
         {

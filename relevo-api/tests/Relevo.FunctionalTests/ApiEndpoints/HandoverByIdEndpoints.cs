@@ -13,6 +13,7 @@ public class HandoverByIdEndpoints(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetHandoverById_ReturnsHandover_WhenHandoverExists()
   {
+    Console.WriteLine("[TEST] Starting GetHandoverById_ReturnsHandover_WhenHandoverExists test");
     var handoverId = "handover-001";
     var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 

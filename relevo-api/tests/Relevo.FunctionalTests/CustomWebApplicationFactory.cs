@@ -14,6 +14,7 @@ using System.IO;
 using System;
 using Oracle.ManagedDataAccess.Client;
 using Relevo.Web.Setup;
+using System.Linq;
 
 namespace Relevo.FunctionalTests;
 
@@ -21,12 +22,14 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 {
   public CustomWebApplicationFactory()
   {
+    System.Diagnostics.Debug.WriteLine("[TEST FACTORY] CustomWebApplicationFactory constructor called");
     // Set environment variable before any host building occurs to ensure it's picked up by all parts of the application
     Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
   }
 
   protected override IHost CreateHost(IHostBuilder builder)
   {
+    System.Diagnostics.Debug.WriteLine("[TEST FACTORY] CreateHost called");
     var host = builder.Build();
     host.Start();
 
@@ -42,30 +45,12 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
       {
         // Contributor seeding removed - functionality deleted
         logger.LogInformation("Contributor seeding skipped - functionality removed");
+        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Host started successfully");
       }
       catch (Exception ex)
       {
         logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
-      }
-    }
-
-    return host;
-  }
-    host.Start();
-
-    // Skip database seeding for functional tests since we're using Oracle with Dapper
-    // The database should be pre-seeded or tests should use mock data
-    var serviceProvider = host.Services;
-    using (var scope = serviceProvider.CreateScope())
-    {
-            { "UseOracle", "true" },
-            { "UseOracleForSetup", "true" },
-            { "UseOracleForSetupOverride", "true" },
-            { "ConnectionStrings:Oracle", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" },
-            { "Oracle:ConnectionString", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" }      }
-      catch (Exception ex)
-      {
-        logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
+        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Error in CreateHost: {ex.Message}");
       }
     }
 
@@ -94,6 +79,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
       {
         // Remove any existing ISetupDataProvider registrations to prevent the mock SetupDataStore from being used
         var setupDataProviderDescriptors = services.Where(d => d.ServiceType == typeof(ISetupDataProvider)).ToList();
+        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Found {setupDataProviderDescriptors.Count} existing ISetupDataProvider registrations, removing them");
         foreach (var descriptor in setupDataProviderDescriptors)
         {
           services.Remove(descriptor);
@@ -101,6 +87,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 
         // Explicitly register the Oracle provider for functional tests
         services.AddSingleton<ISetupDataProvider, OracleSetupDataProvider>();
+        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Registered OracleSetupDataProvider for functional tests");
 
         // Replace the real authentication service with our test version
         var authenticationServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IAuthenticationService));
@@ -109,7 +96,8 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           services.Remove(authenticationServiceDescriptor);
         }
         services.AddSingleton<IAuthenticationService, TestAuthenticationService>();
-      });  }
+      });
+  }
 
 }
 

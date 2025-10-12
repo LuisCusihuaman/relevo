@@ -183,16 +183,16 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ReceiverUserId: row.RECEIVER_USER_ID,
         ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
         ResponsiblePhysicianName: null,
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        ReadyAt: row.READY_AT,
-        StartedAt: row.STARTED_AT,
-        AcknowledgedAt: row.ACKNOWLEDGED_AT,
-        AcceptedAt: row.ACCEPTED_AT,
-        CompletedAt: row.COMPLETED_AT,
-        CancelledAt: row.CANCELLED_AT,
-        RejectedAt: row.REJECTED_AT,
+        CreatedAt: ((DateTime?)row.CREATED_AT)?.ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: ((DateTime?)row.READY_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        StartedAt: ((DateTime?)row.STARTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcknowledgedAt: ((DateTime?)row.ACKNOWLEDGED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcceptedAt: ((DateTime?)row.ACCEPTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CompletedAt: ((DateTime?)row.COMPLETED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: ((DateTime?)row.CANCELLED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        RejectedAt: ((DateTime?)row.REJECTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         RejectionReason: row.REJECTION_REASON,
-        ExpiredAt: row.EXPIRED_AT,
+        ExpiredAt: ((DateTime?)row.EXPIRED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         HandoverType: row.HANDOVER_TYPE,
         HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
         FromShiftId: row.FROM_SHIFT_ID,
@@ -210,7 +210,10 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
 
   public HandoverRecord? GetHandoverById(string handoverId)
   {
-    using IDbConnection conn = _factory.CreateConnection();
+    System.Diagnostics.Debug.WriteLine($"[OracleSetupDataProvider] Getting handover by ID: {handoverId}");
+    try
+    {
+      using IDbConnection conn = _factory.CreateConnection();
 
     const string sql = @"
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
@@ -255,8 +258,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       ShiftName: row.SHIFT_NAME ?? "Unknown",
       CreatedBy: row.CREATED_BY ?? "system",
       AssignedTo: row.ASSIGNED_TO ?? "system",
-                    CreatedByName: null,
-                    AssignedToName: null,
+      CreatedByName: null,
+      AssignedToName: null,
       ReceiverUserId: row.RECEIVER_USER_ID,
       ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
       ResponsiblePhysicianName: null,
@@ -278,6 +281,12 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       StateName: row.STATENAME ?? "Draft",
       Version: row.VERSION ?? 1
     );
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine($"[OracleSetupDataProvider] Error getting handover by ID {handoverId}: {ex.Message}");
+      throw;
+    }
   }
 
   public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
@@ -456,16 +465,16 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ReceiverUserId: row.RECEIVER_USER_ID,
         ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
         ResponsiblePhysicianName: null,
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        ReadyAt: row.READY_AT,
-        StartedAt: row.STARTED_AT,
-        AcknowledgedAt: row.ACKNOWLEDGED_AT,
-        AcceptedAt: row.ACCEPTED_AT,
-        CompletedAt: row.COMPLETED_AT,
-        CancelledAt: row.CANCELLED_AT,
-        RejectedAt: row.REJECTED_AT,
+        CreatedAt: ((DateTime?)row.CREATED_AT)?.ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: ((DateTime?)row.READY_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        StartedAt: ((DateTime?)row.STARTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcknowledgedAt: ((DateTime?)row.ACKNOWLEDGED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcceptedAt: ((DateTime?)row.ACCEPTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CompletedAt: ((DateTime?)row.COMPLETED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: ((DateTime?)row.CANCELLED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        RejectedAt: ((DateTime?)row.REJECTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         RejectionReason: row.REJECTION_REASON,
-        ExpiredAt: row.EXPIRED_AT,
+        ExpiredAt: ((DateTime?)row.EXPIRED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         HandoverType: row.HANDOVER_TYPE,
         HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
         FromShiftId: row.FROM_SHIFT_ID,
@@ -529,16 +538,16 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ReceiverUserId: row.RECEIVER_USER_ID,
         ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
         ResponsiblePhysicianName: null,
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        ReadyAt: row.READY_AT,
-        StartedAt: row.STARTED_AT,
-        AcknowledgedAt: row.ACKNOWLEDGED_AT,
-        AcceptedAt: row.ACCEPTED_AT,
-        CompletedAt: row.COMPLETED_AT,
-        CancelledAt: row.CANCELLED_AT,
-        RejectedAt: row.REJECTED_AT,
+        CreatedAt: ((DateTime?)row.CREATED_AT)?.ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: ((DateTime?)row.READY_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        StartedAt: ((DateTime?)row.STARTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcknowledgedAt: ((DateTime?)row.ACKNOWLEDGED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcceptedAt: ((DateTime?)row.ACCEPTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CompletedAt: ((DateTime?)row.COMPLETED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: ((DateTime?)row.CANCELLED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        RejectedAt: ((DateTime?)row.REJECTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         RejectionReason: row.REJECTION_REASON,
-        ExpiredAt: row.EXPIRED_AT,
+        ExpiredAt: ((DateTime?)row.EXPIRED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         HandoverType: row.HANDOVER_TYPE,
         HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
         FromShiftId: row.FROM_SHIFT_ID,
@@ -602,16 +611,16 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         ReceiverUserId: row.RECEIVER_USER_ID,
         ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
         ResponsiblePhysicianName: null,
-        CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        ReadyAt: row.READY_AT,
-        StartedAt: row.STARTED_AT,
-        AcknowledgedAt: row.ACKNOWLEDGED_AT,
-        AcceptedAt: row.ACCEPTED_AT,
-        CompletedAt: row.COMPLETED_AT,
-        CancelledAt: row.CANCELLED_AT,
-        RejectedAt: row.REJECTED_AT,
+        CreatedAt: ((DateTime?)row.CREATED_AT)?.ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        ReadyAt: ((DateTime?)row.READY_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        StartedAt: ((DateTime?)row.STARTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcknowledgedAt: ((DateTime?)row.ACKNOWLEDGED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        AcceptedAt: ((DateTime?)row.ACCEPTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CompletedAt: ((DateTime?)row.COMPLETED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        CancelledAt: ((DateTime?)row.CANCELLED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
+        RejectedAt: ((DateTime?)row.REJECTED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         RejectionReason: row.REJECTION_REASON,
-        ExpiredAt: row.EXPIRED_AT,
+        ExpiredAt: ((DateTime?)row.EXPIRED_AT)?.ToString("yyyy-MM-dd HH:mm:ss"),
         HandoverType: row.HANDOVER_TYPE,
         HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
         FromShiftId: row.FROM_SHIFT_ID,
