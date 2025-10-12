@@ -222,13 +222,28 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+             h.REJECTION_REASON,
+             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+             h.HANDOVER_TYPE,
+             h.HANDOVER_WINDOW_DATE,
+             h.FROM_SHIFT_ID,
+             h.TO_SHIFT_ID,
+             vws.StateName,
              h.VERSION
       FROM HANDOVERS h
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
       LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
       WHERE h.ID = :handoverId";
 
     var row = conn.QueryFirstOrDefault(sql, new { handoverId });
@@ -245,41 +260,44 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       .Select(item => new HandoverActionItem(item.ID, item.DESCRIPTION, item.IS_COMPLETED == 1))
       .ToList();
 
+    // Safely extract values from dynamic row
+    string? synthesisContent = row.SYNTHESIS as string;
+    
     return new HandoverRecord(
-      Id: row.ID,
-      AssignmentId: row.ASSIGNMENT_ID ?? "",
-      PatientId: row.PATIENT_ID,
-      PatientName: row.PATIENT_NAME ?? "Unknown Patient",
-      Status: row.STATUS,
-      IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
-      PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
+      Id: (string)row.ID,
+      AssignmentId: (row.ASSIGNMENT_ID as string) ?? "",
+      PatientId: (string)row.PATIENT_ID,
+      PatientName: (row.PATIENT_NAME as string) ?? "Unknown Patient",
+      Status: (string)row.STATUS,
+      IllnessSeverity: new HandoverIllnessSeverity((row.ILLNESS_SEVERITY as string) ?? "Stable"),
+      PatientSummary: new HandoverPatientSummary((row.PATIENT_SUMMARY as string) ?? ""),
       SituationAwarenessDocId: null,
-      Synthesis: string.IsNullOrEmpty(row.SYNTHESIS) ? null : new HandoverSynthesis(row.SYNTHESIS),
-      ShiftName: row.SHIFT_NAME ?? "Unknown",
-      CreatedBy: row.CREATED_BY ?? "system",
-      AssignedTo: row.ASSIGNED_TO ?? "system",
+      Synthesis: !string.IsNullOrEmpty(synthesisContent) ? new HandoverSynthesis(synthesisContent) : null,
+      ShiftName: (row.SHIFT_NAME as string) ?? "Unknown",
+      CreatedBy: (row.CREATED_BY as string) ?? "system",
+      AssignedTo: (row.ASSIGNED_TO as string) ?? "system",
       CreatedByName: null,
       AssignedToName: null,
-      ReceiverUserId: row.RECEIVER_USER_ID,
-      ResponsiblePhysicianId: row.RESPONSIBLE_PHYSICIAN_ID ?? "",
-      ResponsiblePhysicianName: null,
-      CreatedAt: row.CREATED_AT ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-      ReadyAt: row.READY_AT,
-      StartedAt: row.STARTED_AT,
-      AcknowledgedAt: row.ACKNOWLEDGED_AT,
-      AcceptedAt: row.ACCEPTED_AT,
-      CompletedAt: row.COMPLETED_AT,
-      CancelledAt: row.CANCELLED_AT,
-      RejectedAt: row.REJECTED_AT,
-      RejectionReason: row.REJECTION_REASON,
-      ExpiredAt: row.EXPIRED_AT,
-      HandoverType: row.HANDOVER_TYPE,
-      HandoverWindowDate: row.HANDOVER_WINDOW_DATE,
-      FromShiftId: row.FROM_SHIFT_ID,
-      ToShiftId: row.TO_SHIFT_ID,
-      ToDoctorId: row.TO_DOCTOR_ID,
-      StateName: row.STATENAME ?? "Draft",
-      Version: row.VERSION ?? 1
+      ReceiverUserId: row.RECEIVER_USER_ID as string,
+      ResponsiblePhysicianId: (row.RESPONSIBLE_PHYSICIAN_ID as string) ?? "system",
+      ResponsiblePhysicianName: "Unknown", // Default value since we don't have user names in this query
+      CreatedAt: row.CREATED_AT as string,
+      ReadyAt: row.READY_AT as string,
+      StartedAt: row.STARTED_AT as string,
+      AcknowledgedAt: row.ACKNOWLEDGED_AT as string,
+      AcceptedAt: row.ACCEPTED_AT as string,
+      CompletedAt: row.COMPLETED_AT as string,
+      CancelledAt: row.CANCELLED_AT as string,
+      RejectedAt: row.REJECTED_AT as string,
+      RejectionReason: row.REJECTION_REASON as string,
+      ExpiredAt: row.EXPIRED_AT as string,
+      HandoverType: (row.HANDOVER_TYPE as string) ?? "ShiftToShift",
+      HandoverWindowDate: row.HANDOVER_WINDOW_DATE as DateTime?,
+      FromShiftId: row.FROM_SHIFT_ID as string,
+      ToShiftId: row.TO_SHIFT_ID as string,
+      ToDoctorId: row.TO_DOCTOR_ID as string,
+      StateName: (row.STATENAME as string) ?? "Draft",
+      Version: (row.VERSION as int?) ?? 1
     );
     }
     catch (Exception ex)
