@@ -25,6 +25,9 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       return;
     }
 
+    // Fetch action items for this handover
+    var actionItems = await _setupService.GetHandoverActionItemsAsync(req.HandoverId);
+
     Response = new GetHandoverByIdResponse
     {
       Id = handover.Id,
@@ -47,29 +50,52 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
       {
         content = handover.Synthesis.Content
       } : null,
+      actionItems = actionItems.Select(a => new GetHandoverByIdResponse.ActionItemDto
+      {
+        id = a.Id,
+        description = a.Description,
+        isCompleted = a.IsCompleted
+      }).ToList(),
       ShiftName = handover.ShiftName,
       CreatedBy = handover.CreatedBy,
       AssignedTo = handover.AssignedTo,
       ReceiverUserId = handover.ReceiverUserId,
-      CreatedAt = handover.CreatedAt,
-      ReadyAt = handover.ReadyAt,
-      StartedAt = handover.StartedAt,
-      AcknowledgedAt = handover.AcknowledgedAt,
-      AcceptedAt = handover.AcceptedAt,
-      CompletedAt = handover.CompletedAt,
-      CancelledAt = handover.CancelledAt,
-      RejectedAt = handover.RejectedAt,
+      CreatedAt = FormatTimestampUtc(handover.CreatedAt),
+      ReadyAt = FormatTimestampUtc(handover.ReadyAt),
+      StartedAt = FormatTimestampUtc(handover.StartedAt),
+      AcknowledgedAt = FormatTimestampUtc(handover.AcknowledgedAt),
+      AcceptedAt = FormatTimestampUtc(handover.AcceptedAt),
+      CompletedAt = FormatTimestampUtc(handover.CompletedAt),
+      CancelledAt = FormatTimestampUtc(handover.CancelledAt),
+      RejectedAt = FormatTimestampUtc(handover.RejectedAt),
       RejectionReason = handover.RejectionReason,
-      ExpiredAt = handover.ExpiredAt,
+      ExpiredAt = FormatTimestampUtc(handover.ExpiredAt),
       HandoverType = handover.HandoverType,
       HandoverWindowDate = handover.HandoverWindowDate?.ToString("yyyy-MM-ddTHH:mm:ss"),
       FromShiftId = handover.FromShiftId,
       ToShiftId = handover.ToShiftId,
       ToDoctorId = handover.ToDoctorId,
-      StateName = handover.StateName
+      StateName = handover.StateName,
+      Version = handover.Version
     };
 
     await SendAsync(Response, cancellation: ct);
+  }
+
+  /// <summary>
+  /// Formats a timestamp string to UTC with Z suffix for consistent client-side parsing.
+  /// </summary>
+  private static string? FormatTimestampUtc(string? timestamp)
+  {
+    if (string.IsNullOrEmpty(timestamp))
+      return null;
+
+    if (DateTime.TryParse(timestamp, out var dt))
+    {
+      return dt.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+    }
+
+    return timestamp;
   }
 }
 
@@ -240,6 +266,8 @@ public class GetHandoverByIdResponse
   public string? ToShiftId { get; set; }
   public string? ToDoctorId { get; set; }
   public string StateName { get; set; } = string.Empty;
+  public int Version { get; set; }
+  public List<ActionItemDto> actionItems { get; set; } = new();
 
   public class IllnessSeverityDto
   {
@@ -255,6 +283,13 @@ public class GetHandoverByIdResponse
   public class SynthesisDto
   {
     public string content { get; set; } = string.Empty;
+  }
+
+  public class ActionItemDto
+  {
+    public string id { get; set; } = string.Empty;
+    public string description { get; set; } = string.Empty;
+    public bool isCompleted { get; set; }
   }
 }
 

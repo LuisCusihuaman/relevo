@@ -266,6 +266,36 @@ public class SetupService : ISetupService
         return await _repository.CompleteHandover(handoverId, userId);
     }
 
+    // Optimistic locking overloads
+    public async Task<bool> ReadyHandoverAsync(string handoverId, string userId, int expectedVersion)
+    {
+        return await _repository.ReadyHandover(handoverId, userId, expectedVersion);
+    }
+
+    public async Task<bool> StartHandoverAsync(string handoverId, string userId, int expectedVersion)
+    {
+        return await _repository.StartHandover(handoverId, userId, expectedVersion);
+    }
+
+    public async Task<bool> AcceptHandoverAsync(string handoverId, string userId, int expectedVersion)
+    {
+        return await _repository.AcceptHandover(handoverId, userId, expectedVersion);
+    }
+
+    public async Task<bool> CompleteHandoverAsync(string handoverId, string userId, int expectedVersion)
+    {
+        return await _repository.CompleteHandover(handoverId, userId, expectedVersion);
+    }
+
+    public async Task<bool> CancelHandoverAsync(string handoverId, string userId, int expectedVersion)
+    {
+        return await _repository.CancelHandover(handoverId, userId, expectedVersion);
+    }
+
+    public async Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason, int expectedVersion)
+    {
+        return await _repository.RejectHandover(handoverId, userId, reason, expectedVersion);
+    }
 
     public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
     {

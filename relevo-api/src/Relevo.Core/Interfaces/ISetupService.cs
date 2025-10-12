@@ -57,6 +57,14 @@ public interface ISetupService
     Task<bool> CancelHandoverAsync(string handoverId, string userId);
     Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason);
 
+    // Optimistic locking overloads (with version parameter)
+    Task<bool> ReadyHandoverAsync(string handoverId, string userId, int expectedVersion);
+    Task<bool> StartHandoverAsync(string handoverId, string userId, int expectedVersion);
+    Task<bool> AcceptHandoverAsync(string handoverId, string userId, int expectedVersion);
+    Task<bool> CompleteHandoverAsync(string handoverId, string userId, int expectedVersion);
+    Task<bool> CancelHandoverAsync(string handoverId, string userId, int expectedVersion);
+    Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason, int expectedVersion);
+
     // Singleton Sections
     Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId);
     Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);

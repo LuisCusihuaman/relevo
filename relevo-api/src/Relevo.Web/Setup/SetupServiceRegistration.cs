@@ -9,13 +9,11 @@ public static class SetupServiceRegistration
   {
     // Check configuration value for UseOracleForSetup
     // This allows functional tests to override the default behavior
-    bool useOracleForSetup = config.GetValue("UseOracleForSetup", false);
+    bool useOracleForSetup = config.GetValue("UseOracleForSetup", false) || 
+                             config.GetValue("UseOracleForSetupOverride", false) || 
+                             config.GetValue("ASPNETCORE_ENVIRONMENT", "").Equals("Testing", StringComparison.OrdinalIgnoreCase);
     
-    if (useOracleForSetup)
-    {
-      services.AddSingleton<ISetupDataProvider, OracleSetupDataProvider>();
-    }
-    else
+    if (useOracleForSetup)    else
     {
       services.AddSingleton<ISetupDataProvider, SetupDataStore>();
     }

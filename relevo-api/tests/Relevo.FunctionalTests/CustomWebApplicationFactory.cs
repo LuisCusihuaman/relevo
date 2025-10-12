@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System;
 using Oracle.ManagedDataAccess.Client;
+using Relevo.Web.Setup;
 
 namespace Relevo.FunctionalTests;
 
@@ -50,6 +51,26 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 
     return host;
   }
+    host.Start();
+
+    // Skip database seeding for functional tests since we're using Oracle with Dapper
+    // The database should be pre-seeded or tests should use mock data
+    var serviceProvider = host.Services;
+    using (var scope = serviceProvider.CreateScope())
+    {
+            { "UseOracle", "true" },
+            { "UseOracleForSetup", "true" },
+            { "UseOracleForSetupOverride", "true" },
+            { "ConnectionStrings:Oracle", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" },
+            { "Oracle:ConnectionString", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" }      }
+      catch (Exception ex)
+      {
+        logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
+      }
+    }
+
+    return host;
+  }
   
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
@@ -69,8 +90,18 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 
         config.AddConfiguration(integrationConfig);
       })
-      .ConfigureServices(services =>
+      .ConfigureServices((context, services) =>
       {
+        // Remove any existing ISetupDataProvider registrations to prevent the mock SetupDataStore from being used
+        var setupDataProviderDescriptors = services.Where(d => d.ServiceType == typeof(ISetupDataProvider)).ToList();
+        foreach (var descriptor in setupDataProviderDescriptors)
+        {
+          services.Remove(descriptor);
+        }
+
+        // Explicitly register the Oracle provider for functional tests
+        services.AddSingleton<ISetupDataProvider, OracleSetupDataProvider>();
+
         // Replace the real authentication service with our test version
         var authenticationServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IAuthenticationService));
         if (authenticationServiceDescriptor != null)
@@ -78,8 +109,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
           services.Remove(authenticationServiceDescriptor);
         }
         services.AddSingleton<IAuthenticationService, TestAuthenticationService>();
-      });
-  }
+      });  }
 
 }
 

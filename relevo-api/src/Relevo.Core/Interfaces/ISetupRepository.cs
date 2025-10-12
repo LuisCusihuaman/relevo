@@ -54,6 +54,14 @@ public interface ISetupRepository
     Task<bool> CancelHandover(string handoverId, string userId);
     Task<bool> RejectHandover(string handoverId, string userId, string reason);
 
+    // Optimistic locking overloads (with version parameter)
+    Task<bool> StartHandover(string handoverId, string userId, int expectedVersion);
+    Task<bool> ReadyHandover(string handoverId, string userId, int expectedVersion);
+    Task<bool> AcceptHandover(string handoverId, string userId, int expectedVersion);
+    Task<bool> CompleteHandover(string handoverId, string userId, int expectedVersion);
+    Task<bool> CancelHandover(string handoverId, string userId, int expectedVersion);
+    Task<bool> RejectHandover(string handoverId, string userId, string reason, int expectedVersion);
+
     // Singleton Sections
     Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId);
     Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
@@ -126,7 +134,8 @@ public record HandoverRecord(
     string? FromShiftId,
     string? ToShiftId,
     string? ToDoctorId,
-    string StateName
+    string StateName,
+    int Version
 );
 public record HandoverIllnessSeverity(string Severity);
 public record HandoverPatientSummary(string Content);

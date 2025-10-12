@@ -226,6 +226,37 @@ public class SetupServiceTests
             throw new NotImplementedException("RejectHandoverAsync not implemented in mock");
         }
 
+        // Overloaded versions with expectedVersion parameter
+        public Task<bool> ReadyHandoverAsync(string handoverId, string userId, int expectedVersion)
+        {
+            throw new NotImplementedException("ReadyHandoverAsync with version not implemented in mock");
+        }
+
+        public Task<bool> StartHandoverAsync(string handoverId, string userId, int expectedVersion)
+        {
+            throw new NotImplementedException("StartHandoverAsync with version not implemented in mock");
+        }
+
+        public Task<bool> AcceptHandoverAsync(string handoverId, string userId, int expectedVersion)
+        {
+            throw new NotImplementedException("AcceptHandoverAsync with version not implemented in mock");
+        }
+
+        public Task<bool> CompleteHandoverAsync(string handoverId, string userId, int expectedVersion)
+        {
+            throw new NotImplementedException("CompleteHandoverAsync with version not implemented in mock");
+        }
+
+        public Task<bool> CancelHandoverAsync(string handoverId, string userId, int expectedVersion)
+        {
+            throw new NotImplementedException("CancelHandoverAsync with version not implemented in mock");
+        }
+
+        public Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason, int expectedVersion)
+        {
+            throw new NotImplementedException("RejectHandoverAsync with version not implemented in mock");
+        }
+
         public Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
         {
             throw new NotImplementedException("GetPendingHandoversForUserAsync not implemented in mock");

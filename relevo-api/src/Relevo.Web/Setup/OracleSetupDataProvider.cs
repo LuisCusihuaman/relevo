@@ -146,7 +146,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID, h.RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             h.VERSION
       FROM HANDOVERS h
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
@@ -197,7 +198,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         FromShiftId: row.FROM_SHIFT_ID,
         ToShiftId: row.TO_SHIFT_ID,
         ToDoctorId: row.TO_DOCTOR_ID,
-        StateName: row.STATENAME ?? "Draft"
+        StateName: row.STATENAME ?? "Draft",
+        Version: row.VERSION ?? 1
       );
 
       handovers.Add(handover);
@@ -218,7 +220,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             h.VERSION
       FROM HANDOVERS h
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
@@ -272,7 +275,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       FromShiftId: row.FROM_SHIFT_ID,
       ToShiftId: row.TO_SHIFT_ID,
       ToDoctorId: row.TO_DOCTOR_ID,
-      StateName: row.STATENAME ?? "Draft"
+      StateName: row.STATENAME ?? "Draft",
+      Version: row.VERSION ?? 1
     );
   }
 
@@ -411,7 +415,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              h.STATUS, hpd.ILLNESS_SEVERITY, hpd.SUMMARY_TEXT as PATIENT_SUMMARY, hs.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
@@ -466,7 +471,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         FromShiftId: row.FROM_SHIFT_ID,
         ToShiftId: row.TO_SHIFT_ID,
         ToDoctorId: row.TO_DOCTOR_ID,
-        StateName: row.STATENAME ?? "Draft"
+        StateName: row.STATENAME ?? "Draft",
+        Version: row.VERSION ?? 1
       );
 
       handovers.Add(handover);
@@ -488,7 +494,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
@@ -537,7 +544,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         FromShiftId: row.FROM_SHIFT_ID,
         ToShiftId: row.TO_SHIFT_ID,
         ToDoctorId: row.TO_DOCTOR_ID,
-        StateName: row.STATENAME ?? "Draft"
+        StateName: row.STATENAME ?? "Draft",
+        Version: row.VERSION ?? 1
       );
 
       handovers.Add(handover);
@@ -559,7 +567,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT
+             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
@@ -608,7 +617,8 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
         FromShiftId: row.FROM_SHIFT_ID,
         ToShiftId: row.TO_SHIFT_ID,
         ToDoctorId: row.TO_DOCTOR_ID,
-        StateName: row.STATENAME ?? "Draft"
+        StateName: row.STATENAME ?? "Draft",
+        Version: row.VERSION ?? 1
       );
 
       handovers.Add(handover);

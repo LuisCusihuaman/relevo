@@ -14,29 +14,53 @@ public class AcceptHandoverEndpoint(ISetupService setupService)
 
   public override async Task HandleAsync(AcceptHandoverRequest req, CancellationToken ct)
   {
-    var userId = "user_demo12345678901234567890123456"; // Dummy user
-    var success = await setupService.AcceptHandoverAsync(req.HandoverId, userId);
-
-    if (!success)
+    try
     {
-      await SendNotFoundAsync(ct);
-      return;
+      var userId = "user_demo12345678901234567890123456"; // Dummy user
+      
+      // Use versioned method if version is provided, otherwise use non-versioned
+      bool success;
+      if (req.Version.HasValue)
+      {
+        success = await setupService.AcceptHandoverAsync(req.HandoverId, userId, req.Version.Value);
+      }
+      else
+      {
+        success = await setupService.AcceptHandoverAsync(req.HandoverId, userId);
+      }
+
+      if (!success)
+      {
+        await SendNotFoundAsync(ct);
+        return;
+      }
+
+      Response = new AcceptHandoverResponse
+      {
+        Success = true,
+        HandoverId = req.HandoverId,
+        Message = "Handover accepted successfully"
+      };
+
+      await SendAsync(Response, cancellation: ct);
     }
-
-    Response = new AcceptHandoverResponse
+    catch (Relevo.Core.Exceptions.OptimisticLockException ex)
     {
-      Success = true,
-      HandoverId = req.HandoverId,
-      Message = "Handover accepted successfully"
-    };
-
-    await SendAsync(Response, cancellation: ct);
+      // Return 409 Conflict for version mismatch
+      await SendAsync(new AcceptHandoverResponse
+      {
+        Success = false,
+        HandoverId = req.HandoverId,
+        Message = ex.Message
+      }, 409, ct);
+    }
   }
 }
 
 public class AcceptHandoverRequest
 {
   public string HandoverId { get; set; } = string.Empty;
+  public int? Version { get; set; } // Optional for backwards compatibility
 }
 
 public class AcceptHandoverResponse

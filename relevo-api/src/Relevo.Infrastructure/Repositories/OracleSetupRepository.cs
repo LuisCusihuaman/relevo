@@ -273,7 +273,8 @@ public class OracleSetupRepository : ISetupRepository
                  h.HANDOVER_WINDOW_DATE,
                  h.FROM_SHIFT_ID,
                  h.TO_SHIFT_ID,
-                 h.TO_DOCTOR_ID
+                 h.TO_DOCTOR_ID,
+                 h.VERSION
           FROM HANDOVERS h
           INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
@@ -330,7 +331,8 @@ public class OracleSetupRepository : ISetupRepository
                     FromShiftId: row.FROM_SHIFT_ID,
                     ToShiftId: row.TO_SHIFT_ID,
                     ToDoctorId: row.TO_DOCTOR_ID,
-                    StateName: row.STATENAME ?? "Draft"
+                    StateName: row.STATENAME ?? "Draft",
+                    Version: row.VERSION ?? 1
                 );
 
             handovers.Add(handover);
@@ -522,7 +524,8 @@ public class OracleSetupRepository : ISetupRepository
                      h.HANDOVER_WINDOW_DATE,
                      h.FROM_SHIFT_ID,
                      h.TO_SHIFT_ID,
-                     h.TO_DOCTOR_ID
+                     h.TO_DOCTOR_ID,
+                     h.VERSION
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
@@ -576,7 +579,8 @@ public class OracleSetupRepository : ISetupRepository
                     FromShiftId: row.FROM_SHIFT_ID,
                     ToShiftId: row.TO_SHIFT_ID,
                     ToDoctorId: row.TO_DOCTOR_ID,
-                    StateName: row.STATENAME ?? "Draft"
+                    StateName: row.STATENAME ?? "Draft",
+                    Version: row.VERSION ?? 1
                 );
 
                 handovers.Add(handover);
@@ -622,7 +626,8 @@ public class OracleSetupRepository : ISetupRepository
                      h.HANDOVER_WINDOW_DATE,
                      h.FROM_SHIFT_ID,
                      h.TO_SHIFT_ID,
-                     h.TO_DOCTOR_ID
+                     h.TO_DOCTOR_ID,
+                     h.VERSION
               FROM HANDOVERS h
               LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
               LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
@@ -651,7 +656,7 @@ public class OracleSetupRepository : ISetupRepository
                 Status: row.STATUS,
                 IllnessSeverity: new HandoverIllnessSeverity(row.ILLNESS_SEVERITY ?? "Stable"),
                 PatientSummary: new HandoverPatientSummary(row.PATIENT_SUMMARY ?? ""),
-                SituationAwarenessDocId: row.SITUATION_AWARENESS_LAST_EDITED_BY,
+                SituationAwarenessDocId: row.SITUATION_AWARENESS_EDITOR,
                 Synthesis: !string.IsNullOrEmpty(row.SYNTHESIS_CONTENT) ? new HandoverSynthesis(row.SYNTHESIS_CONTENT) : null,
                 ShiftName: row.SHIFT_NAME ?? "Unknown",
                 CreatedBy: row.CREATED_BY ?? "system",
@@ -676,7 +681,8 @@ public class OracleSetupRepository : ISetupRepository
                 FromShiftId: row.FROM_SHIFT_ID,
                 ToShiftId: row.TO_SHIFT_ID,
                 ToDoctorId: row.TO_DOCTOR_ID,
-                StateName: row.STATENAME ?? "Draft"
+                StateName: row.STATENAME ?? "Draft",
+                Version: row.VERSION ?? 1
             );
         }
         catch (Exception ex)
@@ -1560,6 +1566,180 @@ public class OracleSetupRepository : ISetupRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to reject handover {HandoverId}", handoverId);
+            throw;
+        }
+    }
+
+    // ===================================
+    // Optimistic Locking Implementations
+    // ===================================
+
+    public async Task<bool> StartHandover(string handoverId, string userId, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET STARTED_AT = SYSTIMESTAMP,
+                    STATUS = 'InProgress',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND READY_AT IS NOT NULL 
+                  AND STARTED_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, expectedVersion });
+            return result > 0;
+        }, "Start");
+    }
+
+    public async Task<bool> ReadyHandover(string handoverId, string userId, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET READY_AT = SYSTIMESTAMP,
+                    STATUS = 'Ready',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND READY_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, expectedVersion });
+            return result > 0;
+        }, "Ready");
+    }
+
+    public async Task<bool> AcceptHandover(string handoverId, string userId, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET ACCEPTED_AT = SYSTIMESTAMP,
+                    UPDATED_AT = SYSTIMESTAMP,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND STARTED_AT IS NOT NULL 
+                  AND ACCEPTED_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, expectedVersion });
+            return result > 0;
+        }, "Accept");
+    }
+
+    public async Task<bool> CompleteHandover(string handoverId, string userId, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET COMPLETED_AT = SYSTIMESTAMP,
+                    STATUS = 'Completed',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    COMPLETED_BY = :userId,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND ACCEPTED_AT IS NOT NULL 
+                  AND COMPLETED_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, userId, expectedVersion });
+            return result > 0;
+        }, "Complete");
+    }
+
+    public async Task<bool> CancelHandover(string handoverId, string userId, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET CANCELLED_AT = SYSTIMESTAMP,
+                    STATUS = 'Cancelled',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND CANCELLED_AT IS NULL 
+                  AND ACCEPTED_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, expectedVersion });
+            return result > 0;
+        }, "Cancel");
+    }
+
+    public async Task<bool> RejectHandover(string handoverId, string userId, string reason, int expectedVersion)
+    {
+        return await ExecuteWithOptimisticLock(handoverId, expectedVersion, async (conn) =>
+        {
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET REJECTED_AT = SYSTIMESTAMP,
+                    REJECTION_REASON = :reason,
+                    STATUS = 'Rejected',
+                    UPDATED_AT = SYSTIMESTAMP,
+                    VERSION = VERSION + 1
+                WHERE ID = :handoverId 
+                  AND VERSION = :expectedVersion
+                  AND REJECTED_AT IS NULL 
+                  AND ACCEPTED_AT IS NULL";
+            
+            var result = await conn.ExecuteAsync(sql, new { handoverId, reason, expectedVersion });
+            return result > 0;
+        }, "Reject");
+    }
+
+    /// <summary>
+    /// Helper method to execute a handover state transition with optimistic locking.
+    /// If the update fails due to version mismatch, throws OptimisticLockException.
+    /// </summary>
+    private async Task<bool> ExecuteWithOptimisticLock(
+        string handoverId, 
+        int expectedVersion, 
+        Func<IDbConnection, Task<bool>> operation,
+        string operationName)
+    {
+        try
+        {
+            using IDbConnection conn = _factory.CreateConnection();
+            
+            var success = await operation(conn);
+
+            if (!success)
+            {
+                // Check if version mismatch vs invalid state
+                var current = await conn.QuerySingleOrDefaultAsync<int?>(
+                    "SELECT VERSION FROM HANDOVERS WHERE ID = :handoverId",
+                    new { handoverId });
+
+                if (current.HasValue && current.Value != expectedVersion)
+                {
+                    throw new Core.Exceptions.OptimisticLockException(
+                        $"{operationName} failed: Version mismatch for handover {handoverId}. " +
+                        $"Expected version {expectedVersion}, but current version is {current.Value}. " +
+                        $"The handover was modified by another user.");
+                }
+
+                // Invalid state transition (not a version mismatch)
+                _logger.LogWarning("{Operation} failed for handover {HandoverId}: Invalid state transition", 
+                    operationName, handoverId);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Core.Exceptions.OptimisticLockException)
+        {
+            throw; // Re-throw optimistic lock exceptions
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to {Operation} handover {HandoverId}", operationName, handoverId);
             throw;
         }
     }

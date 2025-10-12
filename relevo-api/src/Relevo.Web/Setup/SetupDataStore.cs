@@ -267,7 +267,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-day",
         ToShiftId: "shift-night",
         ToDoctorId: "user-123",
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       ),
       new HandoverRecord(
         Id: "hvo-002",
@@ -302,7 +303,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-night",
         ToShiftId: "shift-day",
         ToDoctorId: "user-123",
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       ),
       new HandoverRecord(
         Id: "hvo-003",
@@ -337,7 +339,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-day",
         ToShiftId: "shift-night",
         ToDoctorId: "user-123",
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       )
     };
 
@@ -412,7 +415,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-day",
         ToShiftId: "shift-night",
         ToDoctorId: userId,
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       )
     };
   }
@@ -456,7 +460,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-day",
         ToShiftId: "shift-night",
         ToDoctorId: "user-456",
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       )
     };
   }
@@ -500,7 +505,8 @@ public class SetupDataStore : ISetupDataProvider
         FromShiftId: "shift-day",
         ToShiftId: "shift-night",
         ToDoctorId: toDoctorId,
-        StateName: "Draft"
+        StateName: "Draft",
+        Version: 1
       )
     };
   }

@@ -14,29 +14,51 @@ public class CompleteHandoverEndpoint(ISetupService setupService)
 
   public override async Task HandleAsync(CompleteHandoverRequest req, CancellationToken ct)
   {
-    var userId = "user_demo12345678901234567890123456"; // Dummy user
-    var success = await setupService.CompleteHandoverAsync(req.HandoverId, userId);
-
-    if (!success)
+    try
     {
-      await SendNotFoundAsync(ct);
-      return;
+      var userId = "user_demo12345678901234567890123456"; // Dummy user
+      
+      bool success;
+      if (req.Version.HasValue)
+      {
+        success = await setupService.CompleteHandoverAsync(req.HandoverId, userId, req.Version.Value);
+      }
+      else
+      {
+        success = await setupService.CompleteHandoverAsync(req.HandoverId, userId);
+      }
+
+      if (!success)
+      {
+        await SendNotFoundAsync(ct);
+        return;
+      }
+
+      Response = new CompleteHandoverResponse
+      {
+        Success = true,
+        HandoverId = req.HandoverId,
+        Message = "Handover completed successfully"
+      };
+
+      await SendAsync(Response, cancellation: ct);
     }
-
-    Response = new CompleteHandoverResponse
+    catch (Relevo.Core.Exceptions.OptimisticLockException ex)
     {
-      Success = true,
-      HandoverId = req.HandoverId,
-      Message = "Handover completed successfully"
-    };
-
-    await SendAsync(Response, cancellation: ct);
+      await SendAsync(new CompleteHandoverResponse
+      {
+        Success = false,
+        HandoverId = req.HandoverId,
+        Message = ex.Message
+      }, 409, ct);
+    }
   }
 }
 
 public class CompleteHandoverRequest
 {
   public string HandoverId { get; set; } = string.Empty;
+  public int? Version { get; set; }
 }
 
 public class CompleteHandoverResponse

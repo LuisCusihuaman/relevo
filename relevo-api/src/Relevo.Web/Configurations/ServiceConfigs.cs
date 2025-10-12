@@ -36,6 +36,12 @@ public static class ServiceConfigs
     // Setup repository is now registered in InfrastructureServiceExtensions
     services.AddSetupProvider(builder.Configuration); // Moved to Infrastructure layer
 
+    // Register expiration background job
+    services.AddSingleton<Relevo.Infrastructure.BackgroundJobs.ExpireHandoversJob>();
+    services.AddHostedService<Relevo.Infrastructure.BackgroundJobs.ExpireHandoversBackgroundService>();
+
+    logger.LogInformation("Expiration background service registered");
+
     return services;
   }
 
