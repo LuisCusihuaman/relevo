@@ -1,0 +1,99 @@
+got it — here’s a focused assessment of pitfalls and a concrete, staged plan to fix them (explicitly **excluding auth/RBAC**).
+
+# Where things break (and why)
+
+## 1) State is timestamp-driven but integrity is only “softly” enforced
+
+* State comes from timestamp columns via a view with priority rules (Completed > Cancelled > … > Draft). If contradictory timestamps are set, the view just “picks one,” so bad rows can exist silently.  
+* Precondition checks were added to Accept/Complete (good), but DB still allows manual edits that violate sequence (e.g., `COMPLETED_AT` without `ACCEPTED_AT`). 
+
+## 2) Expiration isn’t implemented
+
+* `Expired` exists conceptually and in the view, but there’s no job setting `EXPIRED_AT`. Handovers can remain Draft/Ready indefinitely. 
+
+## 3) Error semantics are inconsistent
+
+* Constraint/uniqueness breaches and invalid transitions are surfaced unevenly (e.g., 404 vs actual conflict cases); clients must guess intent. 
+
+## 4) Data model / constraints create operational sharp edges
+
+* Function-based unique index (`UQ_ACTIVE_HANDOVER_WINDOW`) is correct now (date populated), but it’s easy to regress; cleanup requires strict dependency order; no cascade in prod.  
+* Multiple *terminal* stamps can be set at once (e.g., Cancelled + Completed), not prevented by the DB. 
+
+## 5) Concurrency hazards
+
+* “Last write wins” on transitions; no optimistic locking/version check. Simultaneous Accept/Cancel can race; only partial protection via `WHERE … IS NULL`. 
+
+## 6) Testing gaps keep letting bugs slip
+
+* Happy path and two invalid transitions are covered, but cancellation/rejection/expiration, concurrency, and multi-handover edges aren’t. 
+
+## 7) Frontend/back-end contract nits
+
+* Field name casing is mixed (PascalCase vs camelCase) and physician/patient status typing isn’t consistently modeled on the FE, which can lead to fragile UI logic. API endpoints exist and map, but responses are uneven.   
+
+## 8) Performance: missing selective indexes
+
+* Queries filtered by lifecycle stamps don’t have supporting (partial) indexes; patient roster has potential N+1-ish patterns. 
+
+> Note: The current lifecycle and transitions are well documented and mostly aligned; the biggest remaining risks are **data consistency, expiration, concurrency, and test coverage**. 
+
+# What to do (staged plan, ~2–4 sprints)
+
+## Sprint 1 — “Make state trustworthy”
+
+**Goals:** enforce lifecycle correctness at the DB edge, standardize errors, close easy gaps.
+
+1. Add **check constraints** for sequencing & single terminal state
+
+   * `CHK_ACCEPTED_REQUIRES_STARTED`, `CHK_COMPLETED_REQUIRES_ACCEPTED`, and **one-terminal-only** guard. (Roll out gated by a one-time data scrub on existing rows.) 
+2. Normalize **error semantics** from repos/endpoints
+
+   * Invalid transition → `404` (no matching row) is okay if you intend “not found in that precondition,” but **uniqueness/constraint violations** should map to **409 Conflict** with a standard error DTO (code, message, details). 
+3. FE/BE contract polish (non-breaking)
+
+   * Pick **camelCase** in API JSON for all fields; keep server DTOs but map names consistently; document FE unions for state/physician status.  
+4. Index hygiene (quick wins)
+
+   * Add non-null indexes: `READY_AT`, `STARTED_AT`, `ACCEPTED_AT`, `CANCELLED_AT`, `REJECTED_AT`, `EXPIRED_AT` (or conventional indexes if partial indexes aren’t available). 
+
+**Definition of done:** constraints created + existing data migrated clean; consistent error envelopes; FE type unions merged; indexes in place.
+
+## Sprint 2 — “Time and automation”
+
+**Goals:** make Expired real; make timestamps coherent for users; lock down multi-handover edge.
+
+1. Implement **daily expiry job** (Oracle-friendly; app-layer job)
+
+   * Update `EXPIRED_AT` for overdue handovers; return count & telemetry. 
+2. **Timezone strategy**
+
+   * Store UTC (if not already), return ISO8601 with `Z`; FE renders local time; update docs. 
+3. Re-validate **UQ_ACTIVE_HANDOVER_WINDOW** behavior under load
+
+   * Add a regression test that parallel-creates handovers for same patient/shift/day; ensure the app maps ORA-00001 to **409** with a friendly message.  
+
+**Definition of done:** expiry job running; times are UTC in payloads; conflict surfaced as 409; parallel creation test green.
+
+## Sprint 3 — “Race-proof transitions + test depth”
+
+**Goals:** reduce race conditions and cover the missing flows thoroughly.
+
+1. **Optimistic locking** on `HANDOVERS`
+
+   * Add `VERSION NUMBER` column; `UPDATE … WHERE ID = :id AND VERSION = :v`; increment on success; map mismatch to 409 with `concurrency_conflict`. 
+2. **E2E test expansion** (seq. collection or isolated schema)
+
+   * Cancellation from Draft/Ready/InProgress; cannot cancel after Accept; Rejection with reason; double-Ready/Start idempotency; parallel Accept/Cancel using two clients; multiple handovers edge against `UQ_ACTIVE_HANDOVER_WINDOW`; expiration path (simulate job). 
+3. Repository hardening pass
+
+   * Align start/accept/complete SQL `WHERE` clauses with preconditions (Ready→Start; Started→Accept; Accepted→Complete). Ensure all return booleans + structured errors. 
+
+**Definition of done:** versioning in place; all new E2E green; repo methods consistent.
+
+## Engineering notes & guardrails
+
+* Keep **DB logic minimal**: constraints + indexes only; no triggers/procs. Do any “smarts” (expiration, error mapping, state read-model shaping) in the service layer — aligned with your Oracle-11/minimal-logic preference. 
+* Maintain the **timestamp-as-truth** approach; the view remains a read convenience. (If you later move to hybrid “events + status row”, the API shape already supports the column timestamps.) 
+* Tests: delete in **dependency order** (children → parent) and keep try/catch for absent tables in local/dev to avoid flaky cleanups. 
+* Frontend alignment: confirm hooks exist for all transitions (they do) and tighten types (state & physician status unions).  
