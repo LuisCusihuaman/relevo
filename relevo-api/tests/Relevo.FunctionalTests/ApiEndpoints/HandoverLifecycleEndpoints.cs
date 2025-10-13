@@ -35,8 +35,11 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient)
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
+      // Get test data (shifts and patient) - use pat-007 for test 1 to avoid conflicts
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-007");
+      
+      // Clean up any active handovers for this patient/shift/date to avoid constraint violations
+      CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
 
     // ============================================================
     // ACT & ASSERT: Execute the handover lifecycle
@@ -182,8 +185,11 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient)
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
+      // Get test data (shifts and patient) - use pat-008 for test 2 to avoid conflicts
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-008");
+      
+      // Clean up any active handovers for this patient/shift/date to avoid constraint violations
+      CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
 
     // ============================================================
     // ACT: Create handover and try to accept without starting
@@ -257,8 +263,11 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient)
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
+      // Get test data (shifts and patient) - use pat-009 for test 3 to avoid conflicts
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-009");
+      
+      // Clean up any active handovers for this patient/shift/date to avoid constraint violations
+      CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
 
     // ============================================================
     // ACT: Create and start handover, try to complete without accepting
@@ -325,15 +334,8 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
   // Helper Methods
   // ============================================================
 
-  private async Task<(string fromShiftId, string toShiftId, string patientId)> GetTestDataAsync()
+  private async Task<(string fromShiftId, string toShiftId, string patientId)> GetTestDataAsync(string? preferredPatientId = null)
   {
-    // Get units
-    var unitsResponse = await _client.GetAsync("/setup/units");
-    unitsResponse.EnsureSuccessStatusCode();
-    var units = await unitsResponse.Content.ReadFromJsonAsync<UnitsResponse>();
-    Assert.NotNull(units);
-    Assert.NotEmpty(units.Units);
-
     // Get shifts
     var shiftsResponse = await _client.GetAsync("/setup/shifts");
     shiftsResponse.EnsureSuccessStatusCode();
@@ -343,18 +345,30 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
     var fromShiftId = shifts.Shifts[0].Id;
     var toShiftId = shifts.Shifts.Count > 1 ? shifts.Shifts[1].Id : shifts.Shifts[0].Id;
 
-    // Find a unit with patients
-    string? testPatientId = null;
-    foreach (var unit in units.Units)
+    // Use preferred patient if specified, otherwise find one
+    string? testPatientId = preferredPatientId;
+    if (testPatientId == null)
     {
-      var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=1");
-      if (patientsResponse.IsSuccessStatusCode)
+      // Get units
+      var unitsResponse = await _client.GetAsync("/setup/units");
+      unitsResponse.EnsureSuccessStatusCode();
+      var units = await unitsResponse.Content.ReadFromJsonAsync<UnitsResponse>();
+      Assert.NotNull(units);
+      Assert.NotEmpty(units.Units);
+
+      // Find a unit with patients (avoid pat-001 which has seed data)
+      foreach (var unit in units.Units)
       {
-        var patientsData = await patientsResponse.Content.ReadFromJsonAsync<PatientsResponse>();
-        if (patientsData?.Patients != null && patientsData.Patients.Count > 0)
+        var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=10");
+        if (patientsResponse.IsSuccessStatusCode)
         {
-          testPatientId = patientsData.Patients[0].Id;
-          break;
+          var patientsData = await patientsResponse.Content.ReadFromJsonAsync<PatientsResponse>();
+          if (patientsData?.Patients != null && patientsData.Patients.Count > 0)
+          {
+            // Skip pat-001 to avoid seed data conflicts
+            testPatientId = patientsData.Patients.FirstOrDefault(p => p.Id != "pat-001")?.Id;
+            if (testPatientId != null) break;
+          }
         }
       }
     }
@@ -455,6 +469,43 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
         connection.Execute("DELETE FROM USERS WHERE ID IN (:DoctorAId, :DoctorBId) AND EMAIL LIKE '%@e2etest.com'", new { DoctorAId = doctorAId, DoctorBId = doctorBId });
       }
       catch (Oracle.ManagedDataAccess.Client.OracleException) { /* Table doesn't exist, skip */ }
+    }
+    catch (Exception)
+    {
+      // Silently ignore connection errors during cleanup
+    }
+  }
+
+  /// <summary>
+  /// Cleans up any active handovers for a patient/shift/date combination to avoid unique constraint violations.
+  /// This is necessary because UQ_ACTIVE_HANDOVER_WINDOW constraint prevents multiple active handovers
+  /// for the same patient/shift/date combination.
+  /// We mark them as completed rather than deleting them to preserve data integrity.
+  /// </summary>
+  private void CleanupPatientActiveHandovers(string patientId, string fromShiftId, string toShiftId)
+  {
+    try
+    {
+      using var connection = new Oracle.ManagedDataAccess.Client.OracleConnection(
+        "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15");
+      connection.Open();
+
+      // Mark all active handovers for this patient/shift/date combination as completed
+      // This makes them inactive for the unique constraint without deleting data
+      connection.Execute(@"
+        UPDATE HANDOVERS
+        SET COMPLETED_AT = SYSTIMESTAMP,
+            STATUS = 'Completed',
+            COMPLETED_BY = 'test-cleanup'
+        WHERE PATIENT_ID = :patientId
+        AND FROM_SHIFT_ID = :fromShiftId
+        AND TO_SHIFT_ID = :toShiftId
+        AND HANDOVER_WINDOW_DATE = TRUNC(SYSDATE)
+        AND COMPLETED_AT IS NULL
+        AND CANCELLED_AT IS NULL
+        AND REJECTED_AT IS NULL
+        AND EXPIRED_AT IS NULL",
+        new { patientId, fromShiftId, toShiftId });
     }
     catch (Exception)
     {

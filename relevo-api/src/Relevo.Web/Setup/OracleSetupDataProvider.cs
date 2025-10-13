@@ -144,14 +144,30 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hpd.ILLNESS_SEVERITY,
              hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
              hsyn.CONTENT as SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID, h.RESPONSIBLE_PHYSICIAN_ID,
+             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+             h.REJECTION_REASON,
+             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+             h.HANDOVER_TYPE,
+             h.HANDOVER_WINDOW_DATE,
+             h.FROM_SHIFT_ID,
+             h.TO_SHIFT_ID,
+             h.TO_DOCTOR_ID,
+             vws.StateName,
              h.VERSION
       FROM HANDOVERS h
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
       LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
       WHERE h.PATIENT_ID IN :patientIds
       ORDER BY h.CREATED_AT DESC
       OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
@@ -441,13 +457,29 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
       SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
              h.STATUS, hpd.ILLNESS_SEVERITY, hpd.SUMMARY_TEXT as PATIENT_SUMMARY, hs.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+             h.REJECTION_REASON,
+             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+             h.HANDOVER_TYPE,
+             h.HANDOVER_WINDOW_DATE,
+             h.FROM_SHIFT_ID,
+             h.TO_SHIFT_ID,
+             h.TO_DOCTOR_ID,
+             vws.StateName,
              h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
+      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
       WHERE h.TO_DOCTOR_ID = :userId
         AND h.READY_AT IS NOT NULL
         AND h.ACCEPTED_AT IS NULL
@@ -520,13 +552,29 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+             h.REJECTION_REASON,
+             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+             h.HANDOVER_TYPE,
+             h.HANDOVER_WINDOW_DATE,
+             h.FROM_SHIFT_ID,
+             h.TO_SHIFT_ID,
+             h.TO_DOCTOR_ID,
+             vws.StateName,
              h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
+      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
       WHERE h.PATIENT_ID = :patientId
       ORDER BY h.CREATED_AT DESC";
 
@@ -593,13 +641,29 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
              hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
              hsyn.CONTENT as SYNTHESIS,
              h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+             h.REJECTION_REASON,
+             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+             h.HANDOVER_TYPE,
+             h.HANDOVER_WINDOW_DATE,
+             h.FROM_SHIFT_ID,
+             h.TO_SHIFT_ID,
+             h.TO_DOCTOR_ID,
+             vws.StateName,
              h.VERSION
       FROM HANDOVERS h
       INNER JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
       LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
+      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
       WHERE h.FROM_DOCTOR_ID = :fromDoctorId AND h.TO_DOCTOR_ID = :toDoctorId
       ORDER BY h.INITIATED_AT DESC";
 
