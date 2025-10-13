@@ -35,8 +35,8 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient) - use pat-007 for test 1 to avoid conflicts
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-007");
+      // Get test data (shifts and patient)
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
       
       // Clean up any active handovers for this patient/shift/date to avoid constraint violations
       CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
@@ -185,8 +185,8 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient) - use pat-008 for test 2 to avoid conflicts
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-008");
+      // Get test data (shifts and patient)
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
       
       // Clean up any active handovers for this patient/shift/date to avoid constraint violations
       CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
@@ -263,8 +263,8 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
 
     try
     {
-      // Get test data (shifts and patient) - use pat-009 for test 3 to avoid conflicts
-      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync("pat-009");
+      // Get test data (shifts and patient)
+      var (fromShiftId, toShiftId, testPatientId) = await GetTestDataAsync();
       
       // Clean up any active handovers for this patient/shift/date to avoid constraint violations
       CleanupPatientActiveHandovers(testPatientId, fromShiftId, toShiftId);
@@ -334,8 +334,15 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
   // Helper Methods
   // ============================================================
 
-  private async Task<(string fromShiftId, string toShiftId, string patientId)> GetTestDataAsync(string? preferredPatientId = null)
+  private async Task<(string fromShiftId, string toShiftId, string patientId)> GetTestDataAsync()
   {
+    // Get units
+    var unitsResponse = await _client.GetAsync("/setup/units");
+    unitsResponse.EnsureSuccessStatusCode();
+    var units = await unitsResponse.Content.ReadFromJsonAsync<UnitsResponse>();
+    Assert.NotNull(units);
+    Assert.NotEmpty(units.Units);
+
     // Get shifts
     var shiftsResponse = await _client.GetAsync("/setup/shifts");
     shiftsResponse.EnsureSuccessStatusCode();
@@ -345,30 +352,19 @@ public class HandoverLifecycleEndpoints(CustomWebApplicationFactory<Program> fac
     var fromShiftId = shifts.Shifts[0].Id;
     var toShiftId = shifts.Shifts.Count > 1 ? shifts.Shifts[1].Id : shifts.Shifts[0].Id;
 
-    // Use preferred patient if specified, otherwise find one
-    string? testPatientId = preferredPatientId;
-    if (testPatientId == null)
+    // Find a unit with patients (avoid pat-001 which has seed data)
+    string? testPatientId = null;
+    foreach (var unit in units.Units)
     {
-      // Get units
-      var unitsResponse = await _client.GetAsync("/setup/units");
-      unitsResponse.EnsureSuccessStatusCode();
-      var units = await unitsResponse.Content.ReadFromJsonAsync<UnitsResponse>();
-      Assert.NotNull(units);
-      Assert.NotEmpty(units.Units);
-
-      // Find a unit with patients (avoid pat-001 which has seed data)
-      foreach (var unit in units.Units)
+      var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=10");
+      if (patientsResponse.IsSuccessStatusCode)
       {
-        var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=10");
-        if (patientsResponse.IsSuccessStatusCode)
+        var patientsData = await patientsResponse.Content.ReadFromJsonAsync<PatientsResponse>();
+        if (patientsData?.Patients != null && patientsData.Patients.Count > 0)
         {
-          var patientsData = await patientsResponse.Content.ReadFromJsonAsync<PatientsResponse>();
-          if (patientsData?.Patients != null && patientsData.Patients.Count > 0)
-          {
-            // Skip pat-001 to avoid seed data conflicts
-            testPatientId = patientsData.Patients.FirstOrDefault(p => p.Id != "pat-001")?.Id;
-            if (testPatientId != null) break;
-          }
+          // Skip pat-001 to avoid seed data conflicts
+          testPatientId = patientsData.Patients.FirstOrDefault(p => p.Id != "pat-001")?.Id;
+          if (testPatientId != null) break;
         }
       }
     }
