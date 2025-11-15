@@ -365,5 +365,3 @@ Para desarrollo, ejecuta en este orden:
    cd relevo-frontend && pnpm run dev
    ```
 
-¡Listo! Ahora deberías tener todo el proyecto RELEVO funcionando. 🎉
-
