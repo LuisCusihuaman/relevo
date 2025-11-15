@@ -38,6 +38,7 @@ interface MainContentProps {
 		component: FullscreenComponent,
 		autoEdit?: boolean,
 	) => void;
+	handleToggleSection?: (section: keyof ExpandedSections) => void;
 	syncStatus: SyncStatus;
 	setSyncStatus: (status: SyncStatus) => void;
 	setHandoverComplete: (complete: boolean) => void;
@@ -97,6 +98,7 @@ export function MainContent({
 	expandedSections,
 	handleOpenDiscussion,
 	handleOpenFullscreenEdit,
+	handleToggleSection,
 	syncStatus,
 	setSyncStatus,
 	setHandoverComplete,
@@ -172,24 +174,28 @@ export function MainContent({
 	};
 
 	return (
-		<div className="space-y-6">
-			{/* I-PASS Sections - Column Layout for Desktop */}
+		<div className="space-y-8">
+			{/* I-PASS Sections - Single Column Layout for Desktop */}
 			{layoutMode === "columns" ? (
-				<div className="hidden xl:grid xl:grid-cols-3 xl:gap-8">
-					{/* Left Column */}
-					<div className="xl:col-span-2 space-y-6">
+				<div className="hidden xl:block max-w-5xl mx-auto">
+					<div className="space-y-8">
 						{/* I - Illness Severity */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">I</span>
-									</div>
+						<Collapsible 
+							open={expandedSections.illness}
+							onOpenChange={() => handleToggleSection?.("illness")}
+						>
+							<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm">
+								<CollapsibleTrigger asChild>
+									<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white cursor-pointer hover:bg-blue-50 transition-colors">
+										<div className="flex items-center space-x-4">
+											<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+												<span className="font-bold text-white text-xl">I</span>
+											</div>
 									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
+										<h3 className="font-semibold text-gray-900 text-lg">
 											{t("mainContent:sections.illnessSeverity")}
 										</h3>
-										<p className="text-sm text-gray-600">
+										<p className="text-sm text-gray-600 mt-1">
 											{t("mainContent:sections.illnessSeverityDescription")}
 										</p>
 									</div>
@@ -225,26 +231,35 @@ export function MainContent({
 									</Tooltip>
 								</div>
 							</div>
-							<div className="p-6">
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<div className="p-8">
 								<IllnessSeverity
 									assignedPhysician={assignedPhysician}
 									currentUser={toPhysician(currentUser)}
 								/>
 							</div>
-						</div>
+						</CollapsibleContent>
+					</div>
+				</Collapsible>
 
 						{/* P - Patient Summary */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">P</span>
-									</div>
+						<Collapsible 
+							open={expandedSections.patient}
+							onOpenChange={() => handleToggleSection?.("patient")}
+						>
+							<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm">
+								<CollapsibleTrigger asChild>
+									<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white cursor-pointer hover:bg-blue-50 transition-colors">
+										<div className="flex items-center space-x-4">
+											<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+												<span className="font-bold text-white text-xl">P</span>
+											</div>
 									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
+										<h3 className="font-semibold text-gray-900 text-lg">
 											{t("mainContent:sections.patientSummary")}
 										</h3>
-										<p className="text-sm text-gray-600">
+										<p className="text-sm text-gray-600 mt-1">
 											{t("mainContent:sections.patientSummaryDescription")}
 										</p>
 									</div>
@@ -280,36 +295,47 @@ export function MainContent({
 									</Tooltip>
 								</div>
 							</div>
-							<PatientSummary
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								handoverStateName={handoverData.stateName}
-								patientData={patientData || undefined}
-								responsiblePhysician={{
-									id: handoverData.responsiblePhysicianId,
-									name: handoverData.responsiblePhysicianName,
-								}}
-								syncStatus={syncStatus}
-								onOpenThread={handleOpenDiscussion}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("patient-summary");
-								}}
-								onSyncStatusChange={setSyncStatus}
-							/>
-						</div>
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<div className="p-8">
+								<PatientSummary
+									currentUser={toPhysician(currentUser)}
+									handoverId={handoverData.id}
+									handoverStateName={handoverData.stateName}
+									patientData={patientData || undefined}
+									responsiblePhysician={{
+										id: handoverData.responsiblePhysicianId,
+										name: handoverData.responsiblePhysicianName,
+									}}
+									syncStatus={syncStatus}
+									onOpenThread={handleOpenDiscussion}
+									onRequestFullscreen={() => {
+										handleOpenFullscreenEdit("patient-summary");
+									}}
+									onSyncStatusChange={setSyncStatus}
+								/>
+							</div>
+						</CollapsibleContent>
+					</div>
+				</Collapsible>
 
 						{/* S - Current Situation */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">S</span>
-									</div>
+						<Collapsible 
+							open={expandedSections.awareness}
+							onOpenChange={() => handleToggleSection?.("awareness")}
+						>
+							<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm">
+								<CollapsibleTrigger asChild>
+									<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white cursor-pointer hover:bg-blue-50 transition-colors">
+										<div className="flex items-center space-x-4">
+											<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+												<span className="font-bold text-white text-xl">S</span>
+											</div>
 									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
+										<h3 className="font-semibold text-gray-900 text-lg">
 											{t("mainContent:sections.situationAwareness")}
 										</h3>
-										<p className="text-sm text-gray-600">
+										<p className="text-sm text-gray-600 mt-1">
 											{t("mainContent:sections.situationAwarenessDescription")}
 										</p>
 									</div>
@@ -345,95 +371,110 @@ export function MainContent({
 									</Tooltip>
 								</div>
 							</div>
-							<SituationAwareness
-								collaborators={[]}
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								syncStatus={syncStatus}
-								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("situation-awareness", true);
-								}}
-							/>
-						</div>
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<div className="p-8">
+								<SituationAwareness
+									collaborators={[]}
+									currentUser={toPhysician(currentUser)}
+									handoverId={handoverData.id}
+									syncStatus={syncStatus}
+									onOpenThread={handleOpenDiscussion}
+									onSyncStatusChange={setSyncStatus}
+									onRequestFullscreen={() => {
+										handleOpenFullscreenEdit("situation-awareness", true);
+									}}
+								/>
+							</div>
+						</CollapsibleContent>
 					</div>
+				</Collapsible>
 
-					{/* Right Column */}
-					<div className="xl:col-span-1 space-y-6">
 						{/* A - Action List */}
-						<div className=" top-32">
-							<div className="bg-white rounded-lg border border-gray-100">
-								<div className="p-4 border-b border-gray-100">
-									<div className="flex items-center space-x-3">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">A</span>
-										</div>
-										<div className="flex-1">
-											<h3 className="font-medium text-gray-900">
-												{t("mainContent:sections.actionList")}
-											</h3>
-											<p className="text-sm text-gray-600">
-												{t("mainContent:sections.actionListDescription")}
-											</p>
-										</div>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-													<Info className="w-4 h-4 text-gray-400" />
-												</button>
-											</TooltipTrigger>
-											<TooltipContent
-												className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-												side="top"
-											>
-												<div className="space-y-2">
-													<h4 className="font-medium text-gray-900 text-sm">
-														{ipassGuidelines.actions.title}
-													</h4>
-													<ul className="space-y-1 text-xs text-gray-600">
-														{ipassGuidelines.actions.points.map(
-															(point, index) => (
-																<li
-																	key={index}
-																	className="flex items-start space-x-1"
-																>
-																	<span className="text-gray-400 mt-0.5">•</span>
-																	<span>{point}</span>
-																</li>
-															)
-														)}
-													</ul>
-												</div>
-											</TooltipContent>
-										</Tooltip>
+						<Collapsible 
+							open={expandedSections.actions}
+							onOpenChange={() => handleToggleSection?.("actions")}
+						>
+							<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm">
+								<CollapsibleTrigger asChild>
+									<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white cursor-pointer hover:bg-blue-50 transition-colors">
+										<div className="flex items-center space-x-4">
+											<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+												<span className="font-bold text-white text-xl">A</span>
+											</div>
+									<div className="flex-1">
+										<h3 className="font-semibold text-gray-900 text-lg">
+											{t("mainContent:sections.actionList")}
+										</h3>
+										<p className="text-sm text-gray-600 mt-1">
+											{t("mainContent:sections.actionListDescription")}
+										</p>
 									</div>
-								</div>
-								<div className="p-6">
-									<ActionList
-										expanded
-										assignedPhysician={assignedPhysician}
-										collaborators={[]}
-										currentUser={toPhysician(currentUser)}
-										handoverId={handoverData?.id}
-										onOpenThread={handleOpenDiscussion}
-									/>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+												<Info className="w-4 h-4 text-gray-400" />
+											</button>
+										</TooltipTrigger>
+										<TooltipContent
+											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
+											side="top"
+										>
+											<div className="space-y-2">
+												<h4 className="font-medium text-gray-900 text-sm">
+													{ipassGuidelines.actions.title}
+												</h4>
+												<ul className="space-y-1 text-xs text-gray-600">
+													{ipassGuidelines.actions.points.map(
+														(point, index) => (
+															<li
+																key={index}
+																className="flex items-start space-x-1"
+															>
+																<span className="text-gray-400 mt-0.5">•</span>
+																<span>{point}</span>
+															</li>
+														)
+													)}
+												</ul>
+											</div>
+										</TooltipContent>
+									</Tooltip>
 								</div>
 							</div>
-						</div>
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<div className="p-8">
+								<ActionList
+									expanded
+									assignedPhysician={assignedPhysician}
+									collaborators={[]}
+									currentUser={toPhysician(currentUser)}
+									handoverId={handoverData?.id}
+									onOpenThread={handleOpenDiscussion}
+								/>
+							</div>
+						</CollapsibleContent>
+					</div>
+				</Collapsible>
 
 						{/* S - Synthesis by Receiver */}
-						<div className="bg-white rounded-lg border border-gray-100 mt-6">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-purple-700">S</span>
-									</div>
+						<Collapsible 
+							open={expandedSections.synthesis}
+							onOpenChange={() => handleToggleSection?.("synthesis")}
+						>
+							<div className="bg-white rounded-xl border-2 border-purple-100 shadow-sm">
+								<CollapsibleTrigger asChild>
+									<div className="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white cursor-pointer hover:bg-purple-50 transition-colors">
+										<div className="flex items-center space-x-4">
+											<div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center shadow-md">
+												<span className="font-bold text-white text-xl">S</span>
+											</div>
 									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
+										<h3 className="font-semibold text-gray-900 text-lg">
 											{t("mainContent:sections.synthesisByReceiver")}
 										</h3>
-										<p className="text-sm text-gray-600">
+										<p className="text-sm text-gray-600 mt-1">
 											{t(
 												"mainContent:sections.synthesisByReceiverDescription",
 											)}
@@ -471,7 +512,9 @@ export function MainContent({
 									</Tooltip>
 								</div>
 							</div>
-							<div className="p-6">
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<div className="p-8">
 								<SynthesisByReceiver
 									currentUser={toPhysician(currentUser)}
 									handoverComplete={handoverData.status === "Completed"}
@@ -483,28 +526,30 @@ export function MainContent({
 									onOpenThread={handleOpenDiscussion}
 								/>
 							</div>
-						</div>
+						</CollapsibleContent>
+					</div>
+				</Collapsible>
 					</div>
 				</div>
 			) : null}
 
 			{/* Single Column Layout - Subtle Borders & I-PASS Guidelines */}
 			<div
-				className={`space-y-3 ${layoutMode === "columns" ? "xl:hidden" : ""}`}
+				className={`space-y-6 ${layoutMode === "columns" ? "xl:hidden" : ""}`}
 			>
 				{/* I - Illness Severity */}
 				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+					<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm overflow-hidden">
 						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+							<div className="p-6 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">I</span>
+										<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+											<span className="font-bold text-white text-xl">I</span>
 										</div>
 										<div>
 											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
+												<h3 className="font-semibold text-gray-900 text-lg">
 													{t("mainContent:sections.illnessSeverity")}
 												</h3>
 												<Tooltip>
@@ -554,7 +599,7 @@ export function MainContent({
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<div className="p-6">
+							<div className="p-8">
 								<IllnessSeverity
 									assignedPhysician={assignedPhysician}
 									currentUser={toPhysician(currentUser)}
@@ -566,17 +611,17 @@ export function MainContent({
 
 				{/* P - Patient Summary */}
 				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+					<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm overflow-hidden">
 						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+							<div className="p-6 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">P</span>
+										<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+											<span className="font-bold text-white text-xl">P</span>
 										</div>
 										<div>
 											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
+												<h3 className="font-semibold text-gray-900 text-lg">
 													{t("mainContent:sections.patientSummary")}
 												</h3>
 												<Tooltip>
@@ -626,7 +671,7 @@ export function MainContent({
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<div className="p-6">
+							<div className="p-8">
 								<PatientSummary
 									currentUser={toPhysician(currentUser)}
 									handoverId={handoverData.id}
@@ -650,17 +695,17 @@ export function MainContent({
 
 				{/* A - Action List */}
 				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+					<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm overflow-hidden">
 						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+							<div className="p-6 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">A</span>
+										<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+											<span className="font-bold text-white text-xl">A</span>
 										</div>
 										<div>
 											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
+												<h3 className="font-semibold text-gray-900 text-lg">
 													{t("mainContent:sections.actionList")}
 												</h3>
 												<Tooltip>
@@ -710,7 +755,7 @@ export function MainContent({
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<div className="p-6">
+							<div className="p-8">
 								<ActionList
 									expanded
 									assignedPhysician={assignedPhysician}
@@ -726,17 +771,17 @@ export function MainContent({
 
 				{/* S - Current Situation */}
 				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+					<div className="bg-white rounded-xl border-2 border-blue-100 shadow-sm overflow-hidden">
 						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+							<div className="p-6 bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">S</span>
+										<div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+											<span className="font-bold text-white text-xl">S</span>
 										</div>
 										<div>
 											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
+												<h3 className="font-semibold text-gray-900 text-lg">
 													{t("mainContent:sections.situationAwareness")}
 												</h3>
 												<Tooltip>
@@ -788,34 +833,36 @@ export function MainContent({
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<SituationAwareness
-								collaborators={[]}
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								syncStatus={syncStatus}
-								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("situation-awareness", true);
-								}}
-							/>
+							<div className="p-8">
+								<SituationAwareness
+									collaborators={[]}
+									currentUser={toPhysician(currentUser)}
+									handoverId={handoverData.id}
+									syncStatus={syncStatus}
+									onOpenThread={handleOpenDiscussion}
+									onSyncStatusChange={setSyncStatus}
+									onRequestFullscreen={() => {
+										handleOpenFullscreenEdit("situation-awareness", true);
+									}}
+								/>
+							</div>
 						</CollapsibleContent>
 					</div>
 				</Collapsible>
 
 				{/* S - Synthesis by Receiver */}
 				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+					<div className="bg-white rounded-xl border-2 border-purple-100 shadow-sm overflow-hidden">
 						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+							<div className="p-6 bg-gradient-to-r from-purple-50 to-white border-b border-gray-200 cursor-pointer hover:bg-purple-50 transition-colors">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-purple-700">S</span>
+										<div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center shadow-md">
+											<span className="font-bold text-white text-xl">S</span>
 										</div>
 										<div>
 											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
+												<h3 className="font-semibold text-gray-900 text-lg">
 													{t("mainContent:sections.synthesisByReceiver")}
 												</h3>
 												<Tooltip>
@@ -867,7 +914,7 @@ export function MainContent({
 							</div>
 						</CollapsibleTrigger>
 						<CollapsibleContent>
-							<div className="p-6">
+							<div className="p-8">
 								<SynthesisByReceiver
 									currentUser={toPhysician(currentUser)}
 									handoverComplete={handoverData.status === "Completed"}

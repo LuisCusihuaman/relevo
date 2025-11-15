@@ -104,6 +104,10 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
     setSyncStatus(status);
   };
 
+  const handleToggleSection = useCallback((section: keyof ExpandedSections): void => {
+    setExpandedSections((previous) => ({ ...previous, [section]: !previous[section] }));
+  }, []);
+
   const handleNavigateToSection = (section: string): void => {
     if (layoutMode === "single") {
       setExpandedSections((previous) => ({ ...previous, [section]: true }));
@@ -298,6 +302,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
                 getSessionDuration={getSessionDuration}
                 handleOpenDiscussion={handleOpenDiscussion}
                 handleOpenFullscreenEdit={handleOpenFullscreenEdit}
+                handleToggleSection={handleToggleSection}
                 layoutMode={layoutMode}
                 setHandoverComplete={setHandoverComplete}
                 setSyncStatus={handleSyncStatusChange}
