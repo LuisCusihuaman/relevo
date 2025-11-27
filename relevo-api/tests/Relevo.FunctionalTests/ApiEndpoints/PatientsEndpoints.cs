@@ -32,7 +32,7 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
 
         // Verify we have patients from different units (based on test data)
         var patientIds = result.Items.Select(p => p.Id).ToList();
-        patientIds.Should().Contain(p => p.StartsWith("pat-"));
+        patientIds.Should().Contain(p => p.StartsWith("pat_test_"));
 
         // Verify we have at least the expected number of patients (35 in current test data)
         // Note: Integration tests may create additional test patients
