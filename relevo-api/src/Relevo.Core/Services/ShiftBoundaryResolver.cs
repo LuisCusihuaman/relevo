@@ -4,17 +4,17 @@ namespace Relevo.Core.Services;
 
 public class ShiftBoundaryResolver : IShiftBoundaryResolver
 {
-    private readonly ISetupRepository _setupRepository;
+    private readonly IShiftRepository _shiftRepository;
 
-    public ShiftBoundaryResolver(ISetupRepository setupRepository)
+    public ShiftBoundaryResolver(IShiftRepository shiftRepository)
     {
-        _setupRepository = setupRepository;
+        _shiftRepository = shiftRepository;
     }
 
     public (DateTime windowDate, string toShiftId) Resolve(DateTime now, string fromShiftId)
     {
         // This is a placeholder implementation.
-        var shifts = _setupRepository.GetShifts();
+        var shifts = _shiftRepository.GetShifts();
         var currentShift = shifts.FirstOrDefault(s => s.Id == fromShiftId);
         
         if (currentShift is null)

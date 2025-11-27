@@ -1,18 +1,19 @@
+using System.Collections.Generic;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Setup;
 
 public class GetShiftsUseCase
 {
-    private readonly ISetupRepository _repository;
+    private readonly IShiftRepository _repository;
 
-    public GetShiftsUseCase(ISetupRepository repository)
+    public GetShiftsUseCase(IShiftRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<IReadOnlyList<ShiftRecord>> ExecuteAsync()
+    public IReadOnlyList<ShiftRecord> Execute()
     {
-        return await Task.FromResult(_repository.GetShifts());
+        return _repository.GetShifts();
     }
 }

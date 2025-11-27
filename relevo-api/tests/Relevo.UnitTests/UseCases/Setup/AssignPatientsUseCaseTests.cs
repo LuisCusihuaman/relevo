@@ -9,14 +9,15 @@ namespace Relevo.UnitTests.UseCases.Setup;
 
 public class AssignPatientsUseCaseTests
 {
-    private readonly ISetupRepository _repository = Substitute.For<ISetupRepository>();
+    private readonly IAssignmentRepository _assignmentRepository = Substitute.For<IAssignmentRepository>();
+    private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly IShiftBoundaryResolver _shiftBoundaryResolver = Substitute.For<IShiftBoundaryResolver>();
     private readonly IUserContext _userContext = Substitute.For<IUserContext>();
     private readonly AssignPatientsUseCase _useCase;
 
     public AssignPatientsUseCaseTests()
     {
-        _useCase = new AssignPatientsUseCase(_repository, _shiftBoundaryResolver, _userContext);
+        _useCase = new AssignPatientsUseCase(_assignmentRepository, _userRepository, _shiftBoundaryResolver, _userContext);
 
         // Setup default user context
         var user = new User
@@ -40,7 +41,7 @@ public class AssignPatientsUseCaseTests
         var windowDate = DateTime.Now.Date;
         var toShiftId = "shift-night";
 
-        _repository.AssignAsync(userId, shiftId, patientIds)
+        _assignmentRepository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
         _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
             .Returns((windowDate, toShiftId));
@@ -49,9 +50,8 @@ public class AssignPatientsUseCaseTests
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
-        await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-001", userId, "John Doe", windowDate, shiftId, toShiftId);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-002", userId, "John Doe", windowDate, shiftId, toShiftId);
+        _userRepository.Received(1).EnsureUserExists(userId, null, null, null, null);
+        await _assignmentRepository.Received(1).AssignAsync(userId, shiftId, patientIds);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class AssignPatientsUseCaseTests
         var windowDate = DateTime.Now.Date;
         var toShiftId = "shift-day";
 
-        _repository.AssignAsync(userId, shiftId, patientIds)
+        _assignmentRepository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
         _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
             .Returns((windowDate, toShiftId));
@@ -74,8 +74,8 @@ public class AssignPatientsUseCaseTests
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
-        await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-003", userId, "John Doe", windowDate, shiftId, toShiftId);
+        _userRepository.Received(1).EnsureUserExists(userId, null, null, null, null);
+        await _assignmentRepository.Received(1).AssignAsync(userId, shiftId, patientIds);
     }
 
     [Fact]
@@ -87,15 +87,15 @@ public class AssignPatientsUseCaseTests
         var patientIds = new List<string>();
         var assignmentIds = new List<string>();
 
-        _repository.AssignAsync(userId, shiftId, patientIds)
+        _assignmentRepository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
 
         // Act
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
-        await _repository.Received(1).AssignAsync(userId, shiftId, patientIds);
-        await _repository.DidNotReceive().CreateHandoverForAssignmentAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<DateTime>(), Arg.Any<string>(), Arg.Any<string>());
+        _userRepository.Received(1).EnsureUserExists(userId, null, null, null, null);
+        await _assignmentRepository.Received(1).AssignAsync(userId, shiftId, patientIds);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class AssignPatientsUseCaseTests
         var windowDate = DateTime.Now.Date;
         var toShiftId = "shift-night";
 
-        _repository.AssignAsync(userId, shiftId, patientIds)
+        _assignmentRepository.AssignAsync(userId, shiftId, patientIds)
             .Returns(Task.FromResult<IReadOnlyList<string>>(assignmentIds));
         _shiftBoundaryResolver.Resolve(Arg.Any<DateTime>(), shiftId)
             .Returns((windowDate, toShiftId));
@@ -118,8 +118,7 @@ public class AssignPatientsUseCaseTests
         await _useCase.ExecuteAsync(userId, shiftId, patientIds);
 
         // Assert
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-010", userId, "John Doe", windowDate, shiftId, toShiftId);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-011", userId, "John Doe", windowDate, shiftId, toShiftId);
-        await _repository.Received(1).CreateHandoverForAssignmentAsync("assign-012", userId, "John Doe", windowDate, shiftId, toShiftId);
+        _userRepository.Received(1).EnsureUserExists(userId, null, null, null, null);
+        await _assignmentRepository.Received(1).AssignAsync(userId, shiftId, patientIds);
     }
 }

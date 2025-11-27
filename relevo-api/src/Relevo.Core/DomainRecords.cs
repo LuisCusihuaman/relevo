@@ -1,78 +1,6 @@
 namespace Relevo.Core.Interfaces;
 
-public interface ISetupRepository
-{
-    IReadOnlyList<UnitRecord> GetUnits();
-    IReadOnlyList<ShiftRecord> GetShifts();
-    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetPatientsByUnit(string unitId, int page, int pageSize);
-    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetAllPatients(int page, int pageSize);
-    PatientDetailRecord? GetPatientById(string patientId);
-    Task<IReadOnlyList<string>> AssignAsync(string userId, string shiftId, IEnumerable<string> patientIds);
-    void EnsureUserExists(string userId, string? email, string? firstName, string? lastName, string? fullName);
-    Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, string userName, DateTime windowDate, string fromShiftId, string toShiftId);
-    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetMyPatients(string userId, int page, int pageSize);
-    (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize);
-    (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize);
-    HandoverRecord? GetHandoverById(string handoverId);
-    IReadOnlyList<HandoverParticipantRecord> GetHandoverParticipants(string handoverId);
-    HandoverSyncStatusRecord? GetHandoverSyncStatus(string handoverId, string userId);
-    UserPreferencesRecord? GetUserPreferences(string userId);
-    IReadOnlyList<UserSessionRecord> GetUserSessions(string userId);
-    bool UpdateUserPreferences(string userId, UserPreferencesRecord preferences);
-
-    // Handover Messages
-    IReadOnlyList<HandoverMessageRecord> GetHandoverMessages(string handoverId);
-    HandoverMessageRecord CreateHandoverMessage(string handoverId, string userId, string userName, string messageText, string messageType);
-
-    // Handover Activity Log
-    IReadOnlyList<HandoverActivityItemRecord> GetHandoverActivityLog(string handoverId);
-
-    // Handover Checklists
-    IReadOnlyList<HandoverChecklistItemRecord> GetHandoverChecklists(string handoverId);
-    bool UpdateChecklistItem(string handoverId, string itemId, bool isChecked, string userId);
-
-    // Handover Contingency Plans
-    IReadOnlyList<HandoverContingencyPlanRecord> GetHandoverContingencyPlans(string handoverId);
-    HandoverContingencyPlanRecord CreateContingencyPlan(string handoverId, string conditionText, string actionText, string priority, string createdBy);
-    bool DeleteContingencyPlan(string handoverId, string contingencyId);
-
-    // Action Items
-    IReadOnlyList<HandoverActionItemRecord> GetHandoverActionItems(string handoverId);
-    string CreateHandoverActionItem(string handoverId, string description, string priority);
-    bool UpdateHandoverActionItem(string handoverId, string itemId, bool isCompleted);
-    bool DeleteHandoverActionItem(string handoverId, string itemId);
-
-    // Patient Summaries
-    PatientSummaryRecord? GetPatientSummary(string patientId);
-    PatientSummaryRecord CreatePatientSummary(string patientId, string physicianId, string summaryText, string createdBy);
-    bool UpdatePatientSummary(string summaryId, string summaryText, string lastEditedBy);
-
-    Task<bool> StartHandover(string handoverId, string userId);
-    Task<bool> ReadyHandover(string handoverId, string userId);
-    Task<bool> AcceptHandover(string handoverId, string userId);
-    Task<bool> CompleteHandover(string handoverId, string userId);
-    Task<bool> CancelHandover(string handoverId, string userId);
-    Task<bool> RejectHandover(string handoverId, string userId, string reason);
-
-    // Optimistic locking overloads (with version parameter)
-    Task<bool> StartHandover(string handoverId, string userId, int expectedVersion);
-    Task<bool> ReadyHandover(string handoverId, string userId, int expectedVersion);
-    Task<bool> AcceptHandover(string handoverId, string userId, int expectedVersion);
-    Task<bool> CompleteHandover(string handoverId, string userId, int expectedVersion);
-    Task<bool> CancelHandover(string handoverId, string userId, int expectedVersion);
-    Task<bool> RejectHandover(string handoverId, string userId, string reason, int expectedVersion);
-
-    // Singleton Sections
-    Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId);
-    Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
-    Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId);
-
-    Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId);
-    Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
-    Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
-}
-
-// Domain Records
+// Extracted records from ISetupRepository
 public record UnitRecord(string Id, string Name);
 public record ShiftRecord(string Id, string Name, string StartTime, string EndTime);
 public record PatientRecord(
@@ -180,17 +108,6 @@ public record HandoverParticipantRecord(
     string Status,
     DateTime JoinedAt,
     DateTime LastActivity
-);
-
-public record HandoverSectionRecord(
-    string Id,
-    string HandoverId,
-    string SectionType,
-    string? Content,
-    string Status,
-    string? LastEditedBy,
-    DateTime CreatedAt,
-    DateTime UpdatedAt
 );
 
 public record HandoverSyncStatusRecord(

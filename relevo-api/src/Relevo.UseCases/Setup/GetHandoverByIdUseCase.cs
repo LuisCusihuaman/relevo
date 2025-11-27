@@ -1,12 +1,13 @@
+using System.Threading.Tasks;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Setup;
 
 public class GetHandoverByIdUseCase
 {
-    private readonly ISetupRepository _repository;
+    private readonly IHandoverRepository _repository;
 
-    public GetHandoverByIdUseCase(ISetupRepository repository)
+    public GetHandoverByIdUseCase(IHandoverRepository repository)
     {
         _repository = repository;
     }

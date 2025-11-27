@@ -31,7 +31,8 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         {
             var (fromShiftId, toShiftId, patientId) = await GetTestDataAsync();
             
-            // No cleanup needed - we use pat-002 which doesn't have seed data conflicts
+            // Ensure clean state
+            CleanupPatientHandovers(patientId, fromShiftId, toShiftId);
 
             var request = new CreateHandoverRequestDto
             {
@@ -88,7 +89,8 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         {
             var (fromShiftId, toShiftId, patientId) = await GetTestDataAsync();
             
-            // No cleanup needed - we use pat-002 which doesn't have seed data conflicts
+            // Ensure clean state
+            CleanupPatientHandovers(patientId, fromShiftId, toShiftId);
 
             // Create first handover
             var request1 = new CreateHandoverRequestDto
@@ -158,8 +160,11 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         try
         {
             var (shift1Id, shift2Id, patientId) = await GetTestDataAsync();
-            var shifts = await GetAllShiftsAsync();
+            
+            // Ensure clean state
+            CleanupPatientHandovers(patientId, shift1Id, shift2Id);
 
+            var shifts = await GetAllShiftsAsync();
             if (shifts.Count < 3)
             {
                 // Skip test if not enough shifts
@@ -167,6 +172,9 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
             }
 
             var shift3Id = shifts[2].Id;
+            
+            // Ensure clean state for second transition too
+            CleanupPatientHandovers(patientId, shift2Id, shift3Id);
 
             // Create Day->Evening handover
             var request1 = new CreateHandoverRequestDto
@@ -224,8 +232,10 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
 
         string? testPatientId = null;
 
-        // Find a unit with patients, but skip pat-001 since it has seed data
-        foreach (var unit in units.Units)
+        // Find a unit with patients (prefer unit-3 to avoid seed data conflicts)
+        var orderedUnits = units.Units.OrderByDescending(u => u.Id == "unit-3").ThenBy(u => u.Id).ToList();
+
+        foreach (var unit in orderedUnits)
         {
             var patientsResponse = await _client.GetAsync($"/units/{unit.Id}/patients?page=1&pageSize=10");
             if (patientsResponse.IsSuccessStatusCode)
@@ -233,14 +243,14 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
                 var patientsResult = await patientsResponse.Content.ReadFromJsonAsync<PatientListResponse>();
                 if (patientsResult?.Patients?.Any() == true)
                 {
-                    // Use pat-002 or any patient other than pat-001 to avoid seed data conflicts
-                    testPatientId = patientsResult.Patients.FirstOrDefault(p => p.Id != "pat-001")?.Id;
+                    testPatientId = patientsResult.Patients.FirstOrDefault()?.Id;
+                    Console.WriteLine($"[HandoverConstraintTests] Selected Patient: {testPatientId} from Unit: {unit.Id}");
                     if (testPatientId != null) break;
                 }
             }
         }
 
-        Assert.NotNull(testPatientId);
+        Assert.NotNull(testPatientId); // Ensure we found a patient
 
         // Get shifts
         var shiftsResponse = await _client.GetAsync("/setup/shifts");
@@ -250,7 +260,7 @@ public class HandoverConstraintTests(CustomWebApplicationFactory<Program> factor
         Assert.NotNull(shifts.Shifts);
         Assert.True(shifts.Shifts.Count >= 2, "Need at least 2 shifts for testing");
 
-        return (shifts.Shifts[0].Id, shifts.Shifts[1].Id, testPatientId);
+        return (shifts.Shifts[0].Id, shifts.Shifts[1].Id, testPatientId!);
     }
 
     private async Task<List<ShiftItem>> GetAllShiftsAsync()

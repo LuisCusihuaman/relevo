@@ -4,9 +4,9 @@ namespace Relevo.Core.Services;
 
 public class HandoverStateService : IHandoverStateService
 {
-    private readonly ISetupRepository _repository;
+    private readonly IHandoverRepository _repository;
 
-    public HandoverStateService(ISetupRepository repository)
+    public HandoverStateService(IHandoverRepository repository)
     {
         _repository = repository;
     }

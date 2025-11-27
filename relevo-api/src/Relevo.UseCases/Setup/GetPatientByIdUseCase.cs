@@ -1,12 +1,13 @@
+using System.Threading.Tasks;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Setup;
 
 public class GetPatientByIdUseCase
 {
-    private readonly ISetupRepository _repository;
+    private readonly IPatientRepository _repository;
 
-    public GetPatientByIdUseCase(ISetupRepository repository)
+    public GetPatientByIdUseCase(IPatientRepository repository)
     {
         _repository = repository;
     }

@@ -1,21 +1,19 @@
+using System.Collections.Generic;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Setup;
 
 public class GetMyPatientsUseCase
 {
-    private readonly ISetupRepository _repository;
+    private readonly IAssignmentRepository _repository;
 
-    public GetMyPatientsUseCase(ISetupRepository repository)
+    public GetMyPatientsUseCase(IAssignmentRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> ExecuteAsync(
-        string userId,
-        int page,
-        int pageSize)
+    public (IReadOnlyList<PatientRecord> Patients, int TotalCount) Execute(string userId, int page, int pageSize)
     {
-        return await Task.FromResult(_repository.GetMyPatients(userId, page, pageSize));
+        return _repository.GetMyPatients(userId, page, pageSize);
     }
 }

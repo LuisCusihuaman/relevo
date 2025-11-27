@@ -1,18 +1,19 @@
+using System.Collections.Generic;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Setup;
 
 public class GetUnitsUseCase
 {
-    private readonly ISetupRepository _repository;
+    private readonly IUnitRepository _repository;
 
-    public GetUnitsUseCase(ISetupRepository repository)
+    public GetUnitsUseCase(IUnitRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<IReadOnlyList<UnitRecord>> ExecuteAsync()
+    public IReadOnlyList<UnitRecord> Execute()
     {
-        return await Task.FromResult(_repository.GetUnits());
+        return _repository.GetUnits();
     }
 }

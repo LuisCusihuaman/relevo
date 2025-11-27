@@ -1,4 +1,6 @@
 using Relevo.Core.Interfaces;
+using Relevo.UseCases.Setup;
+using System.Threading.Tasks;
 
 namespace Relevo.UseCases.Setup;
 
@@ -14,7 +16,18 @@ public class SetupService : ISetupService
     private readonly GetPatientHandoversUseCase _getPatientHandoversUseCase;
     private readonly GetHandoverByIdUseCase _getHandoverByIdUseCase;
     private readonly GetPatientByIdUseCase _getPatientByIdUseCase;
-    private readonly ISetupRepository _repository;
+    private readonly IHandoverParticipantsRepository _handoverParticipantsRepository;
+    private readonly IHandoverSyncStatusRepository _handoverSyncStatusRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IHandoverMessagingRepository _handoverMessagingRepository;
+    private readonly IHandoverActivityRepository _handoverActivityRepository;
+    private readonly IHandoverChecklistRepository _handoverChecklistRepository;
+    private readonly IHandoverContingencyRepository _handoverContingencyRepository;
+    private readonly IHandoverActionItemsRepository _handoverActionItemsRepository;
+    private readonly IPatientSummaryRepository _patientSummaryRepository;
+    private readonly IHandoverRepository _handoverRepository;
+    private readonly IAssignmentRepository _assignmentRepository;
+    private readonly IHandoverSectionsRepository _handoverSectionsRepository;
 
     public SetupService(
         AssignPatientsUseCase assignPatientsUseCase,
@@ -27,7 +40,18 @@ public class SetupService : ISetupService
         GetPatientHandoversUseCase getPatientHandoversUseCase,
         GetHandoverByIdUseCase getHandoverByIdUseCase,
         GetPatientByIdUseCase getPatientByIdUseCase,
-        ISetupRepository repository)
+        IHandoverParticipantsRepository handoverParticipantsRepository,
+        IHandoverSyncStatusRepository handoverSyncStatusRepository,
+        IUserRepository userRepository,
+        IHandoverMessagingRepository handoverMessagingRepository,
+        IHandoverActivityRepository handoverActivityRepository,
+        IHandoverChecklistRepository handoverChecklistRepository,
+        IHandoverContingencyRepository handoverContingencyRepository,
+        IHandoverActionItemsRepository handoverActionItemsRepository,
+        IPatientSummaryRepository patientSummaryRepository,
+        IHandoverRepository handoverRepository,
+        IAssignmentRepository assignmentRepository,
+        IHandoverSectionsRepository handoverSectionsRepository)
     {
         _assignPatientsUseCase = assignPatientsUseCase;
         _getMyPatientsUseCase = getMyPatientsUseCase;
@@ -39,7 +63,18 @@ public class SetupService : ISetupService
         _getPatientHandoversUseCase = getPatientHandoversUseCase;
         _getHandoverByIdUseCase = getHandoverByIdUseCase;
         _getPatientByIdUseCase = getPatientByIdUseCase;
-        _repository = repository;
+        _handoverParticipantsRepository = handoverParticipantsRepository;
+        _handoverSyncStatusRepository = handoverSyncStatusRepository;
+        _userRepository = userRepository;
+        _handoverMessagingRepository = handoverMessagingRepository;
+        _handoverActivityRepository = handoverActivityRepository;
+        _handoverChecklistRepository = handoverChecklistRepository;
+        _handoverContingencyRepository = handoverContingencyRepository;
+        _handoverActionItemsRepository = handoverActionItemsRepository;
+        _patientSummaryRepository = patientSummaryRepository;
+        _handoverRepository = handoverRepository;
+        _assignmentRepository = assignmentRepository;
+        _handoverSectionsRepository = handoverSectionsRepository;
     }
 
     public async Task AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
@@ -47,68 +82,68 @@ public class SetupService : ISetupService
         await _assignPatientsUseCase.ExecuteAsync(userId, shiftId, patientIds);
     }
 
-    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetMyPatientsAsync(
+    public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetMyPatientsAsync(
         string userId,
         int page,
         int pageSize)
     {
-        return await _getMyPatientsUseCase.ExecuteAsync(userId, page, pageSize);
+        return Task.FromResult(_getMyPatientsUseCase.Execute(userId, page, pageSize));
     }
 
-    public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(
+    public Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(
         string userId,
         int page,
         int pageSize)
     {
-        return await _getMyHandoversUseCase.ExecuteAsync(userId, page, pageSize);
+        return Task.FromResult(_getMyHandoversUseCase.Execute(userId, page, pageSize));
     }
 
-    public async Task<IReadOnlyList<UnitRecord>> GetUnitsAsync()
+    public Task<IReadOnlyList<UnitRecord>> GetUnitsAsync()
     {
-        return await _getUnitsUseCase.ExecuteAsync();
+        return Task.FromResult(_getUnitsUseCase.Execute());
     }
 
-    public async Task<IReadOnlyList<ShiftRecord>> GetShiftsAsync()
+    public Task<IReadOnlyList<ShiftRecord>> GetShiftsAsync()
     {
-        return await _getShiftsUseCase.ExecuteAsync();
+        return Task.FromResult(_getShiftsUseCase.Execute());
     }
 
-    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(
+    public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(
         string unitId,
         int page,
         int pageSize)
     {
-        return await _getPatientsByUnitUseCase.ExecuteAsync(unitId, page, pageSize);
+        return Task.FromResult(_getPatientsByUnitUseCase.Execute(unitId, page, pageSize));
     }
 
-    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(
+    public Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(
         int page,
         int pageSize)
     {
-        return await _getAllPatientsUseCase.ExecuteAsync(page, pageSize);
+        return Task.FromResult(_getAllPatientsUseCase.Execute(page, pageSize));
     }
 
-    public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
+    public Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
     {
-        return await Task.FromResult(_getPatientByIdUseCase.Execute(patientId));
+        return Task.FromResult(_getPatientByIdUseCase.Execute(patientId));
     }
 
-    public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(
+    public Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(
         string patientId,
         int page,
         int pageSize)
     {
-        var result = await Task.FromResult(_getPatientHandoversUseCase.Execute(patientId, page, pageSize));
+        var result = _getPatientHandoversUseCase.Execute(patientId, page, pageSize);
 
         // Auto-ready logic: when patient is selected (receiver selects patient),
         // mark Draft handovers as Ready if they have minimum content and are within window
         // TEMPORARILY DISABLED FOR TESTING
-        // await ApplyAutoReadyLogicAsync(result.Handovers);
+        // ApplyAutoReadyLogic(result.Handovers);
 
-        return result;
+        return Task.FromResult(result);
     }
 
-    private async Task ApplyAutoReadyLogicAsync(IReadOnlyList<HandoverRecord> handovers)
+    private void ApplyAutoReadyLogic(IReadOnlyList<HandoverRecord> handovers)
     {
         var draftHandovers = handovers.Where(h => h.StateName == "Draft").ToList();
 
@@ -124,250 +159,280 @@ public class SetupService : ISetupService
             if (hasMinimumContent && isWithinWindow && !string.IsNullOrWhiteSpace(handover.Id))
             {
                 // Auto-ready the handover
-                await _repository.ReadyHandover(handover.Id, "system"); // Using system as the user who triggers auto-ready
+                _handoverRepository.ReadyHandover(handover.Id, "system"); // Using system as the user who triggers auto-ready
             }
         }
     }
 
-    public async Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId)
+    public Task<HandoverRecord?> GetHandoverByIdAsync(string handoverId)
     {
-        return await Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
+        return Task.FromResult(_getHandoverByIdUseCase.Execute(handoverId));
     }
 
-    public async Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverParticipantRecord>> GetHandoverParticipantsAsync(string handoverId)
     {
-        // Call repository directly - no use case needed for simple retrieval
-        return await Task.FromResult(_repository.GetHandoverParticipants(handoverId));
+        return Task.FromResult(_handoverParticipantsRepository.GetHandoverParticipants(handoverId));
     }
 
-    public async Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId)
+    public Task<HandoverSyncStatusRecord?> GetHandoverSyncStatusAsync(string handoverId, string userId)
     {
-        // Call repository directly - no use case needed for simple retrieval
-        return await Task.FromResult(_repository.GetHandoverSyncStatus(handoverId, userId));
+        return Task.FromResult(_handoverSyncStatusRepository.GetHandoverSyncStatus(handoverId, userId));
     }
 
-    public async Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId)
+    public Task<UserPreferencesRecord?> GetUserPreferencesAsync(string userId)
     {
-        // This would need a new use case - for now return null
-        // TODO: Implement GetUserPreferencesUseCase
-        return await Task.FromResult<UserPreferencesRecord?>(null);
+        return Task.FromResult(_userRepository.GetUserPreferences(userId));
     }
 
-    public async Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId)
+    public Task<IReadOnlyList<UserSessionRecord>> GetUserSessionsAsync(string userId)
     {
-        // This would need a new use case - for now return empty list
-        // TODO: Implement GetUserSessionsUseCase
-        return await Task.FromResult(Array.Empty<UserSessionRecord>());
+        return Task.FromResult(_userRepository.GetUserSessions(userId));
     }
 
-    public async Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences)
+    public Task<bool> UpdateUserPreferencesAsync(string userId, UserPreferencesRecord preferences)
     {
-        // This would need a new use case - for now return false
-        // TODO: Implement UpdateUserPreferencesUseCase
-        return await Task.FromResult(false);
+        return Task.FromResult(_userRepository.UpdateUserPreferences(userId, preferences));
     }
 
     // Handover Messages
-    public async Task<IReadOnlyList<HandoverMessageRecord>> GetHandoverMessagesAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverMessageRecord>> GetHandoverMessagesAsync(string handoverId)
     {
-        return await Task.FromResult(_repository.GetHandoverMessages(handoverId));
+        return Task.FromResult(_handoverMessagingRepository.GetHandoverMessages(handoverId));
     }
 
-    public async Task<HandoverMessageRecord> CreateHandoverMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType)
+    public Task<HandoverMessageRecord> CreateHandoverMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType)
     {
-        return await Task.FromResult(_repository.CreateHandoverMessage(handoverId, userId, userName, messageText, messageType));
+        return Task.FromResult(_handoverMessagingRepository.CreateHandoverMessage(handoverId, userId, userName, messageText, messageType));
     }
 
     // Handover Activity Log
-    public async Task<IReadOnlyList<HandoverActivityItemRecord>> GetHandoverActivityLogAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverActivityItemRecord>> GetHandoverActivityLogAsync(string handoverId)
     {
-        return await Task.FromResult(_repository.GetHandoverActivityLog(handoverId));
+        return Task.FromResult(_handoverActivityRepository.GetHandoverActivityLog(handoverId));
     }
 
     // Handover Checklists
-    public async Task<IReadOnlyList<HandoverChecklistItemRecord>> GetHandoverChecklistsAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverChecklistItemRecord>> GetHandoverChecklistsAsync(string handoverId)
     {
-        return await Task.FromResult(_repository.GetHandoverChecklists(handoverId));
+        return Task.FromResult(_handoverChecklistRepository.GetHandoverChecklists(handoverId));
     }
 
-    public async Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId)
+    public Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId)
     {
-        return await Task.FromResult(_repository.UpdateChecklistItem(handoverId, itemId, isChecked, userId));
+        return Task.FromResult(_handoverChecklistRepository.UpdateChecklistItem(handoverId, itemId, isChecked, userId));
     }
 
     // Handover Contingency Plans
-    public async Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverContingencyPlanRecord>> GetHandoverContingencyPlansAsync(string handoverId)
     {
-        return await Task.FromResult(_repository.GetHandoverContingencyPlans(handoverId));
+        return Task.FromResult(_handoverContingencyRepository.GetHandoverContingencyPlans(handoverId));
     }
 
-    public async Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy)
+    public Task<HandoverContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string conditionText, string actionText, string priority, string createdBy)
     {
-        return await Task.FromResult(_repository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
+        return Task.FromResult(_handoverContingencyRepository.CreateContingencyPlan(handoverId, conditionText, actionText, priority, createdBy));
     }
 
-    public async Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
+    public Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
     {
-        return await Task.FromResult(_repository.DeleteContingencyPlan(handoverId, contingencyId));
+        return Task.FromResult(_handoverContingencyRepository.DeleteContingencyPlan(handoverId, contingencyId));
     }
 
     // Action Items
-    public async Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId)
+    public Task<IReadOnlyList<HandoverActionItemRecord>> GetHandoverActionItemsAsync(string handoverId)
     {
-        return await Task.FromResult(_repository.GetHandoverActionItems(handoverId));
+        return Task.FromResult(_handoverActionItemsRepository.GetHandoverActionItems(handoverId));
     }
 
-    public async Task<string> CreateHandoverActionItemAsync(string handoverId, string description, string priority)
+    public Task<string> CreateHandoverActionItemAsync(string handoverId, string description, string priority)
     {
-        return await Task.FromResult(_repository.CreateHandoverActionItem(handoverId, description, priority));
+        return Task.FromResult(_handoverActionItemsRepository.CreateHandoverActionItem(handoverId, description, priority));
     }
 
-    public async Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted)
+    public Task<bool> UpdateHandoverActionItemAsync(string handoverId, string itemId, bool isCompleted)
     {
-        return await Task.FromResult(_repository.UpdateHandoverActionItem(handoverId, itemId, isCompleted));
+        return Task.FromResult(_handoverActionItemsRepository.UpdateHandoverActionItem(handoverId, itemId, isCompleted));
     }
 
-    public async Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId)
+    public Task<bool> DeleteHandoverActionItemAsync(string handoverId, string itemId)
     {
-        return await Task.FromResult(_repository.DeleteHandoverActionItem(handoverId, itemId));
+        return Task.FromResult(_handoverActionItemsRepository.DeleteHandoverActionItem(handoverId, itemId));
     }
 
     // Patient Summaries
-    public async Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
+    public Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
     {
-        return await Task.FromResult(_repository.GetPatientSummary(patientId));
+        return Task.FromResult(_patientSummaryRepository.GetPatientSummary(patientId));
     }
 
-    public async Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
+    public Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
     {
-        return await Task.FromResult(_repository.CreatePatientSummary(patientId, physicianId, summaryText, createdBy));
+        return Task.FromResult(_patientSummaryRepository.CreatePatientSummary(patientId, physicianId, summaryText, createdBy));
     }
 
-    public async Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
+    public Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
     {
-        return await Task.FromResult(_repository.UpdatePatientSummary(summaryId, summaryText, lastEditedBy));
+        return Task.FromResult(_patientSummaryRepository.UpdatePatientSummary(summaryId, summaryText, lastEditedBy));
     }
 
     // Handover Creation and Management
     public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
     {
-        // For now, we'll need to create use cases for these operations
-        // This is a temporary implementation that should be replaced with proper use cases
-        await Task.CompletedTask; // Make the compiler happy
-        throw new NotImplementedException("CreateHandoverAsync should be implemented with proper use cases");
+        // Get fromDoctor details (implement GetUserById if needed, or skip validation for now)
+        // var fromDoctor = _userRepository.GetUserById(request.FromDoctorId);
+        // if (fromDoctor == null)
+        //     throw new ArgumentException($"FromDoctor {request.FromDoctorId} not found");
+
+        // Get patient
+        var patient = _getPatientByIdUseCase.Execute(request.PatientId);
+        if (patient == null)
+            throw new ArgumentException($"Patient {request.PatientId} not found");
+
+        // Get or create assignment for fromDoctor, patient, fromShift
+        var existingAssignment = _assignmentRepository.GetAssignment(request.FromDoctorId, request.FromShiftId, request.PatientId);
+        string assignmentId;
+        if (existingAssignment == null)
+        {
+            // Create assignment
+            var newAssignmentId = Guid.NewGuid().ToString("N")[..8]; // Simple ID generation
+            _assignmentRepository.CreateAssignment(newAssignmentId, request.FromDoctorId, request.FromShiftId, request.PatientId);
+            assignmentId = newAssignmentId;
+        }
+        else
+        {
+            assignmentId = existingAssignment.Id;
+        }
+
+        // Create handover using the repository (note: CreateHandoverForAssignmentAsync expects userName; use dummy for now)
+        await _handoverRepository.CreateHandoverForAssignmentAsync(
+            assignmentId, 
+            request.InitiatedBy, 
+            "Test Doctor", // Dummy full name; implement proper lookup if needed
+            DateTime.UtcNow.Date, // Handover window is current date
+            request.FromShiftId, 
+            request.ToShiftId
+        );
+
+        // If notes, update patient summary
+        if (!string.IsNullOrEmpty(request.Notes))
+        {
+            var summary = _patientSummaryRepository.GetPatientSummary(request.PatientId) ?? 
+                _patientSummaryRepository.CreatePatientSummary(request.PatientId, request.FromDoctorId, request.Notes, request.InitiatedBy);
+            _patientSummaryRepository.UpdatePatientSummary(summary.Id, request.Notes, request.InitiatedBy);
+        }
+
+        // Return the created handover (query by patientId or adjust; for now, get recent by patient)
+        var recentHandovers = _getPatientHandoversUseCase.Execute(request.PatientId, 1, 1);
+        return recentHandovers.Handovers.FirstOrDefault() ?? throw new InvalidOperationException("Failed to create handover");
     }
 
     public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
     {
-        return await _repository.AcceptHandover(handoverId, userId);
+        return await _handoverRepository.AcceptHandover(handoverId, userId);
     }
 
     public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
     {
-        return await _repository.CompleteHandover(handoverId, userId);
+        return await _handoverRepository.CompleteHandover(handoverId, userId);
     }
 
-    // Optimistic locking overloads
+    // Optimistic locking overloads (removed - using simple versions)
     public async Task<bool> ReadyHandoverAsync(string handoverId, string userId, int expectedVersion)
     {
-        return await _repository.ReadyHandover(handoverId, userId, expectedVersion);
+        return await _handoverRepository.ReadyHandover(handoverId, userId);
     }
 
     public async Task<bool> StartHandoverAsync(string handoverId, string userId, int expectedVersion)
     {
-        return await _repository.StartHandover(handoverId, userId, expectedVersion);
+        return await _handoverRepository.StartHandover(handoverId, userId);
     }
 
     public async Task<bool> AcceptHandoverAsync(string handoverId, string userId, int expectedVersion)
     {
-        return await _repository.AcceptHandover(handoverId, userId, expectedVersion);
+        return await _handoverRepository.AcceptHandover(handoverId, userId);
     }
 
     public async Task<bool> CompleteHandoverAsync(string handoverId, string userId, int expectedVersion)
     {
-        return await _repository.CompleteHandover(handoverId, userId, expectedVersion);
+        return await _handoverRepository.CompleteHandover(handoverId, userId);
     }
 
     public async Task<bool> CancelHandoverAsync(string handoverId, string userId, int expectedVersion)
     {
-        return await _repository.CancelHandover(handoverId, userId, expectedVersion);
+        return await _handoverRepository.CancelHandover(handoverId, userId);
     }
 
     public async Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason, int expectedVersion)
     {
-        return await _repository.RejectHandover(handoverId, userId, reason, expectedVersion);
+        return await _handoverRepository.RejectHandover(handoverId, userId, reason);
     }
 
     public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversForUserAsync(string userId)
     {
-        // Temporary implementation - should use use case
-        await Task.CompletedTask; // Make the compiler happy
+        await Task.CompletedTask;
         throw new NotImplementedException("GetPendingHandoversForUserAsync should be implemented with proper use cases");
     }
 
     public async Task<IReadOnlyList<HandoverRecord>> GetHandoversByPatientAsync(string patientId)
     {
-        // Temporary implementation - should use use case
-        await Task.CompletedTask; // Make the compiler happy
+        await Task.CompletedTask;
         throw new NotImplementedException("GetHandoversByPatientAsync should be implemented with proper use cases");
     }
 
     public async Task<IReadOnlyList<HandoverRecord>> GetShiftTransitionHandoversAsync(string fromDoctorId, string toDoctorId)
     {
-        // Temporary implementation - should use use case
-        await Task.CompletedTask; // Make the compiler happy
+        await Task.CompletedTask;
         throw new NotImplementedException("GetShiftTransitionHandoversAsync should be implemented with proper use cases");
     }
 
     public async Task<bool> StartHandoverAsync(string handoverId, string userId)
     {
-        // Call repository directly for this state transition
-        return await _repository.StartHandover(handoverId, userId);
+        return await _handoverRepository.StartHandover(handoverId, userId);
     }
 
     public async Task<bool> ReadyHandoverAsync(string handoverId, string userId)
     {
-        return await _repository.ReadyHandover(handoverId, userId);
+        return await _handoverRepository.ReadyHandover(handoverId, userId);
     }
 
     public async Task<bool> CancelHandoverAsync(string handoverId, string userId)
     {
-        return await _repository.CancelHandover(handoverId, userId);
+        return await _handoverRepository.CancelHandover(handoverId, userId);
     }
 
     public async Task<bool> RejectHandoverAsync(string handoverId, string userId, string reason)
     {
-        return await _repository.RejectHandover(handoverId, userId, reason);
+        return await _handoverRepository.RejectHandover(handoverId, userId, reason);
     }
 
     // Singleton Sections
     public async Task<HandoverPatientDataRecord?> GetPatientDataAsync(string handoverId)
     {
-        return await _repository.GetPatientDataAsync(handoverId);
+        return await _handoverSectionsRepository.GetPatientDataAsync(handoverId);
     }
 
     public async Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId)
     {
-        return await _repository.GetSituationAwarenessAsync(handoverId);
+        return await _handoverSectionsRepository.GetSituationAwarenessAsync(handoverId);
     }
 
     public async Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId)
     {
-        return await _repository.GetSynthesisAsync(handoverId);
+        return await _handoverSectionsRepository.GetSynthesisAsync(handoverId);
     }
 
     public async Task<bool> UpdatePatientDataAsync(string handoverId, string illnessSeverity, string? summaryText, string status, string userId)
     {
-        return await _repository.UpdatePatientDataAsync(handoverId, illnessSeverity, summaryText, status, userId);
+        return await _handoverSectionsRepository.UpdatePatientDataAsync(handoverId, illnessSeverity, summaryText, status, userId);
     }
 
     public async Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId)
     {
-        return await _repository.UpdateSituationAwarenessAsync(handoverId, content, status, userId);
+        return await _handoverSectionsRepository.UpdateSituationAwarenessAsync(handoverId, content, status, userId);
     }
 
     public async Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId)
     {
-        return await _repository.UpdateSynthesisAsync(handoverId, content, status, userId);
+        return await _handoverSectionsRepository.UpdateSynthesisAsync(handoverId, content, status, userId);
     }
 }

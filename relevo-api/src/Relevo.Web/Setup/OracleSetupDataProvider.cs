@@ -82,35 +82,38 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     int p = Math.Max(page, 1);
     int ps = Math.Max(pageSize, 1);
     int offset = (p - 1) * ps;
+    int maxRow = p * ps;
 
     const string patientsSql = @"
-      SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
-      FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
-      CASE
-        WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
-        WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
-        WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
-        WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
-        WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
-        WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
-        WHEN h.READY_AT IS NOT NULL THEN 'Ready'
-        ELSE 'Draft'
-      END AS Status,
-      hpd.ILLNESS_SEVERITY AS Severity
-      FROM PATIENTS p
-      INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
-      LEFT JOIN (
-        SELECT ID AS HANDOVER_ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
-               ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
-        FROM HANDOVERS
-      ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
-      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.HANDOVER_ID = hpd.HANDOVER_ID
-      WHERE ua.USER_ID = :userId
-      ORDER BY p.ID
-      OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+      SELECT Id, Name, HandoverStatus, HandoverId, Age, Room, Diagnosis, Status, Severity FROM (
+        SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
+        FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+        CASE
+          WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
+          WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
+          WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
+          WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
+          WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
+          WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
+          WHEN h.READY_AT IS NOT NULL THEN 'Ready'
+          ELSE 'Draft'
+        END AS Status,
+        hpd.ILLNESS_SEVERITY AS Severity,
+        ROWNUM as rn
+        FROM PATIENTS p
+        INNER JOIN USER_ASSIGNMENTS ua ON p.ID = ua.PATIENT_ID
+        LEFT JOIN (
+          SELECT ID AS HANDOVER_ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+                 ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
+          FROM HANDOVERS
+        ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+        LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.HANDOVER_ID = hpd.HANDOVER_ID
+        WHERE ua.USER_ID = :userId
+        ORDER BY p.ID
+      ) WHERE rn > :offset AND rn <= :maxRow";
 
     var patients = conn.Query<PatientRecord>(patientsSql,
-        new { userId, offset, pageSize });
+        new { userId, offset, maxRow });
 
     return (patients.ToList(), total);
   }
@@ -137,42 +140,45 @@ public class OracleSetupDataProvider(IOracleConnectionFactory _factory) : ISetup
     int p = Math.Max(page, 1);
     int ps = Math.Max(pageSize, 1);
     int offset = (p - 1) * ps;
+    int maxRow = p * ps;
 
     const string handoverSql = @"
-      SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
-             h.STATUS,
-             hpd.ILLNESS_SEVERITY,
-             hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
-             hsyn.CONTENT as SYNTHESIS,
-             h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
-             COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
-             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
-             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
-             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
-             TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
-             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
-             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
-             TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
-             h.REJECTION_REASON,
-             TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
-             h.HANDOVER_TYPE,
-             h.HANDOVER_WINDOW_DATE,
-             h.FROM_SHIFT_ID,
-             h.TO_SHIFT_ID,
-             h.TO_DOCTOR_ID,
-             vws.StateName,
-             h.VERSION
-      FROM HANDOVERS h
-      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
-      LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
-      LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-      LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
-      WHERE h.PATIENT_ID IN :patientIds
-      ORDER BY h.CREATED_AT DESC
-      OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+      SELECT * FROM (
+        SELECT h.ID, h.ASSIGNMENT_ID, h.PATIENT_ID, p.NAME as PATIENT_NAME,
+               h.STATUS,
+               hpd.ILLNESS_SEVERITY,
+               hpd.SUMMARY_TEXT as PATIENT_SUMMARY,
+               hsyn.CONTENT as SYNTHESIS,
+               h.SHIFT_NAME, h.CREATED_BY, h.TO_DOCTOR_ID as ASSIGNED_TO, h.RECEIVER_USER_ID,
+               COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) AS RESPONSIBLE_PHYSICIAN_ID,
+               TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+               TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as READY_AT,
+               TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as STARTED_AT,
+               TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACKNOWLEDGED_AT,
+               TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as ACCEPTED_AT,
+               TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as COMPLETED_AT,
+               TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CANCELLED_AT,
+               TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as REJECTED_AT,
+               h.REJECTION_REASON,
+               TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as EXPIRED_AT,
+               h.HANDOVER_TYPE,
+               h.HANDOVER_WINDOW_DATE,
+               h.FROM_SHIFT_ID,
+               h.TO_SHIFT_ID,
+               h.TO_DOCTOR_ID,
+               vws.StateName,
+               h.VERSION,
+               ROWNUM as rn
+        FROM HANDOVERS h
+        LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+        LEFT JOIN HANDOVER_SYNTHESIS hsyn ON h.ID = hsyn.HANDOVER_ID
+        LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+        LEFT JOIN VW_HANDOVERS_STATE vws ON h.ID = vws.HandoverId
+        WHERE h.PATIENT_ID IN :patientIds
+        ORDER BY h.CREATED_AT DESC
+      ) WHERE rn > :offset AND rn <= :maxRow";
 
-    var handoverRows = conn.Query(handoverSql, new { patientIds, offset, pageSize }).ToList();
+    var handoverRows = conn.Query(handoverSql, new { patientIds, offset, maxRow }).ToList();
 
     // Get action items for each handover
     var handovers = new List<HandoverRecord>();

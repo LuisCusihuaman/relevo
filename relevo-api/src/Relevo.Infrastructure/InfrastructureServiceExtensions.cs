@@ -29,8 +29,22 @@ public static class InfrastructureServiceExtensions
 
     // Always use Oracle implementations
 
-    // Always use Oracle setup repository
-    services.AddScoped<ISetupRepository, Repositories.OracleSetupRepository>();
+    // Register new repositories
+    services.AddScoped<IUnitRepository, Persistence.Oracle.Repositories.OracleUnitRepository>();
+    services.AddScoped<IShiftRepository, Persistence.Oracle.Repositories.OracleShiftRepository>();
+    services.AddScoped<IPatientRepository, Persistence.Oracle.Repositories.OraclePatientRepository>();
+    services.AddScoped<IAssignmentRepository, Persistence.Oracle.Repositories.OracleAssignmentRepository>();
+    services.AddScoped<IHandoverRepository, Persistence.Oracle.Repositories.OracleHandoverRepository>();
+    services.AddScoped<IHandoverSectionsRepository, Persistence.Oracle.Repositories.OracleHandoverSectionsRepository>();
+    services.AddScoped<IHandoverMessagingRepository, Persistence.Oracle.Repositories.OracleHandoverMessagingRepository>();
+    services.AddScoped<IHandoverActivityRepository, Persistence.Oracle.Repositories.OracleHandoverActivityRepository>();
+    services.AddScoped<IHandoverChecklistRepository, Persistence.Oracle.Repositories.OracleHandoverChecklistRepository>();
+    services.AddScoped<IHandoverContingencyRepository, Persistence.Oracle.Repositories.OracleHandoverContingencyRepository>();
+    services.AddScoped<IHandoverActionItemsRepository, Persistence.Oracle.Repositories.OracleHandoverActionItemsRepository>();
+    services.AddScoped<IHandoverParticipantsRepository, Persistence.Oracle.Repositories.OracleHandoverParticipantsRepository>();
+    services.AddScoped<IHandoverSyncStatusRepository, Persistence.Oracle.Repositories.OracleHandoverSyncStatusRepository>();
+    services.AddScoped<IUserRepository, Persistence.Oracle.Repositories.OracleUserRepository>();
+    services.AddScoped<IPatientSummaryRepository, Persistence.Oracle.Repositories.OraclePatientSummaryRepository>();
 
     // Setup Use Cases
     services.AddScoped<Relevo.UseCases.Setup.AssignPatientsUseCase>();
