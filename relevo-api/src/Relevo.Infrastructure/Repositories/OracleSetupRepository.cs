@@ -67,7 +67,7 @@ public class OracleSetupRepository : ISetupRepository
             FROM HANDOVERS
           ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
           LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
-          WHERE p.RN BETWEEN :startRow AND :endRow";
+          WHERE p.RN BETWEEN :startRow AND :endRow ORDER BY p.RN ASC";
 
         int total = conn.ExecuteScalar<int>(countSql, new { unitId });
         int startRow = ((p - 1) * ps) + 1;
@@ -82,30 +82,34 @@ public class OracleSetupRepository : ISetupRepository
         int p = Math.Max(page, 1);
         int ps = Math.Max(pageSize, 1);
         const string countSql = "SELECT COUNT(1) FROM PATIENTS";
-        const string pageSql = @"SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
-          CAST(FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS NUMBER) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
-          CASE
-            WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
-            WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
-            WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
-            WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
-            WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
-            WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
-            WHEN h.READY_AT IS NOT NULL THEN 'Ready'
-            ELSE 'Draft'
-          END AS Status,
-          hpd.ILLNESS_SEVERITY AS Severity
-          FROM (
-            SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
-            FROM PATIENTS
-          ) p
-          LEFT JOIN (
-            SELECT ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
-                   ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
-            FROM HANDOVERS
-          ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
-          LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
-          WHERE p.RN BETWEEN :startRow AND :endRow";
+        const string pageSql = @"
+SELECT * FROM (
+  SELECT p.ID AS Id, p.NAME AS Name, 'NotStarted' AS HandoverStatus, CAST(NULL AS VARCHAR(255)) AS HandoverId,
+    CAST(FLOOR((SYSDATE - p.DATE_OF_BIRTH)/365.25) AS NUMBER) AS Age, p.ROOM_NUMBER AS Room, p.DIAGNOSIS AS Diagnosis,
+    CASE
+      WHEN h.STATUS = 'Completed' AND h.COMPLETED_AT IS NOT NULL THEN 'Completed'
+      WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
+      WHEN h.REJECTED_AT IS NOT NULL THEN 'Rejected'
+      WHEN h.EXPIRED_AT IS NOT NULL THEN 'Expired'
+      WHEN h.ACCEPTED_AT IS NOT NULL THEN 'Accepted'
+      WHEN h.STARTED_AT IS NOT NULL THEN 'InProgress'
+      WHEN h.READY_AT IS NOT NULL THEN 'Ready'
+      ELSE 'Draft'
+    END AS Status,
+    hpd.ILLNESS_SEVERITY AS Severity
+  FROM (
+    SELECT ID, NAME, DATE_OF_BIRTH, ROOM_NUMBER, DIAGNOSIS, ROW_NUMBER() OVER (ORDER BY ID) AS RN
+    FROM PATIENTS
+  ) p
+  LEFT JOIN (
+    SELECT ID, PATIENT_ID, STATUS, COMPLETED_AT, CANCELLED_AT, REJECTED_AT, EXPIRED_AT, ACCEPTED_AT, STARTED_AT, READY_AT,
+           ROW_NUMBER() OVER (PARTITION BY PATIENT_ID ORDER BY CREATED_AT DESC) AS rn
+    FROM HANDOVERS
+  ) h ON p.ID = h.PATIENT_ID AND h.rn = 1
+  LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+  WHERE p.RN BETWEEN :startRow AND :endRow
+) ordered_patients
+ORDER BY ordered_patients.Id ASC";
 
         int total = conn.ExecuteScalar<int>(countSql);
         int startRow = ((p - 1) * ps) + 1;

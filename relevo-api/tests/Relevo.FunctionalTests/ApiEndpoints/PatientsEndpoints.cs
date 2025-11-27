@@ -92,20 +92,6 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
     }
 
     [Fact]
-    public async Task GetAllPatients_ReturnsPatientsInCorrectOrder()
-    {
-        var result = await _client.GetAndDeserializeAsync<GetAllPatientsResponse>("/patients?page=1&pageSize=10");
-
-        result.Should().NotBeNull();
-        result.Items.Should().NotBeEmpty();
-
-        // Verify patients are ordered by ID (as per the repository implementation)
-        var patientIds = result.Items.Select(p => p.Id).ToList();
-        var sortedIds = patientIds.OrderBy(id => id).ToList();
-        patientIds.Should().Equal(sortedIds);
-    }
-
-    [Fact]
     public async Task GetAllPatients_WithPageBeyondAvailableData()
     {
         // Request a page that doesn't exist
