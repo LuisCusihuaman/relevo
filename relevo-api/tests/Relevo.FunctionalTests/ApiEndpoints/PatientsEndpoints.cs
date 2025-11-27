@@ -122,8 +122,8 @@ public class PatientsEndpoints(CustomWebApplicationFactory<Program> factory) : I
     [Fact]
     public async Task GetAllPatients_WithLargePageSize()
     {
-        // Request all patients in one page
-        var route = "/patients?page=1&pageSize=100";
+        // Request all patients in one page with a sufficiently large page size
+        var route = "/patients?page=1&pageSize=1000";
         var result = await _client.GetAndDeserializeAsync<GetAllPatientsResponse>(route);
 
         result.Should().NotBeNull();
