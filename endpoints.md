@@ -16,7 +16,7 @@ Generated from `swagger.json`.
 ### Shift-Check-In
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
-| [ ] | `GET` | `/shift-check-in/shifts` | Get shifts |
+| [x] | `GET` | `/shift-check-in/shifts` | Get shifts |
 | [ ] | `GET` | `/shift-check-in/units` | Get units |
 
 ### Patients

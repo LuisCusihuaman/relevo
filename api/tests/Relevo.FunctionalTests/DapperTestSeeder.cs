@@ -112,6 +112,34 @@ public class DapperTestSeeder(IConfiguration configuration)
             (:Id, :Name, :Description, SYSTIMESTAMP, SYSTIMESTAMP)",
             new { Id = "unit-1", Name = "UCI", Description = "Unidad de Cuidados Intensivos" });
 
+        // Create SHIFTS table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE SHIFTS (
+                    ID VARCHAR2(50) NOT NULL,
+                    NAME VARCHAR2(100) NOT NULL,
+                    START_TIME VARCHAR2(5) NOT NULL,
+                    END_TIME VARCHAR2(5) NOT NULL,
+                    CREATED_AT TIMESTAMP,
+                    UPDATED_AT TIMESTAMP,
+                    CONSTRAINT PK_SHIFTS PRIMARY KEY (ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Clean SHIFTS
+        connection.Execute("DELETE FROM SHIFTS");
+
+        // Seed Shifts
+        connection.Execute(@"
+            INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME, CREATED_AT, UPDATED_AT) VALUES
+            (:Id, :Name, :StartTime, :EndTime, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { Id = "shift-day", Name = "Mañana", StartTime = "07:00", EndTime = "15:00" });
+
+        connection.Execute(@"
+            INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME, CREATED_AT, UPDATED_AT) VALUES
+            (:Id, :Name, :StartTime, :EndTime, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { Id = "shift-night", Name = "Noche", StartTime = "19:00", EndTime = "07:00" });
+
         // Seed Patients
         connection.Execute(@"
             INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT) VALUES
