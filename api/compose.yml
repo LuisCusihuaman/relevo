@@ -1,0 +1,12 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:11-slim
+    container_name: xe11
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: TuPass123
+      APP_USER: RELEVO_APP
+      APP_USER_PASSWORD: TuPass123
+    volumes:
+      - ./src/Relevo.Infrastructure/Data/Sql:/container-entrypoint-initdb.d
