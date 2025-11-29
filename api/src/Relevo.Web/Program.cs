@@ -4,8 +4,13 @@ using FastEndpoints.Swagger;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using Relevo.Core.Interfaces;
+using Relevo.Web.Auth;
 
 try { OracleConfiguration.BindByName = true; } catch { }
+
+// Load .env file if it exists (search upwards)
+DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +31,10 @@ var appLogger = new SerilogLoggerFactory(logger)
 builder.Services.AddOptionConfigs(builder.Configuration, appLogger, builder);
 builder.Services.AddServiceConfigs(appLogger, builder);
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddClerkAuthentication(builder.Configuration);
+
 builder.Services.AddFastEndpoints()
                 .SwaggerDocument(o =>
                 {
@@ -33,6 +42,9 @@ builder.Services.AddFastEndpoints()
                 });
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 await app.UseAppMiddleware();
 

@@ -6,6 +6,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using Relevo.FunctionalTests.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 
 namespace Relevo.FunctionalTests;
 
@@ -55,7 +59,19 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     builder
         .ConfigureServices(services =>
         {
-          // Configure test dependencies here
+          // Remove real Clerk authentication configuration
+          var descriptors = services.Where(d => 
+              d.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>)).ToList();
+          
+          foreach (var d in descriptors)
+          {
+              services.Remove(d);
+          }
+          
+          // Add test authentication
+          services.AddAuthentication(TestAuthHandler.SchemeName)
+              .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                  TestAuthHandler.SchemeName, null);
         });
   }
 }
