@@ -1,0 +1,3405 @@
+{
+  "x-generator": "NSwag v14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Relevo.Web",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001"
+    }
+  ],
+  "paths": {
+    "/units/{unitId}/patients": {
+      "get": {
+        "tags": [
+          "Units"
+        ],
+        "operationId": "RelevoWebUnitsGetPatientsByUnit",
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientsByUnitResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift-check-in/shifts": {
+      "get": {
+        "tags": [
+          "Shift-Check-In"
+        ],
+        "operationId": "RelevoWebShiftCheckInGetShifts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shift-check-in/units": {
+      "get": {
+        "tags": [
+          "Shift-Check-In"
+        ],
+        "operationId": "RelevoWebShiftCheckInGetUnits",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetAllPatients",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllPatientsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients/{patientId}": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientByIdEndpoint",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientByIdResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients/{patientId}/handovers": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientHandoversEndpoint",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientHandoversResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients/{patientId}/summary": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsCreatePatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreatePatientSummaryRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePatientSummaryRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePatientSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsUpdatePatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdatePatientSummaryRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatientSummaryRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePatientSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/assignments": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMePostAssignments",
+        "requestBody": {
+          "x-name": "PostAssignmentsRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostAssignmentsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/action-items/{itemId}": {
+      "delete": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeDeleteHandoverActionItemEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteHandoverActionItemResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeUpdateHandoverActionItemEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateHandoverActionItemRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHandoverActionItemRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateHandoverActionItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/action-items": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverActionItemsEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverActionItemsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateHandoverActionItemEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateHandoverActionItemRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverActionItemRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverActionItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/activity": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverActivityEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverActivityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/checklists": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverChecklistsEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverChecklistsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/checklists/{itemId}": {
+      "put": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeUpdateChecklistItemEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateChecklistItemRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateChecklistItemRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateChecklistItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/contingency-plans": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverContingencyEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverContingencyResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateContingencyPlanEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateContingencyPlanRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContingencyPlanRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateContingencyPlanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers/{handoverId}/messages": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverMessagesEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverMessagesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateHandoverMessageEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateHandoverMessageRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverMessageRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/handovers": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyHandoversEndpoint",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyHandoversResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/patients": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyPatients",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyPatientsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/profile": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyProfileEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/accept": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversAcceptHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "AcceptHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/cancel": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCancelHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CancelHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/complete": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCompleteHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CompleteHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/contingency-plans/{contingencyId}": {
+      "delete": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversDeleteContingencyPlan",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contingencyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteContingencyPlanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/contingency-plans": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetContingencyPlans",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetContingencyPlansResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCreateContingencyPlan",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateContingencyPlanRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContingencyPlanRequest2"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateContingencyPlanResponse2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCreateHandoverEndpoint",
+        "requestBody": {
+          "x-name": "CreateHandoverRequestDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetHandoverByIdEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverByIdResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/patient": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "summary": "Returns all patient-related data for a handover.\nThis endpoint provides patient demographics, physician assignments, and medical status.\nConsolidates what was previously split between /patient and /patient-data.\nPhysicians get real shift times from USER_ASSIGNMENTS + SHIFTS tables and status based on handover state.",
+        "operationId": "RelevoWebHandoversGetPatientHandoverDataEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientHandoverDataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/pending": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetPendingHandoversEndpoint",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPendingHandoversResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/patient-data": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetPatientData",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientDataResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutPatientData",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "PutPatientDataRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutPatientDataRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{id}/ready": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversReadyHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "ReadyHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadyHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/reject": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversRejectHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "RejectHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RejectHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/situation-awareness": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetSituationAwareness",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSituationAwarenessResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutSituationAwareness",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "PutSituationAwarenessRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutSituationAwarenessRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/start": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversStartHandoverEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "StartHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartHandoverResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handovers/{handoverId}/synthesis": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetSynthesis",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSynthesisResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutSynthesis",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "PutSynthesisRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutSynthesisRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetPatientsByUnitResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientRecord"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PatientRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "room": {
+            "type": "string"
+          },
+          "diagnosis": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "severity": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetPatientsByUnitRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ShiftListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shifts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShiftItem"
+            }
+          }
+        }
+      },
+      "ShiftItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "UnitListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnitItem"
+            }
+          }
+        }
+      },
+      "UnitItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAllPatientsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientSummaryCard"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "PatientSummaryCard": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaginationInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPagesComputed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageOrCurrentPage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetAllPatientsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientByIdResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "admissionDate": {
+            "type": "string"
+          },
+          "currentUnit": {
+            "type": "string"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "diagnosis": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "medications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverRecord"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "HandoverRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assignmentId": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "illnessSeverity": {
+            "$ref": "#/components/schemas/HandoverIllnessSeverity"
+          },
+          "patientSummary": {
+            "$ref": "#/components/schemas/HandoverPatientSummary"
+          },
+          "situationAwarenessDocId": {
+            "type": "string",
+            "nullable": true
+          },
+          "synthesis": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/HandoverSynthesis"
+              }
+            ]
+          },
+          "shiftName": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "assignedTo": {
+            "type": "string"
+          },
+          "createdByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignedToName": {
+            "type": "string",
+            "nullable": true
+          },
+          "receiverUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "responsiblePhysicianId": {
+            "type": "string"
+          },
+          "responsiblePhysicianName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "acknowledgedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "acceptedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejectedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiredAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverType": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverWindowDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fromShiftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "toShiftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "toDoctorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HandoverIllnessSeverity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "severity": {
+            "type": "string"
+          }
+        }
+      },
+      "HandoverPatientSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "HandoverSynthesis": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientHandoversRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summary": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PatientSummaryDto"
+              }
+            ]
+          }
+        }
+      },
+      "PatientSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "physicianId": {
+            "type": "string"
+          },
+          "summaryText": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastEditedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreatePatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/PatientSummaryDto"
+          }
+        }
+      },
+      "CreatePatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summaryText": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summaryText": {
+            "type": "string"
+          }
+        }
+      },
+      "PostAssignmentsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shiftId": {
+            "type": "string"
+          },
+          "patientIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DeleteHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeleteHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetHandoverActionItemsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "actionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverActionItemRecord"
+            }
+          }
+        }
+      },
+      "HandoverActionItemRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "GetHandoverActionItemsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "actionItemId": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetHandoverActivityResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverActivityItemRecord"
+            }
+          }
+        }
+      },
+      "HandoverActivityItemRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "activityType": {
+            "type": "string"
+          },
+          "activityDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionAffected": {
+            "type": "string",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetHandoverActivityRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetHandoverChecklistsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checklists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverChecklistItemRecord"
+            }
+          }
+        }
+      },
+      "HandoverChecklistItemRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "itemCategory": {
+            "type": "string"
+          },
+          "itemLabel": {
+            "type": "string"
+          },
+          "itemDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isChecked": {
+            "type": "boolean"
+          },
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetHandoverChecklistsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateChecklistItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateChecklistItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isChecked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetHandoverContingencyResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contingencyPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverContingencyPlanRecord"
+            }
+          }
+        }
+      },
+      "HandoverContingencyPlanRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetHandoverContingencyRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateContingencyPlanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "contingencyPlan": {
+            "$ref": "#/components/schemas/HandoverContingencyPlanRecord"
+          }
+        }
+      },
+      "CreateContingencyPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "GetHandoverMessagesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverMessageRecord"
+            }
+          }
+        }
+      },
+      "HandoverMessageRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "messageText": {
+            "type": "string"
+          },
+          "messageType": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetHandoverMessagesRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateHandoverMessageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "$ref": "#/components/schemas/HandoverMessageRecord"
+          }
+        }
+      },
+      "CreateHandoverMessageRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messageText": {
+            "type": "string"
+          },
+          "messageType": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetMyHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverRecord"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "GetMyHandoversRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMyPatientsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientSummaryCard2"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "PatientSummaryCard2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetMyPatientsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMyProfileResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AcceptHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AcceptHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "CancelHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "CancelHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "CompleteHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "CompleteHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteContingencyPlanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "DeleteContingencyPlanRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetContingencyPlansResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContingencyPlanDto"
+            }
+          }
+        }
+      },
+      "ContingencyPlanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetContingencyPlansRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateContingencyPlanResponse2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/ContingencyPlanDto"
+          }
+        }
+      },
+      "CreateContingencyPlanRequest2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "fromDoctorId": {
+            "type": "string"
+          },
+          "toDoctorId": {
+            "type": "string"
+          },
+          "fromShiftId": {
+            "type": "string"
+          },
+          "toShiftId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateHandoverRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patientId": {
+            "type": "string"
+          },
+          "fromDoctorId": {
+            "type": "string"
+          },
+          "toDoctorId": {
+            "type": "string"
+          },
+          "fromShiftId": {
+            "type": "string"
+          },
+          "toShiftId": {
+            "type": "string"
+          },
+          "initiatedBy": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetHandoverByIdResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assignmentId": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "responsiblePhysicianId": {
+            "type": "string"
+          },
+          "responsiblePhysicianName": {
+            "type": "string"
+          },
+          "illnessSeverity": {
+            "$ref": "#/components/schemas/GetHandoverByIdResponse_IllnessSeverityDto"
+          },
+          "patientSummary": {
+            "$ref": "#/components/schemas/GetHandoverByIdResponse_PatientSummaryDto"
+          },
+          "situationAwarenessDocId": {
+            "type": "string",
+            "nullable": true
+          },
+          "synthesis": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetHandoverByIdResponse_SynthesisDto"
+              }
+            ]
+          },
+          "shiftName": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "assignedTo": {
+            "type": "string"
+          },
+          "receiverUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "acknowledgedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "acceptedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejectedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiredAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverType": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverWindowDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromShiftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "toShiftId": {
+            "type": "string",
+            "nullable": true
+          },
+          "toDoctorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetHandoverByIdResponse_ActionItemDto"
+            }
+          }
+        }
+      },
+      "GetHandoverByIdResponse_IllnessSeverityDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "severity": {
+            "type": "string"
+          }
+        }
+      },
+      "GetHandoverByIdResponse_PatientSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "GetHandoverByIdResponse_SynthesisDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "GetHandoverByIdResponse_ActionItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetHandoverByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientHandoverDataResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "admissionDate": {
+            "type": "string"
+          },
+          "currentDateTime": {
+            "type": "string"
+          },
+          "primaryTeam": {
+            "type": "string"
+          },
+          "primaryDiagnosis": {
+            "type": "string"
+          },
+          "room": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "assignedPhysician": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetPatientHandoverDataResponse_PhysicianDto"
+              }
+            ]
+          },
+          "receivingPhysician": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetPatientHandoverDataResponse_PhysicianDto"
+              }
+            ]
+          },
+          "illnessSeverity": {
+            "type": "string",
+            "nullable": true
+          },
+          "summaryText": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetPatientHandoverDataResponse_PhysicianDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "shiftEnd": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "patientAssignment": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientHandoverDataRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPendingHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "handovers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverSummaryDto"
+            }
+          }
+        }
+      },
+      "HandoverSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "illnessSeverity": {
+            "type": "string"
+          },
+          "shiftName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPendingHandoversRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientDataResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patientData": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PatientDataDto"
+              }
+            ]
+          }
+        }
+      },
+      "PatientDataDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "handoverId": {
+            "type": "string"
+          },
+          "illnessSeverity": {
+            "type": "string",
+            "nullable": true
+          },
+          "summaryText": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetPatientDataRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ApiResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PutPatientDataRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "illnessSeverity": {
+            "type": "string"
+          },
+          "summaryText": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "ReadyHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "RejectHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "RejectHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "GetSituationAwarenessResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "section": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SituationAwarenessSectionDto"
+              }
+            ]
+          }
+        }
+      },
+      "SituationAwarenessSectionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "handoverId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetSituationAwarenessRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "PutSituationAwarenessRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "StartHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "StartHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "GetSynthesisResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "synthesis": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SynthesisDto"
+              }
+            ]
+          }
+        }
+      },
+      "SynthesisDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "handoverId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetSynthesisRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "PutSynthesisRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
