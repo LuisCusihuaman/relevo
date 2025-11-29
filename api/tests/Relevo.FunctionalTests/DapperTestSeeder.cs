@@ -285,6 +285,21 @@ public class DapperTestSeeder(IConfiguration configuration)
                 )");
         } catch (OracleException e) when (e.Number == 955) {}
 
+        // Create HANDOVER_ACTION_ITEMS table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE HANDOVER_ACTION_ITEMS (
+                    ID VARCHAR2(50) PRIMARY KEY,
+                    HANDOVER_ID VARCHAR2(50) NOT NULL,
+                    DESCRIPTION VARCHAR2(500) NOT NULL,
+                    IS_COMPLETED NUMBER(1) DEFAULT 0, -- 0 = false, 1 = true
+                    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    COMPLETED_AT TIMESTAMP,
+                    CONSTRAINT FK_ACTION_ITEMS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
         // Seed Handovers
         try {
             connection.Execute(@"
@@ -305,5 +320,18 @@ public class DapperTestSeeder(IConfiguration configuration)
              // Console.WriteLine(e.Message); // Helpful for debug, but avoiding console spam in tool output
              if (e.Number != 1 && e.Number != 2291) throw; // Re-throw unexpected errors
         } 
+
+        // Seed Action Items
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED, CREATED_AT, UPDATED_AT) VALUES
+                (:Id, :HandoverId, :Description, :IsCompleted, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new { 
+                    Id = "item-001", 
+                    HandoverId = "hvo-001", 
+                    Description = "Check blood pressure",
+                    IsCompleted = 0
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
     }
 }
