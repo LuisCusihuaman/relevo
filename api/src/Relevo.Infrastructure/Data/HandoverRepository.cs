@@ -421,6 +421,33 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     return result;
   }
 
+  public async Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId)
+  {
+    try
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        const string sql = @"
+            MERGE INTO HANDOVER_SYNTHESIS s
+            USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (s.HANDOVER_ID = src.HANDOVER_ID)
+            WHEN MATCHED THEN
+                UPDATE SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+                VALUES (:handoverId, :content, :status, :userId, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+        var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, content, status, userId });
+        return rowsAffected > 0;
+    }
+    catch (Exception)
+    {
+        // Log error?
+        // If FK violation (handover doesn't exist), it might throw.
+        // For MERGE, if handover doesn't exist in HANDOVERS table, the INSERT might fail due to FK constraint if defined.
+        // Assuming FK exists on HANDOVER_SYNTHESIS.HANDOVER_ID -> HANDOVERS.ID
+        return false;
+    }
+  }
+
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
   {
       // Get Name

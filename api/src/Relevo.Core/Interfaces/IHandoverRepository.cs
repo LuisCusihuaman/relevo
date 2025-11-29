@@ -12,5 +12,7 @@ namespace Relevo.Core.Interfaces;
         Task<ContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string condition, string action, string priority, string createdBy);
         Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId);
         Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId);
+        Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
+        Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
     }
 
