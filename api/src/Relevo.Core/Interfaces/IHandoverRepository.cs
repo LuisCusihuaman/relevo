@@ -15,4 +15,5 @@ public interface IHandoverRepository
     Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
     Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
     Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
+    Task<bool> MarkAsReadyAsync(string handoverId, string userId);
 }

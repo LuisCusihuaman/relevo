@@ -504,6 +504,20 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     }
   }
 
+  public async Task<bool> MarkAsReadyAsync(string handoverId, string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        UPDATE HANDOVERS
+        SET STATUS = 'Ready', 
+            READY_AT = SYSTIMESTAMP, 
+            UPDATED_AT = SYSTIMESTAMP
+        WHERE ID = :handoverId";
+
+    var rows = await conn.ExecuteAsync(sql, new { handoverId });
+    return rows > 0;
+  }
+
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
   {
       // Get Name

@@ -49,13 +49,13 @@ Generated from `swagger.json`.
 | [ ] | `GET` | `/handovers/pending` | Get pending handovers |
 | [ ] | `GET` | `/handovers/{handoverId}/patient-data` | Get patient clinical data |
 | [ ] | `PUT` | `/handovers/{handoverId}/patient-data` | Update patient clinical data |
-| [ ] | `POST` | `/handovers/{id}/ready` | Mark handover as ready |
+| [x] | `POST` | `/handovers/{id}/ready` | Mark handover as ready |
 | [ ] | `POST` | `/handovers/{handoverId}/reject` | Reject handover |
 | [x] | `GET` | `/handovers/{handoverId}/situation-awareness` | Get situation awareness |
 | [x] | `PUT` | `/handovers/{handoverId}/situation-awareness` | Update situation awareness |
 | [ ] | `POST` | `/handovers/{handoverId}/start` | Start handover |
-| [ ] | `GET` | `/handovers/{handoverId}/synthesis` | Get synthesis |
-| [ ] | `PUT` | `/handovers/{handoverId}/synthesis` | Update synthesis |
+| [x] | `GET` | `/handovers/{handoverId}/synthesis` | Get synthesis |
+| [x] | `PUT` | `/handovers/{handoverId}/synthesis` | Update synthesis |
 
 
 ### Me (User Context)
