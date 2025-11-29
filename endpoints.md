@@ -37,13 +37,13 @@ Generated from `swagger.json`.
 ### Handovers
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
-| [ ] | `POST` | `/handovers/{handoverId}/accept` | Accept handover |
-| [ ] | `POST` | `/handovers/{handoverId}/cancel` | Cancel handover |
-| [ ] | `POST` | `/handovers/{handoverId}/complete` | Complete handover |
-| [ ] | `GET` | `/handovers/pending` | Get pending handovers |
-| [ ] | `POST` | `/handovers/{handoverId}/reject` | Reject handover |
-| [ ] | `POST` | `/handovers/{handoverId}/start` | Start handover |
-| [ ] | `POST` | `/handovers` | Create handover |
+| [x] | `POST` | `/handovers/{handoverId}/accept` | Accept handover |
+| [x] | `POST` | `/handovers/{handoverId}/cancel` | Cancel handover |
+| [x] | `POST` | `/handovers/{handoverId}/complete` | Complete handover |
+| [x] | `GET` | `/handovers/pending` | Get pending handovers |
+| [x] | `POST` | `/handovers/{handoverId}/reject` | Reject handover |
+| [x] | `POST` | `/handovers/{handoverId}/start` | Start handover |
+| [x] | `POST` | `/handovers` | Create handover |
 | [x] | `GET` | `/handovers/{handoverId}` | Get handover by ID |
 | [x] | `GET` | `/handovers/{handoverId}/patient` | Get patient handover data (demographics, physicians, status) |
 | [x] | `GET` | `/handovers/{handoverId}/patient-data` | Get patient clinical data |

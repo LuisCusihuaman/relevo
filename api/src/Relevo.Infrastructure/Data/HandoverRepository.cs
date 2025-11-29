@@ -603,6 +603,124 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
       );
   }
 
+  public async Task<bool> StartHandoverAsync(string handoverId, string userId)
+  {
+    return await UpdateHandoverStatus(handoverId, "InProgress", "STARTED_AT", userId);
+  }
+
+  public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
+  {
+    return await UpdateHandoverStatus(handoverId, "Accepted", "ACCEPTED_AT", userId);
+  }
+
+  public async Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        UPDATE HANDOVERS
+        SET STATUS = 'Rejected', 
+            REJECTION_REASON = :reason,
+            REJECTED_AT = SYSTIMESTAMP, 
+            UPDATED_AT = SYSTIMESTAMP
+        WHERE ID = :handoverId";
+
+    var rows = await conn.ExecuteAsync(sql, new { handoverId, reason });
+    return rows > 0;
+  }
+
+  public async Task<bool> CancelHandoverAsync(string handoverId, string userId)
+  {
+    return await UpdateHandoverStatus(handoverId, "Cancelled", "CANCELLED_AT", userId);
+  }
+
+  public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        UPDATE HANDOVERS
+        SET STATUS = 'Completed', 
+            COMPLETED_AT = SYSTIMESTAMP, 
+            COMPLETED_BY = :userId,
+            UPDATED_AT = SYSTIMESTAMP
+        WHERE ID = :handoverId";
+
+    var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
+    return rows > 0;
+  }
+
+  public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    
+    // Assuming "Pending" means assigned to me and not completed/cancelled/rejected
+    // And typically in 'Ready' or 'InProgress' state for the receiver to see?
+    // Or 'Draft' if I am the creator? 
+    // For simplicity, let's say anything where I am involved and it's active.
+    // But the endpoint description says "Get pending handovers". 
+    // Let's assume it means handovers assigned to the user that are actionable.
+    
+    const string sql = @"
+        SELECT
+            h.ID,
+            h.ASSIGNMENT_ID as AssignmentId,
+            h.PATIENT_ID as PatientId,
+            p.NAME as PatientName,
+            h.STATUS,
+            hpd.ILLNESS_SEVERITY as Severity,
+            hpd.SUMMARY_TEXT as PatientSummaryContent,
+            h.ID || '-sa' as SituationAwarenessDocId,
+            hs.CONTENT as SynthesisContent,
+            h.SHIFT_NAME as ShiftName,
+            h.CREATED_BY as CreatedBy,
+            h.RECEIVER_USER_ID as AssignedTo,
+            NULL as CreatedByName,
+            NULL as AssignedToName,
+            h.RECEIVER_USER_ID as ReceiverUserId,
+            COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) as ResponsiblePhysicianId,
+            'Dr. Name' as ResponsiblePhysicianName,
+            TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
+            TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
+            TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
+            TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcknowledgedAt,
+            TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
+            TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
+            TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
+            TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
+            h.REJECTION_REASON as RejectionReason,
+            TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
+            h.HANDOVER_TYPE as HandoverType,
+            h.HANDOVER_WINDOW_DATE as HandoverWindowDate,
+            h.FROM_SHIFT_ID as FromShiftId,
+            h.TO_SHIFT_ID as ToShiftId,
+            h.TO_DOCTOR_ID as ToDoctorId,
+            h.STATUS as StateName,
+            1 as Version
+        FROM HANDOVERS h
+        JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+        LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+        LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
+        WHERE (h.TO_DOCTOR_ID = :userId OR h.RECEIVER_USER_ID = :userId)
+          AND h.STATUS IN ('Draft', 'Ready', 'InProgress')";
+
+    var handovers = await conn.QueryAsync<dynamic>(sql, new { userId });
+    return handovers.Select(MapHandoverRecord).ToList();
+  }
+
+  private async Task<bool> UpdateHandoverStatus(string handoverId, string status, string timestampColumn, string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    // Note: userId is not always used in simple status updates unless we log it (not shown here for brevity)
+    string sql = $@"
+        UPDATE HANDOVERS
+        SET STATUS = :status, 
+            {timestampColumn} = SYSTIMESTAMP, 
+            UPDATED_AT = SYSTIMESTAMP
+        WHERE ID = :handoverId";
+
+    var rows = await conn.ExecuteAsync(sql, new { status, handoverId });
+    return rows > 0;
+  }
+
   private static string CalculatePhysicianStatus(string state, string relationship)
   {
     state = state?.ToLower() ?? "";

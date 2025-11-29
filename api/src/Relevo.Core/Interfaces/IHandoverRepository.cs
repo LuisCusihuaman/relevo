@@ -18,4 +18,10 @@ public interface IHandoverRepository
     Task<bool> MarkAsReadyAsync(string handoverId, string userId);
     Task<HandoverClinicalDataRecord?> GetClinicalDataAsync(string handoverId);
     Task<bool> UpdateClinicalDataAsync(string handoverId, string illnessSeverity, string summaryText, string userId);
+    Task<bool> StartHandoverAsync(string handoverId, string userId);
+    Task<bool> AcceptHandoverAsync(string handoverId, string userId);
+    Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId);
+    Task<bool> CancelHandoverAsync(string handoverId, string userId);
+    Task<bool> CompleteHandoverAsync(string handoverId, string userId);
+    Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId);
 }
