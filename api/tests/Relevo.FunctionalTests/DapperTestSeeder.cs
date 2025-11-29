@@ -331,5 +331,34 @@ public class DapperTestSeeder(IConfiguration configuration)
                     IsCompleted = 0
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
+
+        // Create PATIENT_SUMMARIES table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE PATIENT_SUMMARIES (
+                    ID VARCHAR2(50) PRIMARY KEY,
+                    PATIENT_ID VARCHAR2(50) NOT NULL,
+                    PHYSICIAN_ID VARCHAR2(255) NOT NULL, -- Clerk User ID del médico asignado
+                    SUMMARY_TEXT CLOB NOT NULL,
+                    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    LAST_EDITED_BY VARCHAR2(255), -- Clerk User ID de quien editó por última vez
+                    CONSTRAINT FK_PATIENT_SUMMARIES_PATIENT FOREIGN KEY (PATIENT_ID) REFERENCES PATIENTS(ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Seed Patient Summaries
+        try {
+            connection.Execute(@"
+                INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY) VALUES
+                (:Id, :PatientId, :PhysicianId, :SummaryText, SYSTIMESTAMP, SYSTIMESTAMP, :LastEditedBy)",
+                new { 
+                    Id = "sum-001", 
+                    PatientId = "pat-001", 
+                    PhysicianId = "dr-1", 
+                    SummaryText = "Patient history...",
+                    LastEditedBy = "dr-1"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
     }
 }

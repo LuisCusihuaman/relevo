@@ -47,42 +47,62 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     return (patients.ToList(), total);
   }
 
-  public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize)
-  {
-    using var conn = _connectionFactory.CreateConnection();
+    public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize)
+    {
+      using var conn = _connectionFactory.CreateConnection();
 
-    var p = Math.Max(page, 1);
-    var ps = Math.Max(pageSize, 1);
-    var offset = (p - 1) * ps;
+      var p = Math.Max(page, 1);
+      var ps = Math.Max(pageSize, 1);
+      var offset = (p - 1) * ps;
 
-    // Count
-    var total = await conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM PATIENTS");
+      // Count
+      var total = await conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM PATIENTS");
 
-    if (total == 0)
-        return (Array.Empty<PatientRecord>(), 0);
+      if (total == 0)
+          return (Array.Empty<PatientRecord>(), 0);
 
-    // Query
-    const string sql = @"
-      SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
-        SELECT
-            p.ID,
-            p.NAME,
-            'not-started' as HandoverStatus,
-            CAST(NULL AS VARCHAR2(50)) as HandoverId,
-            ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
-            p.ROOM_NUMBER as Room,
-            p.DIAGNOSIS,
-            CAST(NULL AS VARCHAR2(20)) as Status,
-            CAST(NULL AS VARCHAR2(20)) as Severity,
-            ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
-        FROM PATIENTS p
-      )
-      WHERE RN BETWEEN :StartRow AND :EndRow";
+      // Query
+      const string sql = @"
+        SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+          SELECT
+              p.ID,
+              p.NAME,
+              'not-started' as HandoverStatus,
+              CAST(NULL AS VARCHAR2(50)) as HandoverId,
+              ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
+              p.ROOM_NUMBER as Room,
+              p.DIAGNOSIS,
+              CAST(NULL AS VARCHAR2(20)) as Status,
+              CAST(NULL AS VARCHAR2(20)) as Severity,
+              ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
+          FROM PATIENTS p
+        )
+        WHERE RN BETWEEN :StartRow AND :EndRow";
 
-    var patients = await conn.QueryAsync<PatientRecord>(sql, new { StartRow = offset + 1, EndRow = offset + ps });
+      var patients = await conn.QueryAsync<PatientRecord>(sql, new { StartRow = offset + 1, EndRow = offset + ps });
 
-    return (patients.ToList(), total);
-  }
+      return (patients.ToList(), total);
+    }
+
+    public async Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        const string sql = @"
+            SELECT * FROM (
+                SELECT ID,
+                       PATIENT_ID as PatientId,
+                       PHYSICIAN_ID as PhysicianId,
+                       SUMMARY_TEXT as SummaryText,
+                       CREATED_AT as CreatedAt,
+                       UPDATED_AT as UpdatedAt,
+                       LAST_EDITED_BY as LastEditedBy
+                FROM PATIENT_SUMMARIES
+                WHERE PATIENT_ID = :PatientId
+                ORDER BY UPDATED_AT DESC
+            ) WHERE ROWNUM <= 1";
+
+        return await conn.QueryFirstOrDefaultAsync<PatientSummaryRecord>(sql, new { PatientId = patientId });
+    }
 
   public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
   {
