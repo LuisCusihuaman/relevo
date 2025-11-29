@@ -19,9 +19,9 @@ public class ContributorGetById(CustomWebApplicationFactory<Program> factory) : 
   }
 
   [Fact]
-  public async Task ReturnsNotFoundGivenId1000()
+  public async Task ReturnsNotFoundGivenNonExistentId()
   {
-    string route = GetContributorByIdRequest.BuildRoute(1000);
+    string route = GetContributorByIdRequest.BuildRoute(999999);
     _ = await _client.GetAndEnsureNotFoundAsync(route);
   }
 }

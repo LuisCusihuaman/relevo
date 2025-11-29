@@ -18,8 +18,13 @@ public class RejectHandover(IMediator _mediator)
     var userId = "dr-1"; 
     var result = await _mediator.Send(new RejectHandoverCommand(req.HandoverId, req.Reason, userId), ct);
 
-    if (result.IsSuccess) await SendOkAsync(ct);
-    else await SendNotFoundAsync(ct); // Or BadRequest if reason missing
+    if (result.IsSuccess) 
+      await SendOkAsync(ct);
+    else
+    {
+      AddError("Cannot reject handover: handover not found or state change not allowed.");
+      await SendErrorsAsync(statusCode: 400, ct);
+    }
   }
 }
 

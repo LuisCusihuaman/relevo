@@ -18,8 +18,13 @@ public class CancelHandover(IMediator _mediator)
     var userId = "dr-1"; 
     var result = await _mediator.Send(new CancelHandoverCommand(req.HandoverId, userId), ct);
 
-    if (result.IsSuccess) await SendOkAsync(ct);
-    else await SendNotFoundAsync(ct);
+    if (result.IsSuccess) 
+      await SendOkAsync(ct);
+    else
+    {
+      AddError("Cannot cancel handover: handover not found or state change not allowed.");
+      await SendErrorsAsync(statusCode: 400, ct);
+    }
   }
 }
 

@@ -605,47 +605,87 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
   public async Task<bool> StartHandoverAsync(string handoverId, string userId)
   {
-    return await UpdateHandoverStatus(handoverId, "InProgress", "STARTED_AT", userId);
+    try
+    {
+      return await UpdateHandoverStatus(handoverId, "InProgress", "STARTED_AT", userId);
+    }
+    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
+    {
+      // ORA-02290: check constraint violated - state machine constraint
+      return false;
+    }
   }
 
   public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
   {
-    return await UpdateHandoverStatus(handoverId, "Accepted", "ACCEPTED_AT", userId);
+    try
+    {
+      return await UpdateHandoverStatus(handoverId, "Accepted", "ACCEPTED_AT", userId);
+    }
+    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
+    {
+      // ORA-02290: check constraint violated - state machine constraint
+      return false;
+    }
   }
 
   public async Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId)
   {
-    using var conn = _connectionFactory.CreateConnection();
-    const string sql = @"
-        UPDATE HANDOVERS
-        SET STATUS = 'Rejected', 
-            REJECTION_REASON = :reason,
-            REJECTED_AT = SYSTIMESTAMP, 
-            UPDATED_AT = SYSTIMESTAMP
-        WHERE ID = :handoverId";
+    try
+    {
+      using var conn = _connectionFactory.CreateConnection();
+      const string sql = @"
+          UPDATE HANDOVERS
+          SET STATUS = 'Rejected', 
+              REJECTION_REASON = :reason,
+              REJECTED_AT = SYSTIMESTAMP, 
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId";
 
-    var rows = await conn.ExecuteAsync(sql, new { handoverId, reason });
-    return rows > 0;
+      var rows = await conn.ExecuteAsync(sql, new { handoverId, reason });
+      return rows > 0;
+    }
+    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
+    {
+      // ORA-02290: check constraint violated - single terminal state constraint
+      return false;
+    }
   }
 
   public async Task<bool> CancelHandoverAsync(string handoverId, string userId)
   {
-    return await UpdateHandoverStatus(handoverId, "Cancelled", "CANCELLED_AT", userId);
+    try
+    {
+      return await UpdateHandoverStatus(handoverId, "Cancelled", "CANCELLED_AT", userId);
+    }
+    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
+    {
+      // ORA-02290: check constraint violated - state machine constraint
+      return false;
+    }
   }
 
   public async Task<bool> CompleteHandoverAsync(string handoverId, string userId)
   {
-    using var conn = _connectionFactory.CreateConnection();
-    const string sql = @"
-        UPDATE HANDOVERS
-        SET STATUS = 'Completed', 
-            COMPLETED_AT = SYSTIMESTAMP, 
-            COMPLETED_BY = :userId,
-            UPDATED_AT = SYSTIMESTAMP
-        WHERE ID = :handoverId";
+    try
+    {
+      using var conn = _connectionFactory.CreateConnection();
+      const string sql = @"
+          UPDATE HANDOVERS
+          SET STATUS = 'Completed', 
+              COMPLETED_AT = SYSTIMESTAMP, 
+              COMPLETED_BY = :userId,
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId";
 
-    var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
-    return rows > 0;
+      var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
+      return rows > 0;
+    }
+    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
+    {
+      // ORA-02290: check constraint violated - state machine constraint
+      return false;
+    }
   }
 
   public async Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId)

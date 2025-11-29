@@ -15,20 +15,29 @@ public class PostAssignments(IMediator _mediator)
 
     public override async Task HandleAsync(PostAssignmentsRequest req, CancellationToken ct)
     {
-        // For now, use a hardcoded user ID (in production, this would come from auth context)
-        var userId = "dr-1";
-
-        var result = await _mediator.Send(
-            new PostAssignmentsCommand(userId, req.ShiftId, req.PatientIds ?? []),
-            ct);
-
-        if (result.IsSuccess)
+        try
         {
-            await SendNoContentAsync(ct);
+            // For now, use a hardcoded user ID (in production, this would come from auth context)
+            var userId = "dr-1";
+
+            var result = await _mediator.Send(
+                new PostAssignmentsCommand(userId, req.ShiftId, req.PatientIds ?? []),
+                ct);
+
+            if (result.IsSuccess)
+            {
+                await SendNoContentAsync(ct);
+            }
+            else
+            {
+                AddError("Failed to assign patients");
+                await SendErrorsAsync(statusCode: 400, ct);
+            }
         }
-        else
+        catch (Exception)
         {
-            await SendErrorsAsync(cancellation: ct);
+            AddError("Assignment failed: referenced shift or patient does not exist");
+            await SendErrorsAsync(statusCode: 400, ct);
         }
     }
 }

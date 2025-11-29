@@ -39,6 +39,13 @@ public class DapperTestSeeder(IConfiguration configuration)
 
     private void SeedTestData(IDbConnection connection)
     {
+        // Insert hardcoded 'dr-1' user for API endpoints (they use this hardcoded ID)
+        try {
+            connection.Execute(@"
+                INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME)
+                VALUES ('dr-1', 'dr-1@example.com', 'Doctor', 'One', 'Dr. One')");
+        } catch (OracleException e) when (e.Number == 1) {} // Unique constraint
+
         // Insert test user
         try {
             connection.Execute(@"
@@ -47,7 +54,17 @@ public class DapperTestSeeder(IConfiguration configuration)
                 new { Id = UserId, Email = $"dr-{TestRunId}@example.com", FirstName = "Doctor", LastName = TestRunId, FullName = $"Dr. {TestRunId}" });
         } catch (OracleException e) when (e.Number == 1) {} // Unique constraint
 
-        // Insert test unit
+        // Insert FIXED unit for reliable tests (doesn't depend on TestRunId)
+        try {
+            connection.Execute(@"
+                MERGE INTO UNITS u
+                USING (SELECT 'test-unit-fixed' AS ID FROM DUAL) src ON (u.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                INSERT (ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT)
+                VALUES ('test-unit-fixed', 'Test Unit Fixed', 'Fixed unit for tests', SYSTIMESTAMP, SYSTIMESTAMP)");
+        } catch (OracleException) {}
+
+        // Insert test unit (dynamic)
         try {
             connection.Execute(@"
                 INSERT INTO UNITS (ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT)
@@ -55,7 +72,26 @@ public class DapperTestSeeder(IConfiguration configuration)
                 new { Id = UnitId, Name = $"UCI-{TestRunId}", Description = "Test Unit" });
         } catch (OracleException e) when (e.Number == 1) {}
 
-        // Insert test shifts
+        // Insert FIXED shifts for reliable tests
+        try {
+            connection.Execute(@"
+                MERGE INTO SHIFTS s
+                USING (SELECT 'shift-day-fixed' AS ID FROM DUAL) src ON (s.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                INSERT (ID, NAME, START_TIME, END_TIME, CREATED_AT, UPDATED_AT)
+                VALUES ('shift-day-fixed', 'Day Fixed', '07:00', '15:00', SYSTIMESTAMP, SYSTIMESTAMP)");
+        } catch (OracleException) {}
+
+        try {
+            connection.Execute(@"
+                MERGE INTO SHIFTS s
+                USING (SELECT 'shift-night-fixed' AS ID FROM DUAL) src ON (s.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                INSERT (ID, NAME, START_TIME, END_TIME, CREATED_AT, UPDATED_AT)
+                VALUES ('shift-night-fixed', 'Night Fixed', '19:00', '07:00', SYSTIMESTAMP, SYSTIMESTAMP)");
+        } catch (OracleException) {}
+
+        // Insert test shifts (dynamic)
         try {
             connection.Execute(@"
                 INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME, CREATED_AT, UPDATED_AT)
@@ -70,7 +106,17 @@ public class DapperTestSeeder(IConfiguration configuration)
                 new { Id = ShiftNightId, Name = $"Night-{TestRunId}", StartTime = "19:00", EndTime = "07:00" });
         } catch (OracleException e) when (e.Number == 1) {}
 
-        // Insert test patients
+        // Insert FIXED patient for reliable tests
+        try {
+            connection.Execute(@"
+                MERGE INTO PATIENTS p
+                USING (SELECT 'patient-fixed' AS ID FROM DUAL) src ON (p.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                INSERT (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT)
+                VALUES ('patient-fixed', 'Test Patient Fixed', 'test-unit-fixed', DATE '2010-01-01', 'Male', SYSTIMESTAMP, '100', 'Test Diagnosis Fixed', SYSTIMESTAMP, SYSTIMESTAMP)");
+        } catch (OracleException) {}
+
+        // Insert test patients (dynamic)
         try {
             connection.Execute(@"
                 INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT)
@@ -267,18 +313,19 @@ public class DapperTestSeeder(IConfiguration configuration)
             connection.Execute("CREATE SEQUENCE CONTRIBUTORS_SEQ START WITH 1000 INCREMENT BY 1");
         } catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used
 
-        // Insert contributors using sequence
+        // Insert contributor with ID=1 for test that expects GetContributorById(1)
         try {
             connection.Execute(@"
                 INSERT INTO CONTRIBUTORS (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 
-                VALUES (CONTRIBUTORS_SEQ.NEXTVAL, :Name, 1, NULL, NULL, NULL)", 
+                VALUES (1, :Name, 1, NULL, NULL, NULL)", 
                 new { Name = TestSeeds.Contributor1 });
         } catch (OracleException e) when (e.Number == 1) {} // Unique constraint
 
+        // Insert contributor with ID=2
         try {
             connection.Execute(@"
                 INSERT INTO CONTRIBUTORS (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 
-                VALUES (CONTRIBUTORS_SEQ.NEXTVAL, :Name, 1, NULL, NULL, NULL)", 
+                VALUES (2, :Name, 1, NULL, NULL, NULL)", 
                 new { Name = TestSeeds.Contributor2 });
         } catch (OracleException e) when (e.Number == 1) {}
     }

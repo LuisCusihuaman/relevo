@@ -8,22 +8,30 @@ public class AssignmentRepository(DapperConnectionFactory _connectionFactory) : 
 {
     public async Task<IReadOnlyList<string>> AssignPatientsAsync(string userId, string shiftId, IEnumerable<string> patientIds)
     {
-        using var conn = _connectionFactory.CreateConnection();
-
-        // Remove existing assignments for this user
-        await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId", new { userId });
-
-        // Insert new assignments
-        foreach (var patientId in patientIds)
+        try
         {
-            var assignmentId = $"assign-{Guid.NewGuid().ToString()[..8]}";
-            await conn.ExecuteAsync(@"
-                INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT) 
-                VALUES (:assignmentId, :userId, :shiftId, :patientId, SYSTIMESTAMP)",
-                new { assignmentId, userId, shiftId, patientId });
-        }
+            using var conn = _connectionFactory.CreateConnection();
 
-        return patientIds.ToList();
+            // Remove existing assignments for this user
+            await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId", new { userId });
+
+            // Insert new assignments
+            foreach (var patientId in patientIds)
+            {
+                var assignmentId = $"assign-{Guid.NewGuid().ToString()[..8]}";
+                await conn.ExecuteAsync(@"
+                    INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT) 
+                    VALUES (:assignmentId, :userId, :shiftId, :patientId, SYSTIMESTAMP)",
+                    new { assignmentId, userId, shiftId, patientId });
+            }
+
+            return patientIds.ToList();
+        }
+        catch (Oracle.ManagedDataAccess.Client.OracleException ex)
+        {
+            Console.WriteLine($"Error in AssignPatientsAsync: {ex.Number} - {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetMyPatientsAsync(string userId, int page, int pageSize)
