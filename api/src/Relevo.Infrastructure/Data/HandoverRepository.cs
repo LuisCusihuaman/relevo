@@ -144,6 +144,114 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     return new HandoverDetailRecord(MapHandoverRecord(handover), actionItems);
   }
 
+  public async Task<PatientHandoverDataRecord?> GetPatientHandoverDataAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      SELECT
+          h.ID,
+          h.PATIENT_ID,
+          h.STATUS,
+          h.CREATED_BY,
+          h.RECEIVER_USER_ID,
+          NULL as CreatedByName, -- Join USERS if needed, or fetch separately
+          NULL as ReceiverName, -- Join USERS if needed
+          p.NAME,
+          TO_CHAR(p.DATE_OF_BIRTH, 'YYYY-MM-DD') as Dob,
+          p.MRN,
+          TO_CHAR(p.ADMISSION_DATE, 'YYYY-MM-DD HH24:MI:SS') as AdmissionDate,
+          p.ROOM_NUMBER,
+          p.DIAGNOSIS,
+          u.NAME as UnitName,
+          hpd.ILLNESS_SEVERITY,
+          hpd.SUMMARY_TEXT,
+          hpd.LAST_EDITED_BY,
+          TO_CHAR(hpd.UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UpdatedAt
+      FROM HANDOVERS h
+      JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+      JOIN UNITS u ON p.UNIT_ID = u.ID
+      LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+      WHERE h.ID = :HandoverId";
+
+    var data = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { HandoverId = handoverId });
+
+    if (data == null) return null;
+
+    string createdBy = (string)data.CREATED_BY;
+    string receiverId = (string?)data.RECEIVER_USER_ID ?? "";
+    
+    // Fetch Physician Names (Assuming stored in USERS table or just mocking for now if table not populated/joined)
+    // Better to join USERS in the main query if possible, but let's do separate for clarity or if USERS is in another service (it is in DB here)
+    
+    var creator = await GetPhysicianInfo(conn, createdBy, (string)data.STATUS, "creator");
+    var receiver = !string.IsNullOrEmpty(receiverId) ? await GetPhysicianInfo(conn, receiverId, (string)data.STATUS, "assignee") : null;
+
+    return new PatientHandoverDataRecord(
+        (string)data.PATIENT_ID,
+        (string)data.NAME,
+        (string)data.DOB,
+        (string?)data.MRN ?? "",
+        (string?)data.ADMISSIONDATE ?? "",
+        (string)data.UNITNAME,
+        (string?)data.DIAGNOSIS ?? "",
+        (string?)data.ROOM_NUMBER ?? "",
+        (string)data.UNITNAME,
+        creator,
+        receiver,
+        (string?)data.ILLNESS_SEVERITY,
+        (string?)data.SUMMARY_TEXT,
+        (string?)data.LAST_EDITED_BY,
+        (string?)data.UPDATEDAT
+    );
+  }
+
+  private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
+  {
+      // Get Name
+      var name = await conn.ExecuteScalarAsync<string>("SELECT FULL_NAME FROM USERS WHERE ID = :UserId", new { UserId = userId }) ?? "Unknown";
+      
+      // Get Shift
+      const string shiftSql = @"
+        SELECT * FROM (
+            SELECT s.START_TIME, s.END_TIME
+            FROM USER_ASSIGNMENTS ua
+            JOIN SHIFTS s ON ua.SHIFT_ID = s.ID
+            WHERE ua.USER_ID = :UserId
+        ) WHERE ROWNUM <= 1";
+      
+      var shift = await conn.QueryFirstOrDefaultAsync<dynamic>(shiftSql, new { UserId = userId });
+      
+      string status = CalculatePhysicianStatus(handoverStatus, relationship);
+
+      return new PhysicianRecord(
+          name,
+          "Doctor",
+          "", // Color
+          (string?)shift?.START_TIME,
+          (string?)shift?.END_TIME,
+          status,
+          relationship == "creator" ? "assigned" : "receiving"
+      );
+  }
+
+  private static string CalculatePhysicianStatus(string state, string relationship)
+  {
+    state = state?.ToLower() ?? "";
+    return state switch
+    {
+      "completed" => "completed",
+      "cancelled" => "cancelled",
+      "rejected" => "rejected",
+      "expired" => "expired",
+      "accepted" => relationship == "creator" ? "handed-off" : "accepted",
+      "draft" => relationship == "creator" ? "handing-off" : "pending",
+      "ready" => relationship == "creator" ? "handing-off" : "ready-to-receive",
+      "inprogress" => relationship == "creator" ? "handing-off" : "receiving",
+      _ => "unknown"
+    };
+  }
+
   private class ActionItemDto
   {
       public string Id { get; set; } = string.Empty;

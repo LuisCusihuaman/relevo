@@ -321,6 +321,20 @@ public class DapperTestSeeder(IConfiguration configuration)
              if (e.Number != 1 && e.Number != 2291) throw; // Re-throw unexpected errors
         } 
 
+        // Seed Handover Patient Data
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_PATIENT_DATA (HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, LAST_EDITED_BY, STATUS, CREATED_AT, UPDATED_AT) VALUES
+                (:HandoverId, :Severity, :Summary, :LastEditedBy, :Status, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new { 
+                    HandoverId = "hvo-001", 
+                    Severity = "Stable", 
+                    Summary = "Patient stable overnight",
+                    LastEditedBy = "dr-1",
+                    Status = "draft"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
+
         // Seed Action Items
         try {
             connection.Execute(@"
