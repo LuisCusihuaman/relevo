@@ -44,10 +44,10 @@ Generated from `swagger.json`.
 | [ ] | `POST` | `/handovers/{handoverId}/reject` | Reject handover |
 | [ ] | `POST` | `/handovers/{handoverId}/start` | Start handover |
 | [ ] | `POST` | `/handovers` | Create handover |
-| [ ] | `GET` | `/handovers/{handoverId}` | Get handover by ID |
-| [ ] | `GET` | `/handovers/{handoverId}/patient` | Get patient handover data (demographics, physicians, status) |
-| [ ] | `GET` | `/handovers/{handoverId}/patient-data` | Get patient clinical data |
-| [ ] | `PUT` | `/handovers/{handoverId}/patient-data` | Update patient clinical data |
+| [x] | `GET` | `/handovers/{handoverId}` | Get handover by ID |
+| [x] | `GET` | `/handovers/{handoverId}/patient` | Get patient handover data (demographics, physicians, status) |
+| [x] | `GET` | `/handovers/{handoverId}/patient-data` | Get patient clinical data |
+| [x] | `PUT` | `/handovers/{handoverId}/patient-data` | Update patient clinical data |
 | [x] | `DELETE` | `/handovers/{handoverId}/contingency-plans/{contingencyId}` | Delete contingency plan |
 | [x] | `GET` | `/handovers/{handoverId}/contingency-plans` | Get contingency plans |
 | [x] | `POST` | `/handovers/{handoverId}/contingency-plans` | Create contingency plan |
