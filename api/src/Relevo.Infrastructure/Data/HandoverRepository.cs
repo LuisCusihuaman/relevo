@@ -848,4 +848,90 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     var result = await conn.ExecuteAsync(sql, new { itemId, handoverId });
     return result > 0;
   }
+
+  // Activity Log
+  public async Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      SELECT hal.ID, hal.HANDOVER_ID as HandoverId, hal.USER_ID as UserId,
+             NVL(u.FIRST_NAME || ' ' || u.LAST_NAME, 'Unknown') as UserName,
+             hal.ACTIVITY_TYPE as ActivityType, hal.ACTIVITY_DESCRIPTION as ActivityDescription,
+             hal.SECTION_AFFECTED as SectionAffected, hal.METADATA,
+             hal.CREATED_AT as CreatedAt
+      FROM HANDOVER_ACTIVITY_LOG hal
+      LEFT JOIN USERS u ON hal.USER_ID = u.ID
+      WHERE hal.HANDOVER_ID = :handoverId
+      ORDER BY hal.CREATED_AT DESC";
+
+    var activities = await conn.QueryAsync<HandoverActivityRecord>(sql, new { handoverId });
+    return activities.ToList();
+  }
+
+  // Checklists
+  public async Task<IReadOnlyList<HandoverChecklistRecord>> GetChecklistsAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId, ITEM_ID as ItemId,
+             ITEM_CATEGORY as ItemCategory, ITEM_LABEL as ItemLabel,
+             ITEM_DESCRIPTION as ItemDescription, IS_REQUIRED as IsRequired,
+             IS_CHECKED as IsChecked, CHECKED_AT as CheckedAt, CREATED_AT as CreatedAt
+      FROM HANDOVER_CHECKLISTS
+      WHERE HANDOVER_ID = :handoverId
+      ORDER BY CREATED_AT ASC";
+
+    var checklists = await conn.QueryAsync<HandoverChecklistRecord>(sql, new { handoverId });
+    return checklists.ToList();
+  }
+
+  public async Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      UPDATE HANDOVER_CHECKLISTS
+      SET IS_CHECKED = :isChecked,
+          CHECKED_AT = CASE WHEN :isChecked = 1 THEN SYSTIMESTAMP ELSE NULL END,
+          UPDATED_AT = SYSTIMESTAMP
+      WHERE HANDOVER_ID = :handoverId AND ITEM_ID = :itemId AND USER_ID = :userId";
+
+    var result = await conn.ExecuteAsync(sql, new { handoverId, itemId, isChecked = isChecked ? 1 : 0, userId });
+    return result > 0;
+  }
+
+  // Messages
+  public async Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      SELECT ID, HANDOVER_ID as HandoverId, USER_ID as UserId,
+             USER_NAME as UserName,
+             MESSAGE_TEXT as MessageText, MESSAGE_TYPE as MessageType,
+             CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+      FROM HANDOVER_MESSAGES
+      WHERE HANDOVER_ID = :handoverId
+      ORDER BY CREATED_AT ASC";
+
+    var messages = await conn.QueryAsync<HandoverMessageRecord>(sql, new { handoverId });
+    return messages.ToList();
+  }
+
+  public async Task<HandoverMessageRecord> CreateMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    var id = Guid.NewGuid().ToString();
+    var now = DateTime.UtcNow;
+
+    const string sql = @"
+      INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT, UPDATED_AT)
+      VALUES (:id, :handoverId, :userId, :userName, :messageText, :messageType, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+    await conn.ExecuteAsync(sql, new { id, handoverId, userId, userName, messageText, messageType });
+
+    return new HandoverMessageRecord(id, handoverId, userId, userName, messageText, messageType, now, now);
+  }
 }

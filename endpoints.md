@@ -66,13 +66,13 @@ Generated from `swagger.json`.
 | [x] | `PUT` | `/me/handovers/{handoverId}/action-items/{itemId}` | Update handover action item |
 | [x] | `GET` | `/me/handovers/{handoverId}/action-items` | Get handover action items |
 | [x] | `POST` | `/me/handovers/{handoverId}/action-items` | Create handover action item |
-| [ ] | `GET` | `/me/handovers/{handoverId}/activity` | Get handover activity |
-| [ ] | `GET` | `/me/handovers/{handoverId}/checklists` | Get handover checklists |
-| [ ] | `PUT` | `/me/handovers/{handoverId}/checklists/{itemId}` | Update checklist item |
-| [ ] | `GET` | `/me/handovers/{handoverId}/contingency-plans` | Get handover contingency plans |
-| [ ] | `POST` | `/me/handovers/{handoverId}/contingency-plans` | Create contingency plan |
-| [ ] | `GET` | `/me/handovers/{handoverId}/messages` | Get handover messages |
-| [ ] | `POST` | `/me/handovers/{handoverId}/messages` | Create handover message |
+| [x] | `GET` | `/me/handovers/{handoverId}/activity` | Get handover activity |
+| [x] | `GET` | `/me/handovers/{handoverId}/checklists` | Get handover checklists |
+| [x] | `PUT` | `/me/handovers/{handoverId}/checklists/{itemId}` | Update checklist item |
+| [x] | `GET` | `/me/handovers/{handoverId}/contingency-plans` | Get handover contingency plans |
+| [x] | `POST` | `/me/handovers/{handoverId}/contingency-plans` | Create contingency plan |
+| [x] | `GET` | `/me/handovers/{handoverId}/messages` | Get handover messages |
+| [x] | `POST` | `/me/handovers/{handoverId}/messages` | Create handover message |
 | [ ] | `GET` | `/me/handovers` | Get my handovers |
 | [ ] | `GET` | `/me/patients` | Get my patients |
 | [ ] | `GET` | `/me/profile` | Get my profile |

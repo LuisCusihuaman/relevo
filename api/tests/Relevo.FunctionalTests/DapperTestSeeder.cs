@@ -24,6 +24,9 @@ public class DapperTestSeeder(IConfiguration configuration)
     public static string ActionItemId => $"item-{TestRunId}";
     public static string SummaryId => $"sum-{TestRunId}";
     public static string ContingencyPlanId => $"plan-{TestRunId}";
+    public static string ActivityLogId => $"act-{TestRunId}";
+    public static string ChecklistItemId => $"chk-{TestRunId}";
+    public static string MessageId => $"msg-{TestRunId}";
 
     public void Seed()
     {
@@ -177,13 +180,76 @@ public class DapperTestSeeder(IConfiguration configuration)
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
 
-        // Seed Contributors for legacy tests (using numeric IDs from sequence if it exists)
+        // Seed additional data for new endpoints (tables already exist from relevo-api SQL scripts)
+        SeedActivityLogs(connection);
+        SeedChecklists(connection);
+        SeedMessages(connection);
+
+        // Seed Contributors for legacy tests
         SeedContributors(connection);
+    }
+
+    private void SeedActivityLogs(IDbConnection connection)
+    {
+        // Insert test activity log (table already exists from relevo-api SQL scripts)
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, ACTIVITY_DESCRIPTION, SECTION_AFFECTED, CREATED_AT)
+                VALUES (:Id, :HandoverId, :UserId, :ActivityType, :ActivityDescription, :SectionAffected, SYSTIMESTAMP)",
+                new {
+                    Id = ActivityLogId,
+                    HandoverId = HandoverId,
+                    UserId = UserId,
+                    ActivityType = "status_change",
+                    ActivityDescription = "Handover created",
+                    SectionAffected = "handover"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291 || e.Number == 942) {} // 942 = table not exists
+    }
+
+    private void SeedChecklists(IDbConnection connection)
+    {
+        // Insert test checklist item (table already exists from relevo-api SQL scripts)
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_CHECKLISTS (ID, HANDOVER_ID, USER_ID, ITEM_ID, ITEM_CATEGORY, ITEM_LABEL, ITEM_DESCRIPTION, IS_REQUIRED, IS_CHECKED, CREATED_AT, UPDATED_AT)
+                VALUES (:Id, :HandoverId, :UserId, :ItemId, :ItemCategory, :ItemLabel, :ItemDescription, :IsRequired, :IsChecked, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new {
+                    Id = ChecklistItemId,
+                    HandoverId = HandoverId,
+                    UserId = UserId,
+                    ItemId = $"chk-item-{TestRunId}",
+                    ItemCategory = "Safety",
+                    ItemLabel = "Verify patient identity",
+                    ItemDescription = "Confirm patient name and DOB",
+                    IsRequired = 1,
+                    IsChecked = 0
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291 || e.Number == 942) {}
+    }
+
+    private void SeedMessages(IDbConnection connection)
+    {
+        // Insert test message (table already exists from relevo-api SQL scripts)
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, USER_NAME, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT, UPDATED_AT)
+                VALUES (:Id, :HandoverId, :UserId, :UserName, :MessageText, :MessageType, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new {
+                    Id = MessageId,
+                    HandoverId = HandoverId,
+                    UserId = UserId,
+                    UserName = $"Dr. {TestRunId}",
+                    MessageText = "Initial handover message",
+                    MessageType = "message"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291 || e.Number == 942) {}
     }
 
     private void SeedContributors(IDbConnection connection)
     {
-        // Ensure CONTRIBUTORS table exists (for legacy tests)
+        // CONTRIBUTORS table/sequence are NOT in relevo-api SQL scripts - they're only in the new api project
+        // So we need to ensure they exist here
         try {
             connection.Execute(@"
                 CREATE TABLE CONTRIBUTORS (
@@ -197,7 +263,6 @@ public class DapperTestSeeder(IConfiguration configuration)
                 )");
         } catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used
 
-        // Ensure CONTRIBUTORS_SEQ sequence exists (without schema prefix for current user)
         try {
             connection.Execute("CREATE SEQUENCE CONTRIBUTORS_SEQ START WITH 1000 INCREMENT BY 1");
         } catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used

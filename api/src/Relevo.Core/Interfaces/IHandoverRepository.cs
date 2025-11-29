@@ -30,4 +30,15 @@ public interface IHandoverRepository
     Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority);
     Task<bool> UpdateActionItemAsync(string handoverId, string itemId, bool isCompleted);
     Task<bool> DeleteActionItemAsync(string handoverId, string itemId);
+
+    // Activity Log
+    Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId);
+
+    // Checklists
+    Task<IReadOnlyList<HandoverChecklistRecord>> GetChecklistsAsync(string handoverId);
+    Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId);
+
+    // Messages
+    Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId);
+    Task<HandoverMessageRecord> CreateMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType);
 }
