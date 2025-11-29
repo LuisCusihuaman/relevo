@@ -126,6 +126,20 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         );
     }
 
+    public async Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        const string sql = @"
+            UPDATE PATIENT_SUMMARIES
+            SET SUMMARY_TEXT = :summaryText,
+                UPDATED_AT = SYSTIMESTAMP,
+                LAST_EDITED_BY = :lastEditedBy
+            WHERE ID = :summaryId";
+
+        var rows = await conn.ExecuteAsync(sql, new { summaryId, summaryText, lastEditedBy });
+        return rows > 0;
+    }
+
   public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
   {
     using var conn = _connectionFactory.CreateConnection();

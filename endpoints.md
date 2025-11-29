@@ -30,7 +30,7 @@ Generated from `swagger.json`.
 | [x] | `POST` | `/handovers` | Create handover |
 | [x] | `GET` | `/patients/{patientId}/summary` | Get patient summary |
 | [x] | `POST` | `/patients/{patientId}/summary` | Create patient summary |
-| [ ] | `PUT` | `/patients/{patientId}/summary` | Update patient summary |
+| [x] | `PUT` | `/patients/{patientId}/summary` | Update patient summary |
 
 
 ### Handovers
