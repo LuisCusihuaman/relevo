@@ -41,10 +41,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
             h.RECEIVER_USER_ID as AssignedTo,
             NULL as CreatedByName, -- Join users if needed
             NULL as AssignedToName, -- Join users if needed
-            h.RECEIVER_USER_ID as ReceiverUserId,
-            h.RESPONSIBLE_PHYSICIAN_ID as ResponsiblePhysicianId,
-            'Dr. Name' as ResponsiblePhysicianName, -- Join users if needed
-            TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
+          h.RECEIVER_USER_ID as ReceiverUserId,
+          COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) as ResponsiblePhysicianId,
+          'Dr. Name' as ResponsiblePhysicianName, -- Join users if needed
+          TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
             TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcknowledgedAt,
@@ -98,7 +98,7 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
           NULL as CreatedByName, -- Join users if needed
           NULL as AssignedToName, -- Join users if needed
           h.RECEIVER_USER_ID as ReceiverUserId,
-          h.RESPONSIBLE_PHYSICIAN_ID as ResponsiblePhysicianId,
+          COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) as ResponsiblePhysicianId,
           'Dr. Name' as ResponsiblePhysicianName, -- Join users if needed
           TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
           TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
@@ -204,6 +204,144 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         (string?)data.LAST_EDITED_BY,
         (string?)data.UPDATEDAT
     );
+  }
+
+  public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
+  {
+    try 
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Generate IDs
+        var handoverId = $"handover-{Guid.NewGuid().ToString().Substring(0, 8)}";
+        var assignmentId = $"assign-{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+        // Create user assignment if it doesn't exist (using MERGE for Oracle)
+        await conn.ExecuteAsync(@"
+          MERGE INTO USER_ASSIGNMENTS ua
+          USING (SELECT :assignmentId AS ASSIGNMENT_ID, :toDoctorId AS USER_ID, :toShiftId AS SHIFT_ID, :patientId AS PATIENT_ID FROM DUAL) src
+          ON (ua.ASSIGNMENT_ID = src.ASSIGNMENT_ID)
+          WHEN MATCHED THEN
+            UPDATE SET ua.ASSIGNED_AT = SYSTIMESTAMP
+          WHEN NOT MATCHED THEN
+            INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
+            VALUES (src.ASSIGNMENT_ID, src.USER_ID, src.SHIFT_ID, src.PATIENT_ID, SYSTIMESTAMP)",
+          new { assignmentId, toDoctorId = request.ToDoctorId, toShiftId = request.ToShiftId, patientId = request.PatientId });
+
+        // Create handover
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVERS (
+            ID, ASSIGNMENT_ID, PATIENT_ID, STATUS,
+            SHIFT_NAME, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_DOCTOR_ID, TO_DOCTOR_ID,
+            CREATED_BY, CREATED_AT, INITIATED_AT, HANDOVER_TYPE, HANDOVER_WINDOW_DATE,
+            RESPONSIBLE_PHYSICIAN_ID
+          ) VALUES (
+            :handoverId, :assignmentId, :patientId, 'Draft',
+            :shiftName, :fromShiftId, :toShiftId, :fromDoctorId, :toDoctorId,
+            :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP, 'ShiftToShift', TRUNC(SYSDATE),
+            :initiatedBy
+          )",
+          new {
+            handoverId,
+            assignmentId,
+            patientId = request.PatientId,
+            shiftName = $"{request.FromShiftId} -> {request.ToShiftId}",
+            fromShiftId = request.FromShiftId,
+            toShiftId = request.ToShiftId,
+            fromDoctorId = request.FromDoctorId,
+            toDoctorId = request.ToDoctorId,
+            initiatedBy = request.InitiatedBy
+          });
+
+        // Add participants
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS, JOINED_AT)
+          VALUES (:participantId1, :handoverId, :fromDoctorId, 'Doctor A', 'Handing Over Doctor', 'active', SYSTIMESTAMP)",
+          new {
+            handoverId,
+            fromDoctorId = request.FromDoctorId,
+            participantId1 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
+          });
+        
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, USER_NAME, USER_ROLE, STATUS, JOINED_AT)
+          VALUES (:participantId2, :handoverId, :toDoctorId, 'Doctor B', 'Receiving Doctor', 'active', SYSTIMESTAMP)",
+          new {
+            handoverId,
+            toDoctorId = request.ToDoctorId,
+            participantId2 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
+          });
+
+        // Create default singleton sections
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVER_PATIENT_DATA (HANDOVER_ID, ILLNESS_SEVERITY, SUMMARY_TEXT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+          VALUES (:handoverId, 'Stable', '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+          new { handoverId, initiatedBy = request.InitiatedBy });
+
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVER_SITUATION_AWARENESS (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+          VALUES (:handoverId, '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+          new { handoverId, initiatedBy = request.InitiatedBy });
+
+        await conn.ExecuteAsync(@"
+          INSERT INTO HANDOVER_SYNTHESIS (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+          VALUES (:handoverId, '', 'draft', :initiatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+          new { handoverId, initiatedBy = request.InitiatedBy });
+
+        // Use the SAME connection to fetch the created handover to avoid isolation/consistency issues
+        const string fetchSql = @"
+          SELECT
+              h.ID,
+              h.ASSIGNMENT_ID as AssignmentId,
+              h.PATIENT_ID as PatientId,
+              p.NAME as PatientName,
+              h.STATUS,
+              hpd.ILLNESS_SEVERITY as Severity,
+              hpd.SUMMARY_TEXT as PatientSummaryContent,
+              h.ID || '-sa' as SituationAwarenessDocId,
+              hs.CONTENT as SynthesisContent,
+              h.SHIFT_NAME as ShiftName,
+              h.CREATED_BY as CreatedBy,
+              h.RECEIVER_USER_ID as AssignedTo,
+              NULL as CreatedByName,
+              NULL as AssignedToName,
+              h.RECEIVER_USER_ID as ReceiverUserId,
+              COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) as ResponsiblePhysicianId,
+              'Dr. Name' as ResponsiblePhysicianName,
+              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
+              TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
+              TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
+              TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcknowledgedAt,
+              TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
+              TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
+              TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
+              TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
+              h.REJECTION_REASON as RejectionReason,
+              TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
+              h.HANDOVER_TYPE as HandoverType,
+              h.HANDOVER_WINDOW_DATE as HandoverWindowDate,
+              h.FROM_SHIFT_ID as FromShiftId,
+              h.TO_SHIFT_ID as ToShiftId,
+              h.TO_DOCTOR_ID as ToDoctorId,
+              h.STATUS as StateName,
+              1 as Version
+          FROM HANDOVERS h
+          JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+          LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+          LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
+          WHERE h.ID = :HandoverId";
+
+        var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(fetchSql, new { HandoverId = handoverId });
+
+        if (handover == null) throw new InvalidOperationException(""Failed to retrieve created handover (HandoverId not found)."");
+        
+        return MapHandoverRecord(handover);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error creating handover: {ex.Message} {ex.StackTrace}");
+        throw;
+    }
   }
 
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
