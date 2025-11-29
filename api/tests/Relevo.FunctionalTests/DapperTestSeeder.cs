@@ -2,6 +2,7 @@ using Dapper;
 using Relevo.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
+using System.Data;
 
 namespace Relevo.FunctionalTests;
 
@@ -13,6 +14,12 @@ public class DapperTestSeeder(IConfiguration configuration)
         using var connection = new OracleConnection(connectionString);
         connection.Open();
 
+        SeedContributors(connection);
+        SeedUnitsAndPatients(connection);
+    }
+
+    private void SeedContributors(IDbConnection connection)
+    {
         // Clean existing data
         try
         {
@@ -33,27 +40,12 @@ public class DapperTestSeeder(IConfiguration configuration)
                 )");
         }
 
-        // Reset Sequence (Optional but good for consistent IDs)
-        // Oracle sequence reset is tricky, usually Drop/Create or Increment by difference.
-        // For tests, we'll just force IDs if possible, or rely on sequence and just insert what we need.
-        // Since we need specific IDs (1 and 2) for assertions, we should try to force them or reset.
-        // However, Oracle sequences + explicit ID insert triggers can be messy.
-        // Let's try direct insert first.
-
-        // Seed Data matching SeedData.cs
-        // "Ardalis" (ID 1)
-        // "Snowfrog" (ID 2)
-        
-        // Note: In the App, we use a Sequence. To guarantee IDs 1 and 2, we might need to toggle identity insert (not available in 11g easily)
-        // or just update them after insert.
-        // Or drop/create the sequence.
-
-        // Simple approach: Drop and recreate sequence to reset to 1
+        // Reset Sequence
         try 
         {
             connection.Execute("DROP SEQUENCE RELEVO_APP.CONTRIBUTORS_SEQ");
         } 
-        catch {} // Ignore if doesn't exist
+        catch {} 
         
         connection.Execute("CREATE SEQUENCE RELEVO_APP.CONTRIBUTORS_SEQ START WITH 1 INCREMENT BY 1");
 
@@ -66,5 +58,69 @@ public class DapperTestSeeder(IConfiguration configuration)
             INSERT INTO CONTRIBUTORS (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 
             VALUES (CONTRIBUTORS_SEQ.NEXTVAL, :Name, 1, NULL, NULL, NULL)", 
             new { Name = TestSeeds.Contributor2 });
+    }
+
+    private void SeedUnitsAndPatients(IDbConnection connection)
+    {
+        // Clean existing data
+        var tablesToDelete = new[] {
+            "HANDOVER_PATIENT_DATA", "HANDOVER_SITUATION_AWARENESS", "HANDOVER_SYNTHESIS",
+            "HANDOVER_ACTIVITY_LOG", "HANDOVER_MENTIONS", "HANDOVER_MESSAGES",
+            "HANDOVER_CONTINGENCY", "HANDOVER_CHECKLISTS", "HANDOVER_PARTICIPANTS",
+            "HANDOVER_SYNC_STATUS", "HANDOVER_ACTION_ITEMS", 
+            "HANDOVERS", "USER_ASSIGNMENTS", "PATIENT_SUMMARIES", "PATIENTS", "UNITS"
+        };
+
+        foreach (var table in tablesToDelete) 
+        {
+            try { connection.Execute($"DELETE FROM {table}"); } catch (OracleException ex) when (ex.Number == 942) {}
+        }
+
+        // Create Tables if they don't exist
+        try { 
+            connection.Execute(@"
+                CREATE TABLE UNITS (
+                    ID VARCHAR2(50) NOT NULL,
+                    NAME VARCHAR2(100) NOT NULL,
+                    DESCRIPTION VARCHAR2(255),
+                    CREATED_AT TIMESTAMP,
+                    UPDATED_AT TIMESTAMP,
+                    CONSTRAINT PK_UNITS PRIMARY KEY (ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {} // Name used by existing object
+
+            try {
+            connection.Execute(@"
+                CREATE TABLE PATIENTS (
+                    ID VARCHAR2(50) NOT NULL,
+                    NAME VARCHAR2(100) NOT NULL,
+                    UNIT_ID VARCHAR2(50) NOT NULL,
+                    DATE_OF_BIRTH DATE,
+                    GENDER VARCHAR2(20),
+                    ADMISSION_DATE DATE,
+                    ROOM_NUMBER VARCHAR2(20),
+                    DIAGNOSIS VARCHAR2(255),
+                    CREATED_AT TIMESTAMP,
+                    UPDATED_AT TIMESTAMP,
+                    CONSTRAINT PK_PATIENTS PRIMARY KEY (ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Seed Units
+        connection.Execute(@"
+            INSERT INTO UNITS (ID, NAME, DESCRIPTION, CREATED_AT, UPDATED_AT) VALUES
+            (:Id, :Name, :Description, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { Id = "unit-1", Name = "UCI", Description = "Unidad de Cuidados Intensivos" });
+
+        // Seed Patients
+        connection.Execute(@"
+            INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT) VALUES
+            (:Id, :Name, :UnitId, :DateOfBirth, :Gender, :AdmissionDate, :RoomNumber, :Diagnosis, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { Id = "pat-001", Name = "María García", UnitId = "unit-1", DateOfBirth = new DateTime(2010, 1, 1), Gender = "Female", AdmissionDate = DateTime.Now.AddDays(-2), RoomNumber = "101", Diagnosis = "Neumonía" });
+        
+        connection.Execute(@"
+            INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, CREATED_AT, UPDATED_AT) VALUES
+            (:Id, :Name, :UnitId, :DateOfBirth, :Gender, :AdmissionDate, :RoomNumber, :Diagnosis, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { Id = "pat-002", Name = "Carlos Rodríguez", UnitId = "unit-1", DateOfBirth = new DateTime(2012, 5, 15), Gender = "Male", AdmissionDate = DateTime.Now.AddDays(-1), RoomNumber = "201", Diagnosis = "Gastroenteritis" });
     }
 }

@@ -27,6 +27,7 @@ public static class InfrastructureServiceExtensions
 
     // Register Dapper Repositories (Specific)
     services.AddScoped<IContributorRepository, ContributorRepository>();
+    services.AddScoped<IPatientRepository, PatientRepository>();
 
     services.AddScoped<IListContributorsQueryService, ListContributorsQueryService>()
            .AddScoped<IDeleteContributorService, DeleteContributorService>();

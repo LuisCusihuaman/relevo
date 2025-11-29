@@ -11,7 +11,7 @@ Generated from `swagger.json`.
 ### Units
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
-| [ ] | `GET` | `/units/{unitId}/patients` | Get patients by unit |
+| [x] | `GET` | `/units/{unitId}/patients` | Get patients by unit |
 
 ### Shift-Check-In
 | Done | Method | Endpoint | Description |
