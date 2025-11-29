@@ -15,17 +15,26 @@ public class AssignmentRepository(DapperConnectionFactory _connectionFactory) : 
             // Remove existing assignments for this user
             await conn.ExecuteAsync("DELETE FROM USER_ASSIGNMENTS WHERE USER_ID = :userId", new { userId });
 
-            // Insert new assignments
-            foreach (var patientId in patientIds)
-            {
-                var assignmentId = $"assign-{Guid.NewGuid().ToString()[..8]}";
-                await conn.ExecuteAsync(@"
-                    INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT) 
-                    VALUES (:assignmentId, :userId, :shiftId, :patientId, SYSTIMESTAMP)",
-                    new { assignmentId, userId, shiftId, patientId });
-            }
+            var patientIdList = patientIds.ToList();
+            if (patientIdList.Count == 0)
+                return patientIdList;
 
-            return patientIds.ToList();
+            // Batch Insert: Create list of assignment objects for Dapper to process efficiently
+            var assignments = patientIdList.Select(patientId => new
+            {
+                AssignmentId = $"assign-{Guid.NewGuid().ToString()[..8]}",
+                UserId = userId,
+                ShiftId = shiftId,
+                PatientId = patientId
+            }).ToList();
+
+            // Dapper will execute this as a single batch operation (array binding)
+            await conn.ExecuteAsync(@"
+                INSERT INTO USER_ASSIGNMENTS (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT) 
+                VALUES (:AssignmentId, :UserId, :ShiftId, :PatientId, SYSTIMESTAMP)",
+                assignments);
+
+            return patientIdList;
         }
         catch (Oracle.ManagedDataAccess.Client.OracleException ex)
         {
