@@ -8,4 +8,5 @@ public interface IPatientRepository
         Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize);
         Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId);
         Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId);
+        Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy);
     }

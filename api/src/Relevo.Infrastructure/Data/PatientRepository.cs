@@ -104,6 +104,28 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         return await conn.QueryFirstOrDefaultAsync<PatientSummaryRecord>(sql, new { PatientId = patientId });
     }
 
+    public async Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        var summaryId = Guid.NewGuid().ToString();
+
+        const string sql = @"
+            INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
+            VALUES (:summaryId, :patientId, :physicianId, :summaryText, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy)";
+
+        await conn.ExecuteAsync(sql, new { summaryId, patientId, physicianId, summaryText, createdBy });
+
+        return new PatientSummaryRecord(
+            summaryId,
+            patientId,
+            physicianId,
+            summaryText,
+            DateTime.UtcNow, // Approximate, or fetch from DB
+            DateTime.UtcNow,
+            createdBy
+        );
+    }
+
   public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
   {
     using var conn = _connectionFactory.CreateConnection();
