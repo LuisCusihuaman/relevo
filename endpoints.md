@@ -62,10 +62,10 @@ Generated from `swagger.json`.
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
 | [ ] | `POST` | `/me/assignments` | Post assignments |
-| [ ] | `DELETE` | `/me/handovers/{handoverId}/action-items/{itemId}` | Delete handover action item |
-| [ ] | `PUT` | `/me/handovers/{handoverId}/action-items/{itemId}` | Update handover action item |
-| [ ] | `GET` | `/me/handovers/{handoverId}/action-items` | Get handover action items |
-| [ ] | `POST` | `/me/handovers/{handoverId}/action-items` | Create handover action item |
+| [x] | `DELETE` | `/me/handovers/{handoverId}/action-items/{itemId}` | Delete handover action item |
+| [x] | `PUT` | `/me/handovers/{handoverId}/action-items/{itemId}` | Update handover action item |
+| [x] | `GET` | `/me/handovers/{handoverId}/action-items` | Get handover action items |
+| [x] | `POST` | `/me/handovers/{handoverId}/action-items` | Create handover action item |
 | [ ] | `GET` | `/me/handovers/{handoverId}/activity` | Get handover activity |
 | [ ] | `GET` | `/me/handovers/{handoverId}/checklists` | Get handover checklists |
 | [ ] | `PUT` | `/me/handovers/{handoverId}/checklists/{itemId}` | Update checklist item |

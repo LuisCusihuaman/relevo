@@ -47,7 +47,11 @@ public class DapperTestSeeder(IConfiguration configuration)
         } 
         catch {} 
         
-        connection.Execute("CREATE SEQUENCE RELEVO_APP.CONTRIBUTORS_SEQ START WITH 1 INCREMENT BY 1");
+        try 
+        {
+            connection.Execute("CREATE SEQUENCE RELEVO_APP.CONTRIBUTORS_SEQ START WITH 1 INCREMENT BY 1");
+        } 
+        catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used
 
         connection.Execute(@"
             INSERT INTO CONTRIBUTORS (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 

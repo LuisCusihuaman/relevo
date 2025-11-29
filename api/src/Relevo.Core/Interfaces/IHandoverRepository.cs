@@ -24,4 +24,10 @@ public interface IHandoverRepository
     Task<bool> CancelHandoverAsync(string handoverId, string userId);
     Task<bool> CompleteHandoverAsync(string handoverId, string userId);
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId);
+
+    // Action Items
+    Task<IReadOnlyList<HandoverActionItemFullRecord>> GetActionItemsAsync(string handoverId);
+    Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority);
+    Task<bool> UpdateActionItemAsync(string handoverId, string itemId, bool isCompleted);
+    Task<bool> DeleteActionItemAsync(string handoverId, string itemId);
 }
