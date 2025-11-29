@@ -24,7 +24,8 @@ Generated from `swagger.json`.
 | :---: | :--- | :--- | :--- |
 | [x] | `GET` | `/patients` | Get all patients |
 | [x] | `GET` | `/patients/{patientId}` | Get patient by ID |
-| [ ] | `GET` | `/patients/{patientId}/handovers` | Get patient handovers |
+| [x] | `GET` | `/patients/{patientId}/handovers` | Get patient handovers |
+| [ ] | `GET` | `/handovers/{handoverId}` | Get handover by ID |
 | [ ] | `GET` | `/patients/{patientId}/summary` | Get patient summary |
 | [ ] | `POST` | `/patients/{patientId}/summary` | Create patient summary |
 | [ ] | `PUT` | `/patients/{patientId}/summary` | Update patient summary |

@@ -30,6 +30,7 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<IPatientRepository, PatientRepository>();
     services.AddScoped<IShiftRepository, ShiftRepository>();
     services.AddScoped<IUnitRepository, UnitRepository>();
+    services.AddScoped<IHandoverRepository, HandoverRepository>();
 
     services.AddScoped<IListContributorsQueryService, ListContributorsQueryService>()
            .AddScoped<IDeleteContributorService, DeleteContributorService>();
