@@ -83,4 +83,54 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
 
     return (patients.ToList(), total);
   }
+
+  public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    const string sql = @"
+      SELECT 
+        p.ID, 
+        p.NAME, 
+        p.MRN, 
+        TO_CHAR(p.DATE_OF_BIRTH, 'YYYY-MM-DD') as Dob,
+        p.GENDER, 
+        TO_CHAR(p.ADMISSION_DATE, 'YYYY-MM-DD HH24:MI:SS') as AdmissionDate,
+        u.NAME as CurrentUnit,
+        p.ROOM_NUMBER as RoomNumber,
+        p.DIAGNOSIS,
+        p.ALLERGIES,
+        p.MEDICATIONS,
+        p.NOTES
+      FROM PATIENTS p
+      LEFT JOIN UNITS u ON p.UNIT_ID = u.ID
+      WHERE p.ID = :PatientId";
+
+    // Use a temporary DTO to handle comma-separated lists if stored as strings, 
+    // or adjust if they are stored differently. Assuming string for now based on SQL schema.
+    // The schema showed ALLERGIES VARCHAR2(1000), MEDICATIONS VARCHAR2(1000).
+    
+    var result = await conn.QuerySingleOrDefaultAsync<dynamic>(sql, new { PatientId = patientId });
+
+    if (result == null)
+        return null;
+
+    var allergies = ((string?)result.ALLERGIES)?.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList() ?? new List<string>();
+    var medications = ((string?)result.MEDICATIONS)?.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList() ?? new List<string>();
+
+    return new PatientDetailRecord(
+        (string)result.ID,
+        (string)result.NAME,
+        (string?)result.MRN ?? "",
+        (string?)result.DOB ?? "",
+        (string?)result.GENDER ?? "",
+        (string?)result.ADMISSIONDATE ?? "",
+        (string?)result.CURRENTUNIT ?? "",
+        (string?)result.ROOMNUMBER ?? "",
+        (string?)result.DIAGNOSIS ?? "",
+        allergies,
+        medications,
+        (string?)result.NOTES ?? ""
+    );
+  }
 }

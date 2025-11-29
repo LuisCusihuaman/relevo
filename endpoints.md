@@ -23,7 +23,7 @@ Generated from `swagger.json`.
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
 | [x] | `GET` | `/patients` | Get all patients |
-| [ ] | `GET` | `/patients/{patientId}` | Get patient by ID |
+| [x] | `GET` | `/patients/{patientId}` | Get patient by ID |
 | [ ] | `GET` | `/patients/{patientId}/handovers` | Get patient handovers |
 | [ ] | `GET` | `/patients/{patientId}/summary` | Get patient summary |
 | [ ] | `POST` | `/patients/{patientId}/summary` | Create patient summary |
