@@ -318,6 +318,19 @@ public class DapperTestSeeder(IConfiguration configuration)
                     Status = "draft"
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
+        
+        // Seed Handover Situation Awareness
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_SITUATION_AWARENESS (HANDOVER_ID, CONTENT, LAST_EDITED_BY, STATUS, CREATED_AT, UPDATED_AT) VALUES
+                (:HandoverId, :Content, :LastEditedBy, :Status, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new { 
+                    HandoverId = "hvo-001", 
+                    Content = "Initial SA",
+                    LastEditedBy = "dr-1",
+                    Status = "draft"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
 
         // Seed Action Items
         try {

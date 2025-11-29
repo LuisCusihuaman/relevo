@@ -40,9 +40,9 @@ Generated from `swagger.json`.
 | [ ] | `POST` | `/handovers/{handoverId}/accept` | Accept handover |
 | [ ] | `POST` | `/handovers/{handoverId}/cancel` | Cancel handover |
 | [ ] | `POST` | `/handovers/{handoverId}/complete` | Complete handover |
-| [ ] | `DELETE` | `/handovers/{handoverId}/contingency-plans/{contingencyId}` | Delete contingency plan |
+| [x] | `DELETE` | `/handovers/{handoverId}/contingency-plans/{contingencyId}` | Delete contingency plan |
 | [x] | `GET` | `/handovers/{handoverId}/contingency-plans` | Get contingency plans |
-| [ ] | `POST` | `/handovers/{handoverId}/contingency-plans` | Create contingency plan |
+| [x] | `POST` | `/handovers/{handoverId}/contingency-plans` | Create contingency plan |
 | [ ] | `POST` | `/handovers` | Create handover |
 | [ ] | `GET` | `/handovers/{handoverId}` | Get handover by ID |
 | [ ] | `GET` | `/handovers/{handoverId}/patient` | Get patient handover data (demographics, physicians, status) |
@@ -51,8 +51,8 @@ Generated from `swagger.json`.
 | [ ] | `PUT` | `/handovers/{handoverId}/patient-data` | Update patient clinical data |
 | [ ] | `POST` | `/handovers/{id}/ready` | Mark handover as ready |
 | [ ] | `POST` | `/handovers/{handoverId}/reject` | Reject handover |
-| [ ] | `GET` | `/handovers/{handoverId}/situation-awareness` | Get situation awareness |
-| [ ] | `PUT` | `/handovers/{handoverId}/situation-awareness` | Update situation awareness |
+| [x] | `GET` | `/handovers/{handoverId}/situation-awareness` | Get situation awareness |
+| [x] | `PUT` | `/handovers/{handoverId}/situation-awareness` | Update situation awareness |
 | [ ] | `POST` | `/handovers/{handoverId}/start` | Start handover |
 | [ ] | `GET` | `/handovers/{handoverId}/synthesis` | Get synthesis |
 | [ ] | `PUT` | `/handovers/{handoverId}/synthesis` | Update synthesis |

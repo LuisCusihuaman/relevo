@@ -448,6 +448,62 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     }
   }
 
+  public async Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        SELECT HANDOVER_ID as HandoverId, CONTENT as Content, STATUS,
+               LAST_EDITED_BY as LastEditedBy, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+        FROM HANDOVER_SITUATION_AWARENESS
+        WHERE HANDOVER_ID = :handoverId";
+
+    var result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+
+    if (result == null)
+    {
+        // Check if handover exists first
+        var createdBy = await conn.ExecuteScalarAsync<string>(
+            "SELECT CREATED_BY FROM HANDOVERS WHERE ID = :handoverId",
+            new { handoverId });
+
+        if (createdBy == null) return null; 
+
+        await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVER_SITUATION_AWARENESS (
+                HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+            ) VALUES (
+                :handoverId, '', 'Draft', :createdBy, SYSTIMESTAMP, SYSTIMESTAMP
+            )", new { handoverId, createdBy });
+
+        result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
+    }
+
+    return result;
+  }
+
+  public async Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId)
+  {
+    try
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        const string sql = @"
+            MERGE INTO HANDOVER_SITUATION_AWARENESS sa
+            USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (sa.HANDOVER_ID = src.HANDOVER_ID)
+            WHEN MATCHED THEN
+                UPDATE SET CONTENT = :content, STATUS = :status, LAST_EDITED_BY = :userId, UPDATED_AT = SYSTIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT)
+                VALUES (:handoverId, :content, :status, :userId, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+        var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, content, status, userId });
+        return rowsAffected > 0;
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+  }
+
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
   {
       // Get Name
