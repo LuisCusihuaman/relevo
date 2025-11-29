@@ -360,5 +360,38 @@ public class DapperTestSeeder(IConfiguration configuration)
                     LastEditedBy = "dr-1"
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
+
+        // Create HANDOVER_CONTINGENCY table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE HANDOVER_CONTINGENCY (
+                    ID VARCHAR2(50) PRIMARY KEY,
+                    HANDOVER_ID VARCHAR2(50) NOT NULL,
+                    CONDITION_TEXT VARCHAR2(1000),
+                    ACTION_TEXT VARCHAR2(1000),
+                    PRIORITY VARCHAR2(20),
+                    STATUS VARCHAR2(20) DEFAULT 'active',
+                    CREATED_BY VARCHAR2(255),
+                    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    CONSTRAINT FK_CONTINGENCY_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Seed Contingency Plans
+        try {
+            connection.Execute(@"
+                INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT, UPDATED_AT) VALUES
+                (:Id, :HandoverId, :ConditionText, :ActionText, :Priority, :Status, :CreatedBy, SYSTIMESTAMP, SYSTIMESTAMP)",
+                new {
+                    Id = "plan-001",
+                    HandoverId = "hvo-001",
+                    ConditionText = "If BP drops below 90/60",
+                    ActionText = "Administer fluids",
+                    Priority = "High",
+                    Status = "active",
+                    CreatedBy = "dr-1"
+                });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
     }
 }

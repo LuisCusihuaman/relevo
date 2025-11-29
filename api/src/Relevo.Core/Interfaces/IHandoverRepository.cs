@@ -8,5 +8,6 @@ namespace Relevo.Core.Interfaces;
         Task<HandoverDetailRecord?> GetHandoverByIdAsync(string handoverId);
         Task<PatientHandoverDataRecord?> GetPatientHandoverDataAsync(string handoverId);
         Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request);
+        Task<IReadOnlyList<ContingencyPlanRecord>> GetContingencyPlansAsync(string handoverId);
     }
 
