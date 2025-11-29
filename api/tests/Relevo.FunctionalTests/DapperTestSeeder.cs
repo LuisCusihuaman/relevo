@@ -110,8 +110,7 @@ public class DapperTestSeeder(IConfiguration configuration)
                     USER_ID VARCHAR2(255) NOT NULL,
                     SHIFT_ID VARCHAR2(50) NOT NULL,
                     PATIENT_ID VARCHAR2(50) NOT NULL,
-                    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
-                    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    ASSIGNED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
                     CONSTRAINT PK_USER_ASSIGNMENTS PRIMARY KEY (ASSIGNMENT_ID)
                 )");
         } catch (OracleException e) when (e.Number == 955) {}
@@ -128,48 +127,6 @@ public class DapperTestSeeder(IConfiguration configuration)
                 new { Id = "dr-1", Email = "dr1@example.com", FirstName = "Doctor", LastName = "One", FullName = "Dr. One" });
         } catch (OracleException) {}
 
-        // Seed Assignment
-        try {
-            connection.Execute(@"
-                MERGE INTO USER_ASSIGNMENTS ua
-                USING (SELECT :Id as Id, :UserId as UserId, :ShiftId as ShiftId, :PatientId as PatientId FROM DUAL) s
-                ON (ua.ASSIGNMENT_ID = s.Id)
-                WHEN NOT MATCHED THEN
-                INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
-                VALUES (s.Id, s.UserId, s.ShiftId, s.PatientId)",
-                new { Id = "asn-001", UserId = "dr-1", ShiftId = "shift-day", PatientId = "pat-001" });
-        } catch (OracleException) {}
-
-        // Create Tables if they don't exist
-        try { 
-            connection.Execute(@"
-                CREATE TABLE UNITS (
-                    ID VARCHAR2(50) NOT NULL,
-                    NAME VARCHAR2(100) NOT NULL,
-                    DESCRIPTION VARCHAR2(255),
-                    CREATED_AT TIMESTAMP,
-                    UPDATED_AT TIMESTAMP,
-                    CONSTRAINT PK_UNITS PRIMARY KEY (ID)
-                )");
-        } catch (OracleException e) when (e.Number == 955) {} // Name used by existing object
-
-            try {
-            connection.Execute(@"
-                CREATE TABLE PATIENTS (
-                    ID VARCHAR2(50) NOT NULL,
-                    NAME VARCHAR2(100) NOT NULL,
-                    UNIT_ID VARCHAR2(50) NOT NULL,
-                    DATE_OF_BIRTH DATE,
-                    GENDER VARCHAR2(20),
-                    ADMISSION_DATE DATE,
-                    ROOM_NUMBER VARCHAR2(20),
-                    DIAGNOSIS VARCHAR2(255),
-                    CREATED_AT TIMESTAMP,
-                    UPDATED_AT TIMESTAMP,
-                    CONSTRAINT PK_PATIENTS PRIMARY KEY (ID)
-                )");
-        } catch (OracleException e) when (e.Number == 955) {}
-
         // Seed Units
         try {
             connection.Execute(@"
@@ -177,20 +134,6 @@ public class DapperTestSeeder(IConfiguration configuration)
                 (:Id, :Name, :Description, SYSTIMESTAMP, SYSTIMESTAMP)",
                 new { Id = "unit-1", Name = "UCI", Description = "Unidad de Cuidados Intensivos" });
         } catch (OracleException e) when (e.Number == 1) {}
-
-        // Create SHIFTS table if not exists
-        try {
-            connection.Execute(@"
-                CREATE TABLE SHIFTS (
-                    ID VARCHAR2(50) NOT NULL,
-                    NAME VARCHAR2(100) NOT NULL,
-                    START_TIME VARCHAR2(5) NOT NULL,
-                    END_TIME VARCHAR2(5) NOT NULL,
-                    CREATED_AT TIMESTAMP,
-                    UPDATED_AT TIMESTAMP,
-                    CONSTRAINT PK_SHIFTS PRIMARY KEY (ID)
-                )");
-        } catch (OracleException e) when (e.Number == 955) {}
 
         // Clean SHIFTS
         connection.Execute("DELETE FROM SHIFTS");
@@ -220,6 +163,18 @@ public class DapperTestSeeder(IConfiguration configuration)
                 (:Id, :Name, :UnitId, :DateOfBirth, :Gender, :AdmissionDate, :RoomNumber, :Diagnosis, SYSTIMESTAMP, SYSTIMESTAMP)",
                 new { Id = "pat-002", Name = "Carlos Rodríguez", UnitId = "unit-1", DateOfBirth = new DateTime(2012, 5, 15), Gender = "Male", AdmissionDate = DateTime.Now.AddDays(-1), RoomNumber = "201", Diagnosis = "Gastroenteritis" });
         } catch (OracleException e) when (e.Number == 1) {}
+
+        // Seed Assignment (Moved after Users, Shifts, and Patients are seeded)
+        try {
+            connection.Execute(@"
+                MERGE INTO USER_ASSIGNMENTS ua
+                USING (SELECT :Id as Id, :UserId as UserId, :ShiftId as ShiftId, :PatientId as PatientId FROM DUAL) s
+                ON (ua.ASSIGNMENT_ID = s.Id)
+                WHEN NOT MATCHED THEN
+                INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID)
+                VALUES (s.Id, s.UserId, s.ShiftId, s.PatientId)",
+                new { Id = "asn-001", UserId = "dr-1", ShiftId = "shift-day", PatientId = "pat-001" });
+        } catch (OracleException) {}
 
         // Create HANDOVERS table if not exists
         try {
@@ -297,6 +252,35 @@ public class DapperTestSeeder(IConfiguration configuration)
                     UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
                     COMPLETED_AT TIMESTAMP,
                     CONSTRAINT FK_ACTION_ITEMS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Create HANDOVER_PARTICIPANTS table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE HANDOVER_PARTICIPANTS (
+                    ID VARCHAR2(50) PRIMARY KEY,
+                    HANDOVER_ID VARCHAR2(50) NOT NULL,
+                    USER_ID VARCHAR2(255) NOT NULL,
+                    USER_NAME VARCHAR2(200) NOT NULL,
+                    USER_ROLE VARCHAR2(100),
+                    STATUS VARCHAR2(20) DEFAULT 'active',
+                    JOINED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    LAST_ACTIVITY TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    CONSTRAINT FK_PARTICIPANTS_HANDOVER FOREIGN KEY (HANDOVER_ID) REFERENCES HANDOVERS(ID)
+                )");
+        } catch (OracleException e) when (e.Number == 955) {}
+
+        // Create HANDOVER_SITUATION_AWARENESS table if not exists
+        try {
+            connection.Execute(@"
+                CREATE TABLE HANDOVER_SITUATION_AWARENESS (
+                    HANDOVER_ID VARCHAR2(50) PRIMARY KEY REFERENCES HANDOVERS(ID),
+                    CONTENT CLOB,
+                    LAST_EDITED_BY VARCHAR2(255) REFERENCES USERS(ID),
+                    STATUS VARCHAR2(20) DEFAULT 'draft',
+                    CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP
                 )");
         } catch (OracleException e) when (e.Number == 955) {}
 

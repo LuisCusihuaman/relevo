@@ -326,14 +326,14 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
               h.STATUS as StateName,
               1 as Version
           FROM HANDOVERS h
-          JOIN PATIENTS p ON h.PATIENT_ID = p.ID
+          LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
           LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
           LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
           WHERE h.ID = :HandoverId";
 
         var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(fetchSql, new { HandoverId = handoverId });
 
-        if (handover == null) throw new InvalidOperationException(""Failed to retrieve created handover (HandoverId not found)."");
+        if (handover == null) throw new InvalidOperationException($"Failed to retrieve created handover (HandoverId: {handoverId} not found).");
         
         return MapHandoverRecord(handover);
     }
