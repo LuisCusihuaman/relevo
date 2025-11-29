@@ -1,5 +1,6 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.Profile;
 
 namespace Relevo.Web.Me;
@@ -15,19 +16,22 @@ public record GetMyProfileResponse
     public bool IsActive { get; init; } = true;
 }
 
-public class GetMyProfileEndpoint(IMediator _mediator)
+public class GetMyProfileEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : EndpointWithoutRequest<GetMyProfileResponse>
 {
     public override void Configure()
     {
         Get("/me/profile");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = "dr-1";
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
 
         var result = await _mediator.Send(new GetMyProfileQuery(userId), ct);
 

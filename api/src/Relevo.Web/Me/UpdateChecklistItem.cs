@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.Checklists;
 
 namespace Relevo.Web.Me;
@@ -22,19 +23,22 @@ public record UpdateChecklistItemResponse
     public string Message { get; init; } = string.Empty;
 }
 
-public class UpdateChecklistItemEndpoint(IMediator _mediator)
+public class UpdateChecklistItemEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<UpdateChecklistItemRequest, UpdateChecklistItemResponse>
 {
     public override void Configure()
     {
         Put("/me/handovers/{handoverId}/checklists/{itemId}");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(UpdateChecklistItemRequest req, CancellationToken ct)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = "dr-1";
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
 
         var result = await _mediator.Send(
             new UpdateChecklistItemCommand(req.HandoverId, req.ItemId, req.IsChecked, userId),

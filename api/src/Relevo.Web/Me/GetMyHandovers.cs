@@ -1,5 +1,6 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 using Relevo.UseCases.Me.Handovers;
 
@@ -25,19 +26,22 @@ public record PaginationInfo
     public int TotalPages { get; init; }
 }
 
-public class GetMyHandoversEndpoint(IMediator _mediator)
+public class GetMyHandoversEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<GetMyHandoversRequest, GetMyHandoversResponse>
 {
     public override void Configure()
     {
         Get("/me/handovers");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetMyHandoversRequest req, CancellationToken ct)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = "dr-1";
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
 
         var page = req.Page <= 0 ? 1 : req.Page;
         var pageSize = req.PageSize <= 0 ? 25 : req.PageSize;

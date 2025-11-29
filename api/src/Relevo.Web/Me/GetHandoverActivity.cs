@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 using Relevo.UseCases.Me.Activity;
 
@@ -17,17 +18,22 @@ public record GetHandoverActivityResponse
     public IReadOnlyList<HandoverActivityRecord> Activities { get; init; } = [];
 }
 
-public class GetHandoverActivityEndpoint(IMediator _mediator)
+public class GetHandoverActivityEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<GetHandoverActivityRequest, GetHandoverActivityResponse>
 {
     public override void Configure()
     {
         Get("/me/handovers/{handoverId}/activity");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetHandoverActivityRequest req, CancellationToken ct)
     {
+        if (!_currentUser.IsAuthenticated)
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
+
         var result = await _mediator.Send(new GetHandoverActivityQuery(req.HandoverId), ct);
 
         if (!result.IsSuccess)

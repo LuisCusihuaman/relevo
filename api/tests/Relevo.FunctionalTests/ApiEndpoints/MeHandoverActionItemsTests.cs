@@ -9,7 +9,7 @@ namespace Relevo.FunctionalTests.ApiEndpoints;
 [Collection("TestCollection")]
 public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.CreateAuthenticatedClient();
 
     [Fact]
     public async Task GetActionItems_ReturnsActionItemsForHandover()

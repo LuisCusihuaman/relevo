@@ -1,25 +1,29 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.Assignments;
 
 namespace Relevo.Web.Me;
 
-public class PostAssignments(IMediator _mediator)
+public class PostAssignments(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<PostAssignmentsRequest>
 {
     public override void Configure()
     {
         Post("/me/assignments");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(PostAssignmentsRequest req, CancellationToken ct)
     {
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
+
         try
         {
-            // For now, use a hardcoded user ID (in production, this would come from auth context)
-            var userId = "dr-1";
-
             var result = await _mediator.Send(
                 new PostAssignmentsCommand(userId, req.ShiftId, req.PatientIds ?? []),
                 ct);

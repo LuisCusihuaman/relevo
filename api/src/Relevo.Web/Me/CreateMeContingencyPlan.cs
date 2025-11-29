@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 using Relevo.UseCases.Me.ContingencyPlans;
 
@@ -22,19 +23,22 @@ public record CreateMeContingencyPlanResponse
     public ContingencyPlanRecord? ContingencyPlan { get; init; }
 }
 
-public class CreateMeContingencyPlanEndpoint(IMediator _mediator)
+public class CreateMeContingencyPlanEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<CreateMeContingencyPlanRequest, CreateMeContingencyPlanResponse>
 {
     public override void Configure()
     {
         Post("/me/handovers/{handoverId}/contingency-plans");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CreateMeContingencyPlanRequest req, CancellationToken ct)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = "dr-1";
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
 
         var result = await _mediator.Send(
             new CreateMeContingencyPlanCommand(

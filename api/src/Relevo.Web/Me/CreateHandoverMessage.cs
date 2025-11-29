@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 using Relevo.UseCases.Me.Messages;
 
@@ -21,20 +22,24 @@ public record CreateHandoverMessageResponse
     public HandoverMessageRecord? Message { get; init; }
 }
 
-public class CreateHandoverMessageEndpoint(IMediator _mediator)
+public class CreateHandoverMessageEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<CreateHandoverMessageRequest, CreateHandoverMessageResponse>
 {
     public override void Configure()
     {
         Post("/me/handovers/{handoverId}/messages");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CreateHandoverMessageRequest req, CancellationToken ct)
     {
-        // TODO: Get actual user ID and name from authentication context
-        var userId = "dr-1";
-        var userName = "Dr. Demo";
+        var userId = _currentUser.Id;
+        var userName = _currentUser.Email ?? "Unknown"; // Fallback as ICurrentUser doesn't expose Name yet
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
 
         var result = await _mediator.Send(
             new CreateHandoverMessageCommand(

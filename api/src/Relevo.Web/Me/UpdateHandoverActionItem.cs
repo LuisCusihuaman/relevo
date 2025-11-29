@@ -1,20 +1,26 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.ActionItems;
 
 namespace Relevo.Web.Me;
 
-public class UpdateHandoverActionItem(IMediator _mediator)
+public class UpdateHandoverActionItem(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<UpdateHandoverActionItemRequest, UpdateHandoverActionItemResponse>
 {
     public override void Configure()
     {
         Put("/me/handovers/{handoverId}/action-items/{itemId}");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(UpdateHandoverActionItemRequest req, CancellationToken ct)
     {
+        if (!_currentUser.IsAuthenticated)
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
+
         var result = await _mediator.Send(
             new UpdateHandoverActionItemCommand(req.HandoverId, req.ItemId, req.IsCompleted),
             ct);

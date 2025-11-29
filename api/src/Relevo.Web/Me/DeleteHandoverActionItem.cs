@@ -1,20 +1,26 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.ActionItems;
 
 namespace Relevo.Web.Me;
 
-public class DeleteHandoverActionItem(IMediator _mediator)
+public class DeleteHandoverActionItem(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<DeleteHandoverActionItemRequest, DeleteHandoverActionItemResponse>
 {
     public override void Configure()
     {
         Delete("/me/handovers/{handoverId}/action-items/{itemId}");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(DeleteHandoverActionItemRequest req, CancellationToken ct)
     {
+        if (!_currentUser.IsAuthenticated)
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
+
         var result = await _mediator.Send(
             new DeleteHandoverActionItemCommand(req.HandoverId, req.ItemId),
             ct);

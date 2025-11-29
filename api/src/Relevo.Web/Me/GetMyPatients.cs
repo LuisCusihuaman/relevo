@@ -1,5 +1,6 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.Patients;
 
 namespace Relevo.Web.Me;
@@ -31,19 +32,22 @@ public record PatientsPaginationInfo
     public int PageSize { get; init; }
 }
 
-public class GetMyPatientsEndpoint(IMediator _mediator)
+public class GetMyPatientsEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<GetMyPatientsRequest, GetMyPatientsResponse>
 {
     public override void Configure()
     {
         Get("/me/patients");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetMyPatientsRequest req, CancellationToken ct)
     {
-        // TODO: Get actual user ID from authentication context
-        var userId = "dr-1";
+        var userId = _currentUser.Id;
+        if (string.IsNullOrEmpty(userId))
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
 
         var page = req.Page <= 0 ? 1 : req.Page;
         var pageSize = req.PageSize <= 0 ? 25 : req.PageSize;

@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 using Relevo.UseCases.Me.Checklists;
 
@@ -17,17 +18,22 @@ public record GetHandoverChecklistsResponse
     public IReadOnlyList<HandoverChecklistRecord> Checklists { get; init; } = [];
 }
 
-public class GetHandoverChecklistsEndpoint(IMediator _mediator)
+public class GetHandoverChecklistsEndpoint(IMediator _mediator, ICurrentUser _currentUser)
     : Endpoint<GetHandoverChecklistsRequest, GetHandoverChecklistsResponse>
 {
     public override void Configure()
     {
         Get("/me/handovers/{handoverId}/checklists");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(GetHandoverChecklistsRequest req, CancellationToken ct)
     {
+        if (!_currentUser.IsAuthenticated)
+        {
+             await SendUnauthorizedAsync(ct);
+             return;
+        }
+
         var result = await _mediator.Send(new GetHandoverChecklistsQuery(req.HandoverId), ct);
 
         if (!result.IsSuccess)

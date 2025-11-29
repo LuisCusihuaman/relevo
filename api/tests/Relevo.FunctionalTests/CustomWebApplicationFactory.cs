@@ -44,6 +44,14 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     return host;
   }
 
+  public HttpClient CreateAuthenticatedClient(string userId = "dr-1")
+  {
+      var client = CreateClient();
+      client.DefaultRequestHeaders.Authorization = 
+          new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userId);
+      return client;
+  }
+
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
     builder.ConfigureAppConfiguration((context, config) =>
