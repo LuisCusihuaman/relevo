@@ -140,6 +140,38 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         return rows > 0;
     }
 
+    public async Task<IReadOnlyList<PatientActionItemRecord>> GetPatientActionItemsAsync(string patientId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+        // Query to join action items with handovers to filter by patient
+        // Assuming schema: HANDOVER_ACTION_ITEMS (HANDOVER_ID) -> HANDOVERS (ID, PATIENT_ID, CREATED_BY, SHIFT_NAME)
+        const string sql = @"
+            SELECT 
+                ai.ID,
+                ai.HANDOVER_ID as HandoverId,
+                ai.DESCRIPTION,
+                ai.IS_COMPLETED as IsCompleted,
+                ai.CREATED_AT as CreatedAt,
+                h.CREATED_BY as CreatedBy,
+                h.SHIFT_NAME as ShiftName
+            FROM HANDOVER_ACTION_ITEMS ai
+            JOIN HANDOVERS h ON ai.HANDOVER_ID = h.ID
+            WHERE h.PATIENT_ID = :PatientId
+            ORDER BY ai.CREATED_AT DESC";
+
+        var items = await conn.QueryAsync<dynamic>(sql, new { PatientId = patientId });
+
+        return items.Select(i => new PatientActionItemRecord(
+            (string)i.ID,
+            (string)i.HANDOVERID,
+            (string)i.DESCRIPTION,
+            ((int)i.ISCOMPLETED) == 1,
+            (DateTime)i.CREATEDAT,
+            (string)i.CREATEDBY,
+            (string)i.SHIFTNAME
+        )).ToList();
+    }
+
   public async Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId)
   {
     using var conn = _connectionFactory.CreateConnection();

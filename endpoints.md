@@ -31,6 +31,7 @@ Generated from `swagger.json`.
 | [x] | `GET` | `/patients/{patientId}/summary` | Get patient summary |
 | [x] | `POST` | `/patients/{patientId}/summary` | Create patient summary |
 | [x] | `PUT` | `/patients/{patientId}/summary` | Update patient summary |
+| [x] | `GET` | `/patients/{patientId}/action-items` | Get patient action items |
 
 
 ### Handovers
