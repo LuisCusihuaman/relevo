@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 
@@ -12,11 +13,11 @@ public class HandoversGetSituationAwareness(CustomWebApplicationFactory<Program>
   [Fact]
   public async Task ReturnsSituationAwarenessForHandover()
   {
-    var result = await _client.GetAndDeserializeAsync<GetSituationAwarenessResponse>("/handovers/hvo-001/situation-awareness");
+    var handoverId = DapperTestSeeder.HandoverId;
+    var result = await _client.GetAndDeserializeAsync<GetSituationAwarenessResponse>($"/handovers/{handoverId}/situation-awareness");
 
     Assert.NotNull(result);
     Assert.NotNull(result.SituationAwareness);
-    Assert.Equal("hvo-001", result.SituationAwareness.HandoverId);
+    Assert.Equal(handoverId, result.SituationAwareness.HandoverId);
   }
 }
-

@@ -20,8 +20,8 @@ public class HandoverRepositoryDeleteContingencyPlanTests : BaseDapperRepoTestFi
     public async Task DeleteContingencyPlan_DeletesExistingPlan()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001";
-        var planId = "plan-001"; // Seeded in DapperTestSeeder
+        var handoverId = DapperTestSeeder.HandoverId;
+        var planId = DapperTestSeeder.ContingencyPlanId;
 
         var deleted = await repository.DeleteContingencyPlanAsync(handoverId, planId);
         Assert.True(deleted);
@@ -30,4 +30,3 @@ public class HandoverRepositoryDeleteContingencyPlanTests : BaseDapperRepoTestFi
         Assert.DoesNotContain(plans, p => p.Id == planId);
     }
 }
-

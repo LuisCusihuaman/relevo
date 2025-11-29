@@ -20,11 +20,11 @@ public class HandoverRepositoryCreateContingencyPlanTests : BaseDapperRepoTestFi
     public async Task CreateContingencyPlan_ReturnsCreatedPlan()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001";
+        var handoverId = DapperTestSeeder.HandoverId;
         var condition = "If Condition Met";
         var action = "Do Action";
         var priority = "Medium";
-        var userId = "dr-1";
+        var userId = DapperTestSeeder.UserId;
 
         var plan = await repository.CreateContingencyPlanAsync(handoverId, condition, action, priority, userId);
 
@@ -34,4 +34,3 @@ public class HandoverRepositoryCreateContingencyPlanTests : BaseDapperRepoTestFi
         Assert.False(string.IsNullOrEmpty(plan.Id));
     }
 }
-

@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 using System.Net;
@@ -14,14 +15,19 @@ public class HandoversCreate(CustomWebApplicationFactory<Program> factory) : ICl
   [Fact]
   public async Task CreatesHandover()
   {
+    var patientId = DapperTestSeeder.PatientId1;
+    var userId = DapperTestSeeder.UserId;
+    var shiftDayId = DapperTestSeeder.ShiftDayId;
+    var shiftNightId = DapperTestSeeder.ShiftNightId;
+    
     var request = new CreateHandoverRequestDto
     {
-        PatientId = "pat-001",
-        FromDoctorId = "dr-1",
-        ToDoctorId = "dr-1",
-        FromShiftId = "shift-day",
-        ToShiftId = "shift-night",
-        InitiatedBy = "dr-1",
+        PatientId = patientId,
+        FromDoctorId = userId,
+        ToDoctorId = userId,
+        FromShiftId = shiftDayId,
+        ToShiftId = shiftNightId,
+        InitiatedBy = userId,
         Notes = "Functional Test"
     };
 
@@ -32,8 +38,7 @@ public class HandoversCreate(CustomWebApplicationFactory<Program> factory) : ICl
 
     Assert.NotNull(result);
     Assert.NotNull(result.Id);
-    Assert.Equal("pat-001", result.PatientId);
+    Assert.Equal(patientId, result.PatientId);
     Assert.Equal("Draft", result.Status);
   }
 }
-

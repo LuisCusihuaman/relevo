@@ -21,16 +21,20 @@ public class HandoverRepositoryCreateTests : BaseDapperRepoTestFixture
     public async Task CreateHandover_CreatesAndReturnsHandover()
     {
         var repository = GetHandoverRepository();
+        var patientId = DapperTestSeeder.PatientId1;
+        var userId = DapperTestSeeder.UserId;
+        var shiftDayId = DapperTestSeeder.ShiftDayId;
+        var shiftNightId = DapperTestSeeder.ShiftNightId;
+        
         var request = new CreateHandoverRequest(
-            "pat-001", "dr-1", "dr-1", "shift-day", "shift-night", "dr-1", "Test Notes"
+            patientId, userId, userId, shiftDayId, shiftNightId, userId, "Test Notes"
         );
 
         var handover = await repository.CreateHandoverAsync(request);
 
         Assert.NotNull(handover);
         Assert.NotNull(handover.Id);
-        Assert.Equal("pat-001", handover.PatientId);
+        Assert.Equal(patientId, handover.PatientId);
         Assert.Equal("Draft", handover.Status);
     }
 }
-

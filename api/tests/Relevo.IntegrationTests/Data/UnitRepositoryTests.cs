@@ -20,11 +20,11 @@ public class UnitRepositoryTests : BaseDapperRepoTestFixture
     public async Task GetUnits_ReturnsUnits()
     {
         var repository = GetUnitRepository();
+        var unitId = DapperTestSeeder.UnitId;
 
         var units = await repository.GetUnitsAsync();
 
         Assert.NotEmpty(units);
-        Assert.Contains(units, u => u.Id == "unit-1");
+        Assert.Contains(units, u => u.Id == unitId);
     }
 }
-

@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Patients;
 using Xunit;
 
@@ -12,12 +13,14 @@ public class PatientsGetActionItems(CustomWebApplicationFactory<Program> factory
   [Fact]
   public async Task ReturnsActionItemsForPatient()
   {
-    var result = await _client.GetAndDeserializeAsync<GetPatientActionItemsResponse>("/patients/pat-001/action-items");
+    var patientId = DapperTestSeeder.PatientId1;
+    var handoverId = DapperTestSeeder.HandoverId;
+    
+    var result = await _client.GetAndDeserializeAsync<GetPatientActionItemsResponse>($"/patients/{patientId}/action-items");
 
     Assert.NotNull(result);
     Assert.NotEmpty(result.ActionItems);
     Assert.Contains(result.ActionItems, i => i.Description == "Check blood pressure");
-    Assert.Contains(result.ActionItems, i => i.HandoverId == "hvo-001");
+    Assert.Contains(result.ActionItems, i => i.HandoverId == handoverId);
   }
 }
-

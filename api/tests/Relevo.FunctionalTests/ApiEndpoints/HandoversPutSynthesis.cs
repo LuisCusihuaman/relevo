@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 using System.Net;
@@ -14,14 +15,15 @@ public class HandoversPutSynthesis(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task UpdatesSynthesis()
   {
+    var handoverId = DapperTestSeeder.HandoverId;
     var request = new PutSynthesisRequest
     {
-        HandoverId = "hvo-001",
+        HandoverId = handoverId,
         Content = "Functional test synthesis",
         Status = "draft"
     };
 
-    var response = await _client.PutAsJsonAsync("/handovers/hvo-001/synthesis", request);
+    var response = await _client.PutAsJsonAsync($"/handovers/{handoverId}/synthesis", request);
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
     var result = await response.Content.ReadFromJsonAsync<PutSynthesisResponse>();
@@ -29,4 +31,3 @@ public class HandoversPutSynthesis(CustomWebApplicationFactory<Program> factory)
     Assert.True(result.Success);
   }
 }
-

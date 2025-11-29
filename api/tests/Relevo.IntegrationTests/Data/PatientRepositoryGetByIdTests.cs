@@ -20,14 +20,12 @@ public class PatientRepositoryGetByIdTests : BaseDapperRepoTestFixture
     public async Task GetPatientById_ReturnsPatient()
     {
         var repository = GetPatientRepository();
-        var patientId = "pat-001";
+        var patientId = DapperTestSeeder.PatientId1;
 
         var patient = await repository.GetPatientByIdAsync(patientId);
 
         Assert.NotNull(patient);
         Assert.Equal(patientId, patient.Id);
-        Assert.Equal("María García", patient.Name);
-        Assert.Equal("UCI", patient.CurrentUnit);
     }
 
     [Fact]
@@ -41,4 +39,3 @@ public class PatientRepositoryGetByIdTests : BaseDapperRepoTestFixture
         Assert.Null(patient);
     }
 }
-

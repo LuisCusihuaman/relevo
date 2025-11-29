@@ -20,10 +20,9 @@ public class HandoverRepositoryUpdateSituationAwarenessTests : BaseDapperRepoTes
     public async Task UpdateSituationAwareness_UpdatesExistingRecord()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001"; 
-        var userId = "dr-1";
+        var handoverId = DapperTestSeeder.HandoverId;
+        var userId = DapperTestSeeder.UserId;
 
-        // Ensure it exists first (get triggers creation if missing)
         await repository.GetSituationAwarenessAsync(handoverId);
 
         var success = await repository.UpdateSituationAwarenessAsync(handoverId, "Updated SA", "Final", userId);
@@ -36,4 +35,3 @@ public class HandoverRepositoryUpdateSituationAwarenessTests : BaseDapperRepoTes
         Assert.Equal(userId, updated?.LastEditedBy);
     }
 }
-

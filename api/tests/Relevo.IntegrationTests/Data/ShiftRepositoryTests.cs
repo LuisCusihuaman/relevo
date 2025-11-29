@@ -20,12 +20,13 @@ public class ShiftRepositoryTests : BaseDapperRepoTestFixture
     public async Task GetShifts_ReturnsShifts()
     {
         var repository = GetShiftRepository();
+        var shiftDayId = DapperTestSeeder.ShiftDayId;
+        var shiftNightId = DapperTestSeeder.ShiftNightId;
 
         var shifts = await repository.GetShiftsAsync();
 
         Assert.NotEmpty(shifts);
-        Assert.Contains(shifts, s => s.Id == "shift-day");
-        Assert.Contains(shifts, s => s.Id == "shift-night");
+        Assert.Contains(shifts, s => s.Id == shiftDayId);
+        Assert.Contains(shifts, s => s.Id == shiftNightId);
     }
 }
-

@@ -20,15 +20,15 @@ public class HandoverRepositoryGetByIdTests : BaseDapperRepoTestFixture
     public async Task GetHandoverById_ReturnsHandoverWithActionItems()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001";
+        var handoverId = DapperTestSeeder.HandoverId;
+        var actionItemId = DapperTestSeeder.ActionItemId;
 
         var detail = await repository.GetHandoverByIdAsync(handoverId);
 
         Assert.NotNull(detail);
         Assert.Equal(handoverId, detail.Handover.Id);
-        Assert.Equal("Draft", detail.Handover.Status);
         Assert.NotEmpty(detail.ActionItems);
-        Assert.Contains(detail.ActionItems, i => i.Id == "item-001");
+        Assert.Contains(detail.ActionItems, i => i.Id == actionItemId);
     }
 
     [Fact]

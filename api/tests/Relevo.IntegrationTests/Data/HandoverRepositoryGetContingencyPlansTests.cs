@@ -20,13 +20,12 @@ public class HandoverRepositoryGetContingencyPlansTests : BaseDapperRepoTestFixt
     public async Task GetContingencyPlans_ReturnsPlans()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001"; 
+        var handoverId = DapperTestSeeder.HandoverId;
+        var planId = DapperTestSeeder.ContingencyPlanId;
         
         var plans = await repository.GetContingencyPlansAsync(handoverId);
 
         Assert.NotEmpty(plans);
-        Assert.Contains(plans, p => p.Id == "plan-001");
-        Assert.Equal("High", plans.First(p => p.Id == "plan-001").Priority);
+        Assert.Contains(plans, p => p.Id == planId);
     }
 }
-

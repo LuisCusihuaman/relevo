@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 
@@ -12,11 +13,11 @@ public class HandoversGetSynthesis(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task ReturnsSynthesisForHandover()
   {
-    var result = await _client.GetAndDeserializeAsync<GetSynthesisResponse>("/handovers/hvo-001/synthesis");
+    var handoverId = DapperTestSeeder.HandoverId;
+    var result = await _client.GetAndDeserializeAsync<GetSynthesisResponse>($"/handovers/{handoverId}/synthesis");
 
     Assert.NotNull(result);
     Assert.NotNull(result.Synthesis);
-    Assert.Equal("hvo-001", result.Synthesis.HandoverId);
+    Assert.Equal(handoverId, result.Synthesis.HandoverId);
   }
 }
-

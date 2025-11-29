@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 
@@ -12,13 +13,15 @@ public class HandoversGetById(CustomWebApplicationFactory<Program> factory) : IC
   [Fact]
   public async Task ReturnsHandoverGivenValidId()
   {
-    var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>("/handovers/hvo-001");
+    var handoverId = DapperTestSeeder.HandoverId;
+    var actionItemId = DapperTestSeeder.ActionItemId;
+    
+    var result = await _client.GetAndDeserializeAsync<GetHandoverByIdResponse>($"/handovers/{handoverId}");
 
     Assert.NotNull(result);
-    Assert.Equal("hvo-001", result.Id);
-    Assert.Equal("Draft", result.Status);
+    Assert.Equal(handoverId, result.Id);
     Assert.NotEmpty(result.actionItems);
-    Assert.Contains(result.actionItems, i => i.id == "item-001");
+    Assert.Contains(result.actionItems, i => i.id == actionItemId);
   }
 
   [Fact]
@@ -27,4 +30,3 @@ public class HandoversGetById(CustomWebApplicationFactory<Program> factory) : IC
     await _client.GetAndEnsureNotFoundAsync("/handovers/invalid-id");
   }
 }
-

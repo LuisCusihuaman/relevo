@@ -15,7 +15,7 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
     public async Task GetActionItems_ReturnsActionItemsForHandover()
     {
         // Act
-        var response = await _client.GetAsync("/me/handovers/hvo-001/action-items");
+        var response = await _client.GetAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -35,7 +35,7 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/me/handovers/hvo-001/action-items", request);
+        var response = await _client.PostAsJsonAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -52,7 +52,7 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
         var request = new { IsCompleted = true };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/me/handovers/hvo-001/action-items/item-001", request);
+        var response = await _client.PutAsJsonAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items/{DapperTestSeeder.ActionItemId}", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -70,12 +70,12 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
             Description = "Item to delete",
             Priority = "low"
         };
-        var createResponse = await _client.PostAsJsonAsync("/me/handovers/hvo-001/action-items", createRequest);
+        var createResponse = await _client.PostAsJsonAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items", createRequest);
         var createResult = await createResponse.Content.ReadFromJsonAsync<CreateHandoverActionItemResponse>();
         Assert.NotNull(createResult);
 
         // Act
-        var response = await _client.DeleteAsync($"/me/handovers/hvo-001/action-items/{createResult.ActionItemId}");
+        var response = await _client.DeleteAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items/{createResult.ActionItemId}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -91,7 +91,7 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
         var request = new { IsCompleted = true };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/me/handovers/hvo-001/action-items/non-existent-item", request);
+        var response = await _client.PutAsJsonAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items/non-existent-item", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -101,10 +101,9 @@ public class MeHandoverActionItemsTests(CustomWebApplicationFactory<Program> fac
     public async Task DeleteActionItem_ReturnsNotFoundForNonExistentItem()
     {
         // Act
-        var response = await _client.DeleteAsync("/me/handovers/hvo-001/action-items/non-existent-item");
+        var response = await _client.DeleteAsync($"/me/handovers/{DapperTestSeeder.HandoverId}/action-items/non-existent-item");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }
-

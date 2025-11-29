@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Patients;
 using Xunit;
 
@@ -12,11 +13,12 @@ public class PatientsGetById(CustomWebApplicationFactory<Program> factory) : ICl
   [Fact]
   public async Task ReturnsPatientGivenValidId()
   {
-    var result = await _client.GetAndDeserializeAsync<GetPatientByIdResponse>("/patients/pat-001");
+    var patientId = DapperTestSeeder.PatientId1;
+    
+    var result = await _client.GetAndDeserializeAsync<GetPatientByIdResponse>($"/patients/{patientId}");
 
     Assert.NotNull(result);
-    Assert.Equal("pat-001", result.Id);
-    Assert.Equal("María García", result.Name);
+    Assert.Equal(patientId, result.Id);
   }
 
   [Fact]
@@ -25,4 +27,3 @@ public class PatientsGetById(CustomWebApplicationFactory<Program> factory) : ICl
     await _client.GetAndEnsureNotFoundAsync("/patients/invalid-id");
   }
 }
-

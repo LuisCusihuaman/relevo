@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Patients;
 using Xunit;
 
@@ -12,15 +13,11 @@ public class PatientsGetHandovers(CustomWebApplicationFactory<Program> factory) 
   [Fact]
   public async Task ReturnsHandoversForPatient()
   {
-    // Requires seeding Handovers. 
-    // DapperTestSeeder needs update to seed Handover data.
+    var patientId = DapperTestSeeder.PatientId1;
     
-    var result = await _client.GetAndDeserializeAsync<GetPatientHandoversResponse>("/patients/pat-001/handovers");
+    var result = await _client.GetAndDeserializeAsync<GetPatientHandoversResponse>($"/patients/{patientId}/handovers");
 
     Assert.NotNull(result);
-    // Currently empty because no handovers seeded for pat-001 in latest seeder update.
-    // Will update seeder next.
-    // Assert.NotEmpty(result.Items); 
+    Assert.NotEmpty(result.Items); // Handover is seeded for this patient
   }
 }
-

@@ -20,9 +20,9 @@ public class HandoverRepositoryUpdateSynthesisTests : BaseDapperRepoTestFixture
     public async Task UpdateSynthesis_UpdatesContent()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001"; // Seeded in DapperTestSeeder
+        var handoverId = DapperTestSeeder.HandoverId;
         var content = "Updated synthesis content";
-        var userId = "dr-1";
+        var userId = DapperTestSeeder.UserId;
 
         var updated = await repository.UpdateSynthesisAsync(handoverId, content, "draft", userId);
         Assert.True(updated);
@@ -32,4 +32,3 @@ public class HandoverRepositoryUpdateSynthesisTests : BaseDapperRepoTestFixture
         Assert.Equal(content, synthesis.Content);
     }
 }
-

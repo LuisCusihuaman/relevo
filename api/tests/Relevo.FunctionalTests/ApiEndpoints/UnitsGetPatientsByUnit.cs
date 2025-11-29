@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Units;
 using Xunit;
 
@@ -10,14 +11,17 @@ public class UnitsGetPatientsByUnit(CustomWebApplicationFactory<Program> factory
   private readonly HttpClient _client = factory.CreateClient();
 
   [Fact]
-  public async Task ReturnsPatientsGivenUnitId1()
+  public async Task ReturnsPatientsGivenUnitId()
   {
-    var result = await _client.GetAndDeserializeAsync<GetPatientsByUnitResponse>("/units/unit-1/patients");
+    var unitId = DapperTestSeeder.UnitId;
+    var patientId = DapperTestSeeder.PatientId1;
+    
+    var result = await _client.GetAndDeserializeAsync<GetPatientsByUnitResponse>($"/units/{unitId}/patients");
 
     Assert.NotNull(result);
     Assert.NotEmpty(result.Patients);
-    Assert.Contains(result.Patients, p => p.Id == "pat-001");
-    Assert.Equal(2, result.TotalCount); // Seeded 2 patients for unit-1
+    Assert.Contains(result.Patients, p => p.Id == patientId);
+    Assert.Equal(2, result.TotalCount); // Seeded 2 patients for this unit
   }
 
   [Fact]
@@ -30,4 +34,3 @@ public class UnitsGetPatientsByUnit(CustomWebApplicationFactory<Program> factory
     Assert.Equal(0, result.TotalCount);
   }
 }
-

@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 using System.Net.Http.Json;
@@ -13,7 +14,7 @@ public class HandoversClinicalData(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task GetReturnsClinicalData()
   {
-    var handoverId = "hvo-001";
+    var handoverId = DapperTestSeeder.HandoverId;
     var result = await _client.GetAndDeserializeAsync<GetClinicalDataResponse>($"/handovers/{handoverId}/patient-data");
 
     Assert.NotNull(result);
@@ -24,14 +25,14 @@ public class HandoversClinicalData(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task PutUpdatesClinicalData()
   {
+    var handoverId = DapperTestSeeder.HandoverId;
     var request = new UpdateClinicalDataRequest
     {
-        HandoverId = "hvo-001",
+        HandoverId = handoverId,
         IllnessSeverity = "Critical",
         SummaryText = "Updated Summary via API"
     };
 
-    // Using JsonContent to ensure correct serialization
     var content = JsonContent.Create(new { IllnessSeverity = request.IllnessSeverity, SummaryText = request.SummaryText });
     var response = await _client.PutAsync($"/handovers/{request.HandoverId}/patient-data", content);
     
@@ -42,4 +43,3 @@ public class HandoversClinicalData(CustomWebApplicationFactory<Program> factory)
     Assert.Equal("Updated Summary via API", result.SummaryText);
   }
 }
-

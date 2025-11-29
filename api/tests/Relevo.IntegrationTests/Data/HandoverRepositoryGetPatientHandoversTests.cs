@@ -20,13 +20,13 @@ public class HandoverRepositoryGetPatientHandoversTests : BaseDapperRepoTestFixt
     public async Task GetPatientHandovers_ReturnsHandovers()
     {
         var repository = GetHandoverRepository();
-        var patientId = "pat-001";
+        var patientId = DapperTestSeeder.PatientId1;
+        var handoverId = DapperTestSeeder.HandoverId;
 
         var (handovers, total) = await repository.GetPatientHandoversAsync(patientId, 1, 25);
 
         Assert.True(total > 0);
-        Assert.Contains(handovers, h => h.Id == "hvo-001");
+        Assert.Contains(handovers, h => h.Id == handoverId);
         Assert.Equal(patientId, handovers.First().PatientId);
     }
 }
-

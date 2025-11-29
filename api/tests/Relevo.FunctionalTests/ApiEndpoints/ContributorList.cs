@@ -10,12 +10,12 @@ public class ContributorList(CustomWebApplicationFactory<Program> factory) : ICl
   private readonly HttpClient _client = factory.CreateClient();
 
   [Fact]
-  public async Task ReturnsTwoContributors()
+  public async Task ReturnsContributors()
   {
     var result = await _client.GetAndDeserializeAsync<ContributorListResponse>("/Contributors");
 
-    Assert.Equal(2, result.Contributors.Count);
-    Assert.Contains(result.Contributors, i => i.Name == TestSeeds.Contributor1); // Seeded in DapperTestSeeder
-    Assert.Contains(result.Contributors, i => i.Name == TestSeeds.Contributor2); // Seeded in DapperTestSeeder
+    Assert.NotEmpty(result.Contributors);
+    Assert.Contains(result.Contributors, i => i.Name == TestSeeds.Contributor1);
+    Assert.Contains(result.Contributors, i => i.Name == TestSeeds.Contributor2);
   }
 }

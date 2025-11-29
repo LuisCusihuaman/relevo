@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Handovers;
 using Xunit;
 using System.Net;
@@ -13,19 +14,21 @@ public class HandoversDeleteContingencyPlan(CustomWebApplicationFactory<Program>
   [Fact]
   public async Task DeletesContingencyPlan()
   {
-    var response = await _client.DeleteAsync("/handovers/hvo-001/contingency-plans/plan-001");
+    var handoverId = DapperTestSeeder.HandoverId;
+    var planId = DapperTestSeeder.ContingencyPlanId;
+    
+    var response = await _client.DeleteAsync($"/handovers/{handoverId}/contingency-plans/{planId}");
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-    // Verify deletion by trying to get it (or ensure it's not in list)
-    var result = await _client.GetAndDeserializeAsync<GetContingencyPlansResponse>("/handovers/hvo-001/contingency-plans");
-    Assert.DoesNotContain(result.Plans, p => p.Id == "plan-001");
+    var result = await _client.GetAndDeserializeAsync<GetContingencyPlansResponse>($"/handovers/{handoverId}/contingency-plans");
+    Assert.DoesNotContain(result.Plans, p => p.Id == planId);
   }
 
   [Fact]
   public async Task ReturnsNotFoundForNonExistentPlan()
   {
-    var response = await _client.DeleteAsync("/handovers/hvo-001/contingency-plans/non-existent");
+    var handoverId = DapperTestSeeder.HandoverId;
+    var response = await _client.DeleteAsync($"/handovers/{handoverId}/contingency-plans/non-existent");
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 }
-

@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.Patients;
 using Xunit;
 using System.Net;
@@ -14,13 +15,14 @@ public class PatientsUpdateSummary(CustomWebApplicationFactory<Program> factory)
   [Fact]
   public async Task UpdatesSummarySuccessfully()
   {
+    var patientId = DapperTestSeeder.PatientId1;
     var request = new UpdatePatientSummaryRequest
     {
-        PatientId = "pat-001",
+        PatientId = patientId,
         SummaryText = "Updated Functional Test Summary"
     };
 
-    var response = await _client.PutAsJsonAsync("/patients/pat-001/summary", request);
+    var response = await _client.PutAsJsonAsync($"/patients/{patientId}/summary", request);
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
     var result = await response.Content.ReadFromJsonAsync<UpdatePatientSummaryResponse>();
@@ -41,4 +43,3 @@ public class PatientsUpdateSummary(CustomWebApplicationFactory<Program> factory)
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 }
-

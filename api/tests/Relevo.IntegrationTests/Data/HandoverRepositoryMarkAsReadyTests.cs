@@ -20,8 +20,8 @@ public class HandoverRepositoryMarkAsReadyTests : BaseDapperRepoTestFixture
     public async Task MarkAsReady_UpdatesStatusAndReadyAt()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001";
-        var userId = "dr-1";
+        var handoverId = DapperTestSeeder.HandoverId;
+        var userId = DapperTestSeeder.UserId;
 
         var success = await repository.MarkAsReadyAsync(handoverId, userId);
 
@@ -33,4 +33,3 @@ public class HandoverRepositoryMarkAsReadyTests : BaseDapperRepoTestFixture
         Assert.NotNull(updated.Handover.ReadyAt);
     }
 }
-

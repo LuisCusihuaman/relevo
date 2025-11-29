@@ -1,4 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
+using Relevo.Web;
 using Relevo.Web.ShiftCheckIn;
 using Xunit;
 
@@ -12,13 +13,12 @@ public class ShiftCheckInGetUnits(CustomWebApplicationFactory<Program> factory) 
   [Fact]
   public async Task ReturnsUnits()
   {
-    // Units are seeded in DapperTestSeeder.
+    var unitId = DapperTestSeeder.UnitId;
     
     var result = await _client.GetAndDeserializeAsync<UnitListResponse>("/shift-check-in/units");
 
     Assert.NotNull(result);
     Assert.NotEmpty(result.Units);
-    Assert.Contains(result.Units, u => u.Id == "unit-1");
+    Assert.Contains(result.Units, u => u.Id == unitId);
   }
 }
-

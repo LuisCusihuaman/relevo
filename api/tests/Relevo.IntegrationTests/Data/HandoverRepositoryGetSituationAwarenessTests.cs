@@ -20,7 +20,7 @@ public class HandoverRepositoryGetSituationAwarenessTests : BaseDapperRepoTestFi
     public async Task GetSituationAwareness_ReturnsRecord()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001"; // Seeded in DapperTestSeeder
+        var handoverId = DapperTestSeeder.HandoverId;
 
         var sa = await repository.GetSituationAwarenessAsync(handoverId);
 

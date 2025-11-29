@@ -20,13 +20,13 @@ public class PatientRepositoryGetActionItemsTests : BaseDapperRepoTestFixture
     public async Task GetPatientActionItems_ReturnsItems()
     {
         var repository = GetPatientRepository();
-        var patientId = "pat-001";
+        var patientId = DapperTestSeeder.PatientId1;
+        var handoverId = DapperTestSeeder.HandoverId;
 
         var items = await repository.GetPatientActionItemsAsync(patientId);
 
         Assert.NotEmpty(items);
         Assert.Contains(items, i => i.Description == "Check blood pressure");
-        Assert.Equal("hvo-001", items.First().HandoverId);
+        Assert.Contains(items, i => i.HandoverId == handoverId);
     }
 }
-

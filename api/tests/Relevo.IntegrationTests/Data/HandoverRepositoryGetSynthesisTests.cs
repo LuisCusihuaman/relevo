@@ -20,11 +20,7 @@ public class HandoverRepositoryGetSynthesisTests : BaseDapperRepoTestFixture
     public async Task GetSynthesis_ReturnsSynthesis()
     {
         var repository = GetHandoverRepository();
-        var handoverId = "hvo-001"; // Seeded in DapperTestSeeder
-
-        // Should return null initially as not seeded in DapperTestSeeder OR created on fly by repo logic
-        // Wait, DapperSeeder only seeds HANDOVER_PATIENT_DATA, but repo GetSynthesisAsync creates if missing!
-        // So it should return a default one.
+        var handoverId = DapperTestSeeder.HandoverId;
         
         var synthesis = await repository.GetSynthesisAsync(handoverId);
 

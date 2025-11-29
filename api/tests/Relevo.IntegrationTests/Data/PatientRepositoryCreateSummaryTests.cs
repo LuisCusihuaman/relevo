@@ -20,8 +20,8 @@ public class PatientRepositoryCreateSummaryTests : BaseDapperRepoTestFixture
     public async Task CreatePatientSummary_ReturnsCreatedSummary()
     {
         var repository = GetPatientRepository();
-        var patientId = "pat-001";
-        var physicianId = "dr-1";
+        var patientId = DapperTestSeeder.PatientId1;
+        var physicianId = DapperTestSeeder.UserId;
         var summaryText = "Integration Test Summary";
 
         var summary = await repository.CreatePatientSummaryAsync(patientId, physicianId, summaryText, physicianId);
@@ -32,4 +32,3 @@ public class PatientRepositoryCreateSummaryTests : BaseDapperRepoTestFixture
         Assert.False(string.IsNullOrEmpty(summary.Id));
     }
 }
-

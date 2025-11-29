@@ -20,10 +20,9 @@ public class PatientRepositoryUpdateSummaryTests : BaseDapperRepoTestFixture
     public async Task UpdatePatientSummary_UpdatesExistingSummary()
     {
         var repository = GetPatientRepository();
-        var patientId = "pat-001";
-        var userId = "dr-1";
+        var patientId = DapperTestSeeder.PatientId1;
+        var userId = DapperTestSeeder.UserId;
         
-        // Assuming seed data exists for pat-001 (sum-001)
         var summary = await repository.GetPatientSummaryAsync(patientId);
         Assert.NotNull(summary);
 
@@ -34,4 +33,3 @@ public class PatientRepositoryUpdateSummaryTests : BaseDapperRepoTestFixture
         Assert.Equal("Updated Text", newSummary?.SummaryText);
     }
 }
-
