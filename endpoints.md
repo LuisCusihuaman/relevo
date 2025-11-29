@@ -41,7 +41,7 @@ Generated from `swagger.json`.
 | [ ] | `POST` | `/handovers/{handoverId}/cancel` | Cancel handover |
 | [ ] | `POST` | `/handovers/{handoverId}/complete` | Complete handover |
 | [ ] | `DELETE` | `/handovers/{handoverId}/contingency-plans/{contingencyId}` | Delete contingency plan |
-| [ ] | `GET` | `/handovers/{handoverId}/contingency-plans` | Get contingency plans |
+| [x] | `GET` | `/handovers/{handoverId}/contingency-plans` | Get contingency plans |
 | [ ] | `POST` | `/handovers/{handoverId}/contingency-plans` | Create contingency plan |
 | [ ] | `POST` | `/handovers` | Create handover |
 | [ ] | `GET` | `/handovers/{handoverId}` | Get handover by ID |

@@ -359,6 +359,22 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     return plans.ToList();
   }
 
+  public async Task<ContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string condition, string action, string priority, string createdBy)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    var id = Guid.NewGuid().ToString();
+
+    const string sql = @"
+        INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT, UPDATED_AT)
+        VALUES (:id, :handoverId, :condition, :action, :priority, 'active', :createdBy, SYSTIMESTAMP, SYSTIMESTAMP)";
+
+    await conn.ExecuteAsync(sql, new { id, handoverId, condition, action, priority, createdBy });
+
+    return new ContingencyPlanRecord(
+        id, handoverId, condition, action, priority, "active",
+        createdBy, DateTime.UtcNow, DateTime.UtcNow);
+  }
+
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
   {
       // Get Name
