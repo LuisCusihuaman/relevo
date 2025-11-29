@@ -61,7 +61,7 @@ Generated from `swagger.json`.
 ### Me (User Context)
 | Done | Method | Endpoint | Description |
 | :---: | :--- | :--- | :--- |
-| [ ] | `POST` | `/me/assignments` | Post assignments |
+| [x] | `POST` | `/me/assignments` | Post assignments |
 | [x] | `DELETE` | `/me/handovers/{handoverId}/action-items/{itemId}` | Delete handover action item |
 | [x] | `PUT` | `/me/handovers/{handoverId}/action-items/{itemId}` | Update handover action item |
 | [x] | `GET` | `/me/handovers/{handoverId}/action-items` | Get handover action items |
