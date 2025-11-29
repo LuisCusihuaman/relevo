@@ -1,5 +1,5 @@
 using Ardalis.HttpClientTestExtensions;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 using Relevo.Web.Models;
 using Relevo.Web.Me;
 using Relevo.Core.Interfaces;

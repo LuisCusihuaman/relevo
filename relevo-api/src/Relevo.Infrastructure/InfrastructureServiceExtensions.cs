@@ -3,7 +3,7 @@ using Ardalis.SharedKernel;
 using Relevo.Core.Interfaces;
 using Relevo.Core.Services;
 using Relevo.Infrastructure.Data;
-using Relevo.UseCases.Setup;
+using Relevo.UseCases.ShiftCheckIn;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,19 +47,19 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<IPatientSummaryRepository, Persistence.Oracle.Repositories.OraclePatientSummaryRepository>();
 
     // Setup Use Cases
-    services.AddScoped<Relevo.UseCases.Setup.AssignPatientsUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetMyPatientsUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetMyHandoversUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetPatientHandoversUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetUnitsUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetShiftsUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetPatientsByUnitUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetAllPatientsUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetHandoverByIdUseCase>();
-    services.AddScoped<Relevo.UseCases.Setup.GetPatientByIdUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.AssignPatientsUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetMyPatientsUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetMyHandoversUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetPatientHandoversUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetUnitsUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetShiftsUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetPatientsByUnitUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetAllPatientsUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetHandoverByIdUseCase>();
+    services.AddScoped<Relevo.UseCases.ShiftCheckIn.GetPatientByIdUseCase>();
 
     // Setup Application Service
-    services.AddScoped<Relevo.Core.Interfaces.ISetupService, Relevo.UseCases.Setup.SetupService>();
+    services.AddScoped<Relevo.Core.Interfaces.IShiftCheckInService, Relevo.UseCases.ShiftCheckIn.ShiftCheckInService>();
 
     // Physician shift services following hexagonal architecture
     services.AddScoped<IPhysicianShiftRepository, Repositories.OraclePhysicianShiftRepository>();

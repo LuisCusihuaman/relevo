@@ -6,7 +6,7 @@ using DomainPatientRecord = Relevo.Core.Interfaces.PatientRecord;
 
 namespace Relevo.Web.Patients;
 
-public class GetAllPatients(ISetupService _setupService)
+public class GetAllPatients(IShiftCheckInService _shiftCheckInService)
   : Endpoint<GetAllPatientsRequest, GetAllPatientsResponse>
 {
   public override void Configure()
@@ -17,7 +17,7 @@ public class GetAllPatients(ISetupService _setupService)
 
   public override async Task HandleAsync(GetAllPatientsRequest req, CancellationToken ct)
   {
-    var (patients, total) = await _setupService.GetAllPatientsAsync(req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = await _shiftCheckInService.GetAllPatientsAsync(req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetAllPatientsResponse
     {
       Items = patients.Select(p => new PatientSummaryCard

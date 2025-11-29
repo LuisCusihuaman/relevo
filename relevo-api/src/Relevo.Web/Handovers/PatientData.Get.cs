@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class GetPatientData(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<GetPatientData> _logger)
   : Endpoint<GetPatientDataRequest, GetPatientDataResponse>
@@ -27,7 +27,7 @@ public class GetPatientData(
 
     _logger.LogInformation("GetPatientData - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var patientData = await _setupService.GetPatientDataAsync(req.HandoverId);
+    var patientData = await _shiftCheckInService.GetPatientDataAsync(req.HandoverId);
 
     if (patientData == null)
     {

@@ -1,10 +1,10 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 
 namespace Relevo.Web.Handovers;
 
-public class CreateHandoverEndpoint(ISetupDataProvider _dataProvider)
+public class CreateHandoverEndpoint(IShiftCheckInDataProvider _dataProvider)
   : Endpoint<CreateHandoverRequestDto, CreateHandoverResponse>
 {
   public override void Configure()

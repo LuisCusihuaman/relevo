@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 		const completed = window.localStorage.getItem("dailySetupCompleted") === "true";
 		if (!completed) {
 			throw redirect({
-				to: "/daily-setup",
+				to: "/shift-check-in",
 				search: {},
 			});
 		}

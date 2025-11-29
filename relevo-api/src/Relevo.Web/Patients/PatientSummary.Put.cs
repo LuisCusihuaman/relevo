@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Patients;
 
 public class UpdatePatientSummary(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<UpdatePatientSummary> _logger)
   : Endpoint<UpdatePatientSummaryRequest, UpdatePatientSummaryResponse>
@@ -29,14 +29,14 @@ public class UpdatePatientSummary(
     _logger.LogInformation("UpdatePatientSummary - Patient ID: {PatientId}, User ID: {UserId}", req.PatientId, user.Id);
 
     // First get the existing summary to get its ID
-    var existingSummary = await _setupService.GetPatientSummaryAsync(req.PatientId);
+    var existingSummary = await _shiftCheckInService.GetPatientSummaryAsync(req.PatientId);
     if (existingSummary == null)
     {
       await SendNotFoundAsync(ct);
       return;
     }
 
-    var success = await _setupService.UpdatePatientSummaryAsync(
+    var success = await _shiftCheckInService.UpdatePatientSummaryAsync(
         existingSummary.Id,
         req.SummaryText,
         user.Id // Use current user as the last editor

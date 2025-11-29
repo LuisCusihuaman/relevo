@@ -5,7 +5,7 @@ using DomainPatientRecord = Relevo.Core.Interfaces.PatientRecord;
 
 namespace Relevo.Web.Units;
 
-public class GetPatientsByUnit(ISetupService _setupService)
+public class GetPatientsByUnit(IShiftCheckInService _shiftCheckInService)
   : Endpoint<GetPatientsByUnitRequest, GetPatientsByUnitResponse>
 {
   public override void Configure()
@@ -16,7 +16,7 @@ public class GetPatientsByUnit(ISetupService _setupService)
 
   public override async Task HandleAsync(GetPatientsByUnitRequest req, CancellationToken ct)
   {
-    var (patients, total) = await _setupService.GetPatientsByUnitAsync(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = await _shiftCheckInService.GetPatientsByUnitAsync(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetPatientsByUnitResponse
     {
       Patients = patients.ToList(),

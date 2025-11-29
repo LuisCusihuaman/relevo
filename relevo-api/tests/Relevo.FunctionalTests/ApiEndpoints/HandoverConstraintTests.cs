@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Xunit;
 using Dapper;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 
 namespace Relevo.FunctionalTests.ApiEndpoints;
 

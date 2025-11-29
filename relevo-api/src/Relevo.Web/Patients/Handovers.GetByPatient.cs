@@ -1,13 +1,13 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 using Relevo.Web.Models;
 using DomainHandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Patients;
 
 public class GetPatientHandoversEndpoint(
-    ISetupService _setupService)
+    IShiftCheckInService _shiftCheckInService)
   : Endpoint<GetPatientHandoversRequest, GetPatientHandoversResponse>
 {
   public override void Configure()
@@ -18,7 +18,7 @@ public class GetPatientHandoversEndpoint(
 
   public override async Task HandleAsync(GetPatientHandoversRequest req, CancellationToken ct)
   {
-    var (handovers, total) = await _setupService.GetPatientHandoversAsync(req.PatientId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (handovers, total) = await _shiftCheckInService.GetPatientHandoversAsync(req.PatientId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
 
     Response = new GetPatientHandoversResponse
     {

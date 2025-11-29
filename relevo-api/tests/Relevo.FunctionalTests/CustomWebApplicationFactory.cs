@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System;
 using Oracle.ManagedDataAccess.Client;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 using System.Linq;
 
 namespace Relevo.FunctionalTests;
@@ -77,17 +77,17 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
       })
       .ConfigureServices((context, services) =>
       {
-        // Remove any existing ISetupDataProvider registrations to prevent the mock SetupDataStore from being used
-        var setupDataProviderDescriptors = services.Where(d => d.ServiceType == typeof(ISetupDataProvider)).ToList();
-        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Found {setupDataProviderDescriptors.Count} existing ISetupDataProvider registrations, removing them");
+        // Remove any existing IShiftCheckInDataProvider registrations to prevent the mock ShiftCheckInDataStore from being used
+        var setupDataProviderDescriptors = services.Where(d => d.ServiceType == typeof(IShiftCheckInDataProvider)).ToList();
+        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Found {setupDataProviderDescriptors.Count} existing IShiftCheckInDataProvider registrations, removing them");
         foreach (var descriptor in setupDataProviderDescriptors)
         {
           services.Remove(descriptor);
         }
 
         // Explicitly register the Oracle provider for functional tests
-        services.AddSingleton<ISetupDataProvider, OracleSetupDataProvider>();
-        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Registered OracleSetupDataProvider for functional tests");
+        services.AddSingleton<IShiftCheckInDataProvider, OracleShiftCheckInDataProvider>();
+        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Registered OracleShiftCheckInDataProvider for functional tests");
 
         // Replace the real authentication service with our test version
         var authenticationServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IAuthenticationService));

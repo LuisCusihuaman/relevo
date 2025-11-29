@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class CreateHandoverMessageEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<CreateHandoverMessageRequest, CreateHandoverMessageResponse>
 {
@@ -24,7 +24,7 @@ public class CreateHandoverMessageEndpoint(
             return;
         }
 
-        var message = await _setupService.CreateHandoverMessageAsync(
+        var message = await _shiftCheckInService.CreateHandoverMessageAsync(
             req.HandoverId,
             user.Id,
             user.FirstName + " " + user.LastName,

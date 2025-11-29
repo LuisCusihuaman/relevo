@@ -307,8 +307,8 @@ export interface Alert {
 	}>;
   }
   
-  // Setup patient for daily setup workflow
-  export interface SetupPatient {
+  // Setup patient for shift check-in workflow
+  export interface ShiftCheckInPatient {
 	id: string | number;
 	name: string;
 	age?: number;
@@ -419,7 +419,7 @@ export interface Alert {
   }
   
   // ========================================
-  // DAILY SETUP TYPES
+  // SHIFT CHECK-IN TYPES
   // ========================================
   
   export interface RecentActivity {
@@ -431,7 +431,7 @@ export interface Alert {
 	details: string;
   }
   
-  export interface DailySetupData {
+  export interface ShiftCheckInData {
 	unit: string;
 	shift: string;
 	selectedPatients: Array<number>;
@@ -574,4 +574,3 @@ export interface Alert {
 	expandedSections: ExpandedSections;
 	currentSaveFunction: (() => void) | null;
   }
-  

@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class GetHandoverChecklistsEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<GetHandoverChecklistsRequest, GetHandoverChecklistsResponse>
 {
@@ -24,7 +24,7 @@ public class GetHandoverChecklistsEndpoint(
             return;
         }
 
-        var checklists = await _setupService.GetHandoverChecklistsAsync(req.HandoverId);
+        var checklists = await _shiftCheckInService.GetHandoverChecklistsAsync(req.HandoverId);
         Response = new GetHandoverChecklistsResponse { Checklists = checklists };
         await SendAsync(Response, cancellation: ct);
     }

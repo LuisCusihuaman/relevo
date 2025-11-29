@@ -1,16 +1,16 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 
 namespace Relevo.Web.Patients;
 
 public class GetPatientByIdEndpoint : Endpoint<GetPatientByIdRequest, GetPatientByIdResponse>
 {
-    private readonly ISetupService _setupService;
+    private readonly IShiftCheckInService _shiftCheckInService;
 
-    public GetPatientByIdEndpoint(ISetupService setupService)
+    public GetPatientByIdEndpoint(IShiftCheckInService shiftCheckInService)
     {
-        _setupService = setupService;
+        _shiftCheckInService = shiftCheckInService;
     }
 
     public override void Configure()
@@ -21,7 +21,7 @@ public class GetPatientByIdEndpoint : Endpoint<GetPatientByIdRequest, GetPatient
 
   public override async Task HandleAsync(GetPatientByIdRequest req, CancellationToken ct)
   {
-    var patient = await _setupService.GetPatientByIdAsync(req.PatientId);
+    var patient = await _shiftCheckInService.GetPatientByIdAsync(req.PatientId);
 
     if (patient == null)
     {

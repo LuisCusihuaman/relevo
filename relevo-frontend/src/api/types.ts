@@ -1,4 +1,4 @@
-import type { SetupPatient } from "@/common/types";
+import type { ShiftCheckInPatient } from "@/common/types";
 
 // API Response Types (matching the OpenAPI schema)
 export type PatientSummaryCard = {
@@ -278,7 +278,7 @@ export type ApiResponse = {
 	message: string;
 };
 
-// Additional types for Daily Setup
+// Additional types for Shift Check-In
 export type Unit = {
 	id: string;
 	name: string;
@@ -308,9 +308,9 @@ export type ShiftsResponse = {
 	Shifts?: Array<Shift>;
 };
 
-export type SetupPatientsResponse = {
-	patients?: Array<SetupPatient>;
-	Patients?: Array<SetupPatient>;
+export type ShiftCheckInPatientsResponse = {
+	patients?: Array<ShiftCheckInPatient>;
+	Patients?: Array<ShiftCheckInPatient>;
 };
 
 // Patient Handover Data - Complete patient data for handover (consolidated from /patient and /patient-data)

@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class GetHandoverContingencyEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<GetHandoverContingencyRequest, GetHandoverContingencyResponse>
 {
@@ -24,7 +24,7 @@ public class GetHandoverContingencyEndpoint(
             return;
         }
 
-        var contingencyPlans = await _setupService.GetHandoverContingencyPlansAsync(req.HandoverId);
+        var contingencyPlans = await _shiftCheckInService.GetHandoverContingencyPlansAsync(req.HandoverId);
         Response = new GetHandoverContingencyResponse { ContingencyPlans = contingencyPlans };
         await SendAsync(Response, cancellation: ct);
     }

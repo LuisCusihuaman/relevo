@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Me;
 
 public class PostAssignments(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<PostAssignments> _logger)
   : Endpoint<PostAssignmentsRequest>
@@ -34,7 +34,7 @@ public class PostAssignments(
     _logger.LogInformation("🔍 Assignment Debug - User ID format check: {UserIdFormat}, Length: {UserIdLength}",
         user.Id.Contains("user_") ? "Clerk-like" : "Other", user.Id.Length);
 
-    await _setupService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
+    await _shiftCheckInService.AssignPatientsAsync(user.Id, req.ShiftId, req.PatientIds ?? []);
 
     // Add debug info to response headers
     HttpContext.Response.Headers["X-Debug-UserId"] = user.Id;

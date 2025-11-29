@@ -1,6 +1,6 @@
 ﻿using Ardalis.SharedKernel;
 using Relevo.Core.Models;
-using Relevo.UseCases.Setup;
+using Relevo.UseCases.ShiftCheckIn;
 using MediatR;
 using System.Reflection;
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Me;
 
 public class GetMyPatients(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<GetMyPatients> _logger)
   : Endpoint<GetMyPatientsRequest, GetMyPatientsResponse>
@@ -34,7 +34,7 @@ public class GetMyPatients(
     _logger.LogInformation("🔍 Retrieval Debug - User ID format check: {UserIdFormat}, Length: {UserIdLength}",
         user.Id.Contains("user_") ? "Clerk-like" : "Other", user.Id.Length);
 
-    var (patients, total) = await _setupService.GetMyPatientsAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (patients, total) = await _shiftCheckInService.GetMyPatientsAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
 
     // Debug logging
     _logger.LogInformation("GetMyPatients - Found {PatientCount} patients, Total: {Total}", patients.Count, total);

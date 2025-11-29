@@ -3,7 +3,7 @@ using Relevo.Core.Interfaces;
 
 namespace Relevo.Web.Handovers;
 
-public class CompleteHandoverEndpoint(ISetupService setupService)
+public class CompleteHandoverEndpoint(IShiftCheckInService shiftCheckInService)
   : Endpoint<CompleteHandoverRequest, CompleteHandoverResponse>
 {
   public override void Configure()
@@ -21,11 +21,11 @@ public class CompleteHandoverEndpoint(ISetupService setupService)
       bool success;
       if (req.Version.HasValue)
       {
-        success = await setupService.CompleteHandoverAsync(req.HandoverId, userId, req.Version.Value);
+        success = await shiftCheckInService.CompleteHandoverAsync(req.HandoverId, userId, req.Version.Value);
       }
       else
       {
-        success = await setupService.CompleteHandoverAsync(req.HandoverId, userId);
+        success = await shiftCheckInService.CompleteHandoverAsync(req.HandoverId, userId);
       }
 
       if (!success)

@@ -1,6 +1,6 @@
-import type { SetupPatient } from "@/common/types";
+import type { ShiftCheckInPatient } from "@/common/types";
 
-export const patientsES: Array<SetupPatient> = [
+export const patientsES: Array<ShiftCheckInPatient> = [
   {
     id: 1,
     name: "Ava Thompson",

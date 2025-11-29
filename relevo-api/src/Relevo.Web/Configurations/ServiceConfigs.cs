@@ -1,7 +1,7 @@
 ﻿using Relevo.Core.Interfaces;
 using Relevo.Infrastructure;
 using Relevo.Infrastructure.Email;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 
 namespace Relevo.Web.Configurations;
 
@@ -34,7 +34,7 @@ public static class ServiceConfigs
     logger.LogInformation("{Project} services registered", "Mediatr and Email Sender");
 
     // Setup repository is now registered in InfrastructureServiceExtensions
-    services.AddSetupProvider(builder.Configuration); // Moved to Infrastructure layer
+    services.AddShiftCheckInProvider(builder.Configuration); // Moved to Infrastructure layer
 
     // Register expiration background job
     services.AddSingleton<Relevo.Infrastructure.BackgroundJobs.ExpireHandoversJob>();

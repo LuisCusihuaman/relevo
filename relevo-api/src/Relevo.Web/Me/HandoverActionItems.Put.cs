@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class UpdateHandoverActionItemEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<UpdateHandoverActionItemRequest, UpdateHandoverActionItemResponse>
 {
@@ -24,7 +24,7 @@ public class UpdateHandoverActionItemEndpoint(
             return;
         }
 
-        var success = await _setupService.UpdateHandoverActionItemAsync(
+        var success = await _shiftCheckInService.UpdateHandoverActionItemAsync(
             req.HandoverId,
             req.ItemId,
             req.IsCompleted

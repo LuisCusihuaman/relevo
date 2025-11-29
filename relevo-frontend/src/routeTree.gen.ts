@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetupRouteRouteImport } from './routes/_setup/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SetupDailySetupRouteImport } from './routes/_setup/daily-setup'
+import { Route as SetupShiftCheckInRouteImport } from './routes/_setup/shift-check-in'
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -31,9 +31,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SetupDailySetupRoute = SetupDailySetupRouteImport.update({
-  id: '/daily-setup',
-  path: '/daily-setup',
+const SetupShiftCheckInRoute = SetupShiftCheckInRouteImport.update({
+  id: '/shift-check-in',
+  path: '/shift-check-in',
   getParentRoute: () => SetupRouteRoute,
 } as any)
 const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
@@ -63,7 +63,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
-  '/daily-setup': typeof SetupDailySetupRoute
+  '/shift-check-in': typeof SetupShiftCheckInRoute
   '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRoutesByTo {
@@ -71,7 +71,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
-  '/daily-setup': typeof SetupDailySetupRoute
+  '/shift-check-in': typeof SetupShiftCheckInRoute
   '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRoutesById {
@@ -82,7 +82,7 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
-  '/_setup/daily-setup': typeof SetupDailySetupRoute
+  '/_setup/shift-check-in': typeof SetupShiftCheckInRoute
   '/_authenticated/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
 }
 export interface FileRouteTypes {
@@ -92,7 +92,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/patients'
-    | '/daily-setup'
+    | '/shift-check-in'
     | '/$patientSlug/$handoverId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -100,7 +100,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/patients'
-    | '/daily-setup'
+    | '/shift-check-in'
     | '/$patientSlug/$handoverId'
   id:
     | '__root__'
@@ -110,7 +110,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/_authenticated/dashboard'
     | '/_authenticated/patients'
-    | '/_setup/daily-setup'
+    | '/_setup/shift-check-in'
     | '/_authenticated/$patientSlug/$handoverId'
   fileRoutesById: FileRoutesById
 }
@@ -144,11 +144,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_setup/daily-setup': {
-      id: '/_setup/daily-setup'
-      path: '/daily-setup'
-      fullPath: '/daily-setup'
-      preLoaderRoute: typeof SetupDailySetupRouteImport
+    '/_setup/shift-check-in': {
+      id: '/_setup/shift-check-in'
+      path: '/shift-check-in'
+      fullPath: '/shift-check-in'
+      preLoaderRoute: typeof SetupShiftCheckInRouteImport
       parentRoute: typeof SetupRouteRoute
     }
     '/_authenticated/patients': {
@@ -199,11 +199,11 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface SetupRouteRouteChildren {
-  SetupDailySetupRoute: typeof SetupDailySetupRoute
+  SetupShiftCheckInRoute: typeof SetupShiftCheckInRoute
 }
 
 const SetupRouteRouteChildren: SetupRouteRouteChildren = {
-  SetupDailySetupRoute: SetupDailySetupRoute,
+  SetupShiftCheckInRoute: SetupShiftCheckInRoute,
 }
 
 const SetupRouteRouteWithChildren = SetupRouteRoute._addFileChildren(

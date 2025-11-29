@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class PutPatientData(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<PutPatientData> _logger)
   : Endpoint<PutPatientDataRequest, ApiResponse>
@@ -27,7 +27,7 @@ public class PutPatientData(
 
     _logger.LogInformation("PutPatientData - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var success = await _setupService.UpdatePatientDataAsync(req.HandoverId, req.IllnessSeverity, req.SummaryText, req.Status, user.Id);
+    var success = await _shiftCheckInService.UpdatePatientDataAsync(req.HandoverId, req.IllnessSeverity, req.SummaryText, req.Status, user.Id);
 
     if (!success)
     {

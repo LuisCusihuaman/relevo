@@ -1,9 +1,9 @@
 using FastEndpoints;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 
 namespace Relevo.Web.Handovers;
 
-public class GetPendingHandoversEndpoint(ISetupDataProvider _dataProvider)
+public class GetPendingHandoversEndpoint(IShiftCheckInDataProvider _dataProvider)
   : Endpoint<GetPendingHandoversRequest, GetPendingHandoversResponse>
 {
   public override void Configure()

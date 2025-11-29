@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class GetSynthesis(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<GetSynthesis> _logger)
   : Endpoint<GetSynthesisRequest, GetSynthesisResponse>
@@ -27,7 +27,7 @@ public class GetSynthesis(
 
     _logger.LogInformation("GetSynthesis - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var synthesis = await _setupService.GetSynthesisAsync(req.HandoverId);
+    var synthesis = await _shiftCheckInService.GetSynthesisAsync(req.HandoverId);
 
     if (synthesis == null)
     {

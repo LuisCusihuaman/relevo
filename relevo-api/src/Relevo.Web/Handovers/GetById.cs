@@ -1,12 +1,12 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 using Relevo.Infrastructure.Data.Oracle;
 using Dapper;
 
 namespace Relevo.Web.Handovers;
 
-public class GetHandoverByIdEndpoint(ISetupService _setupService)
+public class GetHandoverByIdEndpoint(IShiftCheckInService _shiftCheckInService)
   : Endpoint<GetHandoverByIdRequest, GetHandoverByIdResponse>
 {
   public override void Configure()
@@ -17,7 +17,7 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
 
   public override async Task HandleAsync(GetHandoverByIdRequest req, CancellationToken ct)
   {
-    var handover = await _setupService.GetHandoverByIdAsync(req.HandoverId);
+    var handover = await _shiftCheckInService.GetHandoverByIdAsync(req.HandoverId);
 
     if (handover == null)
     {
@@ -26,7 +26,7 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
     }
 
     // Fetch action items for this handover
-    var actionItems = await _setupService.GetHandoverActionItemsAsync(req.HandoverId);
+    var actionItems = await _shiftCheckInService.GetHandoverActionItemsAsync(req.HandoverId);
 
     Response = new GetHandoverByIdResponse
     {
@@ -105,10 +105,10 @@ public class GetHandoverByIdEndpoint(ISetupService _setupService)
 /// Consolidates what was previously split between /patient and /patient-data.
 /// Physicians get real shift times from USER_ASSIGNMENTS + SHIFTS tables and status based on handover state.
 /// </summary>
-public class GetPatientHandoverDataEndpoint(ISetupService setupService, IPhysicianShiftService physicianShiftService)
+public class GetPatientHandoverDataEndpoint(IShiftCheckInService shiftCheckInService, IPhysicianShiftService physicianShiftService)
   : Endpoint<GetPatientHandoverDataRequest, GetPatientHandoverDataResponse>
 {
-  private readonly ISetupService _setupService = setupService;
+  private readonly IShiftCheckInService _shiftCheckInService = shiftCheckInService;
   private readonly IPhysicianShiftService _physicianShiftService = physicianShiftService;
   public override void Configure()
   {
@@ -118,7 +118,7 @@ public class GetPatientHandoverDataEndpoint(ISetupService setupService, IPhysici
 
   public override async Task HandleAsync(GetPatientHandoverDataRequest req, CancellationToken ct)
   {
-    var handover = await _setupService.GetHandoverByIdAsync(req.HandoverId);
+    var handover = await _shiftCheckInService.GetHandoverByIdAsync(req.HandoverId);
 
     if (handover == null)
     {
@@ -126,7 +126,7 @@ public class GetPatientHandoverDataEndpoint(ISetupService setupService, IPhysici
       return;
     }
 
-    var patientDetails = await _setupService.GetPatientByIdAsync(handover.PatientId);
+    var patientDetails = await _shiftCheckInService.GetPatientByIdAsync(handover.PatientId);
 
     if (patientDetails == null)
     {
@@ -147,7 +147,7 @@ public class GetPatientHandoverDataEndpoint(ISetupService setupService, IPhysici
     var receivingShiftTimes = await GetPhysicianShiftTimesAsync(handover.AssignedTo);
 
     // Get patient data for lastEditedBy and updatedAt fields
-    var patientData = await _setupService.GetPatientDataAsync(req.HandoverId);
+    var patientData = await _shiftCheckInService.GetPatientDataAsync(req.HandoverId);
 
     var assignedPhysicianData = handover.CreatedByName != null ? new GetPatientHandoverDataResponse.PhysicianDto
     {

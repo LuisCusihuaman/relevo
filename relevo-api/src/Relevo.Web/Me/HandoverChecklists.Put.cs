@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class UpdateChecklistItemEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<UpdateChecklistItemRequest, UpdateChecklistItemResponse>
 {
@@ -24,7 +24,7 @@ public class UpdateChecklistItemEndpoint(
             return;
         }
 
-        var success = await _setupService.UpdateChecklistItemAsync(
+        var success = await _shiftCheckInService.UpdateChecklistItemAsync(
             req.HandoverId,
             req.ItemId,
             req.IsChecked,

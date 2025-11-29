@@ -1,13 +1,13 @@
 using FastEndpoints;
 using Relevo.Core.Interfaces;
-using Relevo.Web.Setup;
+using Relevo.Web.ShiftCheckIn;
 using Relevo.Web.Models;
 using DomainHandoverRecord = Relevo.Core.Interfaces.HandoverRecord;
 
 namespace Relevo.Web.Me;
 
 public class GetMyHandoversEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
   : Endpoint<GetMyHandoversRequest, GetMyHandoversResponse>
 {
@@ -27,7 +27,7 @@ public class GetMyHandoversEndpoint(
       return;
     }
 
-    var (handovers, total) = await _setupService.GetMyHandoversAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var (handovers, total) = await _shiftCheckInService.GetMyHandoversAsync(user.Id, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     Response = new GetMyHandoversResponse
     {
       Items = handovers.ToList(),

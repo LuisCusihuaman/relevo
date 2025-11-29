@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class DeleteContingencyPlan(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<DeleteContingencyPlan> _logger)
   : Endpoint<DeleteContingencyPlanRequest, DeleteContingencyPlanResponse>
@@ -29,7 +29,7 @@ public class DeleteContingencyPlan(
     _logger.LogInformation("DeleteContingencyPlan - Handover ID: {HandoverId}, Contingency ID: {ContingencyId}, User ID: {UserId}",
         req.HandoverId, req.ContingencyId, user.Id);
 
-    var success = await _setupService.DeleteContingencyPlanAsync(req.HandoverId, req.ContingencyId);
+    var success = await _shiftCheckInService.DeleteContingencyPlanAsync(req.HandoverId, req.ContingencyId);
 
     if (!success)
     {

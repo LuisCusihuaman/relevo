@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Patients;
 
 public class GetPatientSummary(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<GetPatientSummary> _logger)
   : Endpoint<GetPatientSummaryRequest, GetPatientSummaryResponse>
@@ -28,7 +28,7 @@ public class GetPatientSummary(
 
     _logger.LogInformation("GetPatientSummary - Patient ID: {PatientId}, User ID: {UserId}", req.PatientId, user.Id);
 
-    var summary = await _setupService.GetPatientSummaryAsync(req.PatientId);
+    var summary = await _shiftCheckInService.GetPatientSummaryAsync(req.PatientId);
 
     Response = new GetPatientSummaryResponse
     {

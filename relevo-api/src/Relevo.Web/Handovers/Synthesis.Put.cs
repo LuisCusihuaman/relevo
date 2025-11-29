@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class PutSynthesis(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<PutSynthesis> _logger)
   : Endpoint<PutSynthesisRequest, ApiResponse>
@@ -27,7 +27,7 @@ public class PutSynthesis(
 
     _logger.LogInformation("PutSynthesis - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var success = await _setupService.UpdateSynthesisAsync(req.HandoverId, req.Content, req.Status, user.Id);
+    var success = await _shiftCheckInService.UpdateSynthesisAsync(req.HandoverId, req.Content, req.Status, user.Id);
 
     if (!success)
     {

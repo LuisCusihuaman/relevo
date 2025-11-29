@@ -1,10 +1,10 @@
 import { Activity, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import type { ReactElement } from "react";
-import type { SetupPatient } from "@/common/types";
+import type { ShiftCheckInPatient } from "@/common/types";
 import i18n from "@/common/i18n";
 
 interface PatientSelectionCardProps {
-  patient: SetupPatient;
+  patient: ShiftCheckInPatient;
   isSelected: boolean;
 }
 

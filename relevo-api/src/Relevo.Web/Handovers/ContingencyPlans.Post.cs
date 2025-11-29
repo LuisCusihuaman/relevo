@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class CreateContingencyPlan(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<CreateContingencyPlan> _logger)
   : Endpoint<CreateContingencyPlanRequest, CreateContingencyPlanResponse>
@@ -28,7 +28,7 @@ public class CreateContingencyPlan(
 
     _logger.LogInformation("CreateContingencyPlan - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var plan = await _setupService.CreateContingencyPlanAsync(
+    var plan = await _shiftCheckInService.CreateContingencyPlanAsync(
         req.HandoverId,
         req.ConditionText,
         req.ActionText,

@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class CreateContingencyPlanEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<CreateContingencyPlanRequest, CreateContingencyPlanResponse>
 {
@@ -28,14 +28,14 @@ public class CreateContingencyPlanEndpoint(
         var effectiveUserId = user.Id;
 
         // Check if the user exists in the database by trying to get their preferences
-        var userPreferences = await _setupService.GetUserPreferencesAsync(user.Id);
+        var userPreferences = await _shiftCheckInService.GetUserPreferencesAsync(user.Id);
         if (userPreferences == null)
         {
             // User doesn't exist in database, use demo user that exists
             effectiveUserId = "user_demo12345678901234567890123456";
         }
 
-        var contingencyPlan = await _setupService.CreateContingencyPlanAsync(
+        var contingencyPlan = await _shiftCheckInService.CreateContingencyPlanAsync(
             req.HandoverId,
             req.ConditionText,
             req.ActionText,

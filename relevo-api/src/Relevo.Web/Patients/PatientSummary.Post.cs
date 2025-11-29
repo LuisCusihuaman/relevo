@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Patients;
 
 public class CreatePatientSummary(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<CreatePatientSummary> _logger)
   : Endpoint<CreatePatientSummaryRequest, CreatePatientSummaryResponse>
@@ -28,7 +28,7 @@ public class CreatePatientSummary(
 
     _logger.LogInformation("CreatePatientSummary - Patient ID: {PatientId}, User ID: {UserId}", req.PatientId, user.Id);
 
-    var summary = await _setupService.CreatePatientSummaryAsync(
+    var summary = await _shiftCheckInService.CreatePatientSummaryAsync(
         req.PatientId,
         user.Id, // Use current user as the physician
         req.SummaryText,

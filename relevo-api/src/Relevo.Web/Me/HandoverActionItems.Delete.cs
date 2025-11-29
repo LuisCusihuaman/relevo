@@ -5,7 +5,7 @@ using Relevo.Web.Models;
 namespace Relevo.Web.Me;
 
 public class DeleteHandoverActionItemEndpoint(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext)
     : Endpoint<DeleteHandoverActionItemRequest, DeleteHandoverActionItemResponse>
 {
@@ -24,7 +24,7 @@ public class DeleteHandoverActionItemEndpoint(
             return;
         }
 
-        var success = await _setupService.DeleteHandoverActionItemAsync(
+        var success = await _shiftCheckInService.DeleteHandoverActionItemAsync(
             req.HandoverId,
             req.ItemId
         );

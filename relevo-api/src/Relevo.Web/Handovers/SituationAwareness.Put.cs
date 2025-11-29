@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class PutSituationAwareness(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<PutSituationAwareness> _logger)
   : Endpoint<PutSituationAwarenessRequest, ApiResponse>
@@ -27,7 +27,7 @@ public class PutSituationAwareness(
 
     _logger.LogInformation("PutSituationAwareness - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var success = await _setupService.UpdateSituationAwarenessAsync(req.HandoverId, req.Content, req.Status, user.Id);
+    var success = await _shiftCheckInService.UpdateSituationAwarenessAsync(req.HandoverId, req.Content, req.Status, user.Id);
 
     if (!success)
     {

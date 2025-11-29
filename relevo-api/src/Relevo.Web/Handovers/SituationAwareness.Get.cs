@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Relevo.Web.Handovers;
 
 public class GetSituationAwareness(
-    ISetupService _setupService,
+    IShiftCheckInService _shiftCheckInService,
     IUserContext _userContext,
     ILogger<GetSituationAwareness> _logger)
   : Endpoint<GetSituationAwarenessRequest, GetSituationAwarenessResponse>
@@ -28,7 +28,7 @@ public class GetSituationAwareness(
 
     _logger.LogInformation("GetSituationAwareness - Handover ID: {HandoverId}, User ID: {UserId}", req.HandoverId, user.Id);
 
-    var situationAwarenessSection = await _setupService.GetSituationAwarenessAsync(req.HandoverId);
+    var situationAwarenessSection = await _shiftCheckInService.GetSituationAwarenessAsync(req.HandoverId);
 
     if (situationAwarenessSection == null)
     {
