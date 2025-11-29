@@ -10,5 +10,8 @@ public record PatientRecord(
     string Diagnosis,
     string? Status,
     string? Severity
-);
+)
+{
+    public PatientRecord() : this("", "", "not-started", null, null, "", "", null, null) { }
+}
 

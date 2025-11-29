@@ -73,6 +73,6 @@ Generated from `swagger.json`.
 | [x] | `POST` | `/me/handovers/{handoverId}/contingency-plans` | Create contingency plan |
 | [x] | `GET` | `/me/handovers/{handoverId}/messages` | Get handover messages |
 | [x] | `POST` | `/me/handovers/{handoverId}/messages` | Create handover message |
-| [ ] | `GET` | `/me/handovers` | Get my handovers |
-| [ ] | `GET` | `/me/patients` | Get my patients |
-| [ ] | `GET` | `/me/profile` | Get my profile |
+| [x] | `GET` | `/me/handovers` | Get my handovers |
+| [x] | `GET` | `/me/patients` | Get my patients |
+| [x] | `GET` | `/me/profile` | Get my profile |

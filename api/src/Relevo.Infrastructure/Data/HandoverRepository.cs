@@ -934,4 +934,82 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
     return new HandoverMessageRecord(id, handoverId, userId, userName, messageText, messageType, now, now);
   }
+
+  // My Handovers
+  public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(string userId, int page, int pageSize)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+
+    // Get total count - handovers where user is involved (created by or assigned to)
+    const string countSql = @"
+        SELECT COUNT(1)
+        FROM HANDOVERS h
+        INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
+        WHERE ua.USER_ID = :userId";
+
+    var total = await conn.ExecuteScalarAsync<int>(countSql, new { userId });
+
+    if (total == 0)
+        return (Array.Empty<HandoverRecord>(), 0);
+
+    var p = Math.Max(page, 1);
+    var ps = Math.Max(pageSize, 1);
+    var offset = (p - 1) * ps;
+
+    const string sql = @"
+        SELECT * FROM (
+            SELECT
+                h.ID,
+                h.ASSIGNMENT_ID as AssignmentId,
+                h.PATIENT_ID as PatientId,
+                pt.NAME as PatientName,
+                h.STATUS,
+                hpd.ILLNESS_SEVERITY as Severity,
+                hpd.SUMMARY_TEXT as PatientSummaryContent,
+                h.ID || '-sa' as SituationAwarenessDocId,
+                hs.CONTENT as SynthesisContent,
+                h.SHIFT_NAME as ShiftName,
+                h.CREATED_BY as CreatedBy,
+                h.RECEIVER_USER_ID as AssignedTo,
+                cb.FULL_NAME as CreatedByName,
+                td.FULL_NAME as AssignedToName,
+                h.RECEIVER_USER_ID as ReceiverUserId,
+                COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY) as ResponsiblePhysicianId,
+                rp.FULL_NAME as ResponsiblePhysicianName,
+                TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
+                TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
+                TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
+                TO_CHAR(h.ACKNOWLEDGED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcknowledgedAt,
+                TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
+                TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
+                TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
+                TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
+                h.REJECTION_REASON as RejectionReason,
+                TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
+                h.HANDOVER_TYPE as HandoverType,
+                h.HANDOVER_WINDOW_DATE as HandoverWindowDate,
+                h.FROM_SHIFT_ID as FromShiftId,
+                h.TO_SHIFT_ID as ToShiftId,
+                h.TO_DOCTOR_ID as ToDoctorId,
+                h.STATUS as StateName,
+                1 as Version,
+                ROW_NUMBER() OVER (ORDER BY h.CREATED_AT DESC) AS RN
+            FROM HANDOVERS h
+            INNER JOIN USER_ASSIGNMENTS ua ON h.PATIENT_ID = ua.PATIENT_ID
+            LEFT JOIN PATIENTS pt ON h.PATIENT_ID = pt.ID
+            LEFT JOIN USERS cb ON h.CREATED_BY = cb.ID
+            LEFT JOIN USERS td ON h.TO_DOCTOR_ID = td.ID
+            LEFT JOIN USERS rp ON rp.ID = COALESCE(h.RESPONSIBLE_PHYSICIAN_ID, h.CREATED_BY)
+            LEFT JOIN HANDOVER_PATIENT_DATA hpd ON h.ID = hpd.HANDOVER_ID
+            LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
+            WHERE ua.USER_ID = :userId
+        )
+        WHERE RN > :offset AND RN <= :maxRow";
+
+    var handovers = await conn.QueryAsync<dynamic>(sql, new { userId, offset, maxRow = offset + ps });
+
+    var result = handovers.Select(MapHandoverRecord).ToList();
+
+    return (result, total);
+  }
 }
