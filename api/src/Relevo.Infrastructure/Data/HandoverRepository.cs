@@ -375,6 +375,17 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         createdBy, DateTime.UtcNow, DateTime.UtcNow);
   }
 
+  public async Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        DELETE FROM HANDOVER_CONTINGENCY
+        WHERE ID = :contingencyId AND HANDOVER_ID = :handoverId";
+
+    var rows = await conn.ExecuteAsync(sql, new { contingencyId, handoverId });
+    return rows > 0;
+  }
+
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
   {
       // Get Name
