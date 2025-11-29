@@ -14,7 +14,7 @@ namespace Relevo.FunctionalTests.ApiEndpoints;
 public class MeEndpointsFlowTests(CustomWebApplicationFactory<Program> factory) 
     : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.CreateAuthenticatedClient();
     private static readonly string TestRunId = Guid.NewGuid().ToString()[..8];
 
     [Fact]

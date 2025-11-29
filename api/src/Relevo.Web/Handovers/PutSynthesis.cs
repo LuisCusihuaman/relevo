@@ -1,23 +1,22 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.UpdateSynthesis;
-using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
-public class PutSynthesis(IMediator _mediator)
+public class PutSynthesis(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<PutSynthesisRequest, PutSynthesisResponse>
 {
   public override void Configure()
   {
     Put("/handovers/{handoverId}/synthesis");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(PutSynthesisRequest req, CancellationToken ct)
   {
-    // Mock user
-    var userId = "dr-1";
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var command = new UpdateHandoverSynthesisCommand(req.HandoverId, req.Content, req.Status, userId);
     var result = await _mediator.Send(command, ct);

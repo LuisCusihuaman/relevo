@@ -1,23 +1,22 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Patients.UpdateSummary;
-using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Patients;
 
-public class UpdatePatientSummary(IMediator _mediator)
+public class UpdatePatientSummary(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<UpdatePatientSummaryRequest, UpdatePatientSummaryResponse>
 {
   public override void Configure()
   {
     Put("/patients/{patientId}/summary");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(UpdatePatientSummaryRequest req, CancellationToken ct)
   {
-    // Mock user ID
-    var userId = "dr-1";
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var command = new UpdatePatientSummaryCommand(req.PatientId, req.SummaryText, userId);
     var result = await _mediator.Send(command, ct);

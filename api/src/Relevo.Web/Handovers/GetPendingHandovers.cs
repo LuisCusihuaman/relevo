@@ -1,22 +1,24 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.GetPending;
 using Relevo.Core.Models;
 
 namespace Relevo.Web.Handovers;
 
-public class GetPendingHandovers(IMediator _mediator)
+public class GetPendingHandovers(IMediator _mediator, ICurrentUser _currentUser)
   : EndpointWithoutRequest<GetPendingHandoversResponse>
 {
   public override void Configure()
   {
     Get("/handovers/pending");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CancellationToken ct)
   {
-    var userId = "dr-1";
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
     var result = await _mediator.Send(new GetPendingHandoversQuery(userId), ct);
 
     if (result.IsSuccess)

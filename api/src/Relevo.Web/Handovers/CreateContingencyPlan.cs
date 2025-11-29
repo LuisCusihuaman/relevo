@@ -1,24 +1,23 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.CreateContingencyPlan;
 using Relevo.Core.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
-public class CreateContingencyPlan(IMediator _mediator)
+public class CreateContingencyPlan(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<CreateContingencyPlanRequest, CreateContingencyPlanResponse>
 {
   public override void Configure()
   {
     Post("/handovers/{handoverId}/contingency-plans");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CreateContingencyPlanRequest req, CancellationToken ct)
   {
-    // Mock user
-    var userId = "dr-1";
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var command = new CreateContingencyPlanCommand(
         req.HandoverId,

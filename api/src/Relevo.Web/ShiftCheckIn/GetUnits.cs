@@ -11,7 +11,6 @@ public class GetUnits(IMediator _mediator)
   public override void Configure()
   {
     Get("/shift-check-in/units");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CancellationToken ct)

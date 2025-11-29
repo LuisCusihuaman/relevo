@@ -14,7 +14,7 @@ namespace Relevo.FunctionalTests.ApiEndpoints;
 public class HandoverLifecycleTests(CustomWebApplicationFactory<Program> factory) 
     : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.CreateAuthenticatedClient();
 
     [Fact]
     public async Task SeededHandover_CanTransition_Ready_Start_Accept_Complete()

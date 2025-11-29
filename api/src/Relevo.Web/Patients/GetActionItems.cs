@@ -11,7 +11,6 @@ public class GetPatientActionItems(IMediator _mediator)
   public override void Configure()
   {
     Get("/patients/{patientId}/action-items");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetPatientActionItemsRequest req, CancellationToken ct)

@@ -11,7 +11,6 @@ public class GetContingencyPlans(IMediator _mediator)
   public override void Configure()
   {
     Get("/handovers/{handoverId}/contingency-plans");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetContingencyPlansRequest req, CancellationToken ct)

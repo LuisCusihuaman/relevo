@@ -11,7 +11,6 @@ public class GetPatientsByUnit(IMediator _mediator)
   public override void Configure()
   {
     Get("/units/{unitId}/patients");
-    AllowAnonymous(); // Required if FastEndpoints defaults to requiring auth
   }
 
   public override async Task HandleAsync(GetPatientsByUnitRequest req, CancellationToken ct)

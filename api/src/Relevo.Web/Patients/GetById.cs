@@ -11,7 +11,6 @@ public class GetPatientById(IMediator _mediator)
   public override void Configure()
   {
     Get("/patients/{patientId}");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetPatientByIdRequest req, CancellationToken ct)

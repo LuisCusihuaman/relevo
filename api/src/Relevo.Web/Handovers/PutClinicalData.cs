@@ -1,21 +1,22 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.UpdateClinicalData;
 
 namespace Relevo.Web.Handovers;
 
-public class PutClinicalData(IMediator _mediator)
+public class PutClinicalData(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<UpdateClinicalDataRequest>
 {
   public override void Configure()
   {
     Put("/handovers/{handoverId}/patient-data");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(UpdateClinicalDataRequest req, CancellationToken ct)
   {
-    var userId = "dr-1"; // Mock user
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var result = await _mediator.Send(new UpdateHandoverClinicalDataCommand(
         req.HandoverId,

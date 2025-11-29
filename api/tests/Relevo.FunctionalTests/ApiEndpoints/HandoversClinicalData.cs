@@ -9,7 +9,7 @@ namespace Relevo.FunctionalTests.ApiEndpoints;
 [Collection("Sequential")]
 public class HandoversClinicalData(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-  private readonly HttpClient _client = factory.CreateClient();
+  private readonly HttpClient _client = factory.CreateAuthenticatedClient();
 
   [Fact]
   public async Task GetReturnsClinicalData()

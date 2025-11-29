@@ -11,7 +11,6 @@ public class GetSituationAwareness(IMediator _mediator)
   public override void Configure()
   {
     Get("/handovers/{handoverId}/situation-awareness");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetSituationAwarenessRequest req, CancellationToken ct)

@@ -1,25 +1,22 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.UpdateSituationAwareness;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Relevo.Web.Handovers;
 
-public class PutSituationAwareness(IMediator _mediator)
+public class PutSituationAwareness(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<UpdateSituationAwarenessRequest>
 {
   public override void Configure()
   {
     Put("/handovers/{handoverId}/situation-awareness");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(UpdateSituationAwarenessRequest req, CancellationToken ct)
   {
-    // Assuming UserId is available (e.g. from context or request), here taking from request for simplicity/migration
-    // If auth was enabled, we'd get it from User.Identity
-    // Using "dr-1" which is a seeded user to avoid FK violation in tests/dev
-    var userId = "dr-1"; 
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var result = await _mediator.Send(new UpdateHandoverSituationAwarenessCommand(
         req.HandoverId,

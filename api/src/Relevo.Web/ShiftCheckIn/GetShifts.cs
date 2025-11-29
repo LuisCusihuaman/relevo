@@ -11,7 +11,6 @@ public class GetShifts(IMediator _mediator)
   public override void Configure()
   {
     Get("/shift-check-in/shifts");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CancellationToken ct)

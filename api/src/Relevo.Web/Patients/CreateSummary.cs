@@ -1,24 +1,23 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Patients.CreateSummary;
 using Relevo.Core.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Patients;
 
-public class CreatePatientSummary(IMediator _mediator)
+public class CreatePatientSummary(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<CreatePatientSummaryRequest, CreatePatientSummaryResponse>
 {
   public override void Configure()
   {
     Post("/patients/{patientId}/summary");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CreatePatientSummaryRequest req, CancellationToken ct)
   {
-    // Mock user ID until auth is implemented, or use a header/body field if testing
-    var userId = "dr-1"; // Mock user
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
     var command = new CreatePatientSummaryCommand(req.PatientId, req.SummaryText, userId);
     var result = await _mediator.Send(command, ct);

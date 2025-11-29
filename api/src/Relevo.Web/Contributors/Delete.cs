@@ -17,7 +17,6 @@ public class Delete(IMediator _mediator)
   public override void Configure()
   {
     Delete(DeleteContributorRequest.Route);
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(

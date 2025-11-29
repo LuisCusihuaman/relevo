@@ -11,7 +11,6 @@ public class GetPatientSummary(IMediator _mediator)
   public override void Configure()
   {
     Get("/patients/{patientId}/summary");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetPatientSummaryRequest req, CancellationToken ct)

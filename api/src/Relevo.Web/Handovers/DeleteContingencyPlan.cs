@@ -10,7 +10,6 @@ public class DeleteContingencyPlan(IMediator _mediator)
   public override void Configure()
   {
     Delete("/handovers/{handoverId}/contingency-plans/{contingencyId}");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(DeleteContingencyPlanRequest req, CancellationToken ct)

@@ -11,7 +11,6 @@ public class GetHandoverById(IMediator _mediator)
   public override void Configure()
   {
     Get("/handovers/{handoverId}");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetHandoverByIdRequest req, CancellationToken ct)

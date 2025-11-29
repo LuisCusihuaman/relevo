@@ -1,21 +1,23 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.StateMachine;
 
 namespace Relevo.Web.Handovers;
 
-public class RejectHandover(IMediator _mediator)
+public class RejectHandover(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<RejectHandoverRequest>
 {
   public override void Configure()
   {
     Post("/handovers/{handoverId}/reject");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(RejectHandoverRequest req, CancellationToken ct)
   {
-    var userId = "dr-1"; 
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
     var result = await _mediator.Send(new RejectHandoverCommand(req.HandoverId, req.Reason, userId), ct);
 
     if (result.IsSuccess) 

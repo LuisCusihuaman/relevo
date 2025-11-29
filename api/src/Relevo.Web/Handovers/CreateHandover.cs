@@ -1,21 +1,24 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.Create;
 using Relevo.Core.Models;
 
 namespace Relevo.Web.Handovers;
 
-public class CreateHandover(IMediator _mediator)
+public class CreateHandover(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<CreateHandoverRequestDto, CreateHandoverResponse>
 {
   public override void Configure()
   {
     Post("/handovers");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CreateHandoverRequestDto req, CancellationToken ct)
   {
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
     var command = new CreateHandoverCommand(
         req.PatientId,
         req.FromDoctorId,

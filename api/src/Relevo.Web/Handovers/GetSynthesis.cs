@@ -11,7 +11,6 @@ public class GetSynthesis(IMediator _mediator)
   public override void Configure()
   {
     Get("/handovers/{handoverId}/synthesis");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(GetSynthesisRequest req, CancellationToken ct)

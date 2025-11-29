@@ -17,7 +17,6 @@ public class List(IMediator _mediator) : EndpointWithoutRequest<ContributorListR
   public override void Configure()
   {
     Get("/Contributors");
-    AllowAnonymous();
   }
 
   public override async Task HandleAsync(CancellationToken cancellationToken)
