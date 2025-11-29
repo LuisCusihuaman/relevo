@@ -383,7 +383,42 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         WHERE ID = :contingencyId AND HANDOVER_ID = :handoverId";
 
     var rows = await conn.ExecuteAsync(sql, new { contingencyId, handoverId });
-    return rows > 0;
+        return rows > 0;
+  }
+
+  public async Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    const string sql = @"
+        SELECT HANDOVER_ID as HandoverId, CONTENT as Content, STATUS,
+               LAST_EDITED_BY as LastEditedBy, CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
+        FROM HANDOVER_SYNTHESIS
+        WHERE HANDOVER_ID = :handoverId";
+
+    var result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+
+    // If no record exists but handover does, create default (mimicking legacy behavior)
+    if (result == null)
+    {
+        // Check if handover exists first to avoid FK error or creating orphan data
+        var createdBy = await conn.ExecuteScalarAsync<string>(
+            "SELECT CREATED_BY FROM HANDOVERS WHERE ID = :handoverId",
+            new { handoverId });
+
+        if (createdBy == null) return null; // Handover doesn't exist
+
+        await conn.ExecuteAsync(@"
+            INSERT INTO HANDOVER_SYNTHESIS (
+                HANDOVER_ID, CONTENT, STATUS, LAST_EDITED_BY, CREATED_AT, UPDATED_AT
+            ) VALUES (
+                :handoverId, '', 'Draft', :createdBy, SYSTIMESTAMP, SYSTIMESTAMP
+            )", new { handoverId, createdBy });
+
+        // Fetch again
+        result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
+    }
+
+    return result;
   }
 
   private async Task<PhysicianRecord> GetPhysicianInfo(IDbConnection conn, string userId, string handoverStatus, string relationship)
