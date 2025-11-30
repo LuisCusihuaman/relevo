@@ -1,166 +1,85 @@
-﻿using Relevo.Core.Interfaces;
-using Relevo.Core.Models;
-using Relevo.Infrastructure;
-using Relevo.Infrastructure.Data;
+﻿using Relevo.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System;
 using Oracle.ManagedDataAccess.Client;
-using Relevo.Web.ShiftCheckIn;
-using System.Linq;
+using Relevo.FunctionalTests.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 
 namespace Relevo.FunctionalTests;
 
 public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
-  public CustomWebApplicationFactory()
-  {
-    System.Diagnostics.Debug.WriteLine("[TEST FACTORY] CustomWebApplicationFactory constructor called");
-    // Set environment variable before any host building occurs to ensure it's picked up by all parts of the application
-    Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-  }
-
+  /// <summary>
+  /// Overriding CreateHost to avoid creating a separate ServiceProvider per this thread:
+  /// https://github.com/dotnet-architecture/eShopOnWeb/issues/465
+  /// </summary>
+  /// <param name="builder"></param>
+  /// <returns></returns>
   protected override IHost CreateHost(IHostBuilder builder)
   {
-    System.Diagnostics.Debug.WriteLine("[TEST FACTORY] CreateHost called");
+    builder.UseEnvironment("Development"); // will not send real emails
     var host = builder.Build();
     host.Start();
 
-    // Skip database seeding for functional tests since we're using Oracle with Dapper
-    // The database should be pre-seeded or tests should use mock data
+    // Get service provider.
     var serviceProvider = host.Services;
+
+    // Create a scope to obtain a reference to the database
     using (var scope = serviceProvider.CreateScope())
     {
       var scopedServices = scope.ServiceProvider;
+      var config = scopedServices.GetRequiredService<IConfiguration>();
       var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TProgram>>>();
 
-      try
-      {
-        // Contributor seeding removed - functionality deleted
-        logger.LogInformation("Contributor seeding skipped - functionality removed");
-        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Host started successfully");
-      }
-      catch (Exception ex)
-      {
-        logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
-        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Error in CreateHost: {ex.Message}");
-      }
+      var seeder = new DapperTestSeeder(config);
+      seeder.Seed();
     }
 
     return host;
   }
-  
+
+  public HttpClient CreateAuthenticatedClient(string userId = "dr-1")
+  {
+      var client = CreateClient();
+      client.DefaultRequestHeaders.Authorization = 
+          new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userId);
+      return client;
+  }
+
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {
+    builder.ConfigureAppConfiguration((context, config) =>
+    {
+        var appAssembly = typeof(CustomWebApplicationFactory<TProgram>).Assembly;
+        var appPath = Path.GetDirectoryName(appAssembly.Location);
+        if (appPath != null)
+        {
+            config.AddJsonFile(Path.Combine(appPath, "appsettings.json"), optional: true);
+        }
+    });
+
     builder
-      .UseEnvironment("Testing")
-      .ConfigureAppConfiguration(config =>
-      {
-        var integrationConfig = new ConfigurationBuilder()
-          .AddInMemoryCollection(new Dictionary<string, string?>
+        .ConfigureServices(services =>
+        {
+          // Remove real Clerk authentication configuration
+          var descriptors = services.Where(d => 
+              d.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>)).ToList();
+          
+          foreach (var d in descriptors)
           {
-            { "UseOracle", "true" },
-            { "UseOracleForSetup", "true" },
-            { "ConnectionStrings:Oracle", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" },
-            { "Oracle:ConnectionString", "User Id=RELEVO_APP;Password=TuPass123;Data Source=localhost:1521/XE;Pooling=true;Connection Timeout=15" }
-          })
-          .Build();
-
-        config.AddConfiguration(integrationConfig);
-      })
-      .ConfigureServices((context, services) =>
-      {
-        // Remove any existing IShiftCheckInDataProvider registrations to prevent the mock ShiftCheckInDataStore from being used
-        var setupDataProviderDescriptors = services.Where(d => d.ServiceType == typeof(IShiftCheckInDataProvider)).ToList();
-        System.Diagnostics.Debug.WriteLine($"[TEST FACTORY] Found {setupDataProviderDescriptors.Count} existing IShiftCheckInDataProvider registrations, removing them");
-        foreach (var descriptor in setupDataProviderDescriptors)
-        {
-          services.Remove(descriptor);
-        }
-
-        // Explicitly register the Oracle provider for functional tests
-        services.AddSingleton<IShiftCheckInDataProvider, OracleShiftCheckInDataProvider>();
-        System.Diagnostics.Debug.WriteLine("[TEST FACTORY] Registered OracleShiftCheckInDataProvider for functional tests");
-
-        // Replace the real authentication service with our test version
-        var authenticationServiceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IAuthenticationService));
-        if (authenticationServiceDescriptor != null)
-        {
-          services.Remove(authenticationServiceDescriptor);
-        }
-        services.AddSingleton<IAuthenticationService, TestAuthenticationService>();
-      });
-  }
-
-}
-
-/// <summary>
-/// Test implementation of IAuthenticationService for functional testing
-/// </summary>
-public class TestAuthenticationService : IAuthenticationService
-{
-  public Task<AuthenticationResult> AuthenticateAsync(string token)
-  {
-    // For functional tests, accept any non-empty token as valid
-    if (string.IsNullOrEmpty(token))
-    {
-      return Task.FromResult(AuthenticationResult.Failure("Token is required"));
-    }
-
-    // Extract user ID from token if it contains one, otherwise use a consistent test ID
-    var userId = ExtractUserIdFromToken(token) ?? "user_2abcdefghijklmnop123456789"; // Clerk-like format
-
-    // Create a test user for functional tests
-    var user = new User
-    {
-      Id = userId,
-      Email = "test@example.com",
-      FirstName = "Test",
-      LastName = "User",
-      Roles = new[] { "clinician" },
-      Permissions = new[] { "patients.read", "patients.assign" },
-      LastLoginAt = DateTime.UtcNow,
-      IsActive = true
-    };
-
-    return Task.FromResult(AuthenticationResult.Success(user));
-  }
-
-  public Task<bool> ValidateTokenAsync(string token)
-  {
-    // For functional tests, any non-empty token is considered valid
-    return Task.FromResult(!string.IsNullOrEmpty(token));
-  }
-
-  private string? ExtractUserIdFromToken(string token)
-  {
-    // Try to extract user ID from token if it's encoded
-    // This simulates Clerk's JWT structure where user_id might be in the payload
-    try
-    {
-      // Simple check for test-token- pattern
-      if (token.StartsWith("test-token-"))
-      {
-        // Extract user ID from test token format like "test-token-user_123"
-        var parts = token.Split('-');
-        if (parts.Length >= 3)
-        {
-          return parts[2]; // e.g., "user_123" from "test-token-user_123"
-        }
-      }
-    }
-    catch
-    {
-      // If extraction fails, return null and use default
-    }
-
-    return null;
+              services.Remove(d);
+          }
+          
+          // Add test authentication
+          services.AddAuthentication(TestAuthHandler.SchemeName)
+              .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                  TestAuthHandler.SchemeName, null);
+        });
   }
 }

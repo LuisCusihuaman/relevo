@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+using Relevo.Core.Models;
 
 namespace Relevo.Core.Interfaces;
 
 public interface IShiftRepository
 {
-    IReadOnlyList<ShiftRecord> GetShifts();
+    Task<IReadOnlyList<ShiftRecord>> GetShiftsAsync();
 }
+

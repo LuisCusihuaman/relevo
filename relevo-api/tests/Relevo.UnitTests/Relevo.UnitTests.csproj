@@ -13,7 +13,6 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="Moq" />
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
@@ -25,12 +24,6 @@
     </PackageReference>
     <PackageReference Include="ReportGenerator" />
     <PackageReference Include="xunit" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" />
-    <PackageReference Include="Microsoft.Extensions.Http" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +39,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Relevo.Core\Relevo.Core.csproj" />
     <ProjectReference Include="..\..\src\Relevo.UseCases\Relevo.UseCases.csproj" />
-    <ProjectReference Include="..\..\src\Relevo.Infrastructure\Relevo.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

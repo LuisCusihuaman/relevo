@@ -1,58 +1,55 @@
 using FastEndpoints;
-using Relevo.Web.ShiftCheckIn;
+using MediatR;
+using Relevo.Core.Interfaces;
+using Relevo.UseCases.Handovers.GetPending;
+using Relevo.Core.Models;
 
 namespace Relevo.Web.Handovers;
 
-public class GetPendingHandoversEndpoint(IShiftCheckInDataProvider _dataProvider)
-  : Endpoint<GetPendingHandoversRequest, GetPendingHandoversResponse>
+public class GetPendingHandovers(IMediator _mediator, ICurrentUser _currentUser)
+  : EndpointWithoutRequest<GetPendingHandoversResponse>
 {
   public override void Configure()
   {
     Get("/handovers/pending");
-    AllowAnonymous(); // Let our custom middleware handle authentication
   }
 
-  public override async Task HandleAsync(GetPendingHandoversRequest req, CancellationToken ct)
+  public override async Task HandleAsync(CancellationToken ct)
   {
-    var handovers = await _dataProvider.GetPendingHandoversForUserAsync(req.UserId);
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
+    var result = await _mediator.Send(new GetPendingHandoversQuery(userId), ct);
 
-    Response = new GetPendingHandoversResponse
+    if (result.IsSuccess)
     {
-      Handovers = handovers.Select(h => new HandoverSummaryDto
-      {
-        Id = h.Id,
-        PatientId = h.PatientId,
-        PatientName = h.PatientName,
-        Status = h.Status,
-        IllnessSeverity = h.IllnessSeverity.Severity,
-        ShiftName = h.ShiftName,
-        CreatedAt = h.CreatedAt,
-        CreatedBy = h.CreatedBy
-      }).ToList()
-    };
-
-    await SendAsync(Response, cancellation: ct);
+        Response = new GetPendingHandoversResponse
+        {
+            Handovers = result.Value.Select(h => new HandoverDto
+            {
+                Id = h.Id,
+                PatientId = h.PatientId,
+                PatientName = h.PatientName,
+                Status = h.Status,
+                ShiftName = h.ShiftName
+            }).ToList()
+        };
+        await SendAsync(Response, cancellation: ct);
+    }
   }
-}
-
-public class GetPendingHandoversRequest
-{
-  public string UserId { get; set; } = string.Empty;
 }
 
 public class GetPendingHandoversResponse
 {
-  public List<HandoverSummaryDto> Handovers { get; set; } = [];
+    public List<HandoverDto> Handovers { get; set; } = new();
 }
 
-public class HandoverSummaryDto
+public class HandoverDto
 {
-  public string Id { get; set; } = string.Empty;
-  public string PatientId { get; set; } = string.Empty;
-  public string? PatientName { get; set; }
-  public string Status { get; set; } = string.Empty;
-  public string IllnessSeverity { get; set; } = string.Empty;
-  public string ShiftName { get; set; } = string.Empty;
-  public string? CreatedAt { get; set; }
-  public string CreatedBy { get; set; } = string.Empty;
+    public string Id { get; set; } = string.Empty;
+    public string PatientId { get; set; } = string.Empty;
+    public string? PatientName { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string ShiftName { get; set; } = string.Empty;
 }
+

@@ -1,10 +1,14 @@
-using System.Collections.Generic;
+using Relevo.Core.Models;
 
 namespace Relevo.Core.Interfaces;
 
 public interface IPatientRepository
 {
-    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetPatientsByUnit(string unitId, int page, int pageSize);
-    (IReadOnlyList<PatientRecord> Patients, int TotalCount) GetAllPatients(int page, int pageSize);
-    PatientDetailRecord? GetPatientById(string patientId);
-}
+    Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(string unitId, int page, int pageSize);
+        Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetAllPatientsAsync(int page, int pageSize);
+        Task<PatientDetailRecord?> GetPatientByIdAsync(string patientId);
+        Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId);
+        Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy);
+        Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy);
+        Task<IReadOnlyList<PatientActionItemRecord>> GetPatientActionItemsAsync(string patientId);
+    }

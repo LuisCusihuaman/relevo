@@ -13,11 +13,12 @@
     </PackageReference>
     <PackageReference Include="xunit" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Relevo.Infrastructure\Relevo.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Relevo.Web\Relevo.Web.csproj" />
+    <ProjectReference Include="..\Relevo.FunctionalTests\Relevo.FunctionalTests.csproj" />
     <ProjectReference Include="..\Relevo.UnitTests\Relevo.UnitTests.csproj" />
   </ItemGroup>
 

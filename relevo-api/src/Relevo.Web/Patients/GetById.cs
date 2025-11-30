@@ -1,51 +1,48 @@
 using FastEndpoints;
-using Relevo.Core.Interfaces;
-using Relevo.Web.ShiftCheckIn;
+using MediatR;
+using Relevo.UseCases.Patients.GetById;
+using Relevo.Core.Models;
 
 namespace Relevo.Web.Patients;
 
-public class GetPatientByIdEndpoint : Endpoint<GetPatientByIdRequest, GetPatientByIdResponse>
+public class GetPatientById(IMediator _mediator)
+  : Endpoint<GetPatientByIdRequest, GetPatientByIdResponse>
 {
-    private readonly IShiftCheckInService _shiftCheckInService;
-
-    public GetPatientByIdEndpoint(IShiftCheckInService shiftCheckInService)
-    {
-        _shiftCheckInService = shiftCheckInService;
-    }
-
-    public override void Configure()
+  public override void Configure()
   {
     Get("/patients/{patientId}");
-    AllowAnonymous(); // Let our custom middleware handle authentication
   }
 
   public override async Task HandleAsync(GetPatientByIdRequest req, CancellationToken ct)
   {
-    var patient = await _shiftCheckInService.GetPatientByIdAsync(req.PatientId);
+    var result = await _mediator.Send(new GetPatientByIdQuery(req.PatientId), ct);
 
-    if (patient == null)
+    if (result.Status == Ardalis.Result.ResultStatus.NotFound)
     {
       await SendNotFoundAsync(ct);
       return;
     }
 
-    Response = new GetPatientByIdResponse
+    if (result.IsSuccess)
     {
-      Id = patient.Id,
-      Name = patient.Name,
-      Mrn = patient.Mrn,
-      Dob = patient.Dob,
-      Gender = patient.Gender,
-      AdmissionDate = patient.AdmissionDate,
-      CurrentUnit = patient.CurrentUnit,
-      RoomNumber = patient.RoomNumber,
-      Diagnosis = patient.Diagnosis,
-      Allergies = patient.Allergies.ToList(),
-      Medications = patient.Medications.ToList(),
-      Notes = patient.Notes
-    };
-
-    await SendAsync(Response, cancellation: ct);
+      var patient = result.Value;
+      Response = new GetPatientByIdResponse
+      {
+        Id = patient.Id,
+        Name = patient.Name,
+        Mrn = patient.Mrn,
+        Dob = patient.Dob,
+        Gender = patient.Gender,
+        AdmissionDate = patient.AdmissionDate,
+        CurrentUnit = patient.CurrentUnit,
+        RoomNumber = patient.RoomNumber,
+        Diagnosis = patient.Diagnosis,
+        Allergies = patient.Allergies.ToList(),
+        Medications = patient.Medications.ToList(),
+        Notes = patient.Notes
+      };
+      await SendAsync(Response, cancellation: ct);
+    }
   }
 }
 
@@ -69,3 +66,4 @@ public class GetPatientByIdResponse
   public List<string> Medications { get; set; } = [];
   public string Notes { get; set; } = string.Empty;
 }
+

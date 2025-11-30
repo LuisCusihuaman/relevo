@@ -14,8 +14,9 @@
     <PackageReference Include="Ardalis.Result.AspNetCore" />
     <PackageReference Include="FastEndpoints" />
     <PackageReference Include="FastEndpoints.Swagger" />
+    <PackageReference Include="DotNetEnv" />
     <PackageReference Include="MediatR" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Serilog.AspNetCore" />
   </ItemGroup>
 
@@ -23,6 +24,5 @@
     <ProjectReference Include="..\Relevo.Infrastructure\Relevo.Infrastructure.csproj" />
     <ProjectReference Include="..\Relevo.UseCases\Relevo.UseCases.csproj" />
   </ItemGroup>
-
 
 </Project>

@@ -1,19 +1,47 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Relevo.Core.Models;
 
 namespace Relevo.Core.Interfaces;
 
 public interface IHandoverRepository
 {
-    (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetMyHandovers(string userId, int page, int pageSize);
-    (IReadOnlyList<HandoverRecord> Handovers, int TotalCount) GetPatientHandovers(string patientId, int page, int pageSize);
-    HandoverRecord? GetHandoverById(string handoverId);
-    Task CreateHandoverForAssignmentAsync(string assignmentId, string userId, string userName, DateTime windowDate, string fromShiftId, string toShiftId);
-    Task<bool> StartHandover(string handoverId, string userId);
-    Task<bool> ReadyHandover(string handoverId, string userId);
-    Task<bool> AcceptHandover(string handoverId, string userId);
-    Task<bool> CompleteHandover(string handoverId, string userId);
-    Task<bool> CancelHandover(string handoverId, string userId);
-    Task<bool> RejectHandover(string handoverId, string userId, string reason);
+    Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize);
+    Task<HandoverDetailRecord?> GetHandoverByIdAsync(string handoverId);
+    Task<PatientHandoverDataRecord?> GetPatientHandoverDataAsync(string handoverId);
+    Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request);
+    Task<IReadOnlyList<ContingencyPlanRecord>> GetContingencyPlansAsync(string handoverId);
+    Task<ContingencyPlanRecord> CreateContingencyPlanAsync(string handoverId, string condition, string action, string priority, string createdBy);
+    Task<bool> DeleteContingencyPlanAsync(string handoverId, string contingencyId);
+    Task<HandoverSynthesisRecord?> GetSynthesisAsync(string handoverId);
+    Task<bool> UpdateSynthesisAsync(string handoverId, string? content, string status, string userId);
+    Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
+    Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
+    Task<bool> MarkAsReadyAsync(string handoverId, string userId);
+    Task<HandoverClinicalDataRecord?> GetClinicalDataAsync(string handoverId);
+    Task<bool> UpdateClinicalDataAsync(string handoverId, string illnessSeverity, string summaryText, string userId);
+    Task<bool> StartHandoverAsync(string handoverId, string userId);
+    Task<bool> AcceptHandoverAsync(string handoverId, string userId);
+    Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId);
+    Task<bool> CancelHandoverAsync(string handoverId, string userId);
+    Task<bool> CompleteHandoverAsync(string handoverId, string userId);
+    Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId);
+
+    // Action Items
+    Task<IReadOnlyList<HandoverActionItemFullRecord>> GetActionItemsAsync(string handoverId);
+    Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority);
+    Task<bool> UpdateActionItemAsync(string handoverId, string itemId, bool isCompleted);
+    Task<bool> DeleteActionItemAsync(string handoverId, string itemId);
+
+    // Activity Log
+    Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId);
+
+    // Checklists
+    Task<IReadOnlyList<HandoverChecklistRecord>> GetChecklistsAsync(string handoverId);
+    Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId);
+
+    // Messages
+    Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId);
+    Task<HandoverMessageRecord> CreateMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType);
+
+    // My Handovers
+    Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(string userId, int page, int pageSize);
 }

@@ -1,71 +1,37 @@
 using FastEndpoints;
+using MediatR;
 using Relevo.Core.Interfaces;
+using Relevo.UseCases.Handovers.StateMachine;
 
 namespace Relevo.Web.Handovers;
 
-public class AcceptHandoverEndpoint(IShiftCheckInService shiftCheckInService)
-  : Endpoint<AcceptHandoverRequest, AcceptHandoverResponse>
+public class AcceptHandover(IMediator _mediator, ICurrentUser _currentUser)
+  : Endpoint<AcceptHandoverRequest>
 {
   public override void Configure()
   {
-    Post("/handovers/{HandoverId}/accept");
-    AllowAnonymous(); // Let our custom middleware handle authentication
+    Post("/handovers/{handoverId}/accept");
   }
 
   public override async Task HandleAsync(AcceptHandoverRequest req, CancellationToken ct)
   {
-    try
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
+    var result = await _mediator.Send(new AcceptHandoverCommand(req.HandoverId, userId), ct);
+
+    if (result.IsSuccess) 
+      await SendOkAsync(ct);
+    else
     {
-      var userId = "user_demo12345678901234567890123456"; // Dummy user
-      
-      // Use versioned method if version is provided, otherwise use non-versioned
-      bool success;
-      if (req.Version.HasValue)
-      {
-        success = await shiftCheckInService.AcceptHandoverAsync(req.HandoverId, userId, req.Version.Value);
-      }
-      else
-      {
-        success = await shiftCheckInService.AcceptHandoverAsync(req.HandoverId, userId);
-      }
-
-      if (!success)
-      {
-        await SendNotFoundAsync(ct);
-        return;
-      }
-
-      Response = new AcceptHandoverResponse
-      {
-        Success = true,
-        HandoverId = req.HandoverId,
-        Message = "Handover accepted successfully"
-      };
-
-      await SendAsync(Response, cancellation: ct);
-    }
-    catch (Relevo.Core.Exceptions.OptimisticLockException ex)
-    {
-      // Return 409 Conflict for version mismatch
-      await SendAsync(new AcceptHandoverResponse
-      {
-        Success = false,
-        HandoverId = req.HandoverId,
-        Message = ex.Message
-      }, 409, ct);
+      AddError("Cannot accept handover: state machine constraint violated. Handover must be started before accepting.");
+      await SendErrorsAsync(statusCode: 400, ct);
     }
   }
 }
 
 public class AcceptHandoverRequest
 {
-  public string HandoverId { get; set; } = string.Empty;
-  public int? Version { get; set; } // Optional for backwards compatibility
+    public string HandoverId { get; set; } = string.Empty;
 }
 
-public class AcceptHandoverResponse
-{
-  public bool Success { get; set; }
-  public string HandoverId { get; set; } = string.Empty;
-  public string Message { get; set; } = string.Empty;
-}

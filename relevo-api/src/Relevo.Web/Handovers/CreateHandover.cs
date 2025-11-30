@@ -1,46 +1,59 @@
 using FastEndpoints;
+using MediatR;
 using Relevo.Core.Interfaces;
-using Relevo.Web.ShiftCheckIn;
+using Relevo.UseCases.Handovers.Create;
+using Relevo.Core.Models;
 
 namespace Relevo.Web.Handovers;
 
-public class CreateHandoverEndpoint(IShiftCheckInDataProvider _dataProvider)
+public class CreateHandover(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<CreateHandoverRequestDto, CreateHandoverResponse>
 {
   public override void Configure()
   {
     Post("/handovers");
-    AllowAnonymous(); // Let our custom middleware handle authentication
   }
 
   public override async Task HandleAsync(CreateHandoverRequestDto req, CancellationToken ct)
   {
-    var handoverRequest = new CreateHandoverRequest(
-      req.PatientId,
-      req.FromDoctorId,
-      req.ToDoctorId,
-      req.FromShiftId,
-      req.ToShiftId,
-      req.InitiatedBy,
-      req.Notes
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
+    var command = new CreateHandoverCommand(
+        req.PatientId,
+        req.FromDoctorId,
+        req.ToDoctorId,
+        req.FromShiftId,
+        req.ToShiftId,
+        req.InitiatedBy,
+        req.Notes,
+        _currentUser.Email,
+        _currentUser.FirstName,
+        _currentUser.LastName,
+        _currentUser.FullName,
+        _currentUser.AvatarUrl,
+        _currentUser.OrgRole
     );
 
-    var handover = await _dataProvider.CreateHandoverAsync(handoverRequest);
+    var result = await _mediator.Send(command, ct);
 
-    Response = new CreateHandoverResponse
+    if (result.IsSuccess)
     {
-      Id = handover.Id,
-      PatientId = handover.PatientId,
-      PatientName = handover.PatientName,
-      Status = handover.Status,
-      FromDoctorId = req.FromDoctorId,
-      ToDoctorId = req.ToDoctorId,
-      FromShiftId = req.FromShiftId,
-      ToShiftId = req.ToShiftId,
-      CreatedAt = handover.CreatedAt
-    };
-
-    await SendAsync(Response, cancellation: ct);
+      var handover = result.Value;
+      Response = new CreateHandoverResponse
+      {
+        Id = handover.Id,
+        PatientId = handover.PatientId,
+        PatientName = handover.PatientName,
+        Status = handover.Status,
+        FromDoctorId = req.FromDoctorId,
+        ToDoctorId = req.ToDoctorId,
+        FromShiftId = req.FromShiftId,
+        ToShiftId = req.ToShiftId,
+        CreatedAt = handover.CreatedAt
+      };
+      await SendAsync(Response, cancellation: ct);
+    }
   }
 }
 
@@ -67,3 +80,4 @@ public class CreateHandoverResponse
   public string ToShiftId { get; set; } = string.Empty;
   public string? CreatedAt { get; set; }
 }
+

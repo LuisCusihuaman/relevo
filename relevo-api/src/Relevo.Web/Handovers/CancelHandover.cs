@@ -1,69 +1,37 @@
 using FastEndpoints;
+using MediatR;
 using Relevo.Core.Interfaces;
+using Relevo.UseCases.Handovers.StateMachine;
 
 namespace Relevo.Web.Handovers;
 
-public class CancelHandoverEndpoint(IShiftCheckInService shiftCheckInService)
-    : Endpoint<CancelHandoverRequest, CancelHandoverResponse>
+public class CancelHandover(IMediator _mediator, ICurrentUser _currentUser)
+  : Endpoint<CancelHandoverRequest>
 {
-    public override void Configure()
+  public override void Configure()
+  {
+    Post("/handovers/{handoverId}/cancel");
+  }
+
+  public override async Task HandleAsync(CancelHandoverRequest req, CancellationToken ct)
+  {
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
+    
+    var result = await _mediator.Send(new CancelHandoverCommand(req.HandoverId, userId), ct);
+
+    if (result.IsSuccess) 
+      await SendOkAsync(ct);
+    else
     {
-        Post("/handovers/{HandoverId}/cancel");
-        AllowAnonymous();
+      AddError("Cannot cancel handover: handover not found or state change not allowed.");
+      await SendErrorsAsync(statusCode: 400, ct);
     }
-
-    public override async Task HandleAsync(CancelHandoverRequest req, CancellationToken ct)
-    {
-        try
-        {
-            var userId = "user_demo12345678901234567890123456";
-            
-            bool success;
-            if (req.Version.HasValue)
-            {
-                success = await shiftCheckInService.CancelHandoverAsync(req.HandoverId, userId, req.Version.Value);
-            }
-            else
-            {
-                success = await shiftCheckInService.CancelHandoverAsync(req.HandoverId, userId);
-            }
-
-            if (!success)
-            {
-                await SendNotFoundAsync(ct);
-                return;
-            }
-
-            Response = new CancelHandoverResponse
-            {
-                Success = true,
-                HandoverId = req.HandoverId,
-                Message = "Handover cancelled successfully"
-            };
-
-            await SendAsync(Response, cancellation: ct);
-        }
-        catch (Relevo.Core.Exceptions.OptimisticLockException ex)
-        {
-            await SendAsync(new CancelHandoverResponse
-            {
-                Success = false,
-                HandoverId = req.HandoverId,
-                Message = ex.Message
-            }, 409, ct);
-        }
-    }
+  }
 }
 
 public class CancelHandoverRequest
 {
     public string HandoverId { get; set; } = string.Empty;
-    public int? Version { get; set; }
 }
 
-public class CancelHandoverResponse
-{
-    public bool Success { get; set; }
-    public string HandoverId { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-}

@@ -9,4 +9,4 @@ services:
       APP_USER: RELEVO_APP
       APP_USER_PASSWORD: TuPass123
     volumes:
-      - ./src/Relevo.Infrastructure/Sql:/container-entrypoint-initdb.d
+      - ./src/Relevo.Infrastructure/Data/Sql:/container-entrypoint-initdb.d

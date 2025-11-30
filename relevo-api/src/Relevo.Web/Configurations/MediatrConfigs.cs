@@ -1,6 +1,6 @@
 ﻿using Ardalis.SharedKernel;
-using Relevo.Core.Models;
-using Relevo.UseCases.ShiftCheckIn;
+using Relevo.Core.ContributorAggregate;
+using Relevo.UseCases.Contributors.Create;
 using MediatR;
 using System.Reflection;
 
@@ -12,8 +12,8 @@ public static class MediatrConfigs
   {
     var mediatRAssemblies = new[]
       {
-        Assembly.GetAssembly(typeof(User)), // Core
-        Assembly.GetAssembly(typeof(AssignPatientsUseCase)) // UseCases
+        Assembly.GetAssembly(typeof(Contributor)), // Core
+        Assembly.GetAssembly(typeof(CreateContributorCommand)) // UseCases
       };
 
     services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!))

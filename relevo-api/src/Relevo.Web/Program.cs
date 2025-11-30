@@ -1,13 +1,20 @@
 ﻿using Relevo.Web.Configurations;
-using Relevo.Web.Middleware;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Oracle.ManagedDataAccess.Client;
+using Relevo.Core.Interfaces;
+using Relevo.Web.Auth;
 
+try { OracleConfiguration.BindByName = true; } catch { }
+
+// Load .env file if it exists (search upwards)
+DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Oracle Configuration: BindByName is now handled in DapperConnectionFactory static constructor
 
 var logger = Log.Logger = new LoggerConfiguration()
   .Enrich.FromLogContext()
@@ -24,20 +31,9 @@ var appLogger = new SerilogLoggerFactory(logger)
 builder.Services.AddOptionConfigs(builder.Configuration, appLogger, builder);
 builder.Services.AddServiceConfigs(appLogger, builder);
 
-// CORS: allow Vite dev server to call API (frontend runs on :5174)
-const string CorsPolicyName = "FrontendDev";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: CorsPolicyName, policy =>
-        policy.WithOrigins(
-                "http://localhost:5174",
-                "https://localhost:5174"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()
-    );
-});
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddClerkAuthentication(builder.Configuration);
 
 builder.Services.AddFastEndpoints()
                 .SwaggerDocument(o =>
@@ -45,28 +41,12 @@ builder.Services.AddFastEndpoints()
                   o.ShortSchemaNames = true;
                 });
 
-// Configure Kestrel for development to avoid SSL issues with HTTP/2
-if (builder.Environment.IsDevelopment())
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenLocalhost(57679, listenOptions =>
-        {
-            listenOptions.UseHttps();
-            // Disable HTTP/2 for development to avoid SSL connection issues
-            listenOptions.Protocols = HttpProtocols.Http1;
-        });
-    });
-}
-
 var app = builder.Build();
 
-app.UseCors(CorsPolicyName);
+app.UseAuthentication();
+app.UseAuthorization();
 
-// Add authentication middleware
-app.UseClerkAuthentication();
-
-app.UseAppMiddleware();
+await app.UseAppMiddleware();
 
 app.Run();
 
