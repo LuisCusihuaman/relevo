@@ -1,22 +1,33 @@
 -- ========================================
--- VISTAS
+-- CREATE VIEWS
 -- ========================================
 
 -- Connect as RELEVO_APP user
 CONNECT RELEVO_APP/TuPass123;
 
-CREATE OR REPLACE VIEW VW_HANDOVERS_STATE AS
+-- View exposing handovers with explicit column selection for Dapper compatibility
+-- CURRENT_STATE is now a virtual column in HANDOVERS table, so we can simply select it
+-- This view maintains explicit column order/contract for Dapper mapping
+CREATE OR REPLACE VIEW VW_HANDOVERS_WITH_STATE AS
 SELECT
-  h.ID as HandoverId,
-  CASE
-    WHEN h.COMPLETED_AT IS NOT NULL THEN 'Completed'
-    WHEN h.CANCELLED_AT IS NOT NULL THEN 'Cancelled'
-    WHEN h.REJECTED_AT  IS NOT NULL THEN 'Rejected'
-    WHEN h.EXPIRED_AT   IS NOT NULL THEN 'Expired'
-    WHEN h.ACCEPTED_AT  IS NOT NULL THEN 'Accepted'
-    WHEN h.STARTED_AT   IS NOT NULL THEN 'InProgress'
-    WHEN h.READY_AT     IS NOT NULL THEN 'Ready'
-    ELSE 'Draft'
-  END AS StateName
+    h.ID,
+    h.PATIENT_ID,
+    h.PREVIOUS_HANDOVER_ID,
+    h.FROM_SHIFT_ID,
+    h.TO_SHIFT_ID,
+    h.FROM_USER_ID,
+    h.TO_USER_ID,
+    h.WINDOW_START_AT,
+    h.WINDOW_END_AT,
+    h.CREATED_AT,
+    h.UPDATED_AT,
+    h.READY_AT,
+    h.STARTED_AT,
+    h.ACCEPTED_AT,
+    h.COMPLETED_AT,
+    h.CANCELLED_AT,
+    h.REJECTED_AT,
+    h.EXPIRED_AT,
+    h.REJECTION_REASON,
+    h.CURRENT_STATE
 FROM HANDOVERS h;
-
