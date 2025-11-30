@@ -84,59 +84,92 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
       return (patients.ToList(), total);
     }
 
-    public async Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
+    public Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
     {
-        using var conn = _connectionFactory.CreateConnection();
-        const string sql = @"
-            SELECT * FROM (
-                SELECT ID,
-                       PATIENT_ID as PatientId,
-                       PHYSICIAN_ID as PhysicianId,
-                       SUMMARY_TEXT as SummaryText,
-                       CREATED_AT as CreatedAt,
-                       UPDATED_AT as UpdatedAt,
-                       LAST_EDITED_BY as LastEditedBy
-                FROM PATIENT_SUMMARIES
-                WHERE PATIENT_ID = :PatientId
-                ORDER BY UPDATED_AT DESC
-            ) WHERE ROWNUM <= 1";
-
-        return await conn.QueryFirstOrDefaultAsync<PatientSummaryRecord>(sql, new { PatientId = patientId });
+        // PATIENT_SUMMARIES table removed - patient summary now comes from latest handover
+        // This method should be called with handoverId, not patientId
+        // Keeping for backward compatibility but will return null
+        // Use GetPatientSummaryFromHandoverAsync instead
+        return Task.FromResult<PatientSummaryRecord?>(null);
     }
 
-    public async Task<PatientSummaryRecord> CreatePatientSummaryAsync(string patientId, string physicianId, string summaryText, string createdBy)
+    public async Task<PatientSummaryRecord?> GetPatientSummaryFromHandoverAsync(string handoverId)
     {
         using var conn = _connectionFactory.CreateConnection();
-        var summaryId = Guid.NewGuid().ToString();
-
         const string sql = @"
-            INSERT INTO PATIENT_SUMMARIES (ID, PATIENT_ID, PHYSICIAN_ID, SUMMARY_TEXT, CREATED_AT, UPDATED_AT, LAST_EDITED_BY)
-            VALUES (:summaryId, :patientId, :physicianId, :summaryText, SYSTIMESTAMP, SYSTIMESTAMP, :createdBy)";
+            SELECT 
+                hc.HANDOVER_ID as Id,
+                h.PATIENT_ID as PatientId,
+                h.FROM_USER_ID as PhysicianId,
+                NVL(hc.PATIENT_SUMMARY, '') as SummaryText,
+                h.CREATED_AT as CreatedAt,
+                hc.UPDATED_AT as UpdatedAt,
+                NVL(hc.LAST_EDITED_BY, h.FROM_USER_ID) as LastEditedBy
+            FROM HANDOVER_CONTENTS hc
+            JOIN HANDOVERS h ON hc.HANDOVER_ID = h.ID
+            WHERE hc.HANDOVER_ID = :HandoverId";
 
-        await conn.ExecuteAsync(sql, new { summaryId, patientId, physicianId, summaryText, createdBy });
+        return await conn.QueryFirstOrDefaultAsync<PatientSummaryRecord>(sql, new { HandoverId = handoverId });
+    }
+
+    public async Task<PatientSummaryRecord> CreatePatientSummaryAsync(string handoverId, string summaryText, string createdBy)
+    {
+        // PATIENT_SUMMARIES removed - now updates HANDOVER_CONTENTS.PATIENT_SUMMARY
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Update or insert HANDOVER_CONTENTS
+        await conn.ExecuteAsync(@"
+            MERGE INTO HANDOVER_CONTENTS hc
+            USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (hc.HANDOVER_ID = src.HANDOVER_ID)
+            WHEN MATCHED THEN
+                UPDATE SET PATIENT_SUMMARY = :summaryText, PATIENT_SUMMARY_STATUS = 'Draft', 
+                           LAST_EDITED_BY = :createdBy, UPDATED_AT = LOCALTIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (HANDOVER_ID, PATIENT_SUMMARY, PATIENT_SUMMARY_STATUS, LAST_EDITED_BY, UPDATED_AT,
+                        ILLNESS_SEVERITY, SITUATION_AWARENESS, SYNTHESIS, SA_STATUS, SYNTHESIS_STATUS)
+                VALUES (:handoverId, :summaryText, 'Draft', :createdBy, LOCALTIMESTAMP,
+                        'Stable', NULL, NULL, 'Draft', 'Draft')",
+            new { handoverId, summaryText, createdBy });
+
+        // Fetch created/updated record
+        var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(
+            "SELECT PATIENT_ID, FROM_USER_ID, CREATED_AT FROM HANDOVERS WHERE ID = :handoverId",
+            new { handoverId });
+
+        if (handover == null)
+        {
+            throw new InvalidOperationException($"Handover {handoverId} not found after creation");
+        }
 
         return new PatientSummaryRecord(
-            summaryId,
-            patientId,
-            physicianId,
+            handoverId,
+            (string)handover.PATIENT_ID,
+            (string)handover.FROM_USER_ID,
             summaryText,
-            DateTime.UtcNow, // Approximate, or fetch from DB
+            ((DateTime)handover.CREATED_AT).ToUniversalTime(),
             DateTime.UtcNow,
             createdBy
         );
     }
 
-    public async Task<bool> UpdatePatientSummaryAsync(string summaryId, string summaryText, string lastEditedBy)
+    public async Task<bool> UpdatePatientSummaryAsync(string handoverId, string summaryText, string lastEditedBy)
     {
+        // PATIENT_SUMMARIES removed - now updates HANDOVER_CONTENTS.PATIENT_SUMMARY
+        // Use MERGE to handle cases where HANDOVER_CONTENTS row doesn't exist yet
         using var conn = _connectionFactory.CreateConnection();
         const string sql = @"
-            UPDATE PATIENT_SUMMARIES
-            SET SUMMARY_TEXT = :summaryText,
-                UPDATED_AT = SYSTIMESTAMP,
-                LAST_EDITED_BY = :lastEditedBy
-            WHERE ID = :summaryId";
+            MERGE INTO HANDOVER_CONTENTS hc
+            USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (hc.HANDOVER_ID = src.HANDOVER_ID)
+            WHEN MATCHED THEN
+                UPDATE SET PATIENT_SUMMARY = :summaryText, PATIENT_SUMMARY_STATUS = 'Draft',
+                           LAST_EDITED_BY = :lastEditedBy, UPDATED_AT = LOCALTIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (HANDOVER_ID, PATIENT_SUMMARY, PATIENT_SUMMARY_STATUS, LAST_EDITED_BY, UPDATED_AT,
+                        ILLNESS_SEVERITY, SITUATION_AWARENESS, SYNTHESIS, SA_STATUS, SYNTHESIS_STATUS)
+                VALUES (:handoverId, :summaryText, 'Draft', :lastEditedBy, LOCALTIMESTAMP,
+                        'Stable', NULL, NULL, 'Draft', 'Draft')";
 
-        var rows = await conn.ExecuteAsync(sql, new { summaryId, summaryText, lastEditedBy });
+        var rows = await conn.ExecuteAsync(sql, new { handoverId, summaryText, lastEditedBy });
         return rows > 0;
     }
 
@@ -144,7 +177,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     {
         using var conn = _connectionFactory.CreateConnection();
         // Query to join action items with handovers to filter by patient
-        // Assuming schema: HANDOVER_ACTION_ITEMS (HANDOVER_ID) -> HANDOVERS (ID, PATIENT_ID, CREATED_BY, SHIFT_NAME)
+        // Updated schema: HANDOVER_ACTION_ITEMS (HANDOVER_ID) -> HANDOVERS (ID, PATIENT_ID, FROM_USER_ID, FROM_SHIFT_ID)
         const string sql = @"
             SELECT 
                 ai.ID,
@@ -152,10 +185,11 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                 ai.DESCRIPTION,
                 ai.IS_COMPLETED as IsCompleted,
                 ai.CREATED_AT as CreatedAt,
-                h.CREATED_BY as CreatedBy,
-                h.SHIFT_NAME as ShiftName
+                h.FROM_USER_ID as CreatedBy, -- Column renamed
+                s.NAME as ShiftName -- Join SHIFTS table
             FROM HANDOVER_ACTION_ITEMS ai
             JOIN HANDOVERS h ON ai.HANDOVER_ID = h.ID
+            LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
             WHERE h.PATIENT_ID = :PatientId
             ORDER BY ai.CREATED_AT DESC";
 

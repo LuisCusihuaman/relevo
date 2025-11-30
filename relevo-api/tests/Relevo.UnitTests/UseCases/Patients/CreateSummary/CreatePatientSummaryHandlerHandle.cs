@@ -10,12 +10,13 @@ namespace Relevo.UnitTests.UseCases.Patients.CreateSummary;
 
 public class CreatePatientSummaryHandlerHandle
 {
-    private readonly IPatientRepository _repository = Substitute.For<IPatientRepository>();
+    private readonly IHandoverRepository _handoverRepository = Substitute.For<IHandoverRepository>();
+    private readonly IPatientRepository _patientRepository = Substitute.For<IPatientRepository>();
     private readonly CreatePatientSummaryHandler _handler;
 
     public CreatePatientSummaryHandlerHandle()
     {
-        _handler = new CreatePatientSummaryHandler(_repository);
+        _handler = new CreatePatientSummaryHandler(_handoverRepository, _patientRepository);
     }
 
     [Fact]
@@ -23,12 +24,15 @@ public class CreatePatientSummaryHandlerHandle
     {
         var patientId = "pat-1";
         var userId = "dr-1";
+        var handoverId = "handover-1";
         var summaryText = "New Summary";
         var summaryRecord = new PatientSummaryRecord(
-            "sum-1", patientId, userId, summaryText, DateTime.UtcNow, DateTime.UtcNow, userId
+            handoverId, patientId, userId, summaryText, DateTime.UtcNow, DateTime.UtcNow, userId
         );
 
-        _repository.CreatePatientSummaryAsync(patientId, userId, summaryText, userId)
+        _handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId)
+            .Returns(Task.FromResult<string?>(handoverId));
+        _patientRepository.CreatePatientSummaryAsync(handoverId, summaryText, userId)
             .Returns(Task.FromResult(summaryRecord));
 
         var command = new CreatePatientSummaryCommand(patientId, summaryText, userId);

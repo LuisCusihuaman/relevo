@@ -20,8 +20,13 @@ public class StartHandover(IMediator _mediator, ICurrentUser _currentUser)
     
     var result = await _mediator.Send(new StartHandoverCommand(req.HandoverId, userId), ct);
 
-    if (result.IsSuccess) await SendOkAsync(ct);
-    else await SendNotFoundAsync(ct);
+    if (result.IsSuccess) 
+      await SendOkAsync(ct);
+    else
+    {
+      AddError("Cannot start handover: state machine constraint violated. Handover must be ready before starting.");
+      await SendErrorsAsync(statusCode: 400, ct);
+    }
   }
 }
 

@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.UpdateSituationAwareness;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Relevo.Web.Handovers;
 
@@ -18,8 +19,19 @@ public class PutSituationAwareness(IMediator _mediator, ICurrentUser _currentUse
     var userId = _currentUser.Id;
     if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
+    // FastEndpoints automatically binds route parameters to matching request properties
+    // The route parameter {handoverId} is bound to req.HandoverId
+    var handoverId = req.HandoverId;
+    
+    if (string.IsNullOrEmpty(handoverId))
+    {
+        AddError("HandoverId is required");
+        await SendErrorsAsync(statusCode: 400, ct);
+        return;
+    }
+
     var result = await _mediator.Send(new UpdateHandoverSituationAwarenessCommand(
-        req.HandoverId,
+        handoverId,
         req.Content,
         req.Status,
         userId
@@ -29,23 +41,31 @@ public class PutSituationAwareness(IMediator _mediator, ICurrentUser _currentUse
     {
         await SendOkAsync(ct);
     }
+    else if (result.Status == Ardalis.Result.ResultStatus.NotFound)
+    {
+        await SendNotFoundAsync(ct);
+    }
     else
     {
-        // If failed (e.g. handover not found), return 404 or 400
-        // For now, if it fails, it's likely not found or DB error
-        await SendNotFoundAsync(ct);
+        // Check if error message indicates "not found" and return 404, otherwise 400
+        var errorMessage = result.Errors.FirstOrDefault() ?? "Error updating situation awareness";
+        if (errorMessage.Contains("may not exist") || errorMessage.Contains("not exist"))
+        {
+            await SendNotFoundAsync(ct);
+        }
+        else
+        {
+            AddError(errorMessage);
+            await SendErrorsAsync(statusCode: 400, ct);
+        }
     }
   }
 }
 
 public class UpdateSituationAwarenessRequest
 {
+    [FromRoute]
     public string HandoverId { get; set; } = string.Empty;
-    
-    // FastEndpoints by default binds body to properties not in route. 
-    // We need to ensure json body is bound correctly. 
-    // But here HandoverId is in route.
-    
     public string? Content { get; set; }
     public string Status { get; set; } = string.Empty;
 }

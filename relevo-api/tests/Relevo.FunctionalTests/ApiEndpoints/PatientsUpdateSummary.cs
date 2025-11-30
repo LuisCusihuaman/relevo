@@ -31,8 +31,11 @@ public class PatientsUpdateSummary(CustomWebApplicationFactory<Program> factory)
   }
 
   [Fact]
-  public async Task ReturnsNotFoundForNonExistentSummary()
+  public async Task ReturnsBadRequestForNonExistentPatient()
   {
+    // Patient summary now requires a handover, which requires an assignment
+    // If patient has no assignment, GetOrCreateCurrentHandoverIdAsync returns null
+    // Handler returns Error (BadRequest) instead of NotFound
     var request = new UpdatePatientSummaryRequest
     {
         PatientId = "pat-no-summary",
@@ -40,6 +43,7 @@ public class PatientsUpdateSummary(CustomWebApplicationFactory<Program> factory)
     };
 
     var response = await _client.PutAsJsonAsync("/patients/pat-no-summary/summary", request);
-    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    // Returns BadRequest because patient has no assignment (cannot create handover)
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
   }
 }

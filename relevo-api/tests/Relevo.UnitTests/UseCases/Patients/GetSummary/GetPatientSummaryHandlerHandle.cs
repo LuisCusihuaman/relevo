@@ -10,39 +10,46 @@ namespace Relevo.UnitTests.UseCases.Patients.GetSummary;
 
 public class GetPatientSummaryHandlerHandle
 {
-    private readonly IPatientRepository _repository = Substitute.For<IPatientRepository>();
+    private readonly IHandoverRepository _handoverRepository = Substitute.For<IHandoverRepository>();
+    private readonly IPatientRepository _patientRepository = Substitute.For<IPatientRepository>();
     private readonly GetPatientSummaryHandler _handler;
 
     public GetPatientSummaryHandlerHandle()
     {
-        _handler = new GetPatientSummaryHandler(_repository);
+        _handler = new GetPatientSummaryHandler(_handoverRepository, _patientRepository);
     }
 
     [Fact]
     public async Task ReturnsSummaryGivenValidId()
     {
         var patientId = "pat-1";
+        var handoverId = "handover-1";
+        var userId = "dr-1";
         var summary = new PatientSummaryRecord(
-            "sum-1", patientId, "dr-1", "Summary text", DateTime.UtcNow, DateTime.UtcNow, "dr-1"
+            handoverId, patientId, userId, "Summary text", DateTime.UtcNow, DateTime.UtcNow, userId
         );
 
-        _repository.GetPatientSummaryAsync(patientId)
+        _handoverRepository.GetCurrentHandoverIdAsync(patientId)
+            .Returns(Task.FromResult<string?>(handoverId));
+        _patientRepository.GetPatientSummaryFromHandoverAsync(handoverId)
             .Returns(Task.FromResult<PatientSummaryRecord?>(summary));
 
-        var result = await _handler.Handle(new GetPatientSummaryQuery(patientId), CancellationToken.None);
+        var result = await _handler.Handle(new GetPatientSummaryQuery(patientId, userId), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeEquivalentTo(summary);
     }
 
     [Fact]
-    public async Task ReturnsNotFoundWhenNoSummary()
+    public async Task ReturnsNotFoundWhenNoHandover()
     {
-        var patientId = "no-summary";
-        _repository.GetPatientSummaryAsync(patientId)
-            .Returns(Task.FromResult<PatientSummaryRecord?>(null));
+        var patientId = "no-handover";
+        var userId = "dr-1";
+        
+        _handoverRepository.GetCurrentHandoverIdAsync(patientId)
+            .Returns(Task.FromResult<string?>(null));
 
-        var result = await _handler.Handle(new GetPatientSummaryQuery(patientId), CancellationToken.None);
+        var result = await _handler.Handle(new GetPatientSummaryQuery(patientId, userId), CancellationToken.None);
 
         result.Status.Should().Be(ResultStatus.NotFound);
     }

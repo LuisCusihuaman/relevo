@@ -2,10 +2,12 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Patients.GetSummary;
 using Relevo.Core.Models;
+using Relevo.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace Relevo.Web.Patients;
 
-public class GetPatientSummary(IMediator _mediator)
+public class GetPatientSummary(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<GetPatientSummaryRequest, GetPatientSummaryResponse>
 {
   public override void Configure()
@@ -15,12 +17,15 @@ public class GetPatientSummary(IMediator _mediator)
 
   public override async Task HandleAsync(GetPatientSummaryRequest req, CancellationToken ct)
   {
-    var result = await _mediator.Send(new GetPatientSummaryQuery(req.PatientId), ct);
+    // PATIENT_SUMMARIES table removed - now uses latest handover's PATIENT_SUMMARY
+    var userId = _currentUser.Id;
+    if (string.IsNullOrEmpty(userId))
+    {
+      await SendUnauthorizedAsync(ct);
+      return;
+    }
+    var result = await _mediator.Send(new GetPatientSummaryQuery(req.PatientId, userId), ct);
 
-    // Legacy behavior: returns 200 OK with null summary if not found, or we can return 404.
-    // The legacy code returns 200 with null.
-    // Let's support both: if result is NotFound, we return response with null.
-    
     if (result.Status == Ardalis.Result.ResultStatus.NotFound)
     {
         Response = new GetPatientSummaryResponse { Summary = null };

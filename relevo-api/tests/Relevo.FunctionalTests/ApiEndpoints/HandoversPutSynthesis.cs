@@ -20,7 +20,7 @@ public class HandoversPutSynthesis(CustomWebApplicationFactory<Program> factory)
     {
         HandoverId = handoverId,
         Content = "Functional test synthesis",
-        Status = "draft"
+        Status = "Draft"
     };
 
     var response = await _client.PutAsJsonAsync($"/handovers/{handoverId}/synthesis", request);

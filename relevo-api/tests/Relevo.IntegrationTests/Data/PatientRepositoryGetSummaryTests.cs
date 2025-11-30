@@ -16,13 +16,25 @@ public class PatientRepositoryGetSummaryTests : BaseDapperRepoTestFixture
         return _scope.ServiceProvider.GetRequiredService<IPatientRepository>();
     }
 
+    private IHandoverRepository GetHandoverRepository()
+    {
+        return _scope.ServiceProvider.GetRequiredService<IHandoverRepository>();
+    }
+
     [Fact]
     public async Task GetPatientSummary_ReturnsSummary()
     {
-        var repository = GetPatientRepository();
+        var patientRepository = GetPatientRepository();
+        var handoverRepository = GetHandoverRepository();
         var patientId = DapperTestSeeder.PatientId1;
+        var userId = DapperTestSeeder.UserId;
 
-        var summary = await repository.GetPatientSummaryAsync(patientId);
+        // Get or create current handover for patient
+        var handoverId = await handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId);
+        Assert.NotNull(handoverId);
+
+        // Get summary from handover
+        var summary = await patientRepository.GetPatientSummaryFromHandoverAsync(handoverId);
 
         Assert.NotNull(summary);
         Assert.Equal(patientId, summary.PatientId);
@@ -30,12 +42,12 @@ public class PatientRepositoryGetSummaryTests : BaseDapperRepoTestFixture
     }
 
     [Fact]
-    public async Task GetPatientSummary_ReturnsNullForNoSummary()
+    public async Task GetPatientSummary_ReturnsNullForNoHandover()
     {
-        var repository = GetPatientRepository();
-        var patientId = "pat-no-summary";
+        var patientRepository = GetPatientRepository();
+        var handoverId = "handover-nonexistent";
 
-        var summary = await repository.GetPatientSummaryAsync(patientId);
+        var summary = await patientRepository.GetPatientSummaryFromHandoverAsync(handoverId);
 
         Assert.Null(summary);
     }

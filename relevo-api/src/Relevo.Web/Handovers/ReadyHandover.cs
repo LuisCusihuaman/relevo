@@ -24,9 +24,16 @@ public class ReadyHandover(IMediator _mediator, ICurrentUser _currentUser)
     {
         await SendOkAsync(ct);
     }
-    else
+    else if (result.Status == Ardalis.Result.ResultStatus.NotFound)
     {
         await SendNotFoundAsync(ct);
+    }
+    else
+    {
+        // Handle errors (e.g., constraint violations, invalid state transitions)
+        var errorMessage = result.Errors.FirstOrDefault() ?? "Failed to mark handover as ready";
+        AddError(errorMessage);
+        await SendErrorsAsync(statusCode: 400, ct);
     }
   }
 }

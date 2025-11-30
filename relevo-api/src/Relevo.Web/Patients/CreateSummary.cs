@@ -3,6 +3,7 @@ using MediatR;
 using Relevo.Core.Interfaces;
 using Relevo.UseCases.Patients.CreateSummary;
 using Relevo.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Relevo.Web.Patients;
 
@@ -19,6 +20,7 @@ public class CreatePatientSummary(IMediator _mediator, ICurrentUser _currentUser
     var userId = _currentUser.Id;
     if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
+    // PATIENT_SUMMARIES removed - now uses current handover's PATIENT_SUMMARY
     var command = new CreatePatientSummaryCommand(req.PatientId, req.SummaryText, userId);
     var result = await _mediator.Send(command, ct);
 
@@ -42,7 +44,6 @@ public class CreatePatientSummary(IMediator _mediator, ICurrentUser _currentUser
     }
     else
     {
-        // Handle errors
         AddError(result.Errors.FirstOrDefault() ?? "Error creating summary");
         await SendErrorsAsync(cancellation: ct);
     }

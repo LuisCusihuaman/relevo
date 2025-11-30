@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.Core.Interfaces;
 using Relevo.UseCases.Patients.UpdateSummary;
+using Microsoft.AspNetCore.Http;
 
 namespace Relevo.Web.Patients;
 
@@ -18,6 +19,7 @@ public class UpdatePatientSummary(IMediator _mediator, ICurrentUser _currentUser
     var userId = _currentUser.Id;
     if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
 
+    // PATIENT_SUMMARIES removed - now uses current handover's PATIENT_SUMMARY
     var command = new UpdatePatientSummaryCommand(req.PatientId, req.SummaryText, userId);
     var result = await _mediator.Send(command, ct);
 

@@ -20,15 +20,15 @@ public class PatientRepositoryCreateSummaryTests : BaseDapperRepoTestFixture
     public async Task CreatePatientSummary_ReturnsCreatedSummary()
     {
         var repository = GetPatientRepository();
-        var patientId = DapperTestSeeder.PatientId1;
-        var physicianId = DapperTestSeeder.UserId;
+        var handoverId = DapperTestSeeder.HandoverId; // Use existing handover from seeder
         var summaryText = "Integration Test Summary";
+        var userId = DapperTestSeeder.UserId;
 
-        var summary = await repository.CreatePatientSummaryAsync(patientId, physicianId, summaryText, physicianId);
+        var summary = await repository.CreatePatientSummaryAsync(handoverId, summaryText, userId);
 
         Assert.NotNull(summary);
-        Assert.Equal(patientId, summary.PatientId);
+        Assert.Equal(handoverId, summary.Id); // Id is now handoverId
         Assert.Equal(summaryText, summary.SummaryText);
-        Assert.False(string.IsNullOrEmpty(summary.Id));
+        Assert.False(string.IsNullOrEmpty(summary.PatientId));
     }
 }

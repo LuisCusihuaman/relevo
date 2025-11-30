@@ -141,9 +141,9 @@ CREATE TABLE HANDOVERS (
 CREATE TABLE HANDOVER_CONTENTS (
     HANDOVER_ID VARCHAR2(50) PRIMARY KEY,
     ILLNESS_SEVERITY VARCHAR2(20), -- Stable, Watcher, Unstable, Critical
-    PATIENT_SUMMARY CLOB, -- Patient summary section
-    SITUATION_AWARENESS CLOB, -- Situation awareness section
-    SYNTHESIS CLOB, -- Synthesis section
+    PATIENT_SUMMARY VARCHAR2(4000), -- Patient summary section
+    SITUATION_AWARENESS VARCHAR2(4000), -- Situation awareness section
+    SYNTHESIS VARCHAR2(4000), -- Synthesis section
     PATIENT_SUMMARY_STATUS VARCHAR2(20), -- Draft, Completed
     SA_STATUS VARCHAR2(20), -- Draft, Completed
     SYNTHESIS_STATUS VARCHAR2(20), -- Draft, Completed

@@ -19,7 +19,7 @@ public class HandoversPutSituationAwareness(CustomWebApplicationFactory<Program>
     {
         HandoverId = handoverId,
         Content = "Updated SA Content via API",
-        Status = "Final"
+        Status = "Completed"
     };
     
     var content = JsonContent.Create(new { Content = request.Content, Status = request.Status });
@@ -31,6 +31,6 @@ public class HandoversPutSituationAwareness(CustomWebApplicationFactory<Program>
     Assert.NotNull(result.SituationAwareness);
     
     Assert.Equal("Updated SA Content via API", result.SituationAwareness.Content);
-    Assert.Equal("Final", result.SituationAwareness.Status);
+    Assert.Equal("Completed", result.SituationAwareness.Status);
   }
 }

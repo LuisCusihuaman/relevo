@@ -16,20 +16,34 @@ public class PatientRepositoryUpdateSummaryTests : BaseDapperRepoTestFixture
         return _scope.ServiceProvider.GetRequiredService<IPatientRepository>();
     }
 
+    private IHandoverRepository GetHandoverRepository()
+    {
+        return _scope.ServiceProvider.GetRequiredService<IHandoverRepository>();
+    }
+
     [Fact]
     public async Task UpdatePatientSummary_UpdatesExistingSummary()
     {
-        var repository = GetPatientRepository();
+        var patientRepository = GetPatientRepository();
+        var handoverRepository = GetHandoverRepository();
         var patientId = DapperTestSeeder.PatientId1;
         var userId = DapperTestSeeder.UserId;
         
-        var summary = await repository.GetPatientSummaryAsync(patientId);
+        // Get or create current handover for patient
+        var handoverId = await handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId);
+        Assert.NotNull(handoverId);
+
+        // Get summary from handover
+        var summary = await patientRepository.GetPatientSummaryFromHandoverAsync(handoverId);
         Assert.NotNull(summary);
 
-        var updated = await repository.UpdatePatientSummaryAsync(summary.Id, "Updated Text", userId);
+        // Update summary
+        var updated = await patientRepository.UpdatePatientSummaryAsync(handoverId, "Updated Text", userId);
         Assert.True(updated);
 
-        var newSummary = await repository.GetPatientSummaryAsync(patientId);
-        Assert.Equal("Updated Text", newSummary?.SummaryText);
+        // Verify update
+        var newSummary = await patientRepository.GetPatientSummaryFromHandoverAsync(handoverId);
+        Assert.NotNull(newSummary);
+        Assert.Equal("Updated Text", newSummary.SummaryText);
     }
 }

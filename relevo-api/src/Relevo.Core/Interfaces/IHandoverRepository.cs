@@ -34,14 +34,14 @@ public interface IHandoverRepository
     // Activity Log
     Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId);
 
-    // Checklists
-    Task<IReadOnlyList<HandoverChecklistRecord>> GetChecklistsAsync(string handoverId);
-    Task<bool> UpdateChecklistItemAsync(string handoverId, string itemId, bool isChecked, string userId);
-
     // Messages
     Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId);
     Task<HandoverMessageRecord> CreateMessageAsync(string handoverId, string userId, string userName, string messageText, string messageType);
 
     // My Handovers
     Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetMyHandoversAsync(string userId, int page, int pageSize);
+
+    // Patient Summary (uses current handover)
+    Task<string?> GetCurrentHandoverIdAsync(string patientId);
+    Task<string?> GetOrCreateCurrentHandoverIdAsync(string patientId, string userId);
 }

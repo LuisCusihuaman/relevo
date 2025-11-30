@@ -4,30 +4,28 @@ using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Patients.UpdateSummary;
 
-public class UpdatePatientSummaryHandler(IPatientRepository _repository)
+public class UpdatePatientSummaryHandler(IHandoverRepository _handoverRepository, IPatientRepository _patientRepository)
   : ICommandHandler<UpdatePatientSummaryCommand, Result>
 {
   public async Task<Result> Handle(UpdatePatientSummaryCommand request, CancellationToken cancellationToken)
   {
-    // First, we need to find the existing summary for the patient to get the ID
-    // The command uses PatientId, but the repository Update method might expect SummaryId or we find it first.
-    // The legacy code finds it first.
-    var existingSummary = await _repository.GetPatientSummaryAsync(request.PatientId);
+    // Get or create current handover for patient
+    var handoverId = await _handoverRepository.GetOrCreateCurrentHandoverIdAsync(request.PatientId, request.UserId);
 
-    if (existingSummary == null)
+    if (string.IsNullOrEmpty(handoverId))
     {
-      return Result.NotFound();
+      return Result.Error("Cannot update summary: patient has no assignment");
     }
 
-    var success = await _repository.UpdatePatientSummaryAsync(
-        existingSummary.Id,
+    // Update patient summary in HANDOVER_CONTENTS
+    var success = await _patientRepository.UpdatePatientSummaryAsync(
+        handoverId,
         request.SummaryText,
         request.UserId
     );
 
     if (!success)
     {
-      // This could happen if concurrent updates deleted it or something else went wrong
       return Result.Error("Failed to update summary");
     }
 

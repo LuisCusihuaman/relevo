@@ -25,13 +25,13 @@ public class HandoverRepositoryUpdateSituationAwarenessTests : BaseDapperRepoTes
 
         await repository.GetSituationAwarenessAsync(handoverId);
 
-        var success = await repository.UpdateSituationAwarenessAsync(handoverId, "Updated SA", "Final", userId);
+        var success = await repository.UpdateSituationAwarenessAsync(handoverId, "Updated SA", "Completed", userId);
 
         Assert.True(success);
 
         var updated = await repository.GetSituationAwarenessAsync(handoverId);
         Assert.Equal("Updated SA", updated?.Content);
-        Assert.Equal("Final", updated?.Status);
+        Assert.Equal("Completed", updated?.Status);
         Assert.Equal(userId, updated?.LastEditedBy);
     }
 }

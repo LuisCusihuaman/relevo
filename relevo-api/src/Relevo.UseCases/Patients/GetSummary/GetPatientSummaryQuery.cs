@@ -4,5 +4,5 @@ using Relevo.Core.Models;
 
 namespace Relevo.UseCases.Patients.GetSummary;
 
-public record GetPatientSummaryQuery(string PatientId) : IQuery<Result<PatientSummaryRecord>>;
+public record GetPatientSummaryQuery(string PatientId, string? UserId = null) : IQuery<Result<PatientSummaryRecord>>;
 

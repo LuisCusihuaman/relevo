@@ -24,7 +24,7 @@ public class HandoverRepositoryUpdateSynthesisTests : BaseDapperRepoTestFixture
         var content = "Updated synthesis content";
         var userId = DapperTestSeeder.UserId;
 
-        var updated = await repository.UpdateSynthesisAsync(handoverId, content, "draft", userId);
+        var updated = await repository.UpdateSynthesisAsync(handoverId, content, "Draft", userId);
         Assert.True(updated);
 
         var synthesis = await repository.GetSynthesisAsync(handoverId);
