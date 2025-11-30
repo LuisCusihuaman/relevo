@@ -11,11 +11,12 @@ namespace Relevo.UnitTests.UseCases.Handovers.Create;
 public class CreateHandoverHandlerHandle
 {
     private readonly IHandoverRepository _repository = Substitute.For<IHandoverRepository>();
+    private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly CreateHandoverHandler _handler;
 
     public CreateHandoverHandlerHandle()
     {
-        _handler = new CreateHandoverHandler(_repository);
+        _handler = new CreateHandoverHandler(_repository, _userRepository);
     }
 
     [Fact]
@@ -36,6 +37,16 @@ public class CreateHandoverHandlerHandle
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Id.Should().Be("hvo-new");
+        
+        // Verify EnsureUserExistsAsync was called
+        await _userRepository.Received(1).EnsureUserExistsAsync(
+            Arg.Is("dr-1"), 
+            Arg.Any<string?>(), 
+            Arg.Any<string?>(), 
+            Arg.Any<string?>(), 
+            Arg.Any<string?>(), 
+            Arg.Any<string?>(), 
+            Arg.Any<string?>());
     }
 }
 

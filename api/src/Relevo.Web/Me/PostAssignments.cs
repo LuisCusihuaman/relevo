@@ -25,7 +25,17 @@ public class PostAssignments(IMediator _mediator, ICurrentUser _currentUser)
         try
         {
             var result = await _mediator.Send(
-                new PostAssignmentsCommand(userId, req.ShiftId, req.PatientIds ?? [], _currentUser.Email),
+                new PostAssignmentsCommand(
+                    userId, 
+                    req.ShiftId, 
+                    req.PatientIds ?? [], 
+                    _currentUser.Email,
+                    _currentUser.FirstName,
+                    _currentUser.LastName,
+                    _currentUser.FullName,
+                    _currentUser.AvatarUrl,
+                    _currentUser.OrgRole
+                ),
                 ct);
 
             if (result.IsSuccess)

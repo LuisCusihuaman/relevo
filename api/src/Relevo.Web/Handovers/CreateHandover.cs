@@ -26,7 +26,13 @@ public class CreateHandover(IMediator _mediator, ICurrentUser _currentUser)
         req.FromShiftId,
         req.ToShiftId,
         req.InitiatedBy,
-        req.Notes
+        req.Notes,
+        _currentUser.Email,
+        _currentUser.FirstName,
+        _currentUser.LastName,
+        _currentUser.FullName,
+        _currentUser.AvatarUrl,
+        _currentUser.OrgRole
     );
 
     var result = await _mediator.Send(command, ct);

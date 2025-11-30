@@ -5,11 +5,24 @@ using Relevo.Core.Models;
 
 namespace Relevo.UseCases.Handovers.Create;
 
-public class CreateHandoverHandler(IHandoverRepository _repository)
+public class CreateHandoverHandler(
+    IHandoverRepository _repository,
+    IUserRepository _userRepository)
   : ICommandHandler<CreateHandoverCommand, Result<HandoverRecord>>
 {
   public async Task<Result<HandoverRecord>> Handle(CreateHandoverCommand request, CancellationToken cancellationToken)
   {
+    // Ensure the creator (FromDoctor) exists
+    await _userRepository.EnsureUserExistsAsync(
+        request.FromDoctorId, 
+        request.UserEmail,
+        request.FirstName,
+        request.LastName,
+        request.FullName,
+        request.AvatarUrl,
+        request.OrgRole
+    );
+
     var createRequest = new CreateHandoverRequest(
         request.PatientId,
         request.FromDoctorId,

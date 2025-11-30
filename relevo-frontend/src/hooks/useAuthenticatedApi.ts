@@ -8,6 +8,7 @@ import { useMemo } from "react";
 export const useAuthenticatedApi = (): {
 	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>;
 } => {
+	// Session token from Clerk
 	const { getToken } = useAuth();
 
 	const authenticatedApiCall = useMemo(

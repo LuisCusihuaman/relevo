@@ -31,7 +31,7 @@ public class UserRepository(DapperConnectionFactory _connectionFactory) : IUserR
         );
     }
 
-    public async Task EnsureUserExistsAsync(string userId, string? email = null, string? firstName = null, string? lastName = null)
+    public async Task EnsureUserExistsAsync(string userId, string? email = null, string? firstName = null, string? lastName = null, string? fullName = null, string? avatarUrl = null, string? role = null)
     {
         using var conn = _connectionFactory.CreateConnection();
 
@@ -46,14 +46,20 @@ public class UserRepository(DapperConnectionFactory _connectionFactory) : IUserR
         // Create the user with basic info
         // Use a default email if not provided (required by schema)
         var defaultEmail = email ?? $"{userId}@clerk.local";
-        var fullName = (firstName != null && lastName != null) 
-            ? $"{firstName} {lastName}" 
-            : null;
+        
+        // Fallback logic if full name is not provided but parts are
+        if (string.IsNullOrEmpty(fullName) && (!string.IsNullOrEmpty(firstName) || !string.IsNullOrEmpty(lastName)))
+        {
+            fullName = $"{firstName} {lastName}".Trim();
+        }
+
+        // Default role logic
+        var dbRole = !string.IsNullOrEmpty(role) ? role : "doctor";
 
         await conn.ExecuteAsync(@"
-            INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, ROLE, IS_ACTIVE, CREATED_AT, UPDATED_AT)
-            VALUES (:userId, :defaultEmail, :firstName, :lastName, :fullName, 'doctor', 1, SYSTIMESTAMP, SYSTIMESTAMP)",
-            new { userId, defaultEmail, firstName, lastName, fullName });
+            INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, AVATAR_URL, ROLE, IS_ACTIVE, CREATED_AT, UPDATED_AT)
+            VALUES (:userId, :defaultEmail, :firstName, :lastName, :fullName, :avatarUrl, :dbRole, 1, SYSTIMESTAMP, SYSTIMESTAMP)",
+            new { userId, defaultEmail, firstName, lastName, fullName, avatarUrl, dbRole });
     }
 }
 

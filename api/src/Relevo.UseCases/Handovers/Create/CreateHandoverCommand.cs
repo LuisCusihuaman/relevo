@@ -11,6 +11,13 @@ public record CreateHandoverCommand(
     string FromShiftId,
     string ToShiftId,
     string InitiatedBy,
-    string? Notes
+    string? Notes,
+    // User details for lazy provisioning (FromDoctor)
+    string? UserEmail = null,
+    string? FirstName = null,
+    string? LastName = null,
+    string? FullName = null,
+    string? AvatarUrl = null,
+    string? OrgRole = null
 ) : ICommand<Result<HandoverRecord>>;
 

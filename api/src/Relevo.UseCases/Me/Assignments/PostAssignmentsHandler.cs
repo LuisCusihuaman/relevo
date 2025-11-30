@@ -15,7 +15,15 @@ public class PostAssignmentsHandler(
     {
         // Ensure user exists in local DB before assignment (Lazy Provisioning)
         // This prevents FK violations when a new Clerk user makes their first assignment
-        await _userRepository.EnsureUserExistsAsync(request.UserId, request.UserEmail);
+        await _userRepository.EnsureUserExistsAsync(
+            request.UserId, 
+            request.UserEmail,
+            request.FirstName,
+            request.LastName,
+            request.FullName,
+            request.AvatarUrl,
+            request.OrgRole
+        );
 
         var assignedPatientIds = await _repository.AssignPatientsAsync(
             request.UserId,
