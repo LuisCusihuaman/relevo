@@ -25,7 +25,7 @@ public class GetPatientHandoversHandlerHandle
         var handovers = new List<HandoverRecord>
         {
             new HandoverRecord("hvo-1", "asn-1", patientId, "Test Patient", "Draft", 
-                new HandoverIllnessSeverity("Stable"), new HandoverPatientSummary("Summary"), null, null,
+                "Stable", "Summary", null, null,
                 "Day", "dr-1", "dr-2", null, null, null, "dr-1", "Dr. One", 
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Draft", 1)
         };

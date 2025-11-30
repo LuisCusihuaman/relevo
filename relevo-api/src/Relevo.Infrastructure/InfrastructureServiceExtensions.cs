@@ -23,6 +23,9 @@ public static class InfrastructureServiceExtensions
     // Register SmartEnum Type Handler
     SqlMapper.AddTypeHandler(typeof(ContributorStatus), new SmartEnumByValueTypeHandler<ContributorStatus>());
 
+    // Configure Dapper Global Settings
+    Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
     services.AddSingleton<DapperConnectionFactory>();
 
     // Register Dapper Repositories (Specific)

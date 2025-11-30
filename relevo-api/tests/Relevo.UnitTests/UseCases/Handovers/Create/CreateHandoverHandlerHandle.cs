@@ -26,7 +26,7 @@ public class CreateHandoverHandlerHandle
             "pat-1", "dr-1", "dr-2", "shift-1", "shift-2", "dr-1", "Notes");
 
         var createdHandover = new HandoverRecord("hvo-new", "asn-new", "pat-1", "Test Patient", "Draft",
-            new HandoverIllnessSeverity("Stable"), new HandoverPatientSummary(""), null, null,
+            "Stable", "", null, null,
             "Shift", "dr-1", "dr-2", null, null, null, "dr-1", "Dr. One",
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Draft", 1);
 

@@ -32,10 +32,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
             h.PATIENT_ID as PatientId,
             p.NAME as PatientName,
             h.STATUS,
-            hpd.ILLNESS_SEVERITY as Severity,
-            hpd.SUMMARY_TEXT as PatientSummaryContent,
+            COALESCE(hpd.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
+            hpd.SUMMARY_TEXT as PatientSummary,
             h.ID || '-sa' as SituationAwarenessDocId, -- Placeholder logic
-            hs.CONTENT as SynthesisContent,
+            hs.CONTENT as Synthesis,
             h.SHIFT_NAME as ShiftName,
             h.CREATED_BY as CreatedBy,
             h.RECEIVER_USER_ID as AssignedTo,
@@ -70,11 +70,9 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
       )
       WHERE RN BETWEEN :StartRow AND :EndRow";
 
-    var handovers = await conn.QueryAsync<dynamic>(sql, new { PatientId = patientId, StartRow = offset + 1, EndRow = offset + ps });
+    var handovers = await conn.QueryAsync<HandoverRecord>(sql, new { PatientId = patientId, StartRow = offset + 1, EndRow = offset + ps });
 
-    var result = handovers.Select(MapHandoverRecord).ToList();
-
-    return (result, total);
+    return (handovers.ToList(), total);
   }
 
   public async Task<HandoverDetailRecord?> GetHandoverByIdAsync(string handoverId)
@@ -88,10 +86,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
           h.PATIENT_ID as PatientId,
           p.NAME as PatientName,
           h.STATUS,
-          hpd.ILLNESS_SEVERITY as Severity,
-          hpd.SUMMARY_TEXT as PatientSummaryContent,
+          COALESCE(hpd.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
+          hpd.SUMMARY_TEXT as PatientSummary,
           h.ID || '-sa' as SituationAwarenessDocId, -- Placeholder logic
-          hs.CONTENT as SynthesisContent,
+          hs.CONTENT as Synthesis,
           h.SHIFT_NAME as ShiftName,
           h.CREATED_BY as CreatedBy,
           h.RECEIVER_USER_ID as AssignedTo,
@@ -123,7 +121,7 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
       LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
       WHERE h.ID = :HandoverId";
 
-    var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { HandoverId = handoverId });
+    var handover = await conn.QueryFirstOrDefaultAsync<HandoverRecord>(sql, new { HandoverId = handoverId });
 
     if (handover == null)
     {
@@ -138,10 +136,9 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
       FROM HANDOVER_ACTION_ITEMS
       WHERE HANDOVER_ID = :HandoverId";
 
-    var dtos = await conn.QueryAsync<ActionItemDto>(sqlActionItems, new { HandoverId = handoverId });
-    var actionItems = dtos.Select(d => new ActionItemRecord(d.Id, d.Description, d.IsCompleted == 1)).ToList();
+    var actionItems = (await conn.QueryAsync<ActionItemRecord>(sqlActionItems, new { HandoverId = handoverId })).ToList();
 
-    return new HandoverDetailRecord(MapHandoverRecord(handover), actionItems);
+    return new HandoverDetailRecord(handover, actionItems);
   }
 
   public async Task<PatientHandoverDataRecord?> GetPatientHandoverDataAsync(string handoverId)
@@ -296,10 +293,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
               h.PATIENT_ID as PatientId,
               p.NAME as PatientName,
               h.STATUS,
-              hpd.ILLNESS_SEVERITY as Severity,
-              hpd.SUMMARY_TEXT as PatientSummaryContent,
+              COALESCE(hpd.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
+              hpd.SUMMARY_TEXT as PatientSummary,
               h.ID || '-sa' as SituationAwarenessDocId,
-              hs.CONTENT as SynthesisContent,
+              hs.CONTENT as Synthesis,
               h.SHIFT_NAME as ShiftName,
               h.CREATED_BY as CreatedBy,
               h.RECEIVER_USER_ID as AssignedTo,
@@ -331,11 +328,11 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
           LEFT JOIN HANDOVER_SYNTHESIS hs ON h.ID = hs.HANDOVER_ID
           WHERE h.ID = :HandoverId";
 
-        var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(fetchSql, new { HandoverId = handoverId });
+        var handover = await conn.QueryFirstOrDefaultAsync<HandoverRecord>(fetchSql, new { HandoverId = handoverId });
 
         if (handover == null) throw new InvalidOperationException($"Failed to retrieve created handover (HandoverId: {handoverId} not found).");
         
-        return MapHandoverRecord(handover);
+        return handover;
     }
     catch (Exception ex)
     {
@@ -706,10 +703,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
             h.PATIENT_ID as PatientId,
             p.NAME as PatientName,
             h.STATUS,
-            hpd.ILLNESS_SEVERITY as Severity,
-            hpd.SUMMARY_TEXT as PatientSummaryContent,
+          COALESCE(hpd.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
+          hpd.SUMMARY_TEXT as PatientSummary,
             h.ID || '-sa' as SituationAwarenessDocId,
-            hs.CONTENT as SynthesisContent,
+            hs.CONTENT as Synthesis,
             h.SHIFT_NAME as ShiftName,
             h.CREATED_BY as CreatedBy,
             h.RECEIVER_USER_ID as AssignedTo,
@@ -742,8 +739,8 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         WHERE (h.TO_DOCTOR_ID = :userId OR h.RECEIVER_USER_ID = :userId)
           AND h.STATUS IN ('Draft', 'Ready', 'InProgress')";
 
-    var handovers = await conn.QueryAsync<dynamic>(sql, new { userId });
-    return handovers.Select(MapHandoverRecord).ToList();
+    var handovers = await conn.QueryAsync<HandoverRecord>(sql, new { userId });
+    return handovers.ToList();
   }
 
   private async Task<bool> UpdateHandoverStatus(string handoverId, string status, string timestampColumn, string userId)
@@ -778,52 +775,6 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     };
   }
 
-  private class ActionItemDto
-  {
-      public string Id { get; set; } = string.Empty;
-      public string Description { get; set; } = string.Empty;
-      public int IsCompleted { get; set; }
-  }
-
-  private HandoverRecord MapHandoverRecord(dynamic h)
-  {
-      return new HandoverRecord(
-        (string)h.ID,
-        (string)h.ASSIGNMENTID,
-        (string)h.PATIENTID,
-        (string?)h.PATIENTNAME,
-        (string)h.STATUS,
-        new HandoverIllnessSeverity((string?)h.SEVERITY ?? "Stable"),
-        new HandoverPatientSummary((string?)h.PATIENTSUMMARYCONTENT ?? ""),
-        (string?)h.SITUATIONAWARENESSDOCID,
-        h.SYNTHESISCONTENT != null ? new HandoverSynthesis((string)h.SYNTHESISCONTENT) : null,
-        (string)h.SHIFTNAME,
-        (string)h.CREATEDBY,
-        (string)h.ASSIGNEDTO,
-        (string?)h.CREATEDBYNAME,
-        (string?)h.ASSIGNEDTONAME,
-        (string?)h.RECEIVERUSERID,
-        (string)h.RESPONSIBLEPHYSICIANID,
-        (string)h.RESPONSIBLEPHYSICIANNAME,
-        (string?)h.CREATEDAT,
-        (string?)h.READYAT,
-        (string?)h.STARTEDAT,
-        (string?)h.ACKNOWLEDGEDAT,
-        (string?)h.ACCEPTEDAT,
-        (string?)h.COMPLETEDAT,
-        (string?)h.CANCELLEDAT,
-        (string?)h.REJECTEDAT,
-        (string?)h.REJECTIONREASON,
-        (string?)h.EXPIREDAT,
-        (string?)h.HANDOVERTYPE,
-        (DateTime?)h.HANDOVERWINDOWDATE,
-        (string?)h.FROMSHIFTID,
-        (string?)h.TOSHIFTID,
-        (string?)h.TODOCTORID,
-        (string)h.STATENAME,
-        (int)h.VERSION
-    );
-  }
 
   // Action Items
   public async Task<IReadOnlyList<HandoverActionItemFullRecord>> GetActionItemsAsync(string handoverId)
@@ -1004,10 +955,10 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
                 h.PATIENT_ID as PatientId,
                 pt.NAME as PatientName,
                 h.STATUS,
-                hpd.ILLNESS_SEVERITY as Severity,
-                hpd.SUMMARY_TEXT as PatientSummaryContent,
+                COALESCE(hpd.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
+                hpd.SUMMARY_TEXT as PatientSummary,
                 h.ID || '-sa' as SituationAwarenessDocId,
-                hs.CONTENT as SynthesisContent,
+            hs.CONTENT as Synthesis,
                 h.SHIFT_NAME as ShiftName,
                 h.CREATED_BY as CreatedBy,
                 h.RECEIVER_USER_ID as AssignedTo,
@@ -1046,10 +997,8 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         )
         WHERE RN > :offset AND RN <= :maxRow";
 
-    var handovers = await conn.QueryAsync<dynamic>(sql, new { userId, offset, maxRow = offset + ps });
+    var handovers = await conn.QueryAsync<HandoverRecord>(sql, new { userId, offset, maxRow = offset + ps });
 
-    var result = handovers.Select(MapHandoverRecord).ToList();
-
-    return (result, total);
+    return (handovers.ToList(), total);
   }
 }

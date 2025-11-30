@@ -36,19 +36,19 @@ public class GetHandoverById(IMediator _mediator)
         PatientName = handover.PatientName,
         Status = handover.Status,
         ResponsiblePhysicianId = handover.ResponsiblePhysicianId,
-        ResponsiblePhysicianName = handover.ResponsiblePhysicianName,
+        ResponsiblePhysicianName = handover.ResponsiblePhysicianName ?? "",
         illnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
         {
-          severity = handover.IllnessSeverity.Severity
+          severity = handover.IllnessSeverity ?? "Stable"
         },
         patientSummary = new GetHandoverByIdResponse.PatientSummaryDto
         {
-          content = handover.PatientSummary.Content
+          content = handover.PatientSummary ?? ""
         },
         situationAwarenessDocId = handover.SituationAwarenessDocId,
         synthesis = handover.Synthesis != null ? new GetHandoverByIdResponse.SynthesisDto
         {
-          content = handover.Synthesis.Content
+          content = handover.Synthesis
         } : null,
         actionItems = detail.ActionItems.Select(a => new GetHandoverByIdResponse.ActionItemDto
         {
@@ -58,7 +58,7 @@ public class GetHandoverById(IMediator _mediator)
         }).ToList(),
         ShiftName = handover.ShiftName,
         CreatedBy = handover.CreatedBy,
-        AssignedTo = handover.AssignedTo,
+        AssignedTo = handover.AssignedTo ?? "",
         ReceiverUserId = handover.ReceiverUserId,
         CreatedAt = handover.CreatedAt,
         ReadyAt = handover.ReadyAt,

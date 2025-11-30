@@ -30,8 +30,7 @@ CREATE INDEX IDX_HANDOVERS_REJECTED_AT ON HANDOVERS(REJECTED_AT);
 -- Index for querying handovers by Expired state
 CREATE INDEX IDX_HANDOVERS_EXPIRED_AT ON HANDOVERS(EXPIRED_AT);
 
--- Index for querying handovers by Completed state
-CREATE INDEX IDX_HANDOVERS_COMPLETED_AT ON HANDOVERS(COMPLETED_AT);
+-- Note: IDX_HANDOVERS_COMPLETED_AT already exists in 02-indexes.sql
 
 -- ========================================
 -- COMPOSITE INDEXES FOR COMMON QUERIES
