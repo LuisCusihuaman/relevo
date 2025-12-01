@@ -285,16 +285,16 @@ export function MainContent({
 								handoverId={handoverData.id}
 								handoverStateName={handoverData.stateName}
 								patientData={patientData || undefined}
+								syncStatus={syncStatus}
 								responsiblePhysician={{
 									id: handoverData.responsiblePhysicianId,
 									name: handoverData.responsiblePhysicianName,
 								}}
-								syncStatus={syncStatus}
 								onOpenThread={handleOpenDiscussion}
+								onSyncStatusChange={setSyncStatus}
 								onRequestFullscreen={() => {
 									handleOpenFullscreenEdit("patient-summary");
 								}}
-								onSyncStatusChange={setSyncStatus}
 							/>
 						</div>
 
@@ -474,8 +474,8 @@ export function MainContent({
 							<div className="p-6">
 								<SynthesisByReceiver
 									currentUser={toPhysician(currentUser)}
-									handoverComplete={handoverData.status === "Completed"}
-									handoverState={handoverData.status}
+									handoverComplete={handoverData.stateName === "Completed"}
+									handoverState={handoverData.stateName}
 									receivingPhysician={formatPhysician(
 										patientData?.receivingPhysician,
 									)}
@@ -632,16 +632,16 @@ export function MainContent({
 									handoverId={handoverData.id}
 									handoverStateName={handoverData.stateName}
 									patientData={patientData || undefined}
+									syncStatus={syncStatus}
 									responsiblePhysician={{
 										id: handoverData.responsiblePhysicianId,
 										name: handoverData.responsiblePhysicianName,
 									}}
-									syncStatus={syncStatus}
 									onOpenThread={handleOpenDiscussion}
+									onSyncStatusChange={setSyncStatus}
 									onRequestFullscreen={() => {
 										handleOpenFullscreenEdit("patient-summary");
 									}}
-									onSyncStatusChange={setSyncStatus}
 								/>
 							</div>
 						</CollapsibleContent>
@@ -870,8 +870,8 @@ export function MainContent({
 							<div className="p-6">
 								<SynthesisByReceiver
 									currentUser={toPhysician(currentUser)}
-									handoverComplete={handoverData.status === "Completed"}
-									handoverState={handoverData.status}
+									handoverComplete={handoverData.stateName === "Completed"}
+									handoverState={handoverData.stateName}
 									receivingPhysician={formatPhysician(
 										patientData?.receivingPhysician,
 									)}

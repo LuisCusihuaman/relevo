@@ -1,12 +1,18 @@
 using System.Data;
 using Dapper;
+using Oracle.ManagedDataAccess.Client;
 using Relevo.Core.Interfaces;
 using Relevo.Core.Models;
 
 namespace Relevo.Infrastructure.Data;
 
-public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IHandoverRepository
+public class HandoverRepository(
+    DapperConnectionFactory _connectionFactory,
+    IShiftInstanceRepository _shiftInstanceRepository, // Will be used in CreateHandoverAsync and other methods
+    IShiftWindowRepository _shiftWindowRepository) : IHandoverRepository // Will be used in CreateHandoverAsync and other methods
 {
+    private IShiftInstanceRepository ShiftInstanceRepository => _shiftInstanceRepository;
+    private IShiftWindowRepository ShiftWindowRepository => _shiftWindowRepository;
   public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize)
   {
     using var conn = _connectionFactory.CreateConnection();
@@ -23,49 +29,52 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     if (total == 0)
         return (Array.Empty<HandoverRecord>(), 0);
 
-    // Query
+    // Query - V3 Schema: Uses SHIFT_WINDOW_ID, SENDER_USER_ID, RECEIVER_USER_ID, etc.
     const string sql = @"
       SELECT * FROM (
         SELECT
             h.ID,
-            NULL as AssignmentId, -- ASSIGNMENT_ID removed from HANDOVERS, join USER_ASSIGNMENTS if needed
             h.PATIENT_ID as PatientId,
             p.NAME as PatientName,
             h.CURRENT_STATE as Status, -- Virtual column
             COALESCE(hc.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
-            hc.PATIENT_SUMMARY as PatientSummary, -- Column renamed from SUMMARY_TEXT
-            h.ID || '-sa' as SituationAwarenessDocId, -- Placeholder logic
-            hc.SYNTHESIS as Synthesis, -- From HANDOVER_CONTENTS
-            s.NAME as ShiftName, -- Join SHIFTS table
-            h.FROM_USER_ID as CreatedBy, -- Column renamed
-            h.TO_USER_ID as AssignedTo, -- Column renamed
+            hc.PATIENT_SUMMARY as PatientSummary,
+            h.ID || '-sa' as SituationAwarenessDocId,
+            hc.SYNTHESIS as Synthesis,
+            s_from.NAME as ShiftName, -- From shift name
+            h.CREATED_BY_USER_ID as CreatedBy, -- V3: CREATED_BY_USER_ID
+            COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as AssignedTo, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
             NULL as CreatedByName, -- Join users if needed
             NULL as AssignedToName, -- Join users if needed
-            h.TO_USER_ID as ReceiverUserId, -- Column renamed
-            h.FROM_USER_ID as ResponsiblePhysicianId, -- RESPONSIBLE_PHYSICIAN_ID removed, use FROM_USER_ID
-            'Dr. Name' as ResponsiblePhysicianName, -- Join users if needed
+            h.RECEIVER_USER_ID as ReceiverUserId, -- V3: RECEIVER_USER_ID
+            h.SENDER_USER_ID as ResponsiblePhysicianId, -- V3: SENDER_USER_ID
+            NULL as ResponsiblePhysicianName, -- Join users if needed
             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
-            NULL as AcknowledgedAt, -- Column removed
-            TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
-            TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
-            h.REJECTION_REASON as RejectionReason,
-            TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
-            NULL as HandoverType, -- Column removed
-            TRUNC(h.WINDOW_START_AT) as HandoverWindowDate, -- Extract date from TIMESTAMP
-            h.FROM_SHIFT_ID as FromShiftId,
-            h.TO_SHIFT_ID as ToShiftId,
-            h.TO_USER_ID as ToDoctorId, -- Column renamed
-            h.CURRENT_STATE as StateName, -- Virtual column
+            TRUNC(si_from.START_AT) as HandoverWindowDate, -- V3: From SHIFT_INSTANCES.START_AT
+            h.CURRENT_STATE as StateName,
             1 as Version,
+            -- V3 Fields
+            h.SHIFT_WINDOW_ID as ShiftWindowId,
+            h.PREVIOUS_HANDOVER_ID as PreviousHandoverId,
+            h.SENDER_USER_ID as SenderUserId,
+            h.READY_BY_USER_ID as ReadyByUserId,
+            h.STARTED_BY_USER_ID as StartedByUserId,
+            h.COMPLETED_BY_USER_ID as CompletedByUserId,
+            h.CANCELLED_BY_USER_ID as CancelledByUserId,
+            h.CANCEL_REASON as CancelReason,
             ROW_NUMBER() OVER (ORDER BY h.CREATED_AT DESC) AS RN
         FROM HANDOVERS h
         JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-        LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
-        LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID -- Merged table
+        LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID -- V3: Join SHIFT_WINDOWS
+        LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID -- V3: From shift instance
+        LEFT JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID -- V3: To shift instance
+        LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
+        LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID -- V3: To shift template
+        LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
         WHERE h.PATIENT_ID = :PatientId
       )
       WHERE RN BETWEEN :StartRow AND :EndRow";
@@ -79,46 +88,50 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
   {
     using var conn = _connectionFactory.CreateConnection();
 
+    // V3 Schema: Uses SHIFT_WINDOW_ID, SENDER_USER_ID, RECEIVER_USER_ID, etc.
     const string sql = @"
       SELECT
           h.ID,
-          NULL as AssignmentId, -- ASSIGNMENT_ID removed from HANDOVERS
           h.PATIENT_ID as PatientId,
           p.NAME as PatientName,
           h.CURRENT_STATE as Status, -- Virtual column
           COALESCE(hc.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
-          hc.PATIENT_SUMMARY as PatientSummary, -- Column renamed
-          h.ID || '-sa' as SituationAwarenessDocId, -- Placeholder logic
-          hc.SYNTHESIS as Synthesis, -- From HANDOVER_CONTENTS
-          s.NAME as ShiftName, -- Join SHIFTS table
-          h.FROM_USER_ID as CreatedBy, -- Column renamed
-          h.TO_USER_ID as AssignedTo, -- Column renamed
+          hc.PATIENT_SUMMARY as PatientSummary,
+          h.ID || '-sa' as SituationAwarenessDocId,
+          hc.SYNTHESIS as Synthesis,
+          s_from.NAME as ShiftName, -- V3: From shift name
+          h.CREATED_BY_USER_ID as CreatedBy, -- V3: CREATED_BY_USER_ID
+          COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as AssignedTo, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
           NULL as CreatedByName, -- Join users if needed
           NULL as AssignedToName, -- Join users if needed
-          h.TO_USER_ID as ReceiverUserId, -- Column renamed
-          h.FROM_USER_ID as ResponsiblePhysicianId, -- RESPONSIBLE_PHYSICIAN_ID removed
-          'Dr. Name' as ResponsiblePhysicianName, -- Join users if needed
+          h.RECEIVER_USER_ID as ReceiverUserId, -- V3: RECEIVER_USER_ID
+          h.SENDER_USER_ID as ResponsiblePhysicianId, -- V3: SENDER_USER_ID
+          NULL as ResponsiblePhysicianName, -- Join users if needed
           TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
           TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
           TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
-          NULL as AcknowledgedAt, -- Column removed
-          TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
           TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
           TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
-          TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
-          h.REJECTION_REASON as RejectionReason,
-          TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
-          NULL as HandoverType, -- Column removed
-          TRUNC(h.WINDOW_START_AT) as HandoverWindowDate, -- Extract date
-          h.FROM_SHIFT_ID as FromShiftId,
-          h.TO_SHIFT_ID as ToShiftId,
-          h.TO_USER_ID as ToDoctorId, -- Column renamed
-          h.CURRENT_STATE as StateName, -- Virtual column
-          1 as Version
+          TRUNC(si_from.START_AT) as HandoverWindowDate, -- V3: From SHIFT_INSTANCES.START_AT
+          h.CURRENT_STATE as StateName,
+          1 as Version,
+          -- V3 Fields
+          h.SHIFT_WINDOW_ID as ShiftWindowId,
+          h.PREVIOUS_HANDOVER_ID as PreviousHandoverId,
+          h.SENDER_USER_ID as SenderUserId,
+          h.READY_BY_USER_ID as ReadyByUserId,
+          h.STARTED_BY_USER_ID as StartedByUserId,
+          h.COMPLETED_BY_USER_ID as CompletedByUserId,
+          h.CANCELLED_BY_USER_ID as CancelledByUserId,
+          h.CANCEL_REASON as CancelReason
       FROM HANDOVERS h
       JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-      LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
-      LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID -- Merged table
+      LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID -- V3: Join SHIFT_WINDOWS
+      LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID -- V3: From shift instance
+      LEFT JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID -- V3: To shift instance
+      LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
+      LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID -- V3: To shift template
+      LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
       WHERE h.ID = :HandoverId";
 
     var handover = await conn.QueryFirstOrDefaultAsync<HandoverRecord>(sql, new { HandoverId = handoverId });
@@ -145,13 +158,14 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
   {
     using var conn = _connectionFactory.CreateConnection();
 
+    // V3 Schema: Uses SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID
     const string sql = @"
       SELECT
           h.ID,
           h.PATIENT_ID,
           h.CURRENT_STATE as STATUS, -- Virtual column
-          h.FROM_USER_ID as CREATED_BY, -- Column renamed
-          h.TO_USER_ID as RECEIVER_USER_ID, -- Column renamed
+          h.CREATED_BY_USER_ID as CREATED_BY, -- V3: CREATED_BY_USER_ID
+          COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as RECEIVER_USER_ID, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
           NULL as CreatedByName, -- Join USERS if needed, or fetch separately
           NULL as ReceiverName, -- Join USERS if needed
           p.NAME,
@@ -162,13 +176,13 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
           p.DIAGNOSIS,
           u.NAME as UnitName,
           hc.ILLNESS_SEVERITY, -- From HANDOVER_CONTENTS
-          hc.PATIENT_SUMMARY as SUMMARY_TEXT, -- Column renamed
+          hc.PATIENT_SUMMARY as SUMMARY_TEXT,
           hc.LAST_EDITED_BY, -- From HANDOVER_CONTENTS
           TO_CHAR(hc.UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UpdatedAt
       FROM HANDOVERS h
       JOIN PATIENTS p ON h.PATIENT_ID = p.ID
       JOIN UNITS u ON p.UNIT_ID = u.ID
-      LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID -- Merged table
+      LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
       WHERE h.ID = :HandoverId";
 
     var data = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { HandoverId = handoverId });
@@ -205,132 +219,178 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
   public async Task<HandoverRecord> CreateHandoverAsync(CreateHandoverRequest request)
   {
-    try 
+    using var conn = _connectionFactory.CreateConnection();
+
+    // V3: Get patient's UNIT_ID
+    var unitId = await conn.ExecuteScalarAsync<string>(
+      "SELECT UNIT_ID FROM PATIENTS WHERE ID = :patientId",
+      new { patientId = request.PatientId });
+
+    if (string.IsNullOrEmpty(unitId))
     {
-        using var conn = _connectionFactory.CreateConnection();
-
-        // Generate IDs
-        var handoverId = $"handover-{Guid.NewGuid().ToString().Substring(0, 8)}";
-        var assignmentId = $"assign-{Guid.NewGuid().ToString().Substring(0, 8)}";
-
-        // Create user assignment if it doesn't exist (using MERGE for Oracle)
-        await conn.ExecuteAsync(@"
-          MERGE INTO USER_ASSIGNMENTS ua
-          USING (SELECT :assignmentId AS ASSIGNMENT_ID, :toDoctorId AS USER_ID, :toShiftId AS SHIFT_ID, :patientId AS PATIENT_ID FROM DUAL) src
-          ON (ua.ASSIGNMENT_ID = src.ASSIGNMENT_ID)
-          WHEN MATCHED THEN
-            UPDATE SET ua.ASSIGNED_AT = LOCALTIMESTAMP
-          WHEN NOT MATCHED THEN
-            INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
-            VALUES (src.ASSIGNMENT_ID, src.USER_ID, src.SHIFT_ID, src.PATIENT_ID, LOCALTIMESTAMP)",
-          new { assignmentId, toDoctorId = request.ToDoctorId, toShiftId = request.ToShiftId, patientId = request.PatientId });
-
-        // Create handover (CURRENT_STATE is virtual, calculated automatically)
-        // WINDOW_START_AT is required, set to current time
-        await conn.ExecuteAsync(@"
-          INSERT INTO HANDOVERS (
-            ID, PATIENT_ID, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_USER_ID, TO_USER_ID,
-            WINDOW_START_AT, CREATED_AT, UPDATED_AT
-          ) VALUES (
-            :handoverId, :patientId, :fromShiftId, :toShiftId, :fromDoctorId, :toDoctorId,
-            LOCALTIMESTAMP, LOCALTIMESTAMP, LOCALTIMESTAMP
-          )",
-          new {
-            handoverId,
-            patientId = request.PatientId,
-            fromShiftId = request.FromShiftId,
-            toShiftId = request.ToShiftId,
-            fromDoctorId = request.FromDoctorId,
-            toDoctorId = request.ToDoctorId
-          });
-
-        // Add participants (USER_NAME and USER_ROLE removed, use USER_ID only)
-        await conn.ExecuteAsync(@"
-          INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, STATUS, JOINED_AT, LAST_ACTIVITY)
-          VALUES (:participantId1, :handoverId, :fromDoctorId, 'active', LOCALTIMESTAMP, LOCALTIMESTAMP)",
-          new {
-            handoverId,
-            fromDoctorId = request.FromDoctorId,
-            participantId1 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
-          });
-        
-        await conn.ExecuteAsync(@"
-          INSERT INTO HANDOVER_PARTICIPANTS (ID, HANDOVER_ID, USER_ID, STATUS, JOINED_AT, LAST_ACTIVITY)
-          VALUES (:participantId2, :handoverId, :toDoctorId, 'active', LOCALTIMESTAMP, LOCALTIMESTAMP)",
-          new {
-            handoverId,
-            toDoctorId = request.ToDoctorId,
-            participantId2 = $"participant-{Guid.NewGuid().ToString().Substring(0, 8)}"
-          });
-
-        // Create default HANDOVER_CONTENTS (merged table replaces HANDOVER_PATIENT_DATA, HANDOVER_SYNTHESIS, HANDOVER_SITUATION_AWARENESS)
-        // Note: HANDOVER_CONTENTS does not have CREATED_AT, only UPDATED_AT
-        // Use NULL instead of empty string - Oracle treats empty string as NULL for VARCHAR2
-        await conn.ExecuteAsync(@"
-          INSERT INTO HANDOVER_CONTENTS (
-            HANDOVER_ID, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS, SYNTHESIS,
-            PATIENT_SUMMARY_STATUS, SA_STATUS, SYNTHESIS_STATUS, LAST_EDITED_BY, UPDATED_AT
-          ) VALUES (
-            :handoverId, 'Stable', NULL, NULL, NULL,
-            'Draft', 'Draft', 'Draft', :initiatedBy, LOCALTIMESTAMP
-          )",
-          new { handoverId, initiatedBy = request.InitiatedBy });
-
-        // Use the SAME connection to fetch the created handover to avoid isolation/consistency issues
-        const string fetchSql = @"
-          SELECT
-              h.ID,
-              NULL as AssignmentId, -- ASSIGNMENT_ID removed
-              h.PATIENT_ID as PatientId,
-              p.NAME as PatientName,
-              h.CURRENT_STATE as Status, -- Virtual column
-              COALESCE(hc.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
-              hc.PATIENT_SUMMARY as PatientSummary, -- Column renamed
-              h.ID || '-sa' as SituationAwarenessDocId,
-              hc.SYNTHESIS as Synthesis, -- From HANDOVER_CONTENTS
-              s.NAME as ShiftName, -- Join SHIFTS
-              h.FROM_USER_ID as CreatedBy, -- Column renamed
-              h.TO_USER_ID as AssignedTo, -- Column renamed
-              NULL as CreatedByName,
-              NULL as AssignedToName,
-              h.TO_USER_ID as ReceiverUserId, -- Column renamed
-              h.FROM_USER_ID as ResponsiblePhysicianId, -- RESPONSIBLE_PHYSICIAN_ID removed
-              'Dr. Name' as ResponsiblePhysicianName,
-              TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
-              TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
-              TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
-              NULL as AcknowledgedAt, -- Column removed
-              TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
-              TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
-              TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
-              TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
-              h.REJECTION_REASON as RejectionReason,
-              TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
-              NULL as HandoverType, -- Column removed
-              TRUNC(h.WINDOW_START_AT) as HandoverWindowDate, -- Extract date
-              h.FROM_SHIFT_ID as FromShiftId,
-              h.TO_SHIFT_ID as ToShiftId,
-              h.TO_USER_ID as ToDoctorId, -- Column renamed
-              h.CURRENT_STATE as StateName, -- Virtual column
-              1 as Version
-          FROM HANDOVERS h
-          LEFT JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-          LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
-          LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID -- Merged table
-          WHERE h.ID = :HandoverId";
-
-        var handover = await conn.QueryFirstOrDefaultAsync<HandoverRecord>(fetchSql, new { HandoverId = handoverId });
-
-        if (handover == null) throw new InvalidOperationException($"Failed to retrieve created handover (HandoverId: {handoverId} not found).");
-        
-        return handover;
+      throw new InvalidOperationException($"Patient {request.PatientId} not found or has no unit");
     }
-    catch (Exception ex)
+
+    // V3: Calculate shift instance dates using shared service
+    var today = DateTime.Today;
+    var shiftDates = await ShiftInstanceCalculationService.CalculateShiftInstanceDatesFromDbAsync(
+      conn, request.FromShiftId, request.ToShiftId, today);
+
+    if (shiftDates == null)
     {
-        Console.WriteLine($"Error creating handover: {ex.Message} {ex.StackTrace}");
-        throw;
+      throw new InvalidOperationException($"Shift templates not found: FromShiftId={request.FromShiftId}, ToShiftId={request.ToShiftId}");
     }
+
+    var (fromShiftStartAt, fromShiftEndAt, toShiftStartAt, toShiftEndAt) = shiftDates.Value;
+
+    // V3: Get or create shift instances
+    var fromShiftInstanceId = await _shiftInstanceRepository.GetOrCreateShiftInstanceAsync(
+      request.FromShiftId, unitId, fromShiftStartAt, fromShiftEndAt);
+    
+    var toShiftInstanceId = await _shiftInstanceRepository.GetOrCreateShiftInstanceAsync(
+      request.ToShiftId, unitId, toShiftStartAt, toShiftEndAt);
+
+    // V3: Get or create shift window
+    var shiftWindowId = await _shiftWindowRepository.GetOrCreateShiftWindowAsync(
+      fromShiftInstanceId, toShiftInstanceId, unitId);
+
+    // V3: Get SENDER_USER_ID from SHIFT_COVERAGE (primary responsible for FROM shift)
+    var senderUserId = await conn.ExecuteScalarAsync<string>(
+      @"SELECT RESPONSIBLE_USER_ID
+        FROM (
+          SELECT RESPONSIBLE_USER_ID
+          FROM SHIFT_COVERAGE
+          WHERE PATIENT_ID = :patientId
+            AND SHIFT_INSTANCE_ID = :shiftInstanceId
+            AND IS_PRIMARY = 1
+          ORDER BY ASSIGNED_AT ASC
+        ) WHERE ROWNUM <= 1",
+      new { patientId = request.PatientId, shiftInstanceId = fromShiftInstanceId });
+
+    // If no primary, get the first one
+    if (string.IsNullOrEmpty(senderUserId))
+    {
+      senderUserId = await conn.ExecuteScalarAsync<string>(
+        @"SELECT RESPONSIBLE_USER_ID
+          FROM (
+            SELECT RESPONSIBLE_USER_ID
+            FROM SHIFT_COVERAGE
+            WHERE PATIENT_ID = :patientId
+              AND SHIFT_INSTANCE_ID = :shiftInstanceId
+            ORDER BY ASSIGNED_AT ASC
+          ) WHERE ROWNUM <= 1",
+        new { patientId = request.PatientId, shiftInstanceId = fromShiftInstanceId });
+    }
+
+    // V3_PLAN.md regla #10: Cannot create handover without coverage
+    // No fallback - throw exception if no coverage exists
+    if (string.IsNullOrEmpty(senderUserId))
+    {
+      throw new InvalidOperationException(
+        $"Cannot create handover: patient {request.PatientId} has no coverage in FROM shift instance {fromShiftInstanceId}. " +
+        "A handover cannot exist without coverage.");
+    }
+
+    // V3: Find previous handover for the same patient (most recent completed handover)
+    // The first handover for a patient will have PREVIOUS_HANDOVER_ID = NULL
+    var previousHandoverId = await conn.ExecuteScalarAsync<string>(@"
+      SELECT ID FROM (
+        SELECT ID
+        FROM HANDOVERS
+        WHERE PATIENT_ID = :patientId
+          AND COMPLETED_AT IS NOT NULL
+          AND CANCELLED_AT IS NULL
+        ORDER BY COMPLETED_AT DESC
+      ) WHERE ROWNUM <= 1",
+      new { patientId = request.PatientId });
+
+    // V3_PLAN.md Regla #36: Copy PATIENT_SUMMARY from previous handover
+    string? previousPatientSummary = null;
+    if (!string.IsNullOrEmpty(previousHandoverId))
+    {
+      previousPatientSummary = await conn.ExecuteScalarAsync<string>(@"
+        SELECT PATIENT_SUMMARY
+        FROM HANDOVER_CONTENTS
+        WHERE HANDOVER_ID = :previousHandoverId",
+        new { previousHandoverId });
+    }
+
+    // V3_PLAN.md Regla #16: Idempotency via DB constraint UQ_HO_PAT_WINDOW
+    // V3_PLAN.md Regla #9: máximo 1 handover activo por paciente por ventana
+    // Use MERGE for idempotent insert (Oracle idiom)
+    var handoverId = Guid.NewGuid().ToString();
+    const string mergeSql = @"
+      MERGE INTO HANDOVERS h
+      USING (
+        SELECT :patientId AS PATIENT_ID, :shiftWindowId AS SHIFT_WINDOW_ID FROM DUAL
+      ) src ON (
+        h.PATIENT_ID = src.PATIENT_ID AND h.SHIFT_WINDOW_ID = src.SHIFT_WINDOW_ID
+      )
+      WHEN NOT MATCHED THEN
+        INSERT (
+          ID, PATIENT_ID, SHIFT_WINDOW_ID, UNIT_ID,
+          PREVIOUS_HANDOVER_ID, SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID,
+          CREATED_AT, UPDATED_AT
+        ) VALUES (
+          :id, :patientId, :shiftWindowId, :unitId,
+          :previousHandoverId, :senderUserId, :receiverUserId, :createdByUserId,
+          LOCALTIMESTAMP, LOCALTIMESTAMP
+        )";
+
+    await conn.ExecuteAsync(mergeSql, new
+    {
+      id = handoverId,
+      patientId = request.PatientId,
+      shiftWindowId = shiftWindowId,
+      unitId = unitId,
+      previousHandoverId = previousHandoverId,
+      senderUserId = senderUserId,
+      receiverUserId = request.ToDoctorId,
+      createdByUserId = request.InitiatedBy
+    });
+
+    // Get the actual handover ID (might be existing one if MERGE matched)
+    const string getHandoverIdSql = @"
+      SELECT ID FROM HANDOVERS
+      WHERE PATIENT_ID = :patientId AND SHIFT_WINDOW_ID = :shiftWindowId
+        AND ROWNUM <= 1";
+    
+    var actualHandoverId = await conn.ExecuteScalarAsync<string>(getHandoverIdSql, new
+    {
+      patientId = request.PatientId,
+      shiftWindowId = shiftWindowId
+    });
+
+    if (string.IsNullOrEmpty(actualHandoverId))
+    {
+      throw new InvalidOperationException($"Handover not found after MERGE for PatientId={request.PatientId}, ShiftWindowId={shiftWindowId}");
+    }
+
+    // Only create HANDOVER_CONTENTS if this is a new handover (not existing one)
+    if (actualHandoverId == handoverId)
+    {
+      // V3_PLAN.md Regla #36: Copy PATIENT_SUMMARY from previous handover if available
+      await conn.ExecuteAsync(@"
+        INSERT INTO HANDOVER_CONTENTS (
+          HANDOVER_ID, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS, SYNTHESIS,
+          PATIENT_SUMMARY_STATUS, SA_STATUS, SYNTHESIS_STATUS, LAST_EDITED_BY, UPDATED_AT
+        ) VALUES (
+          :handoverId, 'Stable', :patientSummary, NULL, NULL,
+          'Draft', 'Draft', 'Draft', :userId, LOCALTIMESTAMP
+        )",
+        new { handoverId = actualHandoverId, patientSummary = previousPatientSummary, userId = request.InitiatedBy });
+    }
+
+    // Fetch and return the handover (existing or newly created)
+    var handoverDetail = await GetHandoverByIdAsync(actualHandoverId);
+    if (handoverDetail == null)
+    {
+      throw new InvalidOperationException($"Failed to retrieve handover {actualHandoverId}");
+    }
+
+    return handoverDetail.Handover;
   }
+
 
   public async Task<IReadOnlyList<ContingencyPlanRecord>> GetContingencyPlansAsync(string handoverId)
   {
@@ -385,12 +445,12 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
     var result = await conn.QueryFirstOrDefaultAsync<HandoverSynthesisRecord>(sql, new { handoverId });
 
-    // If no record exists but handover does, create default (mimicking legacy behavior)
+    // If no record exists but handover does, create default
     if (result == null)
     {
         // Check if handover exists first to avoid FK error or creating orphan data
         var createdBy = await conn.ExecuteScalarAsync<string>(
-            "SELECT FROM_USER_ID FROM HANDOVERS WHERE ID = :handoverId",
+            "SELECT CREATED_BY_USER_ID FROM HANDOVERS WHERE ID = :handoverId",
             new { handoverId });
 
         if (createdBy == null) return null; // Handover doesn't exist
@@ -467,7 +527,7 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     {
         // Check if handover exists first
         var createdBy = await conn.ExecuteScalarAsync<string>(
-            "SELECT FROM_USER_ID FROM HANDOVERS WHERE ID = :handoverId",
+            "SELECT CREATED_BY_USER_ID FROM HANDOVERS WHERE ID = :handoverId",
             new { handoverId });
 
         if (createdBy == null) return null; 
@@ -533,32 +593,102 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     {
         using var conn = _connectionFactory.CreateConnection();
         
-        // Verify handover exists first
-        var handoverExists = await conn.ExecuteScalarAsync<int>(
-            "SELECT COUNT(*) FROM HANDOVERS WHERE ID = :handoverId", 
-            new { handoverId }) > 0;
+        // Get handover with SHIFT_WINDOW_ID
+        const string getHandoverSql = @"
+            SELECT SHIFT_WINDOW_ID, PATIENT_ID, SENDER_USER_ID
+            FROM HANDOVERS
+            WHERE ID = :handoverId";
         
-        if (!handoverExists)
+        var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(getHandoverSql, new { handoverId });
+        
+        if (handover == null)
         {
             return false;
         }
 
-        // CURRENT_STATE is virtual, calculated automatically from READY_AT
-        // Constraint CHK_HO_RD_AFTER_CR ensures READY_AT >= CREATED_AT
-        // Allow updating READY_AT even if already set (idempotent operation)
-        // Only update if handover is in Draft state (READY_AT IS NULL) to avoid unnecessary updates
+        string? shiftWindowId = handover.SHIFT_WINDOW_ID;
+        string patientId = handover.PATIENT_ID;
+        string? existingSenderUserId = handover.SENDER_USER_ID;
+
+        // V3_PLAN.md regla #10: Validate coverage >= 1 before Ready (atomic validation)
+        string? fromShiftInstanceId = null;
+        if (!string.IsNullOrEmpty(shiftWindowId))
+        {
+            // Get FROM_SHIFT_INSTANCE_ID from SHIFT_WINDOWS
+            const string getWindowSql = @"
+                SELECT FROM_SHIFT_INSTANCE_ID, UNIT_ID
+                FROM SHIFT_WINDOWS
+                WHERE ID = :shiftWindowId";
+            
+            var window = await conn.QueryFirstOrDefaultAsync<dynamic>(getWindowSql, new { shiftWindowId });
+            if (window != null)
+            {
+                fromShiftInstanceId = window.FROM_SHIFT_INSTANCE_ID;
+                
+                // Validate that coverage >= 1 exists (atomic check)
+                var coverageCount = await conn.ExecuteScalarAsync<int>(@"
+                    SELECT COUNT(*)
+                    FROM SHIFT_COVERAGE
+                    WHERE PATIENT_ID = :patientId
+                      AND SHIFT_INSTANCE_ID = :fromShiftInstanceId",
+                    new { patientId, fromShiftInstanceId });
+
+                if (coverageCount == 0)
+                {
+                    // V3_PLAN.md regla #10: Cannot pass to Ready without coverage
+                    return false;
+                }
+            }
+        }
+
+        // If SENDER_USER_ID is not set, get it from SHIFT_COVERAGE (primary of FROM shift)
+        string? senderUserId = existingSenderUserId;
+        if (string.IsNullOrEmpty(senderUserId) && !string.IsNullOrEmpty(fromShiftInstanceId))
+        {
+            // Get primary coverage for this patient and shift instance
+            const string getPrimarySql = @"
+                SELECT RESPONSIBLE_USER_ID
+                FROM SHIFT_COVERAGE
+                WHERE PATIENT_ID = :patientId
+                  AND SHIFT_INSTANCE_ID = :shiftInstanceId
+                  AND IS_PRIMARY = 1
+                  AND ROWNUM <= 1";
+            
+            senderUserId = await conn.ExecuteScalarAsync<string>(getPrimarySql, new { patientId, shiftInstanceId = fromShiftInstanceId });
+            
+            // If no primary, get the first one by ASSIGNED_AT
+            if (string.IsNullOrEmpty(senderUserId))
+            {
+                const string getFirstSql = @"
+                    SELECT RESPONSIBLE_USER_ID
+                    FROM (
+                        SELECT RESPONSIBLE_USER_ID
+                        FROM SHIFT_COVERAGE
+                        WHERE PATIENT_ID = :patientId
+                          AND SHIFT_INSTANCE_ID = :shiftInstanceId
+                        ORDER BY ASSIGNED_AT ASC
+                    ) WHERE ROWNUM <= 1";
+                
+                senderUserId = await conn.ExecuteScalarAsync<string>(getFirstSql, new { patientId, shiftInstanceId = fromShiftInstanceId });
+            }
+        }
+
+        // Update handover with READY_AT, READY_BY_USER_ID, and SENDER_USER_ID (if not set)
+        // Use SYSTIMESTAMP for consistency with test data
         const string sql = @"
             UPDATE HANDOVERS
-            SET READY_AT = LOCALTIMESTAMP, 
-                UPDATED_AT = LOCALTIMESTAMP
+            SET READY_AT = SYSTIMESTAMP,
+                READY_BY_USER_ID = :userId,
+                SENDER_USER_ID = COALESCE(SENDER_USER_ID, :senderUserId),
+                UPDATED_AT = SYSTIMESTAMP
             WHERE ID = :handoverId
               AND READY_AT IS NULL";
 
-        var rows = await conn.ExecuteAsync(sql, new { handoverId });
+        var rows = await conn.ExecuteAsync(sql, new { handoverId, userId, senderUserId });
+        
         // If handover is already Ready, return true (idempotent)
         if (rows == 0)
         {
-            // Check if handover is already Ready
             var alreadyReady = await conn.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM HANDOVERS WHERE ID = :handoverId AND READY_AT IS NOT NULL",
                 new { handoverId }) > 0;
@@ -568,8 +698,35 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     }
     catch (Exception)
     {
-        // Handle constraint violations or other errors
         return false;
+    }
+  }
+
+  public async Task<bool> ReturnForChangesAsync(string handoverId, string userId)
+  {
+    try
+    {
+      using var conn = _connectionFactory.CreateConnection();
+      
+      // V3_PLAN.md regla #21: ReturnForChanges vuelve a Draft limpiando READY_AT
+      // Solo permite si está en Ready (no completado ni cancelado)
+      // Use SYSTIMESTAMP for consistency with test data
+      const string sql = @"
+          UPDATE HANDOVERS
+          SET READY_AT = NULL,
+              READY_BY_USER_ID = NULL,
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId
+            AND READY_AT IS NOT NULL
+            AND COMPLETED_AT IS NULL
+            AND CANCELLED_AT IS NULL";
+      
+      var rows = await conn.ExecuteAsync(sql, new { handoverId });
+      return rows > 0;
+    }
+    catch (Exception)
+    {
+      return false;
     }
   }
 
@@ -592,7 +749,7 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
         if (!exists) return null;
 
         // Create default if missing
-        var userId = await conn.ExecuteScalarAsync<string>("SELECT FROM_USER_ID FROM HANDOVERS WHERE ID = :handoverId", new { handoverId });
+        var userId = await conn.ExecuteScalarAsync<string>("SELECT CREATED_BY_USER_ID FROM HANDOVERS WHERE ID = :handoverId", new { handoverId });
         
         await conn.ExecuteAsync(@"
             INSERT INTO HANDOVER_CONTENTS (
@@ -641,13 +798,17 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
       // Get Name
       var name = await conn.ExecuteScalarAsync<string>("SELECT FULL_NAME FROM USERS WHERE ID = :UserId", new { UserId = userId }) ?? "Unknown";
       
-      // Get Shift
+      // Get Shift from SHIFT_COVERAGE -> SHIFT_INSTANCES -> SHIFTS
+      // Note: This requires a shift instance context, which may not always be available
+      // For now, return null shift times if we can't determine them
       const string shiftSql = @"
         SELECT * FROM (
             SELECT s.START_TIME, s.END_TIME
-            FROM USER_ASSIGNMENTS ua
-            JOIN SHIFTS s ON ua.SHIFT_ID = s.ID
-            WHERE ua.USER_ID = :UserId
+            FROM SHIFT_COVERAGE sc
+            JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+            JOIN SHIFTS s ON si.SHIFT_ID = s.ID
+            WHERE sc.RESPONSIBLE_USER_ID = :UserId
+            ORDER BY sc.ASSIGNED_AT DESC
         ) WHERE ROWNUM <= 1";
       
       var shift = await conn.QueryFirstOrDefaultAsync<dynamic>(shiftSql, new { UserId = userId });
@@ -669,60 +830,74 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
   {
     try
     {
-      return await UpdateHandoverStatus(handoverId, "InProgress", "STARTED_AT", userId);
-    }
-    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
-    {
-      // ORA-02290: check constraint violated - state machine constraint
-      return false;
-    }
-  }
-
-  public async Task<bool> AcceptHandoverAsync(string handoverId, string userId)
-  {
-    try
-    {
-      return await UpdateHandoverStatus(handoverId, "Accepted", "ACCEPTED_AT", userId);
-    }
-    catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
-    {
-      // ORA-02290: check constraint violated - state machine constraint
-      return false;
-    }
-  }
-
-  public async Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId)
-  {
-    try
-    {
       using var conn = _connectionFactory.CreateConnection();
-      // CURRENT_STATE is virtual, calculated automatically from REJECTED_AT
+      
+      // V3: Set STARTED_AT and STARTED_BY_USER_ID
+      // Constraint CHK_HO_STARTED_NE_SENDER ensures STARTED_BY_USER_ID <> SENDER_USER_ID
+      // Use SYSTIMESTAMP for consistency with test data
       const string sql = @"
           UPDATE HANDOVERS
-          SET REJECTION_REASON = :reason,
-              REJECTED_AT = LOCALTIMESTAMP, 
-              UPDATED_AT = LOCALTIMESTAMP
-          WHERE ID = :handoverId";
+          SET STARTED_AT = SYSTIMESTAMP,
+              STARTED_BY_USER_ID = :userId,
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId
+            AND STARTED_AT IS NULL
+            AND READY_AT IS NOT NULL";
 
-      var rows = await conn.ExecuteAsync(sql, new { handoverId, reason });
+      var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
       return rows > 0;
     }
     catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
     {
-      // ORA-02290: check constraint violated - single terminal state constraint
+      // ORA-02290: check constraint violated - state machine constraint or STARTED_BY_USER_ID <> SENDER_USER_ID
+      return false;
+    }
+    catch (Exception ex)
+    {
+      // Log other exceptions for debugging
+      System.Diagnostics.Debug.WriteLine($"StartHandoverAsync exception: {ex.Message}");
       return false;
     }
   }
 
-  public async Task<bool> CancelHandoverAsync(string handoverId, string userId)
+  public async Task<bool> RejectHandoverAsync(string handoverId, string cancelReason, string userId)
+  {
+    // V3: Reject uses Cancel with CANCEL_REASON='ReceiverRefused'
+    // The cancelReason parameter should be 'ReceiverRefused' or similar
+    return await CancelHandoverAsync(handoverId, cancelReason, userId);
+  }
+
+  public async Task<bool> CancelHandoverAsync(string handoverId, string cancelReason, string userId)
   {
     try
     {
-      return await UpdateHandoverStatus(handoverId, "Cancelled", "CANCELLED_AT", userId);
+      using var conn = _connectionFactory.CreateConnection();
+      
+      // V3: Set CANCELLED_AT, CANCELLED_BY_USER_ID, and CANCEL_REASON
+      // Constraint CHK_HO_CAN_BY_REQ and CHK_HO_CAN_RSN_REQ require both
+      // Use SYSTIMESTAMP for consistency with test data
+      const string sql = @"
+          UPDATE HANDOVERS
+          SET CANCELLED_AT = SYSTIMESTAMP,
+              CANCELLED_BY_USER_ID = :userId,
+              CANCEL_REASON = :cancelReason,
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId
+            AND CANCELLED_AT IS NULL
+            AND COMPLETED_AT IS NULL";
+
+      var rows = await conn.ExecuteAsync(sql, new { handoverId, userId, cancelReason });
+      return rows > 0;
     }
     catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
     {
-      // ORA-02290: check constraint violated - state machine constraint
+      // ORA-02290: check constraint violated
+      return false;
+    }
+    catch (Exception ex)
+    {
+      // Log other exceptions for debugging
+      System.Diagnostics.Debug.WriteLine($"CancelHandoverAsync exception: {ex.Message}");
       return false;
     }
   }
@@ -732,20 +907,33 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     try
     {
       using var conn = _connectionFactory.CreateConnection();
-      // CURRENT_STATE is virtual, calculated automatically from COMPLETED_AT
-      // COMPLETED_BY column doesn't exist in new schema, removed
+      
+      // V3: Set COMPLETED_AT and COMPLETED_BY_USER_ID
+      // Constraint CHK_HO_COMPLETED_NE_SENDER ensures COMPLETED_BY_USER_ID <> SENDER_USER_ID
+      // App-enforced: validate that userId has coverage in TO shift (not done here, should be in handler)
+      // Use SYSTIMESTAMP for consistency with test data
       const string sql = @"
           UPDATE HANDOVERS
-          SET COMPLETED_AT = LOCALTIMESTAMP, 
-              UPDATED_AT = LOCALTIMESTAMP
-          WHERE ID = :handoverId";
+          SET COMPLETED_AT = SYSTIMESTAMP,
+              COMPLETED_BY_USER_ID = :userId,
+              UPDATED_AT = SYSTIMESTAMP
+          WHERE ID = :handoverId
+            AND COMPLETED_AT IS NULL
+            AND CANCELLED_AT IS NULL
+            AND STARTED_AT IS NOT NULL";
 
       var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
       return rows > 0;
     }
     catch (Oracle.ManagedDataAccess.Client.OracleException ex) when (ex.Number == 2290)
     {
-      // ORA-02290: check constraint violated - state machine constraint
+      // ORA-02290: check constraint violated - state machine constraint or COMPLETED_BY_USER_ID <> SENDER_USER_ID
+      return false;
+    }
+    catch (Exception ex)
+    {
+      // Log other exceptions for debugging
+      System.Diagnostics.Debug.WriteLine($"CompleteHandoverAsync exception: {ex.Message}");
       return false;
     }
   }
@@ -761,47 +949,51 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     // But the endpoint description says "Get pending handovers". 
     // Let's assume it means handovers assigned to the user that are actionable.
     
+    // V3 Schema: Uses SHIFT_WINDOW_ID, SENDER_USER_ID, RECEIVER_USER_ID, etc.
     const string sql = @"
         SELECT
             h.ID,
-            NULL as AssignmentId, -- ASSIGNMENT_ID removed
             h.PATIENT_ID as PatientId,
             p.NAME as PatientName,
             h.CURRENT_STATE as Status, -- Virtual column
             COALESCE(hc.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
-            hc.PATIENT_SUMMARY as PatientSummary, -- Column renamed
+            hc.PATIENT_SUMMARY as PatientSummary,
             h.ID || '-sa' as SituationAwarenessDocId,
-            hc.SYNTHESIS as Synthesis, -- From HANDOVER_CONTENTS
-            s.NAME as ShiftName, -- Join SHIFTS
-            h.FROM_USER_ID as CreatedBy, -- Column renamed
-            h.TO_USER_ID as AssignedTo, -- Column renamed
+            hc.SYNTHESIS as Synthesis,
+            s_from.NAME as ShiftName, -- V3: From shift name
+            h.CREATED_BY_USER_ID as CreatedBy, -- V3: CREATED_BY_USER_ID
+            COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as AssignedTo, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
             NULL as CreatedByName,
             NULL as AssignedToName,
-            h.TO_USER_ID as ReceiverUserId, -- Column renamed
-            h.FROM_USER_ID as ResponsiblePhysicianId, -- RESPONSIBLE_PHYSICIAN_ID removed
-            'Dr. Name' as ResponsiblePhysicianName,
+            h.RECEIVER_USER_ID as ReceiverUserId, -- V3: RECEIVER_USER_ID
+            h.SENDER_USER_ID as ResponsiblePhysicianId, -- V3: SENDER_USER_ID
+            NULL as ResponsiblePhysicianName,
             TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
             TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
             TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
-            NULL as AcknowledgedAt, -- Column removed
-            TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
             TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
             TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
-            TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
-            h.REJECTION_REASON as RejectionReason,
-            TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
-            NULL as HandoverType, -- Column removed
-            TRUNC(h.WINDOW_START_AT) as HandoverWindowDate, -- Extract date
-            h.FROM_SHIFT_ID as FromShiftId,
-            h.TO_SHIFT_ID as ToShiftId,
-            h.TO_USER_ID as ToDoctorId, -- Column renamed
-            h.CURRENT_STATE as StateName, -- Virtual column
-            1 as Version
+            TRUNC(si_from.START_AT) as HandoverWindowDate, -- V3: From SHIFT_INSTANCES.START_AT
+            h.CURRENT_STATE as StateName,
+            1 as Version,
+            -- V3 Fields
+            h.SHIFT_WINDOW_ID as ShiftWindowId,
+            h.PREVIOUS_HANDOVER_ID as PreviousHandoverId,
+            h.SENDER_USER_ID as SenderUserId,
+            h.READY_BY_USER_ID as ReadyByUserId,
+            h.STARTED_BY_USER_ID as StartedByUserId,
+            h.COMPLETED_BY_USER_ID as CompletedByUserId,
+            h.CANCELLED_BY_USER_ID as CancelledByUserId,
+            h.CANCEL_REASON as CancelReason
         FROM HANDOVERS h
         JOIN PATIENTS p ON h.PATIENT_ID = p.ID
-        LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID
+        LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID -- V3: Join SHIFT_WINDOWS
+        LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID -- V3: From shift instance
+        LEFT JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID -- V3: To shift instance
+        LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
+        LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID -- V3: To shift template
         LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
-        WHERE h.TO_USER_ID = :userId
+        WHERE (h.RECEIVER_USER_ID = :userId OR h.COMPLETED_BY_USER_ID = :userId OR h.SENDER_USER_ID = :userId)
           AND h.CURRENT_STATE IN ('Draft', 'Ready', 'InProgress')";
 
     var handovers = await conn.QueryAsync<HandoverRecord>(sql, new { userId });
@@ -825,14 +1017,13 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
   private static string CalculatePhysicianStatus(string state, string relationship)
   {
+    // V3: Only mechanical states exist (Draft, Ready, InProgress, Completed, Cancelled)
+    // Rejected and Expired were removed - rejection is modeled as Cancelled with CANCEL_REASON='ReceiverRefused'
     state = state?.ToLower() ?? "";
     return state switch
     {
       "completed" => "completed",
       "cancelled" => "cancelled",
-      "rejected" => "rejected",
-      "expired" => "expired",
-      "accepted" => relationship == "creator" ? "handed-off" : "accepted",
       "draft" => relationship == "creator" ? "handing-off" : "pending",
       "ready" => relationship == "creator" ? "handing-off" : "ready-to-receive",
       "inprogress" => relationship == "creator" ? "handing-off" : "receiving",
@@ -905,27 +1096,6 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     return result > 0;
   }
 
-  // Activity Log
-  public async Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId)
-  {
-    using var conn = _connectionFactory.CreateConnection();
-
-    const string sql = @"
-      SELECT hal.ID, hal.HANDOVER_ID as HandoverId, hal.USER_ID as UserId,
-             COALESCE(u.FULL_NAME, u.FIRST_NAME || ' ' || u.LAST_NAME, 'Unknown') as UserName,
-             hal.ACTIVITY_TYPE as ActivityType, hal.DESCRIPTION as ActivityDescription,
-             NULL as SectionAffected, -- Column removed, use DESCRIPTION or METADATA instead
-             hal.METADATA, hal.CREATED_AT as CreatedAt
-      FROM HANDOVER_ACTIVITY_LOG hal
-      LEFT JOIN USERS u ON hal.USER_ID = u.ID
-      WHERE hal.HANDOVER_ID = :handoverId
-      ORDER BY hal.CREATED_AT DESC";
-
-    var activities = await conn.QueryAsync<HandoverActivityRecord>(sql, new { handoverId });
-    return activities.ToList();
-  }
-
-
   // Messages
   public async Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId)
   {
@@ -937,7 +1107,7 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
              m.MESSAGE_TEXT as MessageText, m.MESSAGE_TYPE as MessageType,
              m.CREATED_AT as CreatedAt, m.UPDATED_AT as UpdatedAt
       FROM HANDOVER_MESSAGES m
-      LEFT JOIN USERS u ON m.USER_ID = u.ID -- Join for USER_NAME (column removed)
+      LEFT JOIN USERS u ON m.USER_ID = u.ID -- Join USERS to get UserName (FULL_NAME or FIRST_NAME + LAST_NAME)
       WHERE m.HANDOVER_ID = :handoverId
       ORDER BY m.CREATED_AT ASC";
 
@@ -966,11 +1136,17 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
   {
     using var conn = _connectionFactory.CreateConnection();
 
-    // Get total count - handovers where user is involved (FROM_USER_ID or TO_USER_ID)
+    // V3 Schema: Get handovers where user is involved (SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID, COMPLETED_BY_USER_ID)
     const string countSql = @"
         SELECT COUNT(1)
         FROM HANDOVERS h
-        WHERE h.FROM_USER_ID = :userId OR h.TO_USER_ID = :userId";
+        WHERE h.SENDER_USER_ID = :userId 
+           OR h.RECEIVER_USER_ID = :userId 
+           OR h.CREATED_BY_USER_ID = :userId 
+           OR h.COMPLETED_BY_USER_ID = :userId
+           OR h.READY_BY_USER_ID = :userId
+           OR h.STARTED_BY_USER_ID = :userId
+           OR h.CANCELLED_BY_USER_ID = :userId";
 
     var total = await conn.ExecuteScalarAsync<int>(countSql, new { userId });
 
@@ -981,52 +1157,62 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
     var ps = Math.Max(pageSize, 1);
     var offset = (p - 1) * ps;
 
+    // V3 Schema: Uses SHIFT_WINDOW_ID, SENDER_USER_ID, RECEIVER_USER_ID, etc.
     const string sql = @"
         SELECT * FROM (
             SELECT
                 h.ID,
-                NULL as AssignmentId, -- ASSIGNMENT_ID removed
                 h.PATIENT_ID as PatientId,
                 pt.NAME as PatientName,
                 h.CURRENT_STATE as Status, -- Virtual column
                 COALESCE(hc.ILLNESS_SEVERITY, 'Stable') as IllnessSeverity,
-                hc.PATIENT_SUMMARY as PatientSummary, -- Column renamed
+                hc.PATIENT_SUMMARY as PatientSummary,
                 h.ID || '-sa' as SituationAwarenessDocId,
-                hc.SYNTHESIS as Synthesis, -- From HANDOVER_CONTENTS
-                s.NAME as ShiftName, -- Join SHIFTS
-                h.FROM_USER_ID as CreatedBy, -- Column renamed
-                h.TO_USER_ID as AssignedTo, -- Column renamed
+                hc.SYNTHESIS as Synthesis,
+                s_from.NAME as ShiftName, -- V3: From shift name
+                h.CREATED_BY_USER_ID as CreatedBy, -- V3: CREATED_BY_USER_ID
+                COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as AssignedTo, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
                 cb.FULL_NAME as CreatedByName,
                 td.FULL_NAME as AssignedToName,
-                h.TO_USER_ID as ReceiverUserId, -- Column renamed
-                h.FROM_USER_ID as ResponsiblePhysicianId, -- RESPONSIBLE_PHYSICIAN_ID removed
+                h.RECEIVER_USER_ID as ReceiverUserId, -- V3: RECEIVER_USER_ID
+                h.SENDER_USER_ID as ResponsiblePhysicianId, -- V3: SENDER_USER_ID
                 rp.FULL_NAME as ResponsiblePhysicianName,
                 TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
                 TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
                 TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
-                NULL as AcknowledgedAt, -- Column removed
-                TO_CHAR(h.ACCEPTED_AT, 'YYYY-MM-DD HH24:MI:SS') as AcceptedAt,
                 TO_CHAR(h.COMPLETED_AT, 'YYYY-MM-DD HH24:MI:SS') as CompletedAt,
                 TO_CHAR(h.CANCELLED_AT, 'YYYY-MM-DD HH24:MI:SS') as CancelledAt,
-                TO_CHAR(h.REJECTED_AT, 'YYYY-MM-DD HH24:MI:SS') as RejectedAt,
-                h.REJECTION_REASON as RejectionReason,
-                TO_CHAR(h.EXPIRED_AT, 'YYYY-MM-DD HH24:MI:SS') as ExpiredAt,
-                NULL as HandoverType, -- Column removed
-                TRUNC(h.WINDOW_START_AT) as HandoverWindowDate, -- Extract date
-                h.FROM_SHIFT_ID as FromShiftId,
-                h.TO_SHIFT_ID as ToShiftId,
-                h.TO_USER_ID as ToDoctorId, -- Column renamed
-                h.CURRENT_STATE as StateName, -- Virtual column
+                TRUNC(si_from.START_AT) as HandoverWindowDate, -- V3: From SHIFT_INSTANCES.START_AT
+                h.CURRENT_STATE as StateName,
                 1 as Version,
-                ROW_NUMBER() OVER (ORDER BY h.CREATED_AT DESC) AS RN
+                -- V3 Fields
+                h.SHIFT_WINDOW_ID as ShiftWindowId,
+                h.PREVIOUS_HANDOVER_ID as PreviousHandoverId,
+                h.SENDER_USER_ID as SenderUserId,
+                h.READY_BY_USER_ID as ReadyByUserId,
+                h.STARTED_BY_USER_ID as StartedByUserId,
+                h.COMPLETED_BY_USER_ID as CompletedByUserId,
+                h.CANCELLED_BY_USER_ID as CancelledByUserId,
+                h.CANCEL_REASON as CancelReason,
+                ROW_NUMBER() OVER (ORDER BY si_from.START_AT DESC, h.CREATED_AT DESC) AS RN
             FROM HANDOVERS h
             LEFT JOIN PATIENTS pt ON h.PATIENT_ID = pt.ID
-            LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
-            LEFT JOIN USERS cb ON h.FROM_USER_ID = cb.ID -- Column renamed
-            LEFT JOIN USERS td ON h.TO_USER_ID = td.ID -- Column renamed
-            LEFT JOIN USERS rp ON rp.ID = h.FROM_USER_ID -- RESPONSIBLE_PHYSICIAN_ID removed
-            LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID -- Merged table
-            WHERE h.FROM_USER_ID = :userId OR h.TO_USER_ID = :userId
+            LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID -- V3: Join SHIFT_WINDOWS
+            LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID -- V3: From shift instance
+            LEFT JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID -- V3: To shift instance
+            LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
+            LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID -- V3: To shift template
+            LEFT JOIN USERS cb ON h.CREATED_BY_USER_ID = cb.ID -- V3: CREATED_BY_USER_ID
+            LEFT JOIN USERS td ON COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) = td.ID -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
+            LEFT JOIN USERS rp ON h.SENDER_USER_ID = rp.ID -- V3: SENDER_USER_ID
+            LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+            WHERE h.SENDER_USER_ID = :userId 
+               OR h.RECEIVER_USER_ID = :userId 
+               OR h.CREATED_BY_USER_ID = :userId 
+               OR h.COMPLETED_BY_USER_ID = :userId
+               OR h.READY_BY_USER_ID = :userId
+               OR h.STARTED_BY_USER_ID = :userId
+               OR h.CANCELLED_BY_USER_ID = :userId
         )
         WHERE RN > :offset AND RN <= :maxRow";
 
@@ -1037,108 +1223,46 @@ public class HandoverRepository(DapperConnectionFactory _connectionFactory) : IH
 
   // Get current handover for patient (read-only, no side effects)
   // Returns the handover ID of the latest non-terminal handover, or null if none exists
+  // V3 Schema: Uses SHIFT_WINDOWS to get window start date
   public async Task<string?> GetCurrentHandoverIdAsync(string patientId)
   {
     using var conn = _connectionFactory.CreateConnection();
 
-    // Get latest non-terminal handover for patient
+    // V3: Get latest non-terminal handover for patient
+    // Terminal states in V3: 'Completed', 'Cancelled' (Rejected and Expired removed)
+    // Order by SHIFT_INSTANCES.START_AT from SHIFT_WINDOWS
     const string getLatestSql = @"
       SELECT * FROM (
         SELECT h.ID
         FROM HANDOVERS h
+        LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+        LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID
         WHERE h.PATIENT_ID = :patientId
-          AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled', 'Rejected', 'Expired')
-        ORDER BY h.WINDOW_START_AT DESC, h.CREATED_AT DESC
+          AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+        ORDER BY si_from.START_AT DESC, h.CREATED_AT DESC
       ) WHERE ROWNUM <= 1";
 
     var existingHandoverId = await conn.ExecuteScalarAsync<string>(getLatestSql, new { patientId });
     return existingHandoverId;
   }
 
-  // Get or create current handover for patient (for Patient Summary write operations)
-  // Returns the handover ID of the latest non-terminal handover, or creates a new Draft handover if none exists
-  public async Task<string?> GetOrCreateCurrentHandoverIdAsync(string patientId, string userId)
+  public async Task<bool> HasCoverageInToShiftAsync(string handoverId, string userId)
   {
     using var conn = _connectionFactory.CreateConnection();
 
-    // Try to get existing handover first
-    var existingHandoverId = await GetCurrentHandoverIdAsync(patientId);
+    // V3: Get TO_SHIFT_INSTANCE_ID from SHIFT_WINDOWS
+    // Then verify that userId has coverage in SHIFT_COVERAGE for that shift instance and patient
+    const string sql = @"
+      SELECT COUNT(*)
+      FROM HANDOVERS h
+      JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+      JOIN SHIFT_COVERAGE sc ON sw.TO_SHIFT_INSTANCE_ID = sc.SHIFT_INSTANCE_ID
+        AND h.PATIENT_ID = sc.PATIENT_ID
+      WHERE h.ID = :handoverId
+        AND sc.RESPONSIBLE_USER_ID = :userId";
 
-    if (!string.IsNullOrEmpty(existingHandoverId))
-    {
-      // Verify HANDOVER_CONTENTS exists
-      var contentsExists = await conn.ExecuteScalarAsync<int>(
-        "SELECT COUNT(*) FROM HANDOVER_CONTENTS WHERE HANDOVER_ID = :handoverId",
-        new { handoverId = existingHandoverId });
-
-      if (contentsExists == 0)
-      {
-        // If an existing handover is found but HANDOVER_CONTENTS row is missing, create a default contents row
-        try
-        {
-          await conn.ExecuteAsync(@"
-            INSERT INTO HANDOVER_CONTENTS (
-              HANDOVER_ID, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS, SYNTHESIS,
-              PATIENT_SUMMARY_STATUS, SA_STATUS, SYNTHESIS_STATUS, LAST_EDITED_BY, UPDATED_AT
-            ) VALUES (
-              :handoverId, 'Stable', NULL, NULL, NULL,
-              'Draft', 'Draft', 'Draft', :userId, LOCALTIMESTAMP
-            )",
-            new { handoverId = existingHandoverId, userId });
-        }
-        catch (Exception)
-        {
-          // Ignore errors - may be a race condition
-        }
-      }
-
-      return existingHandoverId;
-    }
-
-    // No active handover exists, need to create one
-    // Get current assignment for patient to determine shift and user
-    const string getAssignmentSql = @"
-      SELECT * FROM (
-        SELECT ua.USER_ID, ua.SHIFT_ID, s.ID as SHIFT_ID_FROM
-        FROM USER_ASSIGNMENTS ua
-        JOIN SHIFTS s ON ua.SHIFT_ID = s.ID
-        WHERE ua.PATIENT_ID = :patientId
-        ORDER BY ua.ASSIGNED_AT DESC
-      ) WHERE ROWNUM <= 1";
-
-    var assignment = await conn.QueryFirstOrDefaultAsync<dynamic>(getAssignmentSql, new { patientId });
-
-    if (assignment == null)
-    {
-      // No assignment exists, cannot create handover
-      return null;
-    }
-
-    string assignedUserId = assignment.USER_ID;
-    string shiftId = assignment.SHIFT_ID;
-    
-    // Use same shift for FROM and TO (self-handover scenario, or use a default "next" shift)
-    // For simplicity, use the same shift for both FROM and TO
-    var handoverId = $"handover-{Guid.NewGuid().ToString().Substring(0, 8)}";
-
-    // Create handover
-    await conn.ExecuteAsync(@"
-      INSERT INTO HANDOVERS (ID, PATIENT_ID, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_USER_ID, TO_USER_ID, WINDOW_START_AT, CREATED_AT, UPDATED_AT)
-      VALUES (:handoverId, :patientId, :shiftId, :shiftId, :userId, :assignedUserId, LOCALTIMESTAMP, LOCALTIMESTAMP, LOCALTIMESTAMP)",
-      new { handoverId, patientId, shiftId, userId, assignedUserId });
-
-    // Create HANDOVER_CONTENTS entry - use NULL instead of empty string for VARCHAR2 columns
-    // Oracle treats empty string as NULL, so we explicitly use NULL
-    await conn.ExecuteAsync(@"
-      INSERT INTO HANDOVER_CONTENTS (
-        HANDOVER_ID, ILLNESS_SEVERITY, PATIENT_SUMMARY, SITUATION_AWARENESS, SYNTHESIS,
-        PATIENT_SUMMARY_STATUS, SA_STATUS, SYNTHESIS_STATUS, LAST_EDITED_BY, UPDATED_AT
-      ) VALUES (
-        :handoverId, 'Stable', NULL, NULL, NULL,
-        'Draft', 'Draft', 'Draft', :userId, LOCALTIMESTAMP
-      )",
-      new { handoverId, userId });
-
-    return handoverId;
+    var count = await conn.ExecuteScalarAsync<int>(sql, new { handoverId, userId });
+    return count > 0;
   }
+
 }

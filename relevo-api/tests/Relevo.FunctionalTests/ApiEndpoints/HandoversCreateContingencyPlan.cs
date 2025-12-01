@@ -21,7 +21,7 @@ public class HandoversCreateContingencyPlan(CustomWebApplicationFactory<Program>
         HandoverId = handoverId,
         ConditionText = "Functional Condition",
         ActionText = "Functional Action",
-        Priority = "Low"
+        Priority = "low" // V3: Must be lowercase per CHK_CONT_PRIORITY constraint
     };
 
     var response = await _client.PostAsJsonAsync($"/handovers/{handoverId}/contingency-plans", request);

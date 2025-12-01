@@ -33,7 +33,7 @@ public class MeContingencyPlansTests(CustomWebApplicationFactory<Program> factor
         {
             ConditionText = "If temperature rises above 38C",
             ActionText = "Administer antipyretic",
-            Priority = "Medium"
+            Priority = "medium" // V3: Must be lowercase per CHK_CONT_PRIORITY constraint
         };
 
         // Act

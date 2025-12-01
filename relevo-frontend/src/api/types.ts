@@ -79,8 +79,16 @@ export type PatientSummaryUpdateResponse = {
 // Handover types (matching the OpenAPI schema)
 export type HandoverActionItem = {
 	id: string;
+	handoverId: string;
 	description: string;
 	isCompleted: boolean;
+	createdAt: string;
+	updatedAt: string;
+	completedAt: string | null;
+};
+
+export type GetHandoverActionItemsResponse = {
+	actionItems: Array<HandoverActionItem>;
 };
 
 export type HandoverIllnessSeverity = {
@@ -99,12 +107,12 @@ export type Handover = {
 	id: string;
 	assignmentId: string;
 	patientId: string;
-	patientName?: string; // For display in lists/cards - full patient data comes from /patient endpoint
-	status: string;
+	// patientName removed - use /patient endpoint
+	// status removed - use stateName
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
-	situationAwarenessDocId?: string;
-	synthesis?: HandoverSynthesis;
+	// situationAwarenessDocId removed - use /situation-awareness endpoint
+	// synthesis removed - use /synthesis endpoint
 	shiftName: string;
 	createdBy: string;
 	assignedTo: string;
@@ -127,6 +135,15 @@ export type Handover = {
 	toShiftId?: string;
 	toDoctorId?: string;
 	stateName: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
+	// V3 Fields
+	shiftWindowId?: string;
+	previousHandoverId?: string;
+	senderUserId?: string;
+	readyByUserId?: string;
+	startedByUserId?: string;
+	completedByUserId?: string;
+	cancelledByUserId?: string;
+	cancelReason?: string;
 };
 
 export type PaginatedHandovers = {
@@ -182,7 +199,7 @@ export type HandoverActivityItem = {
 	activityType: string;
 	activityDescription?: string;
 	sectionAffected?: string;
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 	createdAt: string;
 };
 
@@ -212,23 +229,20 @@ export type HandoverContingencyPlan = {
 	updatedAt: string;
 };
 
-export type SituationAwarenessSection = {
-	id: string;
+export type SituationAwarenessDto = {
 	handoverId: string;
-	sectionType: string;
 	content: string | null;
 	status: string;
-	lastEditedBy: string | null;
-	createdAt: string;
+	lastEditedBy: string;
 	updatedAt: string;
 };
 
 export type SituationAwarenessResponse = {
-	section: SituationAwarenessSection | null;
+	situationAwareness: SituationAwarenessDto | null;
 };
 
 export type ContingencyPlansResponse = {
-	plans: HandoverContingencyPlan[];
+	contingencyPlans: Array<HandoverContingencyPlan>;
 };
 
 export type PatientDataDto = {
@@ -248,14 +262,13 @@ export type PatientDataResponse = {
 export type UpdatePatientDataRequest = {
     illnessSeverity: string;
     summaryText?: string;
-    status: string;
 };
 
 export type SynthesisDto = {
     handoverId: string;
     content?: string;
     status: string;
-    lastEditedBy?: string;
+    lastEditedBy: string;
     updatedAt: string;
 };
 
@@ -269,8 +282,11 @@ export type CreateContingencyPlanRequest = {
 	priority: "low" | "medium" | "high";
 };
 
+export type SituationAwarenessStatus = "Draft" | "Ready" | "InProgress" | "Completed";
+
 export type UpdateSituationAwarenessRequest = {
 	content: string;
+	status: SituationAwarenessStatus;
 };
 
 export type ApiResponse = {

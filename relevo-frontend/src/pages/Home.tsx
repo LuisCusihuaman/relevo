@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useMemo } from "react";
+import { type ReactElement, useMemo } from "react";
 import {
 	DashboardSidebar,
 	PatientDirectoryList,
@@ -47,9 +47,8 @@ function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
 }
 
 export function Home({
-	patientSlug,
 }: HomeProps): ReactElement {
-	const { currentPatient, actions } = useUiStore();
+	const { currentPatient } = useUiStore();
 	const { data: assignedPatientsData, isLoading, error } = useAssignedPatients();
 
 	// Memoize the mapped patients to avoid unnecessary re-computations
@@ -115,7 +114,16 @@ export function Home({
 
 			{isPatientView && currentPatient ? (
 				<div className="space-y-6">
-					<PatientProfileHeader currentPatient={currentPatient} />
+					<PatientProfileHeader currentPatient={{
+						id: currentPatient.id,
+						name: currentPatient.name,
+						url: `/patient/${currentPatient.id}`,
+						status: "Active",
+						date: currentPatient.admissionDate,
+						icon: "User",
+						unit: currentPatient.unit,
+						handoverId: null
+					}} />
 				</div>
 			) : null}
 		</div>

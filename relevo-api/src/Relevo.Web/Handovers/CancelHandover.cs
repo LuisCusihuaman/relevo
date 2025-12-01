@@ -18,7 +18,9 @@ public class CancelHandover(IMediator _mediator, ICurrentUser _currentUser)
     var userId = _currentUser.Id;
     if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
     
-    var result = await _mediator.Send(new CancelHandoverCommand(req.HandoverId, userId), ct);
+    // V3: CancelReason is required
+    var cancelReason = string.IsNullOrWhiteSpace(req.CancelReason) ? "UserCancelled" : req.CancelReason;
+    var result = await _mediator.Send(new CancelHandoverCommand(req.HandoverId, userId, cancelReason), ct);
 
     if (result.IsSuccess) 
       await SendOkAsync(ct);
@@ -33,5 +35,6 @@ public class CancelHandover(IMediator _mediator, ICurrentUser _currentUser)
 public class CancelHandoverRequest
 {
     public string HandoverId { get; set; } = string.Empty;
+    public string? CancelReason { get; set; } // V3: CancelReason required (defaults to "UserCancelled" if not provided)
 }
 

@@ -1,4 +1,3 @@
-import React from "react";
 import {
     activeCollaborators,
 } from "@/common/constants";
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Clock, Save, Stethoscope, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { PatientSummary } from "./PatientSummary";
 import { SituationAwareness } from "./SituationAwareness";
@@ -30,6 +29,7 @@ interface FullscreenEditorProps {
   patientData: PatientHandoverData | null;
   handoverData?: { id: string };
   currentUser: {
+    id: string;
     name: string;
     initials: string;
     role: string;
@@ -251,7 +251,7 @@ export function FullscreenEditor({
                   fullscreenMode
                   hideControls
                   handoverId={handoverData?.id || ""}
-                  assignedPhysician={patientData?.assignedPhysician}
+                  patientData={patientData || undefined}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser}
                   syncStatus={syncStatus}
@@ -272,7 +272,7 @@ export function FullscreenEditor({
                   currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
                   assignedPhysician={patientData?.assignedPhysician ? {
                     name: patientData.assignedPhysician.name,
-                    initials: patientData.assignedPhysician.initials,
+                    initials: patientData.assignedPhysician.name.split(' ').map(n => n[0]).join('').toUpperCase(),
                     role: patientData.assignedPhysician.role
                   } : { name: "Unknown", initials: "U", role: "Unknown" }}
                   fullscreenMode

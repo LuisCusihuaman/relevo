@@ -2,7 +2,6 @@ namespace Relevo.Core.Models;
 
 public record HandoverRecord(
     string Id,
-    string AssignmentId,
     string PatientId,
     string? PatientName,
     string Status,
@@ -10,41 +9,35 @@ public record HandoverRecord(
     string? PatientSummary,
     string? SituationAwarenessDocId,
     string? Synthesis,
-    string ShiftName,
-    string CreatedBy,
-    string? AssignedTo,
+    string? ShiftName,
+    string? CreatedBy, // Maps to CREATED_BY_USER_ID
+    string? AssignedTo, // Maps to RECEIVER_USER_ID or COMPLETED_BY_USER_ID
     string? CreatedByName,
     string? AssignedToName,
-    string? ReceiverUserId,
-    string ResponsiblePhysicianId,
+    string? ReceiverUserId, // Maps to RECEIVER_USER_ID
+    string? ResponsiblePhysicianId, // Maps to SENDER_USER_ID
     string? ResponsiblePhysicianName,
     string? CreatedAt,
     string? ReadyAt,
     string? StartedAt,
-    string? AcknowledgedAt,
-    string? AcceptedAt,
     string? CompletedAt,
     string? CancelledAt,
-    string? RejectedAt,
-    string? RejectionReason,
-    string? ExpiredAt,
-    string? HandoverType,
-    DateTime? HandoverWindowDate,
-    string? FromShiftId,
-    string? ToShiftId,
-    string? ToDoctorId,
+    DateTime? HandoverWindowDate, // Derived from SHIFT_WINDOWS
     string StateName,
-    int Version
+    int Version,
+    // V3 Fields
+    string? ShiftWindowId,
+    string? PreviousHandoverId,
+    string? SenderUserId, // SENDER_USER_ID
+    string? ReadyByUserId, // READY_BY_USER_ID
+    string? StartedByUserId, // STARTED_BY_USER_ID
+    string? CompletedByUserId, // COMPLETED_BY_USER_ID
+    string? CancelledByUserId, // CANCELLED_BY_USER_ID
+    string? CancelReason // CANCEL_REASON
 )
 {
     // Parameterless constructor for Dapper
-    public HandoverRecord() : this(
-        "", "", "", null, "",
-        null, null, null, null,
-        "", "", null, null, null, null, "", null,
-        null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, "", 0
-    ) { }
+    public HandoverRecord() : this("", "", null, "", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "", 0, null, null, null, null, null, null, null, null) { }
 }
 
 

@@ -41,4 +41,29 @@ public class HandoverRepositoryGetByIdTests : BaseDapperRepoTestFixture
 
         Assert.Null(detail);
     }
+
+    [Fact]
+    public async Task GetHandoverById_ReturnsV3Fields()
+    {
+        // V3: Verify GetHandoverByIdAsync returns all V3 fields
+        var repository = GetHandoverRepository();
+        var handoverId = DapperTestSeeder.HandoverId;
+
+        var detail = await repository.GetHandoverByIdAsync(handoverId);
+
+        Assert.NotNull(detail);
+        var handover = detail.Handover;
+        
+        // V3 fields that should be present
+        Assert.NotNull(handover.ShiftWindowId); // V3: SHIFT_WINDOW_ID instead of direct shift references
+        Assert.NotNull(handover.Status); // V3: CURRENT_STATE virtual column
+        Assert.NotNull(handover.PatientId);
+        Assert.NotNull(handover.CreatedAt);
+        
+        // V3: SENDER_USER_ID should be set if handover is Ready or beyond
+        if (handover.Status != "Draft")
+        {
+            Assert.NotNull(handover.SenderUserId);
+        }
+    }
 }

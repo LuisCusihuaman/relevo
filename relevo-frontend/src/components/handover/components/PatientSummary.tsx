@@ -40,6 +40,7 @@ interface PatientSummaryProps {
 export function PatientSummary({
   handoverId,
   patientData: patientDataProp,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onOpenThread: _onOpenThread,
   fullscreenMode = false,
   autoEdit = false,
@@ -47,7 +48,9 @@ export function PatientSummary({
   hideControls = false, // Default to false for backwards compatibility
   onSave, // External save handler
   onSaveReady,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   syncStatus: _syncStatus = "synced",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSyncStatusChange: _onSyncStatusChange,
   currentUser,
   responsiblePhysician,
@@ -88,7 +91,6 @@ export function PatientSummary({
         handoverId,
         summaryText: editingText,
         illnessSeverity: patientDataProp?.illnessSeverity || "Stable", // Default to stable if not present
-        status: "completed",
       });
 
       setIsEditing(false);
@@ -123,14 +125,14 @@ export function PatientSummary({
   // Provide save function to parent when ready
   useEffect(() => {
     if (onSaveReady && isEditing && fullscreenMode) {
-      onSaveReady(handleSave);
+      onSaveReady(() => { void handleSave(); });
     }
   }, [onSaveReady, isEditing, fullscreenMode, handleSave]);
 
 
-  const getTimeAgo = () => {
+  const getTimeAgo = (): string => {
     const updatedAt = patientDataProp?.updatedAt;
-    if (!updatedAt) return t("time.never");
+    if (!updatedAt) return t("time.never") as string;
 
     const now = new Date();
     const lastUpdated = new Date(updatedAt);
@@ -138,14 +140,14 @@ export function PatientSummary({
       (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60),
     );
 
-    if (diffHours < 1) return t("time.lessThan1Hour");
-    if (diffHours < 24) return t("time.hoursAgo", { count: diffHours });
+    if (diffHours < 1) return t("time.lessThan1Hour") as string;
+    if (diffHours < 24) return t("time.hoursAgo", { count: diffHours }) as string;
     const diffDays = Math.floor(diffHours / 24);
-    return t("time.daysAgo", { count: diffDays });
+    return t("time.daysAgo", { count: diffDays }) as string;
   };
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK
-  const handleClick = () => {
+  const handleClick = (): void => {
     if (!canEdit) return;
 
     if (fullscreenMode) {
@@ -212,12 +214,12 @@ export function PatientSummary({
                       lineHeight: "1.6",
                       background: "transparent !important",
                     }}
-                    onChange={(e) => {
-                      setEditingText(e.target.value);
+                    onChange={((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+                      setEditingText(event.target.value);
                       if (onContentChange) {
                         onContentChange();
                       }
-                    }}
+                    }) as React.ChangeEventHandler<HTMLTextAreaElement>}
                   />
                 </ScrollArea>
               </div>
@@ -249,7 +251,7 @@ export function PatientSummary({
                       className="text-xs bg-gray-700 hover:bg-gray-800 text-white h-7 px-3"
                       disabled={isUpdating}
                       size="sm"
-                      onClick={handleSave}
+                      onClick={() => { void handleSave(); }}
                     >
                       <Save className="w-3 h-3 mr-1" />
                       {t("editing.save")}
@@ -294,14 +296,14 @@ export function PatientSummary({
               canEdit ? "cursor-pointer" : ""
             }`}
             onClick={handleClick}
-            onKeyDown={(e) => {
+            onKeyDown={((event: React.KeyboardEvent<HTMLDivElement>) => {
               if (
-                (e.key === "Enter" || e.key === " ") &&
+                (event.key === "Enter" || event.key === " ") &&
                 canEdit) {
-                e.preventDefault();
+                event.preventDefault();
                 handleClick();
               }
-            }}
+            }) as React.KeyboardEventHandler<HTMLDivElement>}
           >
             {/* Header with subtle gray background and top rounded corners */}
             <div

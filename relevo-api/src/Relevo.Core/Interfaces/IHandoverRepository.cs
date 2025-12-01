@@ -16,12 +16,12 @@ public interface IHandoverRepository
     Task<HandoverSituationAwarenessRecord?> GetSituationAwarenessAsync(string handoverId);
     Task<bool> UpdateSituationAwarenessAsync(string handoverId, string? content, string status, string userId);
     Task<bool> MarkAsReadyAsync(string handoverId, string userId);
+    Task<bool> ReturnForChangesAsync(string handoverId, string userId);
     Task<HandoverClinicalDataRecord?> GetClinicalDataAsync(string handoverId);
     Task<bool> UpdateClinicalDataAsync(string handoverId, string illnessSeverity, string summaryText, string userId);
     Task<bool> StartHandoverAsync(string handoverId, string userId);
-    Task<bool> AcceptHandoverAsync(string handoverId, string userId);
-    Task<bool> RejectHandoverAsync(string handoverId, string reason, string userId);
-    Task<bool> CancelHandoverAsync(string handoverId, string userId);
+    Task<bool> RejectHandoverAsync(string handoverId, string cancelReason, string userId); // Uses Cancel with CANCEL_REASON='ReceiverRefused'
+    Task<bool> CancelHandoverAsync(string handoverId, string cancelReason, string userId); // V3 requires cancelReason
     Task<bool> CompleteHandoverAsync(string handoverId, string userId);
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId);
 
@@ -30,9 +30,6 @@ public interface IHandoverRepository
     Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority);
     Task<bool> UpdateActionItemAsync(string handoverId, string itemId, bool isCompleted);
     Task<bool> DeleteActionItemAsync(string handoverId, string itemId);
-
-    // Activity Log
-    Task<IReadOnlyList<HandoverActivityRecord>> GetActivityLogAsync(string handoverId);
 
     // Messages
     Task<IReadOnlyList<HandoverMessageRecord>> GetMessagesAsync(string handoverId);
@@ -43,5 +40,7 @@ public interface IHandoverRepository
 
     // Patient Summary (uses current handover)
     Task<string?> GetCurrentHandoverIdAsync(string patientId);
-    Task<string?> GetOrCreateCurrentHandoverIdAsync(string patientId, string userId);
+
+    // Coverage validation (V3 app-enforced rules)
+    Task<bool> HasCoverageInToShiftAsync(string handoverId, string userId);
 }

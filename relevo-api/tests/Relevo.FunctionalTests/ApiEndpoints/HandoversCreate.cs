@@ -15,7 +15,9 @@ public class HandoversCreate(CustomWebApplicationFactory<Program> factory) : ICl
   [Fact]
   public async Task CreatesHandover()
   {
-    var patientId = DapperTestSeeder.PatientId1;
+    // V3: CreateHandoverAsync is refactored to use SHIFT_WINDOW_ID
+    // Use PatientId2 to avoid conflict with seeded handover for PatientId1
+    var patientId = DapperTestSeeder.PatientId2;
     var userId = DapperTestSeeder.UserId;
     var shiftDayId = DapperTestSeeder.ShiftDayId;
     var shiftNightId = DapperTestSeeder.ShiftNightId;

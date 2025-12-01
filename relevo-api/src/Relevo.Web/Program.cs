@@ -35,6 +35,24 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddClerkAuthentication(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5173", 
+                    "https://localhost:5173",
+                    "http://localhost:5174", 
+                    "https://localhost:5174"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
 builder.Services.AddFastEndpoints()
                 .SwaggerDocument(o =>
                 {
@@ -42,6 +60,8 @@ builder.Services.AddFastEndpoints()
                 });
 
 var app = builder.Build();
+
+app.UseCors("AllowLocalhost");
 
 app.UseAuthentication();
 app.UseAuthorization();

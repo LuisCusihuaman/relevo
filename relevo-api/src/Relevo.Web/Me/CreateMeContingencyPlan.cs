@@ -14,7 +14,7 @@ public record CreateMeContingencyPlanRequest
 
     public string ConditionText { get; init; } = string.Empty;
     public string ActionText { get; init; } = string.Empty;
-    public string Priority { get; init; } = "Medium";
+    public string Priority { get; init; } = "medium"; // V3: Must be lowercase per CHK_CONT_PRIORITY constraint
 }
 
 public record CreateMeContingencyPlanResponse

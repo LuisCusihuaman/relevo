@@ -11,7 +11,7 @@ import {
   Lock,
   ShieldCheck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 interface SynthesisByReceiverProps {

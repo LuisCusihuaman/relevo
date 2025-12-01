@@ -9,12 +9,17 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	const patientKey = apiHandover.patientId.toLowerCase().replace(/[^a-z0-9]/g, "-");
 
 	// Map handover status to UI status
-	const getStatusFromHandoverStatus = (status: ApiHandover["status"]): "Error" | "Ready" => {
-		switch (status) {
-			case "Active":
+	const getStatusFromHandoverStatus = (stateName: ApiHandover["stateName"]): "Error" | "Ready" => {
+		switch (stateName) {
+			case "Draft":
+			case "Ready":
 			case "InProgress":
-				return "Error"; // In the UI, "Error" seems to mean "In Progress"
+			case "Accepted":
+				return "Error"; // In the UI, "Error" seems to mean "In Progress" / Active
 			case "Completed":
+			case "Cancelled":
+			case "Rejected":
+			case "Expired":
 				return "Ready";
 			default:
 				return "Error";
@@ -22,12 +27,17 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	};
 
 	// Map status colors
-	const getStatusColor = (status: ApiHandover["status"]): string => {
-		switch (status) {
-			case "Active":
+	const getStatusColor = (stateName: ApiHandover["stateName"]): string => {
+		switch (stateName) {
+			case "Draft":
+			case "Ready":
 			case "InProgress":
+			case "Accepted":
 				return "bg-red-500";
 			case "Completed":
+			case "Cancelled":
+			case "Rejected":
+			case "Expired":
 				return "bg-green-500";
 			default:
 				return "bg-red-500";
@@ -35,26 +45,41 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	};
 
 	// Map environment
-	const getEnvironment = (status: ApiHandover["status"]): string => {
-		switch (status) {
-			case "Active":
-				return "Active";
+	const getEnvironment = (stateName: ApiHandover["stateName"]): string => {
+		switch (stateName) {
+			case "Draft":
+				return "Draft";
+			case "Ready":
+				return "Ready";
 			case "InProgress":
 				return "In Progress";
+			case "Accepted":
+				return "Accepted";
 			case "Completed":
 				return "Completed";
+			case "Cancelled":
+				return "Cancelled";
+			case "Rejected":
+				return "Rejected";
+			case "Expired":
+				return "Expired";
 			default:
 				return "Unknown";
 		}
 	};
 
 	// Map environment color
-	const getEnvironmentColor = (status: ApiHandover["status"]): string => {
-		switch (status) {
-			case "Active":
+	const getEnvironmentColor = (stateName: ApiHandover["stateName"]): string => {
+		switch (stateName) {
+			case "Draft":
+			case "Ready":
 			case "InProgress":
+			case "Accepted":
 				return "text-red-600";
 			case "Completed":
+			case "Cancelled":
+			case "Rejected":
+			case "Expired":
 				return "text-green-600";
 			default:
 				return "text-gray-600";
@@ -67,14 +92,16 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 	};
 
 	// Use patient name from handover if available, otherwise fallback to patient ID
-	const patientName = apiHandover.patientName || `Patient ${apiHandover.patientId}`;
+	// Since patientName is removed from API, we use a placeholder or fetch it separately.
+	// For now, we use "Patient {ID}" as placeholder.
+	const patientName = `Patient ${apiHandover.patientId}`;
 
 	return {
 		id: apiHandover.id,
-		status: getStatusFromHandoverStatus(apiHandover.status),
-		statusColor: getStatusColor(apiHandover.status),
-		environment: getEnvironment(apiHandover.status),
-		environmentColor: getEnvironmentColor(apiHandover.status),
+		status: getStatusFromHandoverStatus(apiHandover.stateName),
+		statusColor: getStatusColor(apiHandover.stateName),
+		environment: getEnvironment(apiHandover.stateName),
+		environmentColor: getEnvironmentColor(apiHandover.stateName),
 		patientKey: patientKey,
 		patientName: patientName,
 		patientIcon: {
@@ -84,9 +111,9 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 			text: "text-gray-700",
 		},
 		time: apiHandover.createdAt || new Date().toISOString(), // Use created date from API or current date as fallback
-		statusTime: apiHandover.status === "Active" ? "Active" : "Inactive",
+		statusTime: ["Draft", "Ready", "InProgress", "Accepted"].includes(apiHandover.stateName) ? "Active" : "Inactive",
 		environmentType: "Preview", // Default to Preview
-		current: apiHandover.status === "Active" || apiHandover.status === "InProgress",
+		current: ["Draft", "Ready", "InProgress", "Accepted"].includes(apiHandover.stateName),
 		author: apiHandover.createdBy || "System",
 		avatar: "", // Default empty avatar
 	};

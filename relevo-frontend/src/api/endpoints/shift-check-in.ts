@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { api, type createAuthenticatedApiCall } from "../client";
+import { type createAuthenticatedApiCall } from "../client";
 import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type { Unit, Shift, AssignPatientsPayload, ShiftCheckInPatientsResponse } from "../types";
 import type { ShiftCheckInPatient } from "@/common/types";
@@ -17,27 +17,45 @@ export const shiftCheckInQueryKeys = {
 /**
  * Get hospital units
  */
-export async function getUnits(): Promise<Array<Unit>> {
-	const { data } = await api.get<{ units?: Array<Unit>; Units?: Array<Unit> }>("/shift-check-in/units");
+export async function getUnits(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>
+): Promise<Array<Unit>> {
+	const data = await authenticatedApiCall<{ units?: Array<Unit>; Units?: Array<Unit> }>({
+		method: "GET",
+		url: "/shift-check-in/units",
+	});
 	return data.units ?? data.Units ?? [];
 }
 
 /**
  * Get available shifts
  */
-export async function getShifts(): Promise<Array<Shift>> {
-	const { data } = await api.get<{ shifts?: Array<Shift>; Shifts?: Array<Shift> }>("/shift-check-in/shifts");
+export async function getShifts(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>
+): Promise<Array<Shift>> {
+	const data = await authenticatedApiCall<{ shifts?: Array<Shift>; Shifts?: Array<Shift> }>({
+		method: "GET",
+		url: "/shift-check-in/shifts",
+	});
 	return data.shifts ?? data.Shifts ?? [];
 }
 
 /**
  * Get patients available for assignment by unit
  */
-export async function getPatientsByUnit(unitId: string, parameters?: {
-	page?: number;
-	pageSize?: number;
-}): Promise<Array<ShiftCheckInPatient>> {
-	const { data } = await api.get<ShiftCheckInPatientsResponse>(`/units/${unitId}/patients`, { params: parameters });
+export async function getPatientsByUnit(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	unitId: string,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): Promise<Array<ShiftCheckInPatient>> {
+	const data = await authenticatedApiCall<ShiftCheckInPatientsResponse>({
+		method: "GET",
+		url: `/units/${unitId}/patients`,
+		params: parameters,
+	});
 	return data.patients ?? data.Patients ?? [];
 }
 
@@ -59,9 +77,10 @@ export async function assignPatients(
  * Hook to get hospital units
  */
 export function useUnits(): ReturnType<typeof useQuery<Array<Unit> | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: shiftCheckInQueryKeys.units(),
-		queryFn: () => getUnits(),
+		queryFn: () => getUnits(authenticatedApiCall),
 		staleTime: 10 * 60 * 1000, // 10 minutes
 		gcTime: 30 * 60 * 1000, // 30 minutes
 		select: (data: Array<Unit> | undefined) => data,
@@ -72,9 +91,10 @@ export function useUnits(): ReturnType<typeof useQuery<Array<Unit> | undefined, 
  * Hook to get available shifts
  */
 export function useShifts(): ReturnType<typeof useQuery<Array<Shift> | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: shiftCheckInQueryKeys.shifts(),
-		queryFn: () => getShifts(),
+		queryFn: () => getShifts(authenticatedApiCall),
 		staleTime: 10 * 60 * 1000, // 10 minutes
 		gcTime: 30 * 60 * 1000, // 30 minutes
 		select: (data: Array<Shift> | undefined) => data,
@@ -92,9 +112,10 @@ export function usePatientsByUnit(
 		enabled?: boolean;
 	}
 ): ReturnType<typeof useQuery<Array<ShiftCheckInPatient> | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: shiftCheckInQueryKeys.patientsByUnit(unitId ?? ""),
-		queryFn: () => getPatientsByUnit(unitId ?? "", parameters),
+		queryFn: () => getPatientsByUnit(authenticatedApiCall, unitId ?? "", parameters),
 		enabled: parameters?.enabled ?? Boolean(unitId), // Use provided enabled or default to Boolean(unitId)
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 15 * 60 * 1000, // 15 minutes

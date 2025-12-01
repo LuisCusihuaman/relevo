@@ -20,8 +20,10 @@ public class HandoverRepositoryCreateTests : BaseDapperRepoTestFixture
     [Fact]
     public async Task CreateHandover_CreatesAndReturnsHandover()
     {
+        // V3: CreateHandoverAsync is refactored to use SHIFT_WINDOW_ID
         var repository = GetHandoverRepository();
-        var patientId = DapperTestSeeder.PatientId1;
+        // Use PatientId2 to avoid conflict with seeded handover for PatientId1
+        var patientId = DapperTestSeeder.PatientId2;
         var userId = DapperTestSeeder.UserId;
         var shiftDayId = DapperTestSeeder.ShiftDayId;
         var shiftNightId = DapperTestSeeder.ShiftNightId;
@@ -36,5 +38,6 @@ public class HandoverRepositoryCreateTests : BaseDapperRepoTestFixture
         Assert.NotNull(handover.Id);
         Assert.Equal(patientId, handover.PatientId);
         Assert.Equal("Draft", handover.Status);
+        Assert.NotNull(handover.ShiftWindowId); // V3: Should have SHIFT_WINDOW_ID
     }
 }

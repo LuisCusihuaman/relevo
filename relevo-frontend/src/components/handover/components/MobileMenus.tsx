@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import type { User as UserType } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

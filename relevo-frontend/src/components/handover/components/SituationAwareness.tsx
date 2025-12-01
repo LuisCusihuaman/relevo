@@ -13,16 +13,16 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { JSX } from "react";
+import { type ChangeEvent, type KeyboardEvent, useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useSituationAwareness,
   useUpdateSituationAwareness,
-  useContingencyPlans,
+  useHandoverContingencyPlans,
   useCreateContingencyPlan,
   useDeleteContingencyPlan
 } from "@/api/endpoints/handovers";
+import type { SituationAwarenessStatus } from "@/api/types";
 
 // Enhanced collaborator with typing indicators
 interface Collaborator {
@@ -36,7 +36,7 @@ interface Collaborator {
 }
 
 interface ContingencyPlan {
-  id: number;
+  id: string;
   condition: string;
   action: string;
   priority: "low" | "medium" | "high";
@@ -72,14 +72,19 @@ interface SituationAwarenessProps {
 
 export function SituationAwareness({
   handoverId,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   collaborators: _collaborators = [],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onOpenThread: _onOpenThread,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
   hideControls = false, // Default to false for backwards compatibility
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSave: _onSave, // External save handler
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   syncStatus: _syncStatus = "synced",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSyncStatusChange: _onSyncStatusChange,
   currentUser,
   assignedPhysician,
@@ -92,7 +97,7 @@ export function SituationAwareness({
 
   // Fetch situation awareness data
   const { data: situationData, isLoading: isLoadingSituation } = useSituationAwareness(handoverId);
-  const { data: contingencyData, isLoading: isLoadingContingency } = useContingencyPlans(handoverId);
+  const { data: contingencyData, isLoading: isLoadingContingency } = useHandoverContingencyPlans(handoverId);
 
   // Mutations
   const updateSituationMutation = useUpdateSituationAwareness();
@@ -108,8 +113,8 @@ export function SituationAwareness({
 
   // Update local state when API data loads
   useEffect(() => {
-    if (situationData?.section?.content) {
-      setCurrentSituation(situationData.section.content);
+    if (situationData?.situationAwareness?.content) {
+      setCurrentSituation(situationData.situationAwareness.content);
     } else if (!isLoadingSituation) {
       // If no content exists, use default text
       setCurrentSituation(
@@ -168,11 +173,11 @@ export function SituationAwareness({
   }, [fullscreenMode, autoEdit]);
 
   // Convert API contingency plans to component format
-  const contingencyPlans: Array<ContingencyPlan> = contingencyData?.plans.map(plan => ({
-    id: parseInt(plan.id) || Date.now(), // Fallback for number IDs
+  const contingencyPlans: Array<ContingencyPlan> = contingencyData?.map(plan => ({
+    id: plan.id,
     condition: plan.conditionText,
     action: plan.actionText,
-    priority: plan.priority as "low" | "medium" | "high",
+    priority: plan.priority,
     status: plan.status as "active" | "planned",
     submittedBy: plan.createdBy,
     submittedTime: new Date(plan.createdAt).toLocaleTimeString([], {
@@ -195,7 +200,7 @@ export function SituationAwareness({
   const canDeletePlans = assignedPhysician ? currentUser.name === assignedPhysician.name : false;
 
   // Handle situation documentation changes with real auto-save
-  const handleSituationChange = async (value: string) => {
+  const handleSituationChange = async (value: string): Promise<void> => {
     setCurrentSituation(value);
     setAutoSaveStatus("saving");
     if (onContentChange) {
@@ -206,6 +211,7 @@ export function SituationAwareness({
       await updateSituationMutation.mutateAsync({
         handoverId,
         content: value,
+        status: (situationData?.situationAwareness?.status as SituationAwarenessStatus) || "Draft",
       });
       setAutoSaveStatus("saved");
     } catch (error) {
@@ -214,8 +220,12 @@ export function SituationAwareness({
     }
   };
 
+  const onTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
+    void handleSituationChange(event.target.value);
+  };
+
   // Submit new contingency plan
-  const handleSubmitPlan = async () => {
+  const handleSubmitPlan = async (): Promise<void> => {
     if (!newPlan.condition || !newPlan.action) return;
 
     setIsSubmitting(true);
@@ -238,17 +248,13 @@ export function SituationAwareness({
   };
 
   // Delete contingency plan (only assigned physician can delete)
-  const handleDeletePlan = async (planId: number) => {
+  const handleDeletePlan = async (planId: string): Promise<void> => {
     if (!canDeletePlans) return;
-
-    // Find the plan in the API data to get the string ID
-    const planToDelete = contingencyData?.plans.find(p => (parseInt(p.id) || 0) === planId);
-    if (!planToDelete) return;
 
     try {
       await deleteContingencyMutation.mutateAsync({
         handoverId,
-        contingencyId: planToDelete.id,
+        contingencyId: planId,
       });
     } catch (error) {
       console.error("Failed to delete contingency plan:", error);
@@ -256,15 +262,15 @@ export function SituationAwareness({
   };
 
   // Handle keyboard shortcuts
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      handleSubmitPlan();
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      void handleSubmitPlan();
     }
   };
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK
-  const handleClick = () => {
+  const handleClick = (): void => {
 
     if (fullscreenMode) {
       // If in fullscreen, just start editing
@@ -279,7 +285,7 @@ export function SituationAwareness({
   };
 
   // Priority colors
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case "high":
         return "text-red-600 border-red-200";
@@ -293,7 +299,7 @@ export function SituationAwareness({
   };
 
   // Status badge styling
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string): string => {
     switch (status) {
       case "active":
         return "bg-emerald-50 text-emerald-700 border-emerald-200";
@@ -413,7 +419,8 @@ export function SituationAwareness({
                         lineHeight: "1.6",
                         background: "transparent !important",
                       }}
-                      onChange={(e) => { handleSituationChange(e.target.value); }}
+                       
+                      onChange={onTextareaChange}
                     />
                   </div>
                 </ScrollArea>
@@ -451,9 +458,10 @@ export function SituationAwareness({
               canEdit ? t("view.editAriaLabel") : undefined
             }
             onClick={handleClick}
-            onKeyDown={(e) => {
-              if ((e.key === "Enter" || e.key === " ") && canEdit) {
-                e.preventDefault();
+             
+            onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+              if ((event.key === "Enter" || event.key === " ") && canEdit) {
+                event.preventDefault();
                 handleClick();
               }
             }}
@@ -591,9 +599,9 @@ export function SituationAwareness({
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
                         size="sm"
                         variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeletePlan(plan.id);
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void handleDeletePlan(plan.id);
                         }}
                       >
                         <Trash2 className="w-3 h-3" />
@@ -682,8 +690,9 @@ export function SituationAwareness({
                           "contingencyPlanning.form.conditionPlaceholder",
                         )}
                         onKeyDown={handleKeyDown}
-                        onChange={(e) =>
-                          { setNewPlan({ ...newPlan, condition: e.target.value }); }
+                         
+                        onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                          { setNewPlan({ ...newPlan, condition: event.target.value }); }
                         }
                       />
                     </div>
@@ -704,8 +713,9 @@ export function SituationAwareness({
                           "contingencyPlanning.form.actionPlaceholder",
                         )}
                         onKeyDown={handleKeyDown}
-                        onChange={(e) =>
-                          { setNewPlan({ ...newPlan, action: e.target.value }); }
+                         
+                        onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                          { setNewPlan({ ...newPlan, action: event.target.value }); }
                         }
                       />
                     </div>
@@ -722,8 +732,8 @@ export function SituationAwareness({
                         disabled={isSubmitting}
                         id="plan-priority"
                         value={newPlan.priority}
-                        onChange={(e) =>
-                          { setNewPlan({ ...newPlan, priority: e.target.value }); }
+                        onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                          { setNewPlan({ ...newPlan, priority: event.target.value }); }
                         }
                       >
                         <option value="low">{t("priorities.low")}</option>
@@ -749,7 +759,7 @@ export function SituationAwareness({
                       disabled={
                         !newPlan.condition || !newPlan.action || isSubmitting
                       }
-                      onClick={handleSubmitPlan}
+                      onClick={() => { void handleSubmitPlan(); }}
                     >
                       {isSubmitting ? (
                         <>

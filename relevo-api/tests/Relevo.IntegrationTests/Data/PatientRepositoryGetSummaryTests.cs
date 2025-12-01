@@ -29,8 +29,8 @@ public class PatientRepositoryGetSummaryTests : BaseDapperRepoTestFixture
         var patientId = DapperTestSeeder.PatientId1;
         var userId = DapperTestSeeder.UserId;
 
-        // Get or create current handover for patient
-        var handoverId = await handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId);
+        // V3: Get current handover (should exist from seeder)
+        var handoverId = await handoverRepository.GetCurrentHandoverIdAsync(patientId);
         Assert.NotNull(handoverId);
 
         // Get summary from handover

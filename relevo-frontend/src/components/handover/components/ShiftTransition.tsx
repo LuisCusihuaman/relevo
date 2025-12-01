@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, UserPlus, CheckCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCreateHandover, usePendingHandovers, useAcceptHandover, useCompleteHandover } from "@/api";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 
 interface ShiftTransitionProps {
   currentUser: {
@@ -39,7 +39,7 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
   const acceptHandoverMutation = useAcceptHandover();
   const completeHandoverMutation = useCompleteHandover();
 
-  const handleInitiateHandover = () => {
+  const handleInitiateHandover = (): void => {
     if (!selectedPatient || !selectedDoctor) return;
 
     const targetDoctor = availableDoctors.find(d => d.id === selectedDoctor);
@@ -56,12 +56,12 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
     });
   };
 
-  const handleAcceptHandover = (handoverId: string) => {
-    acceptHandoverMutation.mutate({ handoverId, userId: currentUser.id });
+  const handleAcceptHandover = (handoverId: string): void => {
+    acceptHandoverMutation.mutate(handoverId);
   };
 
-  const handleCompleteHandover = (handoverId: string) => {
-    completeHandoverMutation.mutate({ handoverId, userId: currentUser.id });
+  const handleCompleteHandover = (handoverId: string): void => {
+    completeHandoverMutation.mutate(handoverId);
   };
 
   return (
@@ -117,12 +117,12 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
               {patients.map((patient) => (
                 <button
                   key={patient.id}
-                  onClick={() => setSelectedPatient(patient.id)}
                   className={`p-3 border rounded-lg text-left transition-colors ${
                     selectedPatient === patient.id
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
+                  onClick={() => { setSelectedPatient(patient.id); }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -151,12 +151,12 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
                 .map((doctor) => (
                 <button
                   key={doctor.id}
-                  onClick={() => setSelectedDoctor(doctor.id)}
                   className={`p-3 border rounded-lg text-left transition-colors ${
                     selectedDoctor === doctor.id
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
+                  onClick={() => { setSelectedDoctor(doctor.id); }}
                 >
                   <div className="flex items-center space-x-3">
                     <Avatar className="w-8 h-8">
@@ -177,9 +177,9 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
 
           {/* Initiate Button */}
           <Button
-            onClick={handleInitiateHandover}
-            disabled={!selectedPatient || !selectedDoctor || createHandoverMutation.isPending}
             className="w-full"
+            disabled={!selectedPatient || !selectedDoctor || createHandoverMutation.isPending}
+            onClick={handleInitiateHandover}
           >
             {createHandoverMutation.isPending ? t("creating") : t("initiateHandover.button")}
           </Button>
@@ -198,28 +198,28 @@ export function ShiftTransition({ currentUser, patients, availableDoctors }: Shi
               <div key={handover.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h4 className="font-medium">{handover.patientName || t("unknownPatient")}</h4>
+                    <h4 className="font-medium">{`Patient ${handover.patientId}`}</h4>
                     <p className="text-sm text-gray-600">{handover.shiftName}</p>
                   </div>
-                  <Badge variant={handover.status === "Active" ? "secondary" : "default"}>
-                    {handover.status}
+                  <Badge variant={handover.stateName === "Ready" ? "secondary" : "default"}>
+                    {handover.stateName}
                   </Badge>
                 </div>
                 <div className="flex space-x-2">
-                  {handover.status === "Active" && (
+                  {handover.stateName === "Ready" && (
                     <Button
-                      size="sm"
-                      onClick={() => handleAcceptHandover(handover.id)}
                       disabled={acceptHandoverMutation.isPending}
+                      size="sm"
+                      onClick={() => { handleAcceptHandover(handover.id); }}
                     >
                       {t("accept")}
                     </Button>
                   )}
-                  {handover.status === "InProgress" && (
+                  {(handover.stateName === "Accepted" || handover.stateName === "InProgress") && (
                     <Button
-                      size="sm"
-                      onClick={() => handleCompleteHandover(handover.id)}
                       disabled={completeHandoverMutation.isPending}
+                      size="sm"
+                      onClick={() => { handleCompleteHandover(handover.id); }}
                     >
                       {t("complete")}
                     </Button>

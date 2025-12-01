@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState, type JSX } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Brain,
@@ -12,7 +12,7 @@ import {
   User,
   Wifi,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+
 import { useTranslation } from "react-i18next";
 
 const severityLevelIds = ["stable", "guarded", "unstable", "critical"];
@@ -251,7 +251,7 @@ export function IllnessSeverity({
                     <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
                       <span className="flex items-center space-x-1">
                         <User className="w-3 h-3" />
-                        <span>{t("setBy", { user: assignedPhysician.initials })}</span>
+                        <span>{t("setBy", { user: assignedPhysician?.initials || 'Unknown' })}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <Clock className="w-3 h-3" />
@@ -274,8 +274,8 @@ export function IllnessSeverity({
               ? "changesSynced"
               : "onlyUserCanModify",
             {
-              user: assignedPhysician.initials,
-              role: assignedPhysician.role,
+              user: assignedPhysician?.initials || 'Unknown',
+              role: assignedPhysician?.role || 'Unknown',
             },
           )}
         </p>

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api, type createAuthenticatedApiCall } from "../client";
+import type { createAuthenticatedApiCall } from "../client";
 import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
 import type {
 	PaginatedPatientSummaryCards,
@@ -34,12 +34,18 @@ export const patientQueryKeys = {
 /**
  * Get all patients across all units
  */
-export async function getAllPatients(parameters?: {
-	page?: number;
-	pageSize?: number;
-}): Promise<PaginatedPatientSummaryCards> {
-	const { data } = await api.get<PaginatedPatientSummaryCards>("/patients", { params: parameters });
-	return data;
+export async function getAllPatients(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): Promise<PaginatedPatientSummaryCards> {
+	return authenticatedApiCall<PaginatedPatientSummaryCards>({
+		method: "GET",
+		url: "/patients",
+		params: parameters,
+	});
 }
 
 /**
@@ -62,23 +68,32 @@ export async function getAssignedPatients(
 /**
  * Get detailed information for a specific patient
  */
-export async function getPatientDetails(patientId: string): Promise<PatientDetail> {
-	const { data } = await api.get<PatientDetail>(`/patients/${patientId}`);
-	return data;
+export async function getPatientDetails(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
+	patientId: string
+): Promise<PatientDetail> {
+	return authenticatedApiCall<PatientDetail>({
+		method: "GET",
+		url: `/patients/${patientId}`,
+	});
 }
 
 /**
  * Get handover timeline for a specific patient
  */
 export async function getPatientHandoverTimeline(
+	authenticatedApiCall: ReturnType<typeof createAuthenticatedApiCall>,
 	patientId: string,
 	parameters?: {
 		page?: number;
 		pageSize?: number;
 	}
 ): Promise<PaginatedHandovers> {
-	const { data } = await api.get<PaginatedHandovers>(`/patients/${patientId}/handovers`, { params: parameters });
-	return data;
+	return authenticatedApiCall<PaginatedHandovers>({
+		method: "GET",
+		url: `/patients/${patientId}/handovers`,
+		params: parameters,
+	});
 }
 
 /**
@@ -131,9 +146,11 @@ export function useAllPatients(parameters?: {
 	page?: number;
 	pageSize?: number;
 }): ReturnType<typeof useQuery<PaginatedPatientSummaryCards | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useQuery({
 		queryKey: patientQueryKeys.allPatientsWithParams(parameters),
-		queryFn: () => getAllPatients(parameters),
+		queryFn: () => getAllPatients(authenticatedApiCall, parameters),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		select: (data: PaginatedPatientSummaryCards | undefined) => data,
@@ -162,9 +179,11 @@ export function useAssignedPatients(parameters?: {
  * Hook to get detailed information for a specific patient
  */
 export function usePatientDetails(patientId: string): ReturnType<typeof useQuery<PatientDetail | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useQuery({
 		queryKey: patientQueryKeys.detailsById(patientId),
-		queryFn: () => getPatientDetails(patientId),
+		queryFn: () => getPatientDetails(authenticatedApiCall, patientId),
 		enabled: !!patientId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
@@ -182,9 +201,11 @@ export function usePatientHandoverTimeline(
 		pageSize?: number;
 	}
 ): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
+	const { authenticatedApiCall } = useAuthenticatedApi();
+
 	return useQuery({
 		queryKey: patientQueryKeys.handoverTimelineById(patientId, parameters),
-		queryFn: () => getPatientHandoverTimeline(patientId, parameters),
+		queryFn: () => getPatientHandoverTimeline(authenticatedApiCall, patientId, parameters),
 		enabled: !!patientId,
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000, // 5 minutes

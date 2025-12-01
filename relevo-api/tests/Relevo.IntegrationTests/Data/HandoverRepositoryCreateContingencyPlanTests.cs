@@ -23,7 +23,7 @@ public class HandoverRepositoryCreateContingencyPlanTests : BaseDapperRepoTestFi
         var handoverId = DapperTestSeeder.HandoverId;
         var condition = "If Condition Met";
         var action = "Do Action";
-        var priority = "Medium";
+        var priority = "medium"; // V3: Must be lowercase per CHK_CONT_PRIORITY constraint
         var userId = DapperTestSeeder.UserId;
 
         var plan = await repository.CreateContingencyPlanAsync(handoverId, condition, action, priority, userId);
