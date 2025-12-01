@@ -1,6 +1,7 @@
 -- ========================================
 -- CREATE VIEWS
 -- ========================================
+-- Schema V3: Views for shift instances + windows model
 
 -- Connect as RELEVO_APP user
 CONNECT RELEVO_APP/TuPass123;
@@ -12,22 +13,22 @@ CREATE OR REPLACE VIEW VW_HANDOVERS_WITH_STATE AS
 SELECT
     h.ID,
     h.PATIENT_ID,
+    h.SHIFT_WINDOW_ID,
+    h.UNIT_ID,
     h.PREVIOUS_HANDOVER_ID,
-    h.FROM_SHIFT_ID,
-    h.TO_SHIFT_ID,
-    h.FROM_USER_ID,
-    h.TO_USER_ID,
-    h.WINDOW_START_AT,
-    h.WINDOW_END_AT,
+    h.SENDER_USER_ID,
+    h.RECEIVER_USER_ID,
+    h.CREATED_BY_USER_ID,
     h.CREATED_AT,
     h.UPDATED_AT,
     h.READY_AT,
+    h.READY_BY_USER_ID,
     h.STARTED_AT,
-    h.ACCEPTED_AT,
+    h.STARTED_BY_USER_ID,
     h.COMPLETED_AT,
+    h.COMPLETED_BY_USER_ID,
     h.CANCELLED_AT,
-    h.REJECTED_AT,
-    h.EXPIRED_AT,
-    h.REJECTION_REASON,
+    h.CANCELLED_BY_USER_ID,
+    h.CANCEL_REASON,
     h.CURRENT_STATE
 FROM HANDOVERS h;
