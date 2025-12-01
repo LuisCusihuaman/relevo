@@ -29,10 +29,16 @@ CREATE INDEX IX_SW_TO ON SHIFT_WINDOWS(TO_SHIFT_INSTANCE_ID);
 -- (From V3_PLAN.md section 3)
 
 -- Un solo primary por paciente+shift_instance (sin triggers)
+-- FIXED: Changed to use ID when IS_PRIMARY=0 to allow multiple non-primary coverages
+-- When IS_PRIMARY=1: uses constant 'PRIMARY' (allows only one per patient+shift_instance)
+-- When IS_PRIMARY=0: uses ID (unique per coverage, allows multiple)
 CREATE UNIQUE INDEX UQ_SC_PRIMARY_ACTIVE ON SHIFT_COVERAGE (
     PATIENT_ID,
     SHIFT_INSTANCE_ID,
-    CASE WHEN IS_PRIMARY=1 THEN 1 ELSE NULL END
+    CASE 
+        WHEN IS_PRIMARY = 1 THEN 'PRIMARY'
+        ELSE ID  -- Use coverage ID for non-primary, ensuring uniqueness
+    END
 );
 
 CREATE INDEX IX_SC_USER_SI ON SHIFT_COVERAGE(RESPONSIBLE_USER_ID, SHIFT_INSTANCE_ID);

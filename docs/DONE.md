@@ -57,6 +57,8 @@ CREATE TABLE USERS (
 ```
 
 > **Nota sobre usuario system:** Se recomienda crear un usuario especial `USERS.ID='system'` (o `'handover-bot'`) para representar acciones automáticas del sistema (ej: `AutoVoid_NoCoverage`). Este usuario se usa como `CANCELLED_BY_USER_ID` en cancelaciones automáticas, manteniendo auditoría completa sin permitir NULLs.
+>
+> ✅ **IMPLEMENTADO:** El usuario system existe en `04-seed-basic.sql` con `ID='system'`, `EMAIL='system@relevo.app'`, `FULL_NAME='System Bot'`, `ROLE='system'`.
 
 ---
 
@@ -138,10 +140,15 @@ CREATE TABLE SHIFT_COVERAGE (
 );
 
 -- Un solo primary por paciente+shift_instance (sin triggers)
+-- Implementación: usa constante 'PRIMARY' cuando IS_PRIMARY=1, ID cuando IS_PRIMARY=0
+-- Esto permite múltiples non-primary coverages mientras garantiza un solo primary
 CREATE UNIQUE INDEX UQ_SC_PRIMARY_ACTIVE ON SHIFT_COVERAGE (
   PATIENT_ID,
   SHIFT_INSTANCE_ID,
-  CASE WHEN IS_PRIMARY=1 THEN 1 ELSE NULL END
+  CASE 
+    WHEN IS_PRIMARY = 1 THEN 'PRIMARY'
+    ELSE ID  -- Use coverage ID for non-primary, ensuring uniqueness
+  END
 );
 
 CREATE INDEX IX_SC_USER_SI ON SHIFT_COVERAGE(RESPONSIBLE_USER_ID, SHIFT_INSTANCE_ID);
@@ -152,7 +159,9 @@ CREATE INDEX IX_SC_PRIMARY ON SHIFT_COVERAGE(PATIENT_ID, SHIFT_INSTANCE_ID, IS_P
 
 > **Nota:** El constraint `FK_SC_SI_UNIT` evita cruces de unidad (coverage apunta a shift_instance de otra unidad). Que `PATIENT_ID` sea de esa unidad sigue siendo mejor **app-enforced**, porque si mañana el paciente cambia de unidad, no querés que se rompa el historial.
 
-> **Nota sobre primary:** `IS_PRIMARY=1` identifica al responsable "primario" (el primero asignado). Regla de app: al insertar coverage, si no existe primary para (PATIENT_ID, SHIFT_INSTANCE_ID), setear `IS_PRIMARY=1`. Si el primary se desasigna (DELETE de la fila), la app debe promover al siguiente (el más antiguo por `ASSIGNED_AT`) y setear `IS_PRIMARY=1`. El índice `UQ_SC_PRIMARY_ACTIVE` garantiza un solo primary por paciente+shift_instance.
+> **Nota sobre primary:** `IS_PRIMARY=1` identifica al responsable "primario" (el primero asignado). Regla de app: al insertar coverage, si no existe primary para (PATIENT_ID, SHIFT_INSTANCE_ID), setear `IS_PRIMARY=1`. Si el primary se desasigna (DELETE de la fila), la app debe promover al siguiente (el más antiguo por `ASSIGNED_AT`) y setear `IS_PRIMARY=1`. El índice `UQ_SC_PRIMARY_ACTIVE` garantiza un solo primary por paciente+shift_instance usando una constante `'PRIMARY'` cuando `IS_PRIMARY=1`, y el `ID` del coverage cuando `IS_PRIMARY=0`. Esto permite múltiples non-primary coverages mientras mantiene la unicidad del primary.
+>
+> ✅ **IMPLEMENTADO:** La lógica de promoción de primary está implementada en `AssignmentRepository.RemoveCoverageWithPrimaryPromotionAsync()`. Cuando se elimina un coverage que es primary, se promueve automáticamente al siguiente coverage más antiguo (por `ASSIGNED_AT ASC`) y se setea `IS_PRIMARY=1`. Esta lógica se usa en `UnassignPatientAsync` y `AssignPatientsAsync` (cuando se remueve coverage existente).
 
 > **Nota sobre modelo "estado actual" vs "audit-friendly":** Este modelo es **"estado actual"** (MVP simple): cuando alguien se desasigna, se hace DELETE de la fila. Si en el futuro necesitás auditoría de reasignaciones dentro del mismo turno, podés agregar `STATUS` ('active'|'inactive') y `UNASSIGNED_AT`, pero entonces deberías cambiar `UQ_SC` por un índice único parcial que solo aplique a activos: `CREATE UNIQUE INDEX UQ_SC_ACTIVE ON SHIFT_COVERAGE(RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, CASE WHEN STATUS='active' THEN 1 ELSE NULL END);` y agregar `CONSTRAINT CHK_SC_UNASSIGNED CHECK ((STATUS='active' AND UNASSIGNED_AT IS NULL) OR (STATUS='inactive' AND UNASSIGNED_AT IS NOT NULL));`.
 
@@ -280,10 +289,16 @@ CREATE INDEX IX_HO_STARTED_BY ON HANDOVERS(STARTED_BY_USER_ID);
 > **Nota sobre READY_BY_USER_ID:** Campo de auditoría que registra quién marcó el handover como Ready. Los constraints `CHK_HO_RD_BY_REQ` y `CHK_HO_RD_BY_IMPLIES_RD_AT` aseguran consistencia simétrica con Start/Complete/Cancel (si hay `READY_AT` entonces hay `READY_BY_USER_ID`, y viceversa).
 
 > **Nota sobre selección del sender:** El sender es el **primary** del FROM shift (el primero asignado). Regla de app: al insertar coverage, si no existe primary para (PATIENT_ID, SHIFT_INSTANCE_ID), setear `IS_PRIMARY=1`. Si el primary se desasigna (DELETE de la fila), promover al siguiente (el más antiguo por `ASSIGNED_AT`) y setear `IS_PRIMARY=1`. Los constraints `CHK_HO_ST_BY_IMPLIES_ST_AT`, `CHK_HO_CO_BY_IMPLIES_CO_AT` y `CHK_HO_CAN_BY_IMPLIES_CAN_AT` aseguran consistencia: si hay `*_BY_USER_ID` entonces debe haber `*_AT` correspondiente (evita filas raras).
+>
+> ✅ **IMPLEMENTADO:** La selección del sender está implementada en:
+> - `HandoverRepository.CreateHandoverAsync()`: Selecciona el primary del FROM shift (o el primero por `ASSIGNED_AT` si no hay primary) y lo setea como `SENDER_USER_ID` al crear el handover.
+> - `HandoverRepository.MarkAsReadyAsync()`: Si `SENDER_USER_ID` no está seteado, lo selecciona del primary del FROM shift (o el primero por `ASSIGNED_AT`) antes de setear `READY_AT`. Valida que existe coverage >= 1 antes de permitir Ready.
 
 > **Nota sobre estados:** El estado máquina solo incluye estados **mecánicos**: Draft → Ready → InProgress → Completed → Cancelled. No hay estados "humanos" como Rejected o Expired. El rechazo verdadero (receptor se niega) se modela como **Cancel con `CANCEL_REASON='ReceiverRefused'`**. El rechazo blando (faltan cosas) se modela como **ReturnForChanges** (regla de app: vuelve a Draft limpiando `READY_AT`). El receiver-of-record se define al completar: `COMPLETED_BY_USER_ID` debe tener coverage en el TO shift (validación de app).
 
 > **Nota sobre cancelación por sistema:** Para cancelaciones automáticas (ej: `AutoVoid_NoCoverage`), se recomienda crear un usuario especial `USERS.ID='system'` (o `'handover-bot'`) y usar ese ID como `CANCELLED_BY_USER_ID`. Esto mantiene la auditoría completa sin permitir NULLs.
+>
+> ✅ **IMPLEMENTADO:** El usuario system existe y está disponible para cancelaciones automáticas. Ver nota en sección 1.
 
 ---
 
@@ -387,6 +402,10 @@ CREATE TABLE HANDOVER_MENTIONS (
 9. Regla core: **máximo 1 handover activo por paciente por ventana** (unicidad por `PATIENT_ID + SHIFT_WINDOW_ID`).
 
 10. No puede haber handover "en el aire": **no puede existir handover sin coverage** (si no hay responsables asignados, no debería crearse). **DB no puede forzar esta regla** sin triggers (requiere mirar otras filas), así que es **precondición del comando**. El comando que pasa a `Ready` debe hacer atómico: (1) verificar `SHIFT_COVERAGE` del `FROM_SHIFT_INSTANCE` → debe haber `>=1`, **elegir el primary** (o el primero por `ASSIGNED_AT` si no hay primary) como `SENDER_USER_ID`, (2) recién ahí setear `READY_AT`. El constraint `CHK_HO_READY_REQ_SENDER` garantiza que el sender esté seteado. **Importante:** La regla de selección del sender es "el primero que se asigna" (primary), estable y explicable ("figura como emisor porque fue el primero asignado en ese turno"). El receiver-of-record se define al completar: quien completa debe tener coverage en el TO shift (validación de app).
+>
+> ✅ **IMPLEMENTADO:** 
+> - `HandoverRepository.CreateHandoverAsync()`: Valida que existe coverage >= 1 antes de crear el handover. Si no existe, lanza `InvalidOperationException`. Selecciona el primary (o primero por `ASSIGNED_AT`) como `SENDER_USER_ID` al crear.
+> - `HandoverRepository.MarkAsReadyAsync()`: Valida coverage >= 1 antes de setear `READY_AT`. Si no existe coverage, retorna `false`. Selecciona el sender si no está seteado.
 
 11. "Coverage" significa: **"este doctor está a cargo de este paciente en este turno"**.
 
@@ -395,6 +414,8 @@ CREATE TABLE HANDOVER_MENTIONS (
 13. Para tu app, **solo una persona puede desasignar** (decisión de UX), aunque el modelo puede soportar múltiples.
 
 14. Los médicos **no crean handovers manualmente**: el handover se crea como **efecto secundario** de comandos del dominio (ej: asignar responsable / asegurar transición del día).
+>
+> ✅ **IMPLEMENTADO:** Los handovers se crean automáticamente mediante el evento de dominio `PatientAssignedToShiftEvent`. El handler `PatientAssignedToShiftHandler` crea handovers cuando se asignan pacientes a turnos. Ver `AUTO_HANDOVER_CREATION.md` para detalles.
 
 15. Regla de arquitectura: **un GET no debe crear** nada (evitar `GetOrCreate...` en lecturas).
 
@@ -411,6 +432,10 @@ CREATE TABLE HANDOVER_MENTIONS (
 21. **Ready** significa "listo para pasar" (semántica exacta aún no 100% cerrada, pero existe como etapa). Requiere que `SENDER_USER_ID` esté seteado (emisor responsable). El constraint `CHK_HO_READY_REQ_SENDER` lo garantiza. El receiver-of-record se define al completar.
 
 22. Para pasar a **InProgress**: cualquier usuario con coverage en el TO shift puede iniciar. **DB lo fuerza** con constraint: `STARTED_BY_USER_ID` NO puede ser el `SENDER_USER_ID` (mismo doctor no puede ser emisor y receptor). La validación de que quien start tiene coverage en TO shift es **app-enforced**.
+>
+> ✅ **IMPLEMENTADO:** `HandoverStateMachineHandlers.Handle(StartHandoverCommand)` valida: (1) que el usuario tiene coverage en el TO shift (`HasCoverageInToShiftAsync`), (2) que el usuario NO es el sender (verifica `SENDER_USER_ID`). Si alguna validación falla, retorna error. Si pasa, llama a `HandoverRepository.StartHandoverAsync()`.
+>
+> ✅ **IMPLEMENTADO:** `HandoverStateMachineHandlers.Handle(StartHandoverCommand)` valida: (1) que el usuario tiene coverage en el TO shift (`HasCoverageInToShiftAsync`), (2) que el usuario NO es el sender (verifica `SENDER_USER_ID`). Si alguna validación falla, retorna error. Si pasa, llama a `HandoverRepository.StartHandoverAsync()`.
 
 23. "InProgress" se interpreta como "**en la sala se empezó a tratar ese paciente**" (no como "hay gente conectada", porque presencia no se persiste).
 
@@ -419,6 +444,8 @@ CREATE TABLE HANDOVER_MENTIONS (
 25. **Cancelled**: puede cancelarse desde cualquier estado (incluso Draft). Si hay `CANCELLED_AT`, debe existir `CANCELLED_BY_USER_ID` y `CANCEL_REASON` (DB enforced). El `CANCEL_REASON` puede ser: `'AutoVoid_NoCoverage'`, `'Duplicate'`, `'ReceiverRefused'` (rechazo verdadero), u otros según reglas de negocio. Para cancelaciones automáticas (sistema), usar `CANCELLED_BY_USER_ID='system'` (usuario especial creado para este propósito). Los constraints `CHK_HO_CAN_AFTER_CR`, `CHK_HO_CAN_AFTER_RD` y `CHK_HO_CAN_AFTER_ST` garantizan que `CANCELLED_AT` es posterior a `CREATED_AT`, `READY_AT` y `STARTED_AT` (si existen).
 
 26. **ReturnForChanges** (rechazo blando): no es un estado, es una **regla de app**. Si estaba `Ready` y alguien "devuelve para cambios": `READY_AT = NULL` (vuelve a Draft). Ventaja: no agrega estado nuevo, no complica constraints.
+>
+> ✅ **IMPLEMENTADO:** `ReturnForChangesHandler` llama a `HandoverRepository.ReturnForChangesAsync()` que actualiza el handover: setea `READY_AT = NULL` y `READY_BY_USER_ID = NULL` solo si el handover está en estado `Ready` (tiene `READY_AT` no nulo) y no está completado ni cancelado. Esto efectivamente vuelve el handover a estado `Draft`.
 
 27. **ChangeReceiver**: cambio de receptor esperado. `RECEIVER_USER_ID` es opcional y puede actualizarse, pero no se usa como constraint fuerte. El receiver-of-record real es quien completa (`COMPLETED_BY_USER_ID`). No es un estado.
 
@@ -451,4 +478,89 @@ CREATE TABLE HANDOVER_MENTIONS (
 41. **Responsables:** `HANDOVERS.SENDER_USER_ID` identifica al emisor responsable único (primary del FROM shift, el primero asignado). El **receiver-of-record** es quien completa (`COMPLETED_BY_USER_ID`), no está fijado de antemano. `RECEIVER_USER_ID` es opcional (para referencia/UI) pero no se usa como constraint fuerte. Al pasar a `Ready`: se setea `SENDER_USER_ID` desde `SHIFT_COVERAGE` del `FROM_SHIFT_INSTANCE` (primary o primero por `ASSIGNED_AT`). Al iniciar/completar: quien start/complete debe tener coverage en el TO shift (validación de app). Los constraints `CHK_HO_STARTED_NE_SENDER` y `CHK_HO_COMPLETED_NE_SENDER` garantizan que el mismo doctor no puede ser emisor y receptor (DB enforced). Otros usuarios pueden colaborar/editando pero no son responsables.
 
 42. Regla encadenada: al completar, el receptor "toma" el pase y el próximo handover lo tendrá como emisor (conceptualmente; implementación por transiciones/turnos).
+
+---
+
+## 7) Estado de implementación
+
+> **Nota:** Esta sección documenta qué partes del plan V3 están implementadas en el código actual.
+
+### ✅ Implementado y verificado
+
+1. **Esquema de base de datos:** Todas las tablas, constraints, índices y vistas están implementadas en `relevo-api/src/Relevo.Infrastructure/Data/Sql/`:
+   - `01-tables.sql`: Todas las tablas base, shift instances/windows, coverage, handovers y contenido
+   - `02-indexes.sql`: Todos los índices incluyendo `UQ_SC_PRIMARY_ACTIVE` con la lógica correcta (usa `ID` cuando `IS_PRIMARY=0`)
+   - `03-views.sql`: Vista `VW_HANDOVERS_WITH_STATE` para compatibilidad con Dapper
+
+2. **Máquina de estados:** Implementada correctamente:
+   - Estados: `Draft` → `Ready` → `InProgress` → `Completed` (terminal: `Cancelled`)
+   - Columna virtual `CURRENT_STATE` calcula el estado desde timestamps
+   - Todos los constraints DB-enforced están implementados
+   - No hay estados `Accepted`, `Rejected`, `Expired` (como especifica V3_PLAN.md)
+
+3. **Selección de sender:** Implementada en:
+   - `HandoverRepository.CreateHandoverAsync()`: Selecciona primary (o primero por `ASSIGNED_AT`) al crear
+   - `HandoverRepository.MarkAsReadyAsync()`: Selecciona sender si no está seteado, valida coverage >= 1
+
+4. **Validación de coverage:** Implementada:
+   - No se puede crear handover sin coverage (lanza excepción)
+   - No se puede pasar a Ready sin coverage (retorna `false`)
+   - Validación atómica antes de setear `READY_AT`
+
+5. **Promoción de primary:** Implementada en `AssignmentRepository.RemoveCoverageWithPrimaryPromotionAsync()`:
+   - Cuando se elimina un coverage que es primary, promueve al siguiente (más antiguo por `ASSIGNED_AT`)
+   - Se usa en `UnassignPatientAsync` y `AssignPatientsAsync`
+
+6. **Transiciones de estado:** Implementadas en `HandoverStateMachineHandlers`:
+   - `StartHandoverCommand`: Valida coverage en TO shift, valida que no sea sender
+   - `CompleteHandoverCommand`: Valida coverage en TO shift, valida que no sea sender
+   - `RejectHandoverCommand`: Usa `CancelHandoverCommand` con `CANCEL_REASON='ReceiverRefused'`
+   - `CancelHandoverCommand`: Permite cancelar desde cualquier estado
+
+7. **ReturnForChanges:** Implementado en `ReturnForChangesHandler`:
+   - Limpia `READY_AT` y `READY_BY_USER_ID` (vuelve a Draft)
+   - Solo permite si está en estado `Ready` y no está completado/cancelado
+
+8. **Usuario system:** Existe en seed data (`04-seed-basic.sql`):
+   - `ID='system'`, `EMAIL='system@relevo.app'`, `FULL_NAME='System Bot'`, `ROLE='system'`
+   - Disponible para cancelaciones automáticas
+
+9. **Auto-creación de handovers:** Implementada mediante eventos de dominio:
+   - `PatientAssignedToShiftEvent` dispara creación automática
+   - `PatientAssignedToShiftHandler` crea handovers cuando se asignan pacientes
+   - Ver `AUTO_HANDOVER_CREATION.md` para detalles
+
+10. **Cálculo de shift instances:** Implementado en `ShiftInstanceCalculationService`:
+    - Maneja turnos nocturnos que cruzan medianoche (agrega 1 día)
+    - Soporta cualquier fecha base (aunque actualmente se usa `DateTime.Today` en producción)
+
+### ⚠️ Limitaciones conocidas
+
+1. **Fechas futuras:** La infraestructura existe (`ShiftInstanceCalculationService` acepta `baseDate`), pero el código de producción hardcodea `DateTime.Today`:
+   - `HandoverRepository.CreateHandoverAsync()` línea 235: `var today = DateTime.Today;`
+   - `AssignmentRepository.AssignPatientsAsync()` línea 92: `var today = DateTime.Today;`
+   - **Impacto:** No se pueden crear handovers o assignments para fechas futuras (solo hoy)
+   - **Nota:** Esto podría ser intencional para MVP, pero debería documentarse como limitación
+
+2. **Documentación desactualizada:** Algunos documentos no reflejan V3:
+   - `docs/HANDOVER-STATE-MODEL.md`: Describe estado machine antigua
+   - `docs/DATABASE.md`: Describe esquema antiguo con `ASSIGNMENTS`
+   - `docs/API_SCHEMA.md`: Falta documentar endpoints V3 (`/ready`, `/start`, etc.)
+
+### 📋 Pendiente (no crítico)
+
+1. **Tests de edge cases:**
+   - Test de promoción de primary cuando solo hay un coverage
+   - Test de promoción de primary cuando no quedan coverages
+   - Test de creación concurrente de handovers (race conditions)
+
+2. **Documentación:**
+   - Actualizar `docs/HANDOVER-STATE-MODEL.md` para reflejar V3
+   - Actualizar `docs/DATABASE.md` o marcarlo como deprecated
+   - Actualizar `docs/API_SCHEMA.md` con endpoints V3
+
+3. **Soporte de fechas futuras (si se requiere):**
+   - Actualizar `HandoverRepository` y `AssignmentRepository` para aceptar parámetro de fecha
+   - Actualizar endpoints para permitir fecha opcional
+   - Ver `docs/FUTURE_DATE_IMPLEMENTATION_ANALYSIS.md` para plan detallado
 

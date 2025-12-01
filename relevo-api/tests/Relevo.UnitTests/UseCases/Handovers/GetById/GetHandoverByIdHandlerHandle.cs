@@ -22,10 +22,12 @@ public class GetHandoverByIdHandlerHandle
     public async Task ReturnsHandoverGivenValidId()
     {
         var handoverId = "hvo-1";
-        var handover = new HandoverRecord(handoverId, "asn-1", "pat-1", "Test Patient", "Draft",
+        var handover = new HandoverRecord(
+            handoverId, "pat-1", "Test Patient", "Draft",
             "Stable", "Summary", null, null,
             "Day", "dr-1", "dr-2", null, null, null, "dr-1", "Dr. One",
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Draft", 1);
+            null, null, null, null, null, null, "Draft", 1,
+            null, null, null, null, null, null, null, null); // V3 fields
         
         var actionItems = new List<ActionItemRecord>
         {

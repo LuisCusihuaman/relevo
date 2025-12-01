@@ -30,7 +30,7 @@ public class CreatePatientSummaryHandlerHandle
             handoverId, patientId, userId, summaryText, DateTime.UtcNow, DateTime.UtcNow, userId
         );
 
-        _handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId)
+        _handoverRepository.GetCurrentHandoverIdAsync(patientId)
             .Returns(Task.FromResult<string?>(handoverId));
         _patientRepository.CreatePatientSummaryAsync(handoverId, summaryText, userId)
             .Returns(Task.FromResult(summaryRecord));

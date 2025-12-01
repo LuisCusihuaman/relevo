@@ -31,11 +31,10 @@ public class GetHandoverById(IMediator _mediator)
       Response = new GetHandoverByIdResponse
       {
         Id = handover.Id,
-        AssignmentId = handover.AssignmentId,
         PatientId = handover.PatientId,
-        PatientName = handover.PatientName,
+        PatientName = handover.PatientName ?? "",
         Status = handover.Status,
-        ResponsiblePhysicianId = handover.ResponsiblePhysicianId,
+        ResponsiblePhysicianId = handover.ResponsiblePhysicianId ?? "",
         ResponsiblePhysicianName = handover.ResponsiblePhysicianName ?? "",
         illnessSeverity = new GetHandoverByIdResponse.IllnessSeverityDto
         {
@@ -56,27 +55,26 @@ public class GetHandoverById(IMediator _mediator)
           description = a.Description,
           isCompleted = a.IsCompleted
         }).ToList(),
-        ShiftName = handover.ShiftName,
-        CreatedBy = handover.CreatedBy,
+        ShiftName = handover.ShiftName ?? "",
+        CreatedBy = handover.CreatedBy ?? "",
         AssignedTo = handover.AssignedTo ?? "",
-        ReceiverUserId = handover.ReceiverUserId,
+        ReceiverUserId = handover.ReceiverUserId ?? "",
         CreatedAt = handover.CreatedAt,
         ReadyAt = handover.ReadyAt,
         StartedAt = handover.StartedAt,
-        AcknowledgedAt = handover.AcknowledgedAt,
-        AcceptedAt = handover.AcceptedAt,
         CompletedAt = handover.CompletedAt,
         CancelledAt = handover.CancelledAt,
-        RejectedAt = handover.RejectedAt,
-        RejectionReason = handover.RejectionReason,
-        ExpiredAt = handover.ExpiredAt,
-        HandoverType = handover.HandoverType,
         HandoverWindowDate = handover.HandoverWindowDate?.ToString("yyyy-MM-ddTHH:mm:ss"),
-        FromShiftId = handover.FromShiftId,
-        ToShiftId = handover.ToShiftId,
-        ToDoctorId = handover.ToDoctorId,
         StateName = handover.StateName,
-        Version = handover.Version
+        Version = handover.Version,
+        ShiftWindowId = handover.ShiftWindowId,
+        PreviousHandoverId = handover.PreviousHandoverId,
+        SenderUserId = handover.SenderUserId,
+        ReadyByUserId = handover.ReadyByUserId,
+        StartedByUserId = handover.StartedByUserId,
+        CompletedByUserId = handover.CompletedByUserId,
+        CancelledByUserId = handover.CancelledByUserId,
+        CancelReason = handover.CancelReason
       };
       await SendAsync(Response, cancellation: ct);
     }
@@ -91,7 +89,6 @@ public class GetHandoverByIdRequest
 public class GetHandoverByIdResponse
 {
   public string Id { get; set; } = string.Empty;
-  public string AssignmentId { get; set; } = string.Empty;
   public string PatientId { get; set; } = string.Empty;
   public string? PatientName { get; set; }
   public string Status { get; set; } = string.Empty;
@@ -108,21 +105,21 @@ public class GetHandoverByIdResponse
   public string? CreatedAt { get; set; }
   public string? ReadyAt { get; set; }
   public string? StartedAt { get; set; }
-  public string? AcknowledgedAt { get; set; }
-  public string? AcceptedAt { get; set; }
   public string? CompletedAt { get; set; }
   public string? CancelledAt { get; set; }
-  public string? RejectedAt { get; set; }
-  public string? RejectionReason { get; set; }
-  public string? ExpiredAt { get; set; }
-  public string? HandoverType { get; set; }
   public string? HandoverWindowDate { get; set; }
-  public string? FromShiftId { get; set; }
-  public string? ToShiftId { get; set; }
-  public string? ToDoctorId { get; set; }
   public string StateName { get; set; } = string.Empty;
   public int Version { get; set; }
   public List<ActionItemDto> actionItems { get; set; } = new();
+  // V3 Fields
+  public string? ShiftWindowId { get; set; }
+  public string? PreviousHandoverId { get; set; }
+  public string? SenderUserId { get; set; }
+  public string? ReadyByUserId { get; set; }
+  public string? StartedByUserId { get; set; }
+  public string? CompletedByUserId { get; set; }
+  public string? CancelledByUserId { get; set; }
+  public string? CancelReason { get; set; }
 
   public class IllnessSeverityDto
   {

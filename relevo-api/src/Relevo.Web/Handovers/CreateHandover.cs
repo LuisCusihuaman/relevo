@@ -46,13 +46,16 @@ public class CreateHandover(IMediator _mediator, ICurrentUser _currentUser)
         PatientId = handover.PatientId,
         PatientName = handover.PatientName,
         Status = handover.Status,
-        FromDoctorId = req.FromDoctorId,
-        ToDoctorId = req.ToDoctorId,
-        FromShiftId = req.FromShiftId,
-        ToShiftId = req.ToShiftId,
-        CreatedAt = handover.CreatedAt
+        CreatedAt = handover.CreatedAt,
+        ShiftWindowId = handover.ShiftWindowId
       };
       await SendAsync(Response, cancellation: ct);
+    }
+    else
+    {
+      var errorMessage = result.Errors.FirstOrDefault() ?? "Failed to create handover";
+      AddError(errorMessage);
+      await SendErrorsAsync(statusCode: 400, ct);
     }
   }
 }
@@ -74,10 +77,7 @@ public class CreateHandoverResponse
   public string PatientId { get; set; } = string.Empty;
   public string? PatientName { get; set; }
   public string Status { get; set; } = string.Empty;
-  public string FromDoctorId { get; set; } = string.Empty;
-  public string ToDoctorId { get; set; } = string.Empty;
-  public string FromShiftId { get; set; } = string.Empty;
-  public string ToShiftId { get; set; } = string.Empty;
   public string? CreatedAt { get; set; }
+  public string? ShiftWindowId { get; set; }
 }
 

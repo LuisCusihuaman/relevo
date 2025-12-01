@@ -14,11 +14,6 @@ public class GetHandoverSynthesisHandler(IHandoverRepository _repository)
 
     if (synthesis == null)
     {
-        // In legacy, it created a default if missing. 
-        // Repository implementation should handle this or we handle it here.
-        // Legacy repo implementation creates it. 
-        // If our new repo implementation mimics legacy, it will return a record.
-        // If not found (e.g. invalid handover ID), we return NotFound.
         return Result.NotFound();
     }
 

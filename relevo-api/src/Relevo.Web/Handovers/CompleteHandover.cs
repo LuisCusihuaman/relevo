@@ -24,7 +24,7 @@ public class CompleteHandover(IMediator _mediator, ICurrentUser _currentUser)
       await SendOkAsync(ct);
     else
     {
-      AddError("Cannot complete handover: state machine constraint violated. Handover must be accepted before completing.");
+      AddError(result.Errors.FirstOrDefault() ?? "Cannot complete handover: state machine constraint violated.");
       await SendErrorsAsync(statusCode: 400, ct);
     }
   }

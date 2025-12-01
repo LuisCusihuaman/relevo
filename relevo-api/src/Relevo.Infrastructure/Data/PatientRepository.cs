@@ -84,27 +84,20 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
       return (patients.ToList(), total);
     }
 
-    public Task<PatientSummaryRecord?> GetPatientSummaryAsync(string patientId)
-    {
-        // PATIENT_SUMMARIES table removed - patient summary now comes from latest handover
-        // This method should be called with handoverId, not patientId
-        // Keeping for backward compatibility but will return null
-        // Use GetPatientSummaryFromHandoverAsync instead
-        return Task.FromResult<PatientSummaryRecord?>(null);
-    }
 
     public async Task<PatientSummaryRecord?> GetPatientSummaryFromHandoverAsync(string handoverId)
     {
         using var conn = _connectionFactory.CreateConnection();
+        // V3 Schema: Uses SENDER_USER_ID, CREATED_BY_USER_ID
         const string sql = @"
             SELECT 
                 hc.HANDOVER_ID as Id,
                 h.PATIENT_ID as PatientId,
-                h.FROM_USER_ID as PhysicianId,
+                COALESCE(h.SENDER_USER_ID, h.CREATED_BY_USER_ID) as PhysicianId, -- V3: SENDER_USER_ID or CREATED_BY_USER_ID
                 NVL(hc.PATIENT_SUMMARY, '') as SummaryText,
                 h.CREATED_AT as CreatedAt,
                 hc.UPDATED_AT as UpdatedAt,
-                NVL(hc.LAST_EDITED_BY, h.FROM_USER_ID) as LastEditedBy
+                NVL(hc.LAST_EDITED_BY, COALESCE(h.SENDER_USER_ID, h.CREATED_BY_USER_ID)) as LastEditedBy -- V3: SENDER_USER_ID or CREATED_BY_USER_ID
             FROM HANDOVER_CONTENTS hc
             JOIN HANDOVERS h ON hc.HANDOVER_ID = h.ID
             WHERE hc.HANDOVER_ID = :HandoverId";
@@ -131,9 +124,9 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                         'Stable', NULL, NULL, 'Draft', 'Draft')",
             new { handoverId, summaryText, createdBy });
 
-        // Fetch created/updated record
+        // Fetch created/updated record - V3 Schema: Uses CREATED_BY_USER_ID or SENDER_USER_ID
         var handover = await conn.QueryFirstOrDefaultAsync<dynamic>(
-            "SELECT PATIENT_ID, FROM_USER_ID, CREATED_AT FROM HANDOVERS WHERE ID = :handoverId",
+            "SELECT PATIENT_ID, CREATED_BY_USER_ID, SENDER_USER_ID, CREATED_AT FROM HANDOVERS WHERE ID = :handoverId",
             new { handoverId });
 
         if (handover == null)
@@ -141,10 +134,13 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
             throw new InvalidOperationException($"Handover {handoverId} not found after creation");
         }
 
+        // V3: Use SENDER_USER_ID if available, otherwise CREATED_BY_USER_ID
+        var physicianId = (string?)handover.SENDER_USER_ID ?? (string?)handover.CREATED_BY_USER_ID ?? createdBy;
+
         return new PatientSummaryRecord(
             handoverId,
             (string)handover.PATIENT_ID,
-            (string)handover.FROM_USER_ID,
+            physicianId,
             summaryText,
             ((DateTime)handover.CREATED_AT).ToUniversalTime(),
             DateTime.UtcNow,
@@ -176,8 +172,8 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     public async Task<IReadOnlyList<PatientActionItemRecord>> GetPatientActionItemsAsync(string patientId)
     {
         using var conn = _connectionFactory.CreateConnection();
-        // Query to join action items with handovers to filter by patient
-        // Updated schema: HANDOVER_ACTION_ITEMS (HANDOVER_ID) -> HANDOVERS (ID, PATIENT_ID, FROM_USER_ID, FROM_SHIFT_ID)
+        // V3 Schema: Uses SHIFT_WINDOW_ID, SENDER_USER_ID, CREATED_BY_USER_ID
+        // Get shift name from SHIFT_WINDOWS -> SHIFT_INSTANCES -> SHIFTS
         const string sql = @"
             SELECT 
                 ai.ID,
@@ -185,11 +181,13 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                 ai.DESCRIPTION,
                 ai.IS_COMPLETED as IsCompleted,
                 ai.CREATED_AT as CreatedAt,
-                h.FROM_USER_ID as CreatedBy, -- Column renamed
-                s.NAME as ShiftName -- Join SHIFTS table
+                COALESCE(h.SENDER_USER_ID, h.CREATED_BY_USER_ID) as CreatedBy, -- V3: SENDER_USER_ID or CREATED_BY_USER_ID
+                s_from.NAME as ShiftName -- V3: From shift name via SHIFT_WINDOWS
             FROM HANDOVER_ACTION_ITEMS ai
             JOIN HANDOVERS h ON ai.HANDOVER_ID = h.ID
-            LEFT JOIN SHIFTS s ON h.FROM_SHIFT_ID = s.ID -- For ShiftName
+            LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID -- V3: Join SHIFT_WINDOWS
+            LEFT JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID -- V3: From shift instance
+            LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
             WHERE h.PATIENT_ID = :PatientId
             ORDER BY ai.CREATED_AT DESC";
 

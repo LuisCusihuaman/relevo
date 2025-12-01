@@ -5,6 +5,21 @@ using System.Data;
 
 namespace Relevo.FunctionalTests;
 
+/// <summary>
+/// Seeds test data for functional tests.
+/// 
+/// IMPORTANT USAGE GUIDELINES:
+/// - IDs de referencia (UnitId, ShiftDayId, ShiftNightId, PatientId1, PatientId2): 
+///   Pueden usarse para crear nuevos handovers o como datos de referencia.
+/// 
+/// - HandoverId seeded: Intended for READ-ONLY tests (GET operations).
+///   Tests that MODIFY the handover (POST/PUT/DELETE state changes) should create 
+///   their own unique handovers to avoid race conditions and state conflicts.
+///   See HandoverLifecycleTests.CreateHandoverWithCoverageForTest() for pattern.
+/// 
+/// - The seeder runs once when the test host is created, not before each test.
+///   This means tests share the same seeded data within a test run.
+/// </summary>
 public class DapperTestSeeder(IConfiguration configuration)
 {
     // Unique prefix for this test run to avoid conflicts with parallel tests
@@ -19,13 +34,9 @@ public class DapperTestSeeder(IConfiguration configuration)
     public static string PatientId1 => $"pat-001-{TestRunId}";
     public static string PatientId2 => $"pat-002-{TestRunId}";
     public static string UserId => $"dr-{TestRunId}";
-    public static string AssignmentId => $"asn-{TestRunId}";
     public static string HandoverId => $"hvo-{TestRunId}";
     public static string ActionItemId => $"item-{TestRunId}";
-    public static string SummaryId => $"sum-{TestRunId}";
     public static string ContingencyPlanId => $"plan-{TestRunId}";
-    public static string ActivityLogId => $"act-{TestRunId}";
-    public static string ChecklistItemId => $"chk-{TestRunId}";
     public static string MessageId => $"msg-{TestRunId}";
 
     public void Seed()
@@ -40,10 +51,18 @@ public class DapperTestSeeder(IConfiguration configuration)
     private void SeedTestData(IDbConnection connection)
     {
         // Insert hardcoded 'dr-1' user for API endpoints (they use this hardcoded ID)
+        // This is the receiver who will start/complete handovers
         try {
             connection.Execute(@"
                 INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME)
                 VALUES ('dr-1', 'dr-1@example.com', 'Doctor', 'One', 'Dr. One')");
+        } catch (OracleException e) when (e.Number == 1) {} // Unique constraint
+
+        // Insert 'dr-sender' user as the sender (different from receiver)
+        try {
+            connection.Execute(@"
+                INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME)
+                VALUES ('dr-sender', 'dr-sender@example.com', 'Doctor', 'Sender', 'Dr. Sender')");
         } catch (OracleException e) when (e.Number == 1) {} // Unique constraint
 
         // Insert test user
@@ -131,50 +150,174 @@ public class DapperTestSeeder(IConfiguration configuration)
                 new { Id = PatientId2, Name = $"Patient2-{TestRunId}", UnitId = UnitId, DateOfBirth = new DateTime(2012, 5, 15), Gender = "Male", AdmissionDate = DateTime.Now.AddDays(-1), RoomNumber = "201", Diagnosis = "Test Diagnosis 2" });
         } catch (OracleException e) when (e.Number == 1) {}
 
-        // Insert test assignment - use MERGE to make it idempotent
+        // V3: Create SHIFT_INSTANCES first, then SHIFT_COVERAGE (replaces USER_ASSIGNMENTS)
+        // Create shift instances for today
+        var today = DateTime.Today;
+        var fromShiftStartAt = today.AddHours(7); // 07:00
+        var fromShiftEndAt = today.AddHours(15); // 15:00
+        var toShiftStartAt = today.AddHours(19); // 19:00
+        var toShiftEndAt = today.AddDays(1).AddHours(7); // 07:00 next day
+
+        string fromShiftInstanceId;
+        string toShiftInstanceId;
+        
+        // Create FROM shift instance
         try {
+            fromShiftInstanceId = $"si-from-{TestRunId}";
             connection.Execute(@"
-                MERGE INTO USER_ASSIGNMENTS ua
-                USING (SELECT :Id AS ASSIGNMENT_ID FROM DUAL) src ON (ua.ASSIGNMENT_ID = src.ASSIGNMENT_ID)
+                MERGE INTO SHIFT_INSTANCES si
+                USING (SELECT :Id AS ID FROM DUAL) src ON (si.ID = src.ID)
                 WHEN NOT MATCHED THEN
-                    INSERT (ASSIGNMENT_ID, USER_ID, SHIFT_ID, PATIENT_ID, ASSIGNED_AT)
-                    VALUES (:Id, :UserId, :ShiftId, :PatientId, LOCALTIMESTAMP)
+                    INSERT (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT, CREATED_AT, UPDATED_AT)
+                    VALUES (:Id, :UnitId, :ShiftId, :StartAt, :EndAt, LOCALTIMESTAMP, LOCALTIMESTAMP)
+                WHEN MATCHED THEN
+                    UPDATE SET UPDATED_AT = LOCALTIMESTAMP",
+                new { Id = fromShiftInstanceId, UnitId = UnitId, ShiftId = ShiftDayId, StartAt = fromShiftStartAt, EndAt = fromShiftEndAt });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Get existing if already created
+            fromShiftInstanceId = connection.ExecuteScalar<string>(
+                "SELECT ID FROM SHIFT_INSTANCES WHERE UNIT_ID = :UnitId AND SHIFT_ID = :ShiftId AND START_AT = :StartAt",
+                new { UnitId = UnitId, ShiftId = ShiftDayId, StartAt = fromShiftStartAt }) ?? $"si-from-{TestRunId}";
+        }
+
+        // Create TO shift instance
+        try {
+            toShiftInstanceId = $"si-to-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_INSTANCES si
+                USING (SELECT :Id AS ID FROM DUAL) src ON (si.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT, CREATED_AT, UPDATED_AT)
+                    VALUES (:Id, :UnitId, :ShiftId, :StartAt, :EndAt, LOCALTIMESTAMP, LOCALTIMESTAMP)
+                WHEN MATCHED THEN
+                    UPDATE SET UPDATED_AT = LOCALTIMESTAMP",
+                new { Id = toShiftInstanceId, UnitId = UnitId, ShiftId = ShiftNightId, StartAt = toShiftStartAt, EndAt = toShiftEndAt });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Get existing if already created
+            toShiftInstanceId = connection.ExecuteScalar<string>(
+                "SELECT ID FROM SHIFT_INSTANCES WHERE UNIT_ID = :UnitId AND SHIFT_ID = :ShiftId AND START_AT = :StartAt",
+                new { UnitId = UnitId, ShiftId = ShiftNightId, StartAt = toShiftStartAt }) ?? $"si-to-{TestRunId}";
+        }
+
+        // V3: Create SHIFT_WINDOW
+        string shiftWindowId;
+        try {
+            shiftWindowId = $"sw-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_WINDOWS sw
+                USING (SELECT :Id AS ID FROM DUAL) src ON (sw.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID, CREATED_AT, UPDATED_AT)
+                    VALUES (:Id, :UnitId, :FromShiftInstanceId, :ToShiftInstanceId, LOCALTIMESTAMP, LOCALTIMESTAMP)
+                WHEN MATCHED THEN
+                    UPDATE SET UPDATED_AT = LOCALTIMESTAMP",
+                new { Id = shiftWindowId, UnitId = UnitId, FromShiftInstanceId = fromShiftInstanceId, ToShiftInstanceId = toShiftInstanceId });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Get existing if already created
+            shiftWindowId = connection.ExecuteScalar<string>(
+                "SELECT ID FROM SHIFT_WINDOWS WHERE FROM_SHIFT_INSTANCE_ID = :FromShiftInstanceId AND TO_SHIFT_INSTANCE_ID = :ToShiftInstanceId",
+                new { FromShiftInstanceId = fromShiftInstanceId, ToShiftInstanceId = toShiftInstanceId }) ?? $"sw-{TestRunId}";
+        }
+
+        // V3: Create SHIFT_COVERAGE (replaces USER_ASSIGNMENTS) for both patients
+        try {
+            var coverageId1 = $"sc-1-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_COVERAGE sc
+                USING (SELECT :Id AS ID FROM DUAL) src ON (sc.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, ASSIGNED_AT, IS_PRIMARY)
+                    VALUES (:Id, :UserId, :PatientId, :ShiftInstanceId, :UnitId, LOCALTIMESTAMP, 1)
                 WHEN MATCHED THEN
                     UPDATE SET ASSIGNED_AT = LOCALTIMESTAMP",
-                new { Id = AssignmentId, UserId = UserId, ShiftId = ShiftDayId, PatientId = PatientId1 });
+                new { Id = coverageId1, UserId = "dr-sender", PatientId = PatientId1, ShiftInstanceId = fromShiftInstanceId, UnitId = UnitId });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
             // Unique constraint or foreign key - ignore if already exists or dependency missing
         }
 
-        // Insert test handover (new schema: no STATUS, ASSIGNMENT_ID, SHIFT_NAME, CREATED_BY, RESPONSIBLE_PHYSICIAN_ID, HANDOVER_TYPE)
-        // Use MERGE to make it idempotent - will update if exists, insert if not
-        // When updating, reset state to Draft by clearing all state timestamps
-        // Note: UQ_HO_ACTIVE_WINDOW unique constraint prevents multiple active handovers for same patient/window/shift
+        // Also create coverage for PatientId2
         try {
-            var rowsAffected = connection.Execute(@"
+            var coverageId2 = $"sc-2-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_COVERAGE sc
+                USING (SELECT :Id AS ID FROM DUAL) src ON (sc.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, ASSIGNED_AT, IS_PRIMARY)
+                    VALUES (:Id, :UserId, :PatientId, :ShiftInstanceId, :UnitId, LOCALTIMESTAMP, 1)
+                WHEN MATCHED THEN
+                    UPDATE SET ASSIGNED_AT = LOCALTIMESTAMP",
+                new { Id = coverageId2, UserId = "dr-sender", PatientId = PatientId2, ShiftInstanceId = fromShiftInstanceId, UnitId = UnitId });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Unique constraint or foreign key - ignore if already exists or dependency missing
+        }
+
+        // V3: Create coverage in TO shift for PatientId1 (needed for Start and Complete operations)
+        // Use "dr-1" as the receiver (the authenticated client user)
+        try {
+            var coverageToId1 = $"sc-to-1-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_COVERAGE sc
+                USING (SELECT :Id AS ID FROM DUAL) src ON (sc.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, ASSIGNED_AT, IS_PRIMARY)
+                    VALUES (:Id, :UserId, :PatientId, :ShiftInstanceId, :UnitId, LOCALTIMESTAMP, 0)
+                WHEN MATCHED THEN
+                    UPDATE SET ASSIGNED_AT = LOCALTIMESTAMP",
+                new { Id = coverageToId1, UserId = "dr-1", PatientId = PatientId1, ShiftInstanceId = toShiftInstanceId, UnitId = UnitId });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Unique constraint or foreign key - ignore if already exists or dependency missing
+        }
+
+        // V3: Create coverage in TO shift for PatientId2
+        try {
+            var coverageToId2 = $"sc-to-2-{TestRunId}";
+            connection.Execute(@"
+                MERGE INTO SHIFT_COVERAGE sc
+                USING (SELECT :Id AS ID FROM DUAL) src ON (sc.ID = src.ID)
+                WHEN NOT MATCHED THEN
+                    INSERT (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, ASSIGNED_AT, IS_PRIMARY)
+                    VALUES (:Id, :UserId, :PatientId, :ShiftInstanceId, :UnitId, LOCALTIMESTAMP, 0)
+                WHEN MATCHED THEN
+                    UPDATE SET ASSIGNED_AT = LOCALTIMESTAMP",
+                new { Id = coverageToId2, UserId = "dr-1", PatientId = PatientId2, ShiftInstanceId = toShiftInstanceId, UnitId = UnitId });
+        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
+            // Unique constraint or foreign key - ignore if already exists or dependency missing
+        }
+
+        // V3: Insert test handover using SHIFT_WINDOW_ID
+        // IMPORTANT: This handover is intended for READ-ONLY tests (GET operations) and summary tests.
+        // Tests that MODIFY the handover (POST/PUT/DELETE state changes) should create their own unique handovers
+        // to avoid race conditions and state conflicts.
+        // Use MERGE to make it idempotent - will insert if not exists, reset to Draft if exists.
+        // Note: UQ_HO_PAT_WINDOW unique constraint prevents multiple active handovers for same patient+window
+        // Note: CURRENT_STATE is virtual, calculated from timestamps. Reset all timestamps to ensure Draft state.
+        try {
+            connection.Execute(@"
                 MERGE INTO HANDOVERS h
                 USING (SELECT :Id AS ID FROM DUAL) src ON (h.ID = src.ID)
                 WHEN NOT MATCHED THEN
-                    INSERT (ID, PATIENT_ID, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_USER_ID, TO_USER_ID, WINDOW_START_AT, CREATED_AT, UPDATED_AT)
-                    VALUES (:Id, :PatientId, :FromShiftId, :ToShiftId, :FromUserId, :ToUserId, LOCALTIMESTAMP, LOCALTIMESTAMP, LOCALTIMESTAMP)
+                    INSERT (ID, PATIENT_ID, SHIFT_WINDOW_ID, UNIT_ID, SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID, CREATED_AT, UPDATED_AT)
+                    VALUES (:Id, :PatientId, :ShiftWindowId, :UnitId, :SenderUserId, :ReceiverUserId, :CreatedByUserId, LOCALTIMESTAMP, LOCALTIMESTAMP)
                 WHEN MATCHED THEN
                     UPDATE SET 
                         UPDATED_AT = LOCALTIMESTAMP,
                         READY_AT = NULL,
+                        READY_BY_USER_ID = NULL,
                         STARTED_AT = NULL,
-                        ACCEPTED_AT = NULL,
+                        STARTED_BY_USER_ID = NULL,
                         COMPLETED_AT = NULL,
+                        COMPLETED_BY_USER_ID = NULL,
                         CANCELLED_AT = NULL,
-                        REJECTED_AT = NULL,
-                        EXPIRED_AT = NULL,
-                        REJECTION_REASON = NULL",
+                        CANCELLED_BY_USER_ID = NULL,
+                        CANCEL_REASON = NULL",
                 new { 
                     Id = HandoverId, 
                     PatientId = PatientId1, 
-                    FromShiftId = ShiftDayId,
-                    ToShiftId = ShiftNightId,
-                    FromUserId = UserId,
-                    ToUserId = UserId
+                    ShiftWindowId = shiftWindowId,
+                    UnitId = UnitId,
+                    SenderUserId = "dr-sender", // Use dr-sender as sender (different from receiver who will start/complete)
+                    ReceiverUserId = "dr-1", // Receiver is dr-1 (the authenticated client)
+                    CreatedByUserId = "dr-1"
                 });
             
             // Verify handover was created/updated successfully
@@ -184,65 +327,15 @@ public class DapperTestSeeder(IConfiguration configuration)
             
             if (!handoverExists)
             {
-                throw new InvalidOperationException($"Failed to create handover {HandoverId} - handover does not exist after MERGE");
+                throw new InvalidOperationException($"Failed to create handover {HandoverId} - handover does not exist after MERGE. Check dependencies (shift window, shift instances).");
             }
         } catch (OracleException e) when (e.Number == 1) {
-            // Unique constraint violation (UQ_HO_ACTIVE_WINDOW) - another active handover exists for same patient/window/shift
-            // This can happen if a previous test run left an active handover. Cancel the existing one and retry.
-            var existingHandoverId = connection.ExecuteScalar<string>(
-                @"SELECT ID FROM HANDOVERS 
-                  WHERE PATIENT_ID = :PatientId 
-                    AND FROM_SHIFT_ID = :FromShiftId 
-                    AND TO_SHIFT_ID = :ToShiftId
-                    AND COMPLETED_AT IS NULL
-                    AND CANCELLED_AT IS NULL
-                    AND REJECTED_AT IS NULL
-                    AND EXPIRED_AT IS NULL
-                    AND ROWNUM = 1",
-                new { PatientId = PatientId1, FromShiftId = ShiftDayId, ToShiftId = ShiftNightId });
-            
-            if (existingHandoverId != null)
-            {
-                // Cancel the existing handover to make it inactive (no longer violates unique constraint)
-                connection.Execute(@"
-                    UPDATE HANDOVERS SET 
-                        CANCELLED_AT = LOCALTIMESTAMP,
-                        UPDATED_AT = LOCALTIMESTAMP
-                    WHERE ID = :Id",
-                    new { Id = existingHandoverId });
-                
-                // Now retry the MERGE
-                connection.Execute(@"
-                    MERGE INTO HANDOVERS h
-                    USING (SELECT :Id AS ID FROM DUAL) src ON (h.ID = src.ID)
-                    WHEN NOT MATCHED THEN
-                        INSERT (ID, PATIENT_ID, FROM_SHIFT_ID, TO_SHIFT_ID, FROM_USER_ID, TO_USER_ID, WINDOW_START_AT, CREATED_AT, UPDATED_AT)
-                        VALUES (:Id, :PatientId, :FromShiftId, :ToShiftId, :FromUserId, :ToUserId, LOCALTIMESTAMP, LOCALTIMESTAMP, LOCALTIMESTAMP)
-                    WHEN MATCHED THEN
-                        UPDATE SET 
-                            UPDATED_AT = LOCALTIMESTAMP,
-                            READY_AT = NULL,
-                            STARTED_AT = NULL,
-                            ACCEPTED_AT = NULL,
-                            COMPLETED_AT = NULL,
-                            CANCELLED_AT = NULL,
-                            REJECTED_AT = NULL,
-                            EXPIRED_AT = NULL,
-                            REJECTION_REASON = NULL",
-                    new { 
-                        Id = HandoverId, 
-                        PatientId = PatientId1, 
-                        FromShiftId = ShiftDayId,
-                        ToShiftId = ShiftNightId,
-                        FromUserId = UserId,
-                        ToUserId = UserId
-                    });
-            }
-            // If we can't find an existing handover, the constraint violation is unexpected - let it propagate
+            // Unique constraint (UQ_HO_PAT_WINDOW) - another active handover exists for same patient+window
+            // This can happen if a previous test run left an active handover
+            // The handover may already exist, which is OK for idempotent seeding
         } catch (OracleException e) when (e.Number == 2291) {
-            // Foreign key constraint violation - log but don't fail
-            // This means a dependency doesn't exist, which shouldn't happen if seeding order is correct
-            throw new InvalidOperationException($"Failed to create handover {HandoverId} due to foreign key constraint: {e.Message}", e);
+            // Foreign key constraint violation - a dependency doesn't exist
+            throw new InvalidOperationException($"Failed to create handover {HandoverId} due to foreign key constraint. Ensure shift window {shiftWindowId} and dependencies exist. Error: {e.Message}", e);
         }
 
         // Insert test handover contents (merged table replaces HANDOVER_PATIENT_DATA, HANDOVER_SYNTHESIS, HANDOVER_SITUATION_AWARENESS)
@@ -301,42 +394,17 @@ public class DapperTestSeeder(IConfiguration configuration)
                     HandoverId = HandoverId,
                     ConditionText = "If BP drops below 90/60",
                     ActionText = "Administer fluids",
-                    Priority = "High",
+                    Priority = "high", // V3: Must be lowercase per CHK_CONT_PRIORITY constraint
                     Status = "active",
                     CreatedBy = UserId
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {}
 
         // Seed additional data for new endpoints (tables already exist from relevo-api SQL scripts)
-        SeedActivityLogs(connection);
-        SeedChecklists(connection);
         SeedMessages(connection);
 
         // Seed Contributors for legacy tests
         SeedContributors(connection);
-    }
-
-    private void SeedActivityLogs(IDbConnection connection)
-    {
-        // Insert test activity log (schema updated: ACTIVITY_DESCRIPTION/SECTION_AFFECTED -> DESCRIPTION, FROM_STATE, TO_STATE, REASON)
-        try {
-            connection.Execute(@"
-                INSERT INTO HANDOVER_ACTIVITY_LOG (ID, HANDOVER_ID, USER_ID, ACTIVITY_TYPE, DESCRIPTION, CREATED_AT)
-                VALUES (:Id, :HandoverId, :UserId, :ActivityType, :Description, LOCALTIMESTAMP)",
-                new {
-                    Id = ActivityLogId,
-                    HandoverId = HandoverId,
-                    UserId = UserId,
-                    ActivityType = "StateChange",
-                    Description = "Handover created"
-                });
-        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291 || e.Number == 942) {} // 942 = table not exists
-    }
-
-    private void SeedChecklists(IDbConnection connection)
-    {
-        // HANDOVER_CHECKLISTS table removed in new schema
-        // Skipping checklist insert
     }
 
     private void SeedMessages(IDbConnection connection)

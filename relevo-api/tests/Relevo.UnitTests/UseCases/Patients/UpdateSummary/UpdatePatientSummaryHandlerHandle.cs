@@ -26,7 +26,7 @@ public class UpdatePatientSummaryHandlerHandle
         var handoverId = "handover-1";
         var userId = "dr-1";
 
-        _handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId)
+        _handoverRepository.GetCurrentHandoverIdAsync(patientId)
             .Returns(Task.FromResult<string?>(handoverId));
         _patientRepository.UpdatePatientSummaryAsync(handoverId, "New", userId)
             .Returns(Task.FromResult(true));
@@ -43,14 +43,14 @@ public class UpdatePatientSummaryHandlerHandle
         var patientId = "pat-1";
         var userId = "dr-1";
         
-        _handoverRepository.GetOrCreateCurrentHandoverIdAsync(patientId, userId)
+        _handoverRepository.GetCurrentHandoverIdAsync(patientId)
             .Returns(Task.FromResult<string?>(null));
 
         var command = new UpdatePatientSummaryCommand(patientId, "New", userId);
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.Contains("assignment"));
+        result.Errors.Should().Contain(e => e.Contains("active handover"));
     }
 }
 

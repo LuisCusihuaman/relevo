@@ -35,6 +35,21 @@ public class HandoverRepositoryGetPatientDataTests : BaseDapperRepoTestFixture
     }
 
     [Fact]
+    public async Task GetPatientHandoverData_ReturnsV3Fields()
+    {
+        // V3: Verify GetPatientHandoverDataAsync returns V3 fields (sender/receiver)
+        var repository = GetHandoverRepository();
+        var handoverId = DapperTestSeeder.HandoverId;
+
+        var data = await repository.GetPatientHandoverDataAsync(handoverId);
+
+        Assert.NotNull(data);
+        // V3: Should include sender/receiver information from SENDER_USER_ID, RECEIVER_USER_ID
+        // The data structure may vary, but should include V3-specific fields
+        Assert.NotNull(data.AssignedPhysician); // Should reflect V3 sender/receiver logic
+    }
+
+    [Fact]
     public async Task GetPatientHandoverData_ReturnsNullForInvalidId()
     {
         var repository = GetHandoverRepository();

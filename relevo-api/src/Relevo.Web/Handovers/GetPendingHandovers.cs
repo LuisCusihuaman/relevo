@@ -31,7 +31,7 @@ public class GetPendingHandovers(IMediator _mediator, ICurrentUser _currentUser)
                 PatientId = h.PatientId,
                 PatientName = h.PatientName,
                 Status = h.Status,
-                ShiftName = h.ShiftName
+                ShiftName = h.ShiftName ?? ""
             }).ToList()
         };
         await SendAsync(Response, cancellation: ct);
