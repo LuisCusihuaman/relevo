@@ -47,11 +47,11 @@ export function mapApiPatientToPatient(api: ApiPatientRecord): Patient {
 	};
 }
 
-export function mapApiPatientSummaryCard(api: ApiPatientSummaryCard): PatientSummaryCard {
+export function mapApiPatientSummaryCard(api: Partial<ApiPatientSummaryCard>): PatientSummaryCard {
 	return {
-		id: api.id,
-		name: api.name,
-		handoverStatus: api.handoverStatus,
+		id: api.id ?? "",
+		name: api.name ?? "",
+		handoverStatus: api.handoverStatus ?? "",
 		handoverId: api.handoverId ?? null,
 	};
 }

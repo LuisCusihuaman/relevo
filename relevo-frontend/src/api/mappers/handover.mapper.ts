@@ -4,6 +4,7 @@
  */
 import type {
 	ApiHandoverRecord,
+	ApiHandoverDto,
 	ApiGetHandoverByIdResponse,
 	ApiHandoverActionItemFullRecord,
 	ApiContingencyPlanRecord,
@@ -86,6 +87,23 @@ export function mapApiHandoverRecord(api: ApiHandoverRecord): HandoverSummary {
 		responsiblePhysicianName: api.responsiblePhysicianName,
 		createdAt: api.createdAt ?? undefined,
 		completedAt: api.completedAt ?? undefined,
+	};
+}
+
+/** Maps HandoverDto (limited fields from pending endpoint) to HandoverSummary with defaults */
+export function mapApiHandoverDto(api: ApiHandoverDto): HandoverSummary {
+	return {
+		id: api.id ?? "",
+		patientId: api.patientId ?? "",
+		patientName: api.patientName ?? null,
+		shiftName: api.shiftName ?? "",
+		stateName: parseHandoverStatus(api.status),
+		illnessSeverity: "stable",
+		createdBy: "",
+		createdByName: null,
+		assignedTo: "",
+		assignedToName: null,
+		responsiblePhysicianName: "",
 	};
 }
 

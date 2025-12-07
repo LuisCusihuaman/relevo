@@ -12,27 +12,30 @@ import type {
 } from "@/types/domain";
 import {
 	mapApiHandoverRecord,
+	mapApiHandoverDto,
 	mapApiHandoverDetail,
 	mapApiContingencyPlan,
 	mapApiPatientHandoverData,
 } from "@/api/mappers";
 
-// Response types mapped to domain
+// ========================================
+// TYPES
+// ========================================
+
 type PaginatedHandovers = {
 	items: Array<HandoverSummary>;
 	pagination: Schemas["PaginationInfo"];
 };
 
-// API Response types (using generated schemas)
 type SituationAwarenessResponse = Schemas["GetSituationAwarenessResponse"];
 type SynthesisResponse = Schemas["GetSynthesisResponse"];
 type UpdateSituationAwarenessRequest = Schemas["UpdateSituationAwarenessRequest"];
+
 type UpdatePatientDataRequest = {
 	illnessSeverity: IllnessSeverity;
 	summaryText?: string;
 };
 
-// Legacy types for compatibility (to be removed)
 type HandoverMessage = {
 	id: string;
 	handoverId: string;
@@ -70,15 +73,9 @@ type HandoverChecklistItem = {
 	createdAt: string;
 };
 
-type ApiResponse<T> = {
-	success: boolean;
-	message: string;
-	data?: T;
-};
-
-type GetHandoverActionItemsResponse = {
-	actionItems: Array<HandoverActionItem>;
-};
+type ApiResponse<T> = { success: boolean; message: string; data?: T };
+type ActionItemsResponse = { actionItems: Array<HandoverActionItem> };
+type Priority = "low" | "medium" | "high";
 
 // ========================================
 // QUERY KEYS
@@ -96,24 +93,16 @@ export const handoverQueryKeys = {
 	checklists: (id: string) => [...handoverQueryKeys.detail(id), "checklists"] as const,
 	contingencyPlans: (id: string) => [...handoverQueryKeys.detail(id), "contingency-plans"] as const,
 	situationAwareness: (id: string) => [...handoverQueryKeys.detail(id), "situation-awareness"] as const,
-    patientData: (id: string) => [...handoverQueryKeys.detail(id), "patient-data"] as const,
-    patientHandoverData: (id: string) => [...handoverQueryKeys.detail(id), "patient-handover-data"] as const,
-    synthesis: (id: string) => [...handoverQueryKeys.detail(id), "synthesis"] as const,
+	patientData: (id: string) => [...handoverQueryKeys.detail(id), "patient-data"] as const,
+	patientHandoverData: (id: string) => [...handoverQueryKeys.detail(id), "patient-handover-data"] as const,
+	synthesis: (id: string) => [...handoverQueryKeys.detail(id), "synthesis"] as const,
 };
 
 // ========================================
 // API FUNCTIONS
 // ========================================
 
-// MAIN HANDOVER DATA
-// ----------------------------------------
-
-export async function getHandovers(
-	parameters?: {
-		page?: number;
-		pageSize?: number;
-	}
-): Promise<PaginatedHandovers> {
+export async function getHandovers(parameters?: { page?: number; pageSize?: number }): Promise<PaginatedHandovers> {
 	const { data } = await api.get<Schemas["GetMyHandoversResponse"]>("/me/handovers", { params: parameters });
 	return {
 		items: (data.items ?? []).map(mapApiHandoverRecord),
@@ -121,120 +110,51 @@ export async function getHandovers(
 	};
 }
 
-export async function getHandover(
-	handoverId: string
-): Promise<HandoverDetail> {
+export async function getHandover(handoverId: string): Promise<HandoverDetail> {
 	const { data } = await api.get<Schemas["GetHandoverByIdResponse"]>(`/handovers/${handoverId}`);
 	return mapApiHandoverDetail(data);
 }
 
-export async function getPatientHandoverData(
-	handoverId: string
-): Promise<PatientHandoverData> {
+export async function getPatientHandoverData(handoverId: string): Promise<PatientHandoverData> {
 	const { data } = await api.get<Schemas["GetPatientHandoverDataResponse"]>(`/handovers/${handoverId}/patient`);
 	return mapApiPatientHandoverData(data);
 }
 
-export async function createHandover(
-	request: {
-		patientId: string;
-		fromDoctorId: string;
-		toDoctorId: string;
-		fromShiftId: string;
-		toShiftId: string;
-		initiatedBy: string;
-		notes?: string;
-	}
-): Promise<HandoverDetail> {
+export async function createHandover(request: {
+	patientId: string;
+	fromDoctorId: string;
+	toDoctorId: string;
+	fromShiftId: string;
+	toShiftId: string;
+	initiatedBy: string;
+	notes?: string;
+}): Promise<HandoverDetail> {
 	const { data } = await api.post<Schemas["GetHandoverByIdResponse"]>("/handovers", request);
 	return mapApiHandoverDetail(data);
 }
 
-// HANDOVER STATE TRANSITIONS
-// ----------------------------------------
+// State Transitions
+export const readyHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/ready`).then(() => undefined);
+export const startHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/start`).then(() => undefined);
+export const acceptHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/accept`).then(() => undefined);
+export const completeHandover = (id: string): Promise<void> =>
+	api.post(`/handovers/${id}/complete`).then(() => undefined);
+export const cancelHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/cancel`).then(() => undefined);
+export const rejectHandover = (id: string, reason: string): Promise<void> =>
+	api.post(`/handovers/${id}/reject`, { reason }).then(() => undefined);
 
-export async function readyHandover(
-	handoverId: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/ready`);
-}
-
-export async function startHandover(
-	handoverId: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/start`);
-}
-
-export async function acceptHandover(
-	handoverId: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/accept`);
-}
-
-export async function completeHandover(
-	handoverId: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/complete`);
-}
-
-export async function cancelHandover(
-	handoverId: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/cancel`);
-}
-
-export async function rejectHandover(
-	handoverId: string,
-	reason: string
-): Promise<void> {
-	await api.post(`/handovers/${handoverId}/reject`, { reason });
-}
-
-
-// PENDING HANDOVERS
-// ----------------------------------------
-
-export async function getPendingHandovers(
-	userId: string
-): Promise<{ handovers: Array<HandoverSummary> }> {
+export async function getPendingHandovers(userId: string): Promise<{ handovers: Array<HandoverSummary> }> {
 	const { data } = await api.get<Schemas["GetPendingHandoversResponse"]>("/handovers/pending", { params: { userId } });
-	// Note: GetPendingHandoversResponse uses HandoverDto which is simpler, map what we can
-	return {
-		handovers: (data.handovers ?? []).map((h) => ({
-			id: h.id ?? "",
-			patientId: h.patientId ?? "",
-			patientName: h.patientName ?? null,
-			shiftName: h.shiftName ?? "",
-			stateName: (h.status as HandoverSummary["stateName"]) ?? "Draft",
-			illnessSeverity: "stable" as const,
-			createdBy: "",
-			createdByName: null,
-			assignedTo: "",
-			assignedToName: null,
-			responsiblePhysicianName: "",
-		})),
-	};
+	return { handovers: (data.handovers ?? []).map(mapApiHandoverDto) };
 }
 
-
-// HANDOVER SECTIONS
-// ----------------------------------------
-// Removed getPatientData - data now consolidated into getPatientHandoverData
-
-export async function getSynthesis(
-	handoverId: string
-): Promise<SynthesisResponse> {
+export async function getSynthesis(handoverId: string): Promise<SynthesisResponse> {
 	const { data } = await api.get<SynthesisResponse>(`/handovers/${handoverId}/synthesis`);
 	return data;
 }
 
-// HANDOVER MESSAGES
-// ----------------------------------------
-
-export async function getHandoverMessages(
-	handoverId: string
-): Promise<Array<HandoverMessage>> {
-	const { data } = await api.get<{messages: Array<HandoverMessage>}>(`/me/handovers/${handoverId}/messages`);
+export async function getHandoverMessages(handoverId: string): Promise<Array<HandoverMessage>> {
+	const { data } = await api.get<{ messages: Array<HandoverMessage> }>(`/me/handovers/${handoverId}/messages`);
 	return data.messages;
 }
 
@@ -243,26 +163,19 @@ export async function createHandoverMessage(
 	messageText: string,
 	messageType: "message" | "system" | "notification" = "message"
 ): Promise<{ success: boolean; message: HandoverMessage }> {
-	const { data } = await api.post<{ success: boolean; message: HandoverMessage }>(`/me/handovers/${handoverId}/messages`, { messageText, messageType });
+	const { data } = await api.post<{ success: boolean; message: HandoverMessage }>(
+		`/me/handovers/${handoverId}/messages`,
+		{ messageText, messageType }
+	);
 	return data;
 }
 
-// HANDOVER ACTIVITY LOG
-// ----------------------------------------
-
-export async function getHandoverActivityLog(
-	handoverId: string
-): Promise<Array<HandoverActivityItem>> {
+export async function getHandoverActivityLog(handoverId: string): Promise<Array<HandoverActivityItem>> {
 	const { data } = await api.get<Array<HandoverActivityItem>>(`/me/handovers/${handoverId}/activity`);
 	return data;
 }
 
-// HANDOVER CHECKLISTS
-// ----------------------------------------
-
-export async function getHandoverChecklists(
-	handoverId: string
-): Promise<Array<HandoverChecklistItem>> {
+export async function getHandoverChecklists(handoverId: string): Promise<Array<HandoverChecklistItem>> {
 	const { data } = await api.get<Array<HandoverChecklistItem>>(`/me/handovers/${handoverId}/checklists`);
 	return data;
 }
@@ -272,36 +185,40 @@ export async function updateChecklistItem(
 	itemId: string,
 	isChecked: boolean
 ): Promise<{ success: boolean; message: string }> {
-	const { data } = await api.put<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/checklists/${itemId}`, { isChecked });
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/checklists/${itemId}`,
+		{ isChecked }
+	);
 	return data;
 }
 
-// HANDOVER ACTION ITEMS
-// ----------------------------------------
-
-export async function getHandoverActionItems(
-	handoverId: string
-): Promise<GetHandoverActionItemsResponse> {
-	const { data } = await api.get<GetHandoverActionItemsResponse>(`/me/handovers/${handoverId}/action-items`);
+export async function getHandoverActionItems(handoverId: string): Promise<ActionItemsResponse> {
+	const { data } = await api.get<ActionItemsResponse>(`/me/handovers/${handoverId}/action-items`);
 	return data;
 }
 
 export async function createActionItem(
 	handoverId: string,
 	description: string,
-	priority: "low" | "medium" | "high" = "medium",
+	priority: Priority = "medium",
 	dueTime?: string
 ): Promise<{ success: boolean; actionItemId: string }> {
-	const { data } = await api.post<{ success: boolean; actionItemId: string }>(`/me/handovers/${handoverId}/action-items`, { description, priority, dueTime });
+	const { data } = await api.post<{ success: boolean; actionItemId: string }>(
+		`/me/handovers/${handoverId}/action-items`,
+		{ description, priority, dueTime }
+	);
 	return data;
 }
 
 export async function updateActionItem(
 	handoverId: string,
 	actionItemId: string,
-	updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string }
+	updates: { description?: string; isCompleted?: boolean; priority?: Priority; dueTime?: string }
 ): Promise<{ success: boolean; message: string }> {
-	const { data } = await api.put<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/action-items/${actionItemId}`, updates);
+	const { data } = await api.put<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`,
+		updates
+	);
 	return data;
 }
 
@@ -309,36 +226,27 @@ export async function deleteActionItem(
 	handoverId: string,
 	actionItemId: string
 ): Promise<{ success: boolean; message: string }> {
-	const { data } = await api.delete<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/action-items/${actionItemId}`);
+	const { data } = await api.delete<{ success: boolean; message: string }>(
+		`/me/handovers/${handoverId}/action-items/${actionItemId}`
+	);
 	return data;
 }
 
-// HANDOVER CONTINGENCY PLANS
-// ----------------------------------------
-
-/**
- * Retrieves contingency plans for a handover using the authenticated /me/ endpoint.
- * V3 Migration: Uses /me/handovers/{id}/contingency-plans and extracts 'contingencyPlans' from response.
- */
-export async function getHandoverContingencyPlans(
-	handoverId: string
-): Promise<Array<ContingencyPlan>> {
-	const { data } = await api.get<Schemas["GetMeContingencyPlansResponse"]>(`/me/handovers/${handoverId}/contingency-plans`);
+export async function getHandoverContingencyPlans(handoverId: string): Promise<Array<ContingencyPlan>> {
+	const { data } = await api.get<Schemas["GetMeContingencyPlansResponse"]>(
+		`/me/handovers/${handoverId}/contingency-plans`
+	);
 	return (data.contingencyPlans ?? []).map(mapApiContingencyPlan);
 }
 
-/**
- * Creates a new contingency plan using the authenticated /me/ endpoint.
- * V3 Migration: Uses /me/handovers/{id}/contingency-plans and returns 'contingencyPlan' object.
- */
 export async function createContingencyPlan(
 	handoverId: string,
 	conditionText: string,
 	actionText: string,
-	priority: "low" | "medium" | "high" = "medium"
+	priority: Priority = "medium"
 ): Promise<{ success: boolean; contingencyPlan: ContingencyPlan | null }> {
 	const { data } = await api.post<Schemas["CreateMeContingencyPlanResponse"]>(
-		`/me/handovers/${handoverId}/contingency-plans`, 
+		`/me/handovers/${handoverId}/contingency-plans`,
 		{ conditionText, actionText, priority }
 	);
 	return {
@@ -347,310 +255,7 @@ export async function createContingencyPlan(
 	};
 }
 
-// ========================================
-// REACT QUERY HOOKS
-// ========================================
-
-// HOOKS: MAIN HANDOVER DATA
-// ----------------------------------------
-
-export function useHandovers(parameters?: {
-	page?: number;
-	pageSize?: number;
-}): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.list({ ...parameters }),
-		queryFn: () => getHandovers(parameters),
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		gcTime: 10 * 60 * 1000, // 10 minutes
-	});
-}
-
-export function useHandover(handoverId: string): ReturnType<typeof useQuery<HandoverDetail | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.detail(handoverId),
-		queryFn: () => getHandover(handoverId),
-		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		gcTime: 10 * 60 * 1000, // 10 minutes
-	});
-}
-
-export function useCreateHandover(): ReturnType<typeof useMutation<HandoverDetail, Error, Parameters<typeof createHandover>[0]>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: (request) => createHandover(request),
-		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.lists() });
-		},
-	});
-}
-
-// HOOKS: HANDOVER STATE TRANSITIONS
-// ----------------------------------------
-
-function useHandoverStateMutation(
-	mutationFn: (
-		handoverId: string
-	) => Promise<void>
-): ReturnType<typeof useMutation<void, Error, string>> {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (handoverId: string) => mutationFn(handoverId),
-		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
-		},
-	});
-}
-
-export function useReadyHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useHandoverStateMutation(readyHandover);
-}
-
-export function useStartHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useHandoverStateMutation(startHandover);
-}
-
-export function useAcceptHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useHandoverStateMutation(acceptHandover);
-}
-
-export function useCompleteHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useHandoverStateMutation(completeHandover);
-}
-
-export function useCancelHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useHandoverStateMutation(cancelHandover);
-}
-
-export function useRejectHandover(): ReturnType<typeof useMutation<void, Error, { handoverId: string; reason: string }>> {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ handoverId, reason }: { handoverId: string; reason: string }) =>
-			rejectHandover(handoverId, reason),
-		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
-		},
-	});
-}
-
-
-
-// HOOKS: PENDING HANDOVERS
-// ----------------------------------------
-
-export function usePendingHandovers(userId: string): ReturnType<typeof useQuery<{ handovers: Array<HandoverSummary> } | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.list({ userId, status: "pending" }),
-		queryFn: () => getPendingHandovers(userId),
-		enabled: !!userId,
-		staleTime: 30 * 1000, // 30 seconds
-	});
-}
-
-// HOOKS: HANDOVER SECTIONS
-// ----------------------------------------
-
-// HOOKS: HANDOVER MESSAGES
-// ----------------------------------------
-
-export function useHandoverMessages(handoverId: string): ReturnType<typeof useQuery<Array<HandoverMessage> | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.messages(handoverId),
-		queryFn: () => getHandoverMessages(handoverId),
-		enabled: !!handoverId,
-		staleTime: 30 * 1000, // 30 seconds
-	});
-}
-
-export function useCreateHandoverMessage(): ReturnType<typeof useMutation<{ success: boolean; message: HandoverMessage }, Error, { handoverId: string; messageText: string; messageType?: "message" | "system" | "notification" }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			messageText,
-			messageType,
-		}: {
-			handoverId: string;
-			messageText: string;
-			messageType?: "message" | "system" | "notification";
-		}) => createHandoverMessage(handoverId, messageText, messageType),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.messages(variables.handoverId),
-			});
-		},
-	});
-}
-
-// HOOKS: HANDOVER ACTIVITY LOG
-// ----------------------------------------
-
-export function useHandoverActivityLog(handoverId: string): ReturnType<typeof useQuery<Array<HandoverActivityItem> | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.activity(handoverId),
-		queryFn: () => getHandoverActivityLog(handoverId),
-		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-}
-
-// HOOKS: HANDOVER CHECKLISTS
-// ----------------------------------------
-
-export function useHandoverChecklists(handoverId: string): ReturnType<typeof useQuery<Array<HandoverChecklistItem> | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.checklists(handoverId),
-		queryFn: () => getHandoverChecklists(handoverId),
-		enabled: !!handoverId,
-		staleTime: 2 * 60 * 1000, // 2 minutes
-	});
-}
-
-export function useUpdateChecklistItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; itemId: string; isChecked: boolean }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			itemId,
-			isChecked,
-		}: {
-			handoverId: string;
-			itemId: string;
-			isChecked: boolean;
-		}) => updateChecklistItem(handoverId, itemId, isChecked),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.checklists(variables.handoverId),
-			});
-		},
-	});
-}
-
-// HOOKS: HANDOVER ACTION ITEMS
-// ----------------------------------------
-
-export function useHandoverActionItems(handoverId: string): ReturnType<typeof useQuery<GetHandoverActionItemsResponse | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.detail(handoverId).concat("action-items"),
-		queryFn: () => getHandoverActionItems(handoverId),
-		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-}
-
-export function useCreateActionItem(): ReturnType<typeof useMutation<{ success: boolean; actionItemId: string }, Error, { handoverId: string; description: string; priority?: "low" | "medium" | "high"; dueTime?: string }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			description,
-			priority,
-			dueTime,
-		}: {
-			handoverId: string;
-			description: string;
-			priority?: "low" | "medium" | "high";
-			dueTime?: string;
-		}) => createActionItem(handoverId, description, priority, dueTime),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.detail(variables.handoverId),
-			});
-		},
-	});
-}
-
-export function useUpdateActionItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; actionItemId: string; updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string } }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			actionItemId,
-			updates,
-		}: {
-			handoverId: string;
-			actionItemId: string;
-			updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string };
-		}) => updateActionItem(handoverId, actionItemId, updates),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.detail(variables.handoverId),
-			});
-		},
-	});
-}
-
-export function useDeleteActionItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; actionItemId: string }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			actionItemId,
-		}: {
-			handoverId: string;
-			actionItemId: string;
-		}) => deleteActionItem(handoverId, actionItemId),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.detail(variables.handoverId),
-			});
-		},
-	});
-}
-
-// HOOKS: HANDOVER CONTINGENCY PLANS
-// ----------------------------------------
-
-export function useHandoverContingencyPlans(handoverId: string): ReturnType<typeof useQuery<Array<ContingencyPlan> | undefined, Error>> {
-	return useQuery({
-		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
-		queryFn: () => getHandoverContingencyPlans(handoverId),
-		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-}
-
-export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ success: boolean; contingencyPlan: ContingencyPlan | null }, Error, { handoverId: string; conditionText: string; actionText: string; priority?: "low" | "medium" | "high" }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			conditionText,
-			actionText,
-			priority,
-		}: {
-			handoverId: string;
-			conditionText: string;
-			actionText: string;
-			priority?: "low" | "medium" | "high";
-		}) => createContingencyPlan(handoverId, conditionText, actionText, priority),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
-			});
-		},
-	});
-}
-
-// ========================================
-// SITUATION AWARENESS API FUNCTIONS
-// ========================================
-
-/**
- * Retrieves situation awareness data.
- * V3 Migration: Returns 'situationAwareness' object instead of 'section'.
- */
-export async function getSituationAwareness(
-	handoverId: string
-): Promise<SituationAwarenessResponse> {
+export async function getSituationAwareness(handoverId: string): Promise<SituationAwarenessResponse> {
 	const { data } = await api.get<SituationAwarenessResponse>(`/handovers/${handoverId}/situation-awareness`);
 	return data;
 }
@@ -663,10 +268,6 @@ export async function updatePatientData(
 	return data;
 }
 
-/**
- * Updates situation awareness data.
- * V3 Migration: Requires 'status' field in request.
- */
 export async function updateSituationAwareness(
 	handoverId: string,
 	request: UpdateSituationAwarenessRequest
@@ -683,122 +284,347 @@ export async function updateSynthesis(
 	return data;
 }
 
-export async function deleteContingencyPlan(
-	handoverId: string,
-	contingencyId: string
-): Promise<void> {
+export async function deleteContingencyPlan(handoverId: string, contingencyId: string): Promise<void> {
 	await api.delete(`/handovers/${handoverId}/contingency-plans/${contingencyId}`);
 }
 
 // ========================================
-// SITUATION AWARENESS HOOKS
+// REACT QUERY HOOKS
 // ========================================
 
-export function useSituationAwareness(handoverId: string): ReturnType<typeof useQuery<SituationAwarenessResponse | undefined, Error>> {
+const STALE_TIME_SHORT = 30 * 1000;
+const STALE_TIME_MEDIUM = 2 * 60 * 1000;
+const STALE_TIME_LONG = 5 * 60 * 1000;
+const GC_TIME = 10 * 60 * 1000;
+
+// Helper for state transition mutations
+function useStateMutation(
+	fn: (id: string) => Promise<void>
+): ReturnType<typeof useMutation<void, Error, string>> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: fn,
+		onSuccess: () => void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all }),
+	});
+}
+
+// Helper for invalidating handover-related queries
+function useInvalidatingMutation<TData, TVariables extends { handoverId: string }>(
+	mutationFn: (variables: TVariables) => Promise<TData>,
+	getQueryKey: (variables: TVariables) => ReadonlyArray<unknown>
+): ReturnType<typeof useMutation<TData, Error, TVariables>> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn,
+		onSuccess: (_, variables) => void queryClient.invalidateQueries({ queryKey: getQueryKey(variables) }),
+	});
+}
+
+// Main Handover Data
+export function useHandovers(
+	parameters?: { page?: number; pageSize?: number }
+): ReturnType<typeof useQuery<PaginatedHandovers, Error>> {
 	return useQuery({
-		queryKey: handoverQueryKeys.situationAwareness(handoverId),
-		queryFn: () => getSituationAwareness(handoverId),
-		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		queryKey: handoverQueryKeys.list({ ...parameters }),
+		queryFn: () => getHandovers(parameters),
+		staleTime: STALE_TIME_LONG,
+		gcTime: GC_TIME,
 	});
 }
 
-// Removed usePatientData - data now consolidated into usePatientHandoverData
-
-export function useSynthesis(handoverId: string): ReturnType<typeof useQuery<SynthesisResponse | undefined, Error>> {
+export function useHandover(handoverId: string): ReturnType<typeof useQuery<HandoverDetail, Error>> {
 	return useQuery({
-		queryKey: handoverQueryKeys.synthesis(handoverId),
-		queryFn: () => getSynthesis(handoverId),
+		queryKey: handoverQueryKeys.detail(handoverId),
+		queryFn: () => getHandover(handoverId),
 		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		staleTime: STALE_TIME_LONG,
+		gcTime: GC_TIME,
 	});
 }
 
-export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string } & UpdatePatientDataRequest>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({ handoverId, ...request }: { handoverId: string } & UpdatePatientDataRequest) =>
-			updatePatientData(handoverId, request),
-		onSuccess: (_, { handoverId }) => {
-			return queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(handoverId) });
-		},
-	});
-}
-
-export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string; content: string; status?: SituationAwarenessStatus }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			content,
-			status,
-		}: {
-			handoverId: string;
-			content: string;
-			status?: SituationAwarenessStatus;
-		}) =>
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			updateSituationAwareness(handoverId, { content, status: status ?? "Draft" }),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.situationAwareness(variables.handoverId),
-			});
-		},
-	});
-}
-
-export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string; content?: string; status: string }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			content,
-			status,
-		}: {
-			handoverId: string;
-			content?: string;
-			status: string;
-		}) => updateSynthesis(handoverId, { content, status }),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.synthesis(variables.handoverId),
-			});
-		},
-	});
-}
-
-export function useDeleteContingencyPlan(): ReturnType<typeof useMutation<void, Error, { handoverId: string; contingencyId: string }>> {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({
-			handoverId,
-			contingencyId,
-		}: {
-			handoverId: string;
-			contingencyId: string;
-		}) => deleteContingencyPlan(handoverId, contingencyId),
-		onSuccess: (_data, variables) => {
-			void queryClient.invalidateQueries({
-				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
-			});
-		},
-	});
-}
-
-export function usePatientHandoverData(handoverId: string): ReturnType<typeof useQuery<PatientHandoverData | undefined, Error>> {
+export function usePatientHandoverData(
+	handoverId: string
+): ReturnType<typeof useQuery<PatientHandoverData, Error>> {
 	return useQuery({
 		queryKey: handoverQueryKeys.patientHandoverData(handoverId),
 		queryFn: () => getPatientHandoverData(handoverId),
 		enabled: !!handoverId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		gcTime: 10 * 60 * 1000, // 10 minutes
+		staleTime: STALE_TIME_LONG,
+		gcTime: GC_TIME,
 	});
 }
 
-// ========================================
-// HELPER FUNCTIONS
-// ========================================
+export function useCreateHandover(): ReturnType<
+	typeof useMutation<HandoverDetail, Error, Parameters<typeof createHandover>[0]>
+> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: createHandover,
+		onSuccess: () => void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.lists() }),
+	});
+}
+
+// State Transitions
+export function useReadyHandover(): ReturnType<typeof useMutation<void, Error, string>> {
+	return useStateMutation(readyHandover);
+}
+export function useStartHandover(): ReturnType<typeof useMutation<void, Error, string>> {
+	return useStateMutation(startHandover);
+}
+export function useAcceptHandover(): ReturnType<typeof useMutation<void, Error, string>> {
+	return useStateMutation(acceptHandover);
+}
+export function useCompleteHandover(): ReturnType<typeof useMutation<void, Error, string>> {
+	return useStateMutation(completeHandover);
+}
+export function useCancelHandover(): ReturnType<typeof useMutation<void, Error, string>> {
+	return useStateMutation(cancelHandover);
+}
+
+export function useRejectHandover(): ReturnType<
+	typeof useMutation<void, Error, { handoverId: string; reason: string }>
+> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, reason }: { handoverId: string; reason: string }) =>
+			rejectHandover(handoverId, reason),
+		onSuccess: () => void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all }),
+	});
+}
+
+// Pending Handovers
+export function usePendingHandovers(
+	userId: string
+): ReturnType<typeof useQuery<{ handovers: Array<HandoverSummary> }, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.list({ userId, status: "pending" }),
+		queryFn: () => getPendingHandovers(userId),
+		enabled: !!userId,
+		staleTime: STALE_TIME_SHORT,
+	});
+}
+
+// Messages
+export function useHandoverMessages(
+	handoverId: string
+): ReturnType<typeof useQuery<Array<HandoverMessage>, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.messages(handoverId),
+		queryFn: () => getHandoverMessages(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_SHORT,
+	});
+}
+
+type CreateMessageVariables = {
+	handoverId: string;
+	messageText: string;
+	messageType?: "message" | "system" | "notification";
+};
+
+export function useCreateHandoverMessage(): ReturnType<
+	typeof useMutation<{ success: boolean; message: HandoverMessage }, Error, CreateMessageVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, messageText, messageType = "message" }: CreateMessageVariables) =>
+			createHandoverMessage(handoverId, messageText, messageType),
+		(variables) => handoverQueryKeys.messages(variables.handoverId)
+	);
+}
+
+// Activity Log
+export function useHandoverActivityLog(
+	handoverId: string
+): ReturnType<typeof useQuery<Array<HandoverActivityItem>, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.activity(handoverId),
+		queryFn: () => getHandoverActivityLog(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_LONG,
+	});
+}
+
+// Checklists
+export function useHandoverChecklists(
+	handoverId: string
+): ReturnType<typeof useQuery<Array<HandoverChecklistItem>, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.checklists(handoverId),
+		queryFn: () => getHandoverChecklists(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_MEDIUM,
+	});
+}
+
+type UpdateChecklistVariables = { handoverId: string; itemId: string; isChecked: boolean };
+
+export function useUpdateChecklistItem(): ReturnType<
+	typeof useMutation<{ success: boolean; message: string }, Error, UpdateChecklistVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, itemId, isChecked }: UpdateChecklistVariables) =>
+			updateChecklistItem(handoverId, itemId, isChecked),
+		(variables) => handoverQueryKeys.checklists(variables.handoverId)
+	);
+}
+
+// Action Items
+export function useHandoverActionItems(
+	handoverId: string
+): ReturnType<typeof useQuery<ActionItemsResponse, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.detail(handoverId).concat("action-items"),
+		queryFn: () => getHandoverActionItems(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_LONG,
+	});
+}
+
+type CreateActionItemVariables = {
+	handoverId: string;
+	description: string;
+	priority?: Priority;
+	dueTime?: string;
+};
+
+export function useCreateActionItem(): ReturnType<
+	typeof useMutation<{ success: boolean; actionItemId: string }, Error, CreateActionItemVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, description, priority, dueTime }: CreateActionItemVariables) =>
+			createActionItem(handoverId, description, priority, dueTime),
+		(variables) => handoverQueryKeys.detail(variables.handoverId)
+	);
+}
+
+type UpdateActionItemVariables = {
+	handoverId: string;
+	actionItemId: string;
+	updates: { description?: string; isCompleted?: boolean; priority?: Priority; dueTime?: string };
+};
+
+export function useUpdateActionItem(): ReturnType<
+	typeof useMutation<{ success: boolean; message: string }, Error, UpdateActionItemVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, actionItemId, updates }: UpdateActionItemVariables) =>
+			updateActionItem(handoverId, actionItemId, updates),
+		(variables) => handoverQueryKeys.detail(variables.handoverId)
+	);
+}
+
+type DeleteActionItemVariables = { handoverId: string; actionItemId: string };
+
+export function useDeleteActionItem(): ReturnType<
+	typeof useMutation<{ success: boolean; message: string }, Error, DeleteActionItemVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, actionItemId }: DeleteActionItemVariables) => deleteActionItem(handoverId, actionItemId),
+		(variables) => handoverQueryKeys.detail(variables.handoverId)
+	);
+}
+
+// Contingency Plans
+export function useHandoverContingencyPlans(
+	handoverId: string
+): ReturnType<typeof useQuery<Array<ContingencyPlan>, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
+		queryFn: () => getHandoverContingencyPlans(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_LONG,
+	});
+}
+
+type CreateContingencyPlanVariables = {
+	handoverId: string;
+	conditionText: string;
+	actionText: string;
+	priority?: Priority;
+};
+
+export function useCreateContingencyPlan(): ReturnType<
+	typeof useMutation<
+		{ success: boolean; contingencyPlan: ContingencyPlan | null },
+		Error,
+		CreateContingencyPlanVariables
+	>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, conditionText, actionText, priority }: CreateContingencyPlanVariables) =>
+			createContingencyPlan(handoverId, conditionText, actionText, priority),
+		(variables) => handoverQueryKeys.contingencyPlans(variables.handoverId)
+	);
+}
+
+type DeleteContingencyPlanVariables = { handoverId: string; contingencyId: string };
+
+export function useDeleteContingencyPlan(): ReturnType<
+	typeof useMutation<void, Error, DeleteContingencyPlanVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, contingencyId }: DeleteContingencyPlanVariables) =>
+			deleteContingencyPlan(handoverId, contingencyId),
+		(variables) => handoverQueryKeys.contingencyPlans(variables.handoverId)
+	);
+}
+
+// Situation Awareness & Synthesis
+export function useSituationAwareness(
+	handoverId: string
+): ReturnType<typeof useQuery<SituationAwarenessResponse, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.situationAwareness(handoverId),
+		queryFn: () => getSituationAwareness(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_LONG,
+	});
+}
+
+export function useSynthesis(handoverId: string): ReturnType<typeof useQuery<SynthesisResponse, Error>> {
+	return useQuery({
+		queryKey: handoverQueryKeys.synthesis(handoverId),
+		queryFn: () => getSynthesis(handoverId),
+		enabled: !!handoverId,
+		staleTime: STALE_TIME_LONG,
+	});
+}
+
+type UpdatePatientDataVariables = { handoverId: string } & UpdatePatientDataRequest;
+
+export function useUpdatePatientData(): ReturnType<
+	typeof useMutation<ApiResponse<void>, Error, UpdatePatientDataVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, ...request }: UpdatePatientDataVariables) => updatePatientData(handoverId, request),
+		(variables) => handoverQueryKeys.patientData(variables.handoverId)
+	);
+}
+
+type UpdateSituationAwarenessVariables = {
+	handoverId: string;
+	content: string;
+	status?: SituationAwarenessStatus;
+};
+
+export function useUpdateSituationAwareness(): ReturnType<
+	typeof useMutation<ApiResponse<void>, Error, UpdateSituationAwarenessVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, content, status }: UpdateSituationAwarenessVariables) =>
+			updateSituationAwareness(handoverId, { content, status: status ?? "Draft" }),
+		(variables) => handoverQueryKeys.situationAwareness(variables.handoverId)
+	);
+}
+
+type UpdateSynthesisVariables = { handoverId: string; content?: string; status: string };
+
+export function useUpdateSynthesis(): ReturnType<
+	typeof useMutation<ApiResponse<void>, Error, UpdateSynthesisVariables>
+> {
+	return useInvalidatingMutation(
+		({ handoverId, content, status }: UpdateSynthesisVariables) =>
+			updateSynthesis(handoverId, { content, status }),
+		(variables) => handoverQueryKeys.synthesis(variables.handoverId)
+	);
+}
