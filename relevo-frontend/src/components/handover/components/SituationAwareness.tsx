@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Plus } from "lucide-react";
-import { useCallback, useEffect, useState, memo, type JSX } from "react";
+import { useCallback, useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useSituationAwareness,
