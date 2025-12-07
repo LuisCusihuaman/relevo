@@ -20,19 +20,18 @@ import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useParams } from "@tanstack/react-router";
 import { useUser } from "@clerk/clerk-react";
+import { toPhysician, formatPhysician } from "@/lib/user-utils";
 
 export function FullscreenEditor(): JSX.Element | null {
   const { t } = useTranslation("fullscreenEditor");
   const isMobile = useIsMobile();
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   
-  // Store
-  const { 
-    fullscreenEditing, 
-    setFullscreenEditing, 
-    currentSaveFunction,
-    setCurrentSaveFunction 
-  } = useHandoverUIStore();
+  // Store - Optimized selectors
+  const fullscreenEditing = useHandoverUIStore(state => state.fullscreenEditing);
+  const setFullscreenEditing = useHandoverUIStore(state => state.setFullscreenEditing);
+  const currentSaveFunction = useHandoverUIStore(state => state.currentSaveFunction);
+  const setCurrentSaveFunction = useHandoverUIStore(state => state.setCurrentSaveFunction);
 
   // Hooks
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
@@ -46,16 +45,7 @@ export function FullscreenEditor(): JSX.Element | null {
   const componentType = fullscreenEditing?.component;
 
   // Transform user for components
-  const currentUser = clerkUser ? {
-    id: clerkUser.id,
-    name: clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'Unknown User',
-    initials: (clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`)
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase() || 'U',
-    role: (Array.isArray(clerkUser.publicMetadata['roles']) ? (clerkUser.publicMetadata['roles'] as Array<string>).join(", ") : "Doctor"),
-  } : undefined;
+  const currentUser = toPhysician(clerkUser);
 
   // Get active collaborators with stable reference
   const activeUsers = useRef(
@@ -254,13 +244,9 @@ export function FullscreenEditor(): JSX.Element | null {
                 <SituationAwareness
                   fullscreenMode
                   hideControls
-                  assignedPhysician={patientData?.assignedPhysician ? {
-                    name: patientData.assignedPhysician.name,
-                    initials: patientData.assignedPhysician.name.split(' ').map(n => n[0]).join('').toUpperCase(),
-                    role: patientData.assignedPhysician.role
-                  } : { name: "Unknown", initials: "U", role: "Unknown" }}
+                  assignedPhysician={formatPhysician(patientData?.assignedPhysician)}
                   autoEdit={fullscreenEditing.autoEdit}
-                  currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
+                  currentUser={currentUser}
                   handoverId={handoverId}
                   onContentChange={handleContentChange}
                 />

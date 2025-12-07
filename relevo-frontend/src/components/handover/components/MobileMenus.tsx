@@ -26,40 +26,23 @@ import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { useParams } from "@tanstack/react-router";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useHandoverSession } from "@/components/handover/hooks/useHandoverSession";
-
-const calculateAgeFromDob = (dobString: string): number => {
-  if (!dobString) return 0;
-
-  try {
-    const birthDate = new Date(dobString);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    // Adjust if birthday hasn't occurred this year
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return age;
-  } catch {
-    return 0;
-  }
-};
+import { calculateAgeFromDob } from "@/lib/utils";
 
 // No props needed!
 export function MobileMenus(): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const isMobile = useIsMobile();
   
-  const { 
-    showMobileMenu, setShowMobileMenu, 
-    showHistory, setShowHistory, 
-    showComments, setShowComments, 
-    fullscreenEditing, 
-    layoutMode,
-    setExpandedSections
-  } = useHandoverUIStore();
+  // Optimized Zustand selectors
+  const showMobileMenu = useHandoverUIStore(state => state.showMobileMenu);
+  const setShowMobileMenu = useHandoverUIStore(state => state.setShowMobileMenu);
+  const showHistory = useHandoverUIStore(state => state.showHistory);
+  const setShowHistory = useHandoverUIStore(state => state.setShowHistory);
+  const showComments = useHandoverUIStore(state => state.showComments);
+  const setShowComments = useHandoverUIStore(state => state.setShowComments);
+  const fullscreenEditing = useHandoverUIStore(state => state.fullscreenEditing);
+  const layoutMode = useHandoverUIStore(state => state.layoutMode);
+  const setExpandedSections = useHandoverUIStore(state => state.setExpandedSections);
 
   const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
   const { patientData } = usePatientHandoverData(handoverId);

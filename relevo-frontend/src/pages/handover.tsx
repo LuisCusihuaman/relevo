@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { type JSX, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
@@ -17,11 +16,10 @@ import {
   FullscreenEditor,
   HandoverHistory,
   MobileMenus,
+  useCurrentHandover
 } from "../components/handover";
-import { useHandover } from "@/api/endpoints/handovers";
 import { Header } from "../components/handover/layout/Header";
 import { MainContent } from "../components/handover/layout/MainContent";
-import { useParams } from "@tanstack/react-router";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 
 interface HandoverProps {
@@ -29,26 +27,25 @@ interface HandoverProps {
 }
 
 export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Element {
-  // Get route parameters
-  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
+  // Use Hook directly (Composition)
+  const { 
+    handoverId, 
+    handoverData, 
+    patientData, 
+    isLoading, 
+    error 
+  } = useCurrentHandover();
 
   // Store
-  const {
-    showHistory,
-    setShowHistory,
-    showComments,
-    setShowComments,
-    fullscreenEditing,
-    reset
-  } = useHandoverUIStore();
+  const showHistory = useHandoverUIStore(state => state.showHistory);
+  const setShowHistory = useHandoverUIStore(state => state.setShowHistory);
+  const showComments = useHandoverUIStore(state => state.showComments);
+  const setShowComments = useHandoverUIStore(state => state.setShowComments);
+  const fullscreenEditing = useHandoverUIStore(state => state.fullscreenEditing);
+  const reset = useHandoverUIStore(state => state.reset);
 
   // Custom hooks
   const isMobile = useIsMobile();
-  
-  // Data fetching (mainly for loading/error states of the page)
-  const { data: handoverData, isLoading: handoverLoading, error: handoverError } = useHandover(handoverId);
-  const { patientData, isLoading: patientLoading } = usePatientHandoverData(handoverId);
-
   const { t } = useTranslation("handover");
 
   // Reset store on unmount
@@ -85,7 +82,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   };
 
   // Loading state
-  if (patientLoading || handoverLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -97,7 +94,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
   }
 
   // Error state - if handover not found or API error
-  if ((!handoverData && !handoverLoading) || handoverError) {
+  if ((!handoverData && !isLoading) || error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -107,19 +104,19 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {handoverError ? "Error Loading Handover" : "Handover Not Found"}
+            {error ? "Error Loading Handover" : "Handover Not Found"}
           </h3>
           <p className="text-gray-600">
-            {handoverError
-              ? `Failed to load handover data: ${handoverError.message}`
+            {error
+              ? `Failed to load handover data: ${error.message}`
               : "The requested handover could not be found."
             }
           </p>
-          {import.meta.env.DEV && handoverError && (
+          {import.meta.env.DEV && error && (
             <details className="mt-4 text-left">
               <summary className="cursor-pointer text-sm text-gray-500">Technical Details</summary>
               <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-w-md">
-                {JSON.stringify(handoverError, null, 2)}
+                {JSON.stringify(error, null, 2)}
               </pre>
             </details>
           )}
@@ -167,7 +164,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             <SidebarContent>
               <HandoverHistory
                 hideHeader
-                handoverId={handoverData?.id || ""}
+                handoverId={handoverId}
                 patientData={mappedPatientData}
                 onClose={() => {
                   setShowHistory(false);
@@ -214,7 +211,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             <SidebarContent>
               <CollaborationPanel
                 hideHeader
-                handoverId={handoverData?.id || ""}
+                handoverId={handoverId}
                 onClose={() => {
                   setShowComments(false);
                 }}

@@ -11,3 +11,4 @@ export { CollaborationPanel } from "./components/CollaborationPanel";
 
 // Hooks
 export { useHandoverSession } from "./hooks/useHandoverSession";
+export { useCurrentHandover } from "./hooks/useCurrentHandover";

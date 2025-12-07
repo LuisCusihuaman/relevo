@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Plus } from "lucide-react";
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { useCallback, useEffect, useState, memo, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useSituationAwareness,
@@ -69,9 +69,11 @@ export function SituationAwareness({
   const createContingencyMutation = useCreateContingencyPlan();
   const deleteContingencyMutation = useDeleteContingencyPlan();
 
+  // Derive initial editing state directly from props
+  const initialEditingState = (fullscreenMode && autoEdit && canEdit) || false;
+
   // Local state for situation awareness content
-  const [draft, setDraft] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(initialEditingState);
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 
   // Build default template text
@@ -88,17 +90,18 @@ export function SituationAwareness({
   // Derived state: what to show
   const serverContent = situationData?.situationAwareness?.content;
   const defaultContent = getDefaultSituationText();
-  // If editing, show draft. If not, show server content (or default if loaded but empty, or just default if not loaded yet but we want to show something)
-  // Actually, if loading, we might show skeleton (handled below).
-  const displayContent = isEditing ? draft : (serverContent || defaultContent);
+  const [draft, setDraft] = useState(serverContent || defaultContent);
 
-  // Auto-start editing when in fullscreen with autoEdit
+  // Sync draft with server content only when not editing (or initially)
   useEffect(() => {
-    if (fullscreenMode && autoEdit && !isEditing) {
-      setDraft(serverContent || defaultContent);
-      setIsEditing(true);
+    if (!isEditing && serverContent) {
+      setDraft(serverContent);
+    } else if (!isEditing && !serverContent) {
+        setDraft(defaultContent);
     }
-  }, [fullscreenMode, autoEdit, isEditing, serverContent, defaultContent]);
+  }, [serverContent, defaultContent, isEditing]);
+
+  const displayContent = isEditing ? draft : (serverContent || defaultContent);
 
   // Convert API contingency plans to component format
   const contingencyPlans: Array<ContingencyPlan> = contingencyData?.map(plan => ({
@@ -174,7 +177,8 @@ export function SituationAwareness({
   // Handle click for editing or fullscreen
   const handleEnterEdit = (): void => {
     if (!isEditing) {
-      setDraft(displayContent); // Initialize draft with current content
+      // Initialize draft with current content if needed
+      if (draft !== displayContent) setDraft(displayContent);
       setIsEditing(true);
     }
     
@@ -229,7 +233,7 @@ export function SituationAwareness({
           content={displayContent}
           fullscreenMode={fullscreenMode}
           hideControls={hideControls}
-          isEditing={isEditing}
+          isEditing={isEditing || (fullscreenMode && autoEdit)}
           onChange={(value) => { void handleSituationChange(value); }}
           onEditChange={setIsEditing}
           onEnterEdit={handleEnterEdit}

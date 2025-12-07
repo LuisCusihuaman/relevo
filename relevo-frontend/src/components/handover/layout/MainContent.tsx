@@ -2,12 +2,10 @@ import { getIpassGuidelines } from "@/common/constants";
 import type {
 	FullscreenComponent,
 } from "@/common/types";
-import type { PatientHandoverData } from "@/api";
 import { useTranslation } from "react-i18next";
 import {
 	useSituationAwareness,
 	useSynthesis,
-    useHandover
 } from "@/api/endpoints/handovers";
 import {
 	ActionList,
@@ -15,72 +13,28 @@ import {
 	PatientSummary,
 	SituationAwareness,
 	SynthesisByReceiver,
+    useCurrentHandover
 } from "..";
 import { HandoverSection } from "./HandoverSection";
-import { useParams } from "@tanstack/react-router";
-import { useUser } from "@clerk/clerk-react";
-import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
-
-const toPhysician = (
-	user: { id: string; firstName?: string | null; lastName?: string | null; fullName?: string | null; publicMetadata?: { roles?: unknown } } | null | undefined,
-): { id: string; name: string; initials: string; role: string } => {
-	if (!user) {
-		return {
-			id: "unknown",
-			name: "Unknown User",
-			initials: "U",
-			role: "Unknown",
-		};
-	}
-    const roles = Array.isArray(user.publicMetadata?.roles) ? user.publicMetadata?.roles as Array<string> : [];
-	return {
-		id: user.id,
-		name: user.fullName ?? `${user.firstName} ${user.lastName}`,
-		initials:
-			(user.fullName ?? `${user.firstName} ${user.lastName}`)
-				?.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.toUpperCase() ?? "",
-		role: roles.join(", ") || "Doctor",
-	};
-};
-
-const formatPhysician = (
-	physician: PatientHandoverData["assignedPhysician"] | PatientHandoverData["receivingPhysician"] | null | undefined,
-): { name: string; initials: string; role: string } => {
-	if (!physician) {
-		return {
-			name: "Unknown",
-			initials: "U",
-			role: "Doctor",
-		};
-	}
-	return {
-		name: physician.name,
-		initials:
-			physician.name
-				?.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.toUpperCase() || "U",
-		role: physician.role || "Doctor",
-	};
-};
 
 export function MainContent(): React.JSX.Element {
 	const { t } = useTranslation(["handover", "mainContent"]);
-    const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
-    const { user: clerkUser } = useUser();
-    const { data: handoverData } = useHandover(handoverId);
-    const { patientData } = usePatientHandoverData(handoverId);
     
+    // Use Context
     const { 
-        layoutMode, 
-        expandedSections, 
-        setFullscreenEditing 
-    } = useHandoverUIStore();
+        handoverId, 
+        handoverData, 
+        patientData, 
+        currentUser, 
+        assignedPhysician, 
+        receivingPhysician,
+    } = useCurrentHandover();
+    
+    // Optimized Zustand selectors
+    const layoutMode = useHandoverUIStore(state => state.layoutMode);
+    const expandedSections = useHandoverUIStore(state => state.expandedSections);
+    const setFullscreenEditing = useHandoverUIStore(state => state.setFullscreenEditing);
 
 	const ipassGuidelines = getIpassGuidelines(t);
 
@@ -142,18 +96,6 @@ export function MainContent(): React.JSX.Element {
 		);
 	}
 
-	const assignedPhysician = {
-		id: handoverData.responsiblePhysicianId,
-		name: handoverData.responsiblePhysicianName,
-		initials:
-			(handoverData.responsiblePhysicianName || "")
-				.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.toUpperCase() || "U",
-		role: "Doctor",
-	};
-
 	const isCollapsible = layoutMode === "single";
 
 	const responsiblePhysician = {
@@ -161,8 +103,6 @@ export function MainContent(): React.JSX.Element {
 		name: handoverData.responsiblePhysicianName,
 	};
     
-    const currentUser = toPhysician(clerkUser);
-
 	// Section labels (casted to string to satisfy strict typing)
 	const sectionLabels = {
 		illness: {
@@ -276,7 +216,7 @@ export function MainContent(): React.JSX.Element {
 				currentUser={currentUser}
 				handoverComplete={handoverData.stateName === "Completed"}
 				handoverState={handoverData.stateName}
-				receivingPhysician={formatPhysician(patientData?.receivingPhysician)}
+				receivingPhysician={receivingPhysician}
 			/>
 		</HandoverSection>
 	);
