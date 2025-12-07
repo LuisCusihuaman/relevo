@@ -5,9 +5,6 @@ import {
   getHandoverActionItems,
   updateActionItem,
 } from "@/api/endpoints/handovers";
-import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
-
-type AuthenticatedApiCall = ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"];
 
 // API response type
 interface HandoverActionItemResponse {
@@ -51,7 +48,6 @@ const transformActionItem = (item: HandoverActionItemResponse): ActionItem => ({
 
 // Query configuration
 const actionItemsQueryConfig = (
-  authenticatedApiCall: AuthenticatedApiCall,
   handoverId?: string,
   initialActionItems: Array<ActionItem> = []
 ): {
@@ -65,7 +61,7 @@ const actionItemsQueryConfig = (
   queryFn: async (): Promise<Array<ActionItem>> => {
     if (!handoverId) return initialActionItems;
 
-    const response = await getHandoverActionItems(authenticatedApiCall, handoverId);
+    const response = await getHandoverActionItems(handoverId);
     return response.actionItems.map(transformActionItem);
   },
   enabled: !!handoverId,
@@ -75,7 +71,6 @@ const actionItemsQueryConfig = (
 
 // Mutation configurations
 const createActionItemMutationConfig = (
-  authenticatedApiCall: AuthenticatedApiCall,
   queryClient: ReturnType<typeof useQueryClient>,
   handoverId?: string
 ): {
@@ -93,7 +88,6 @@ const createActionItemMutationConfig = (
   }): Promise<{ success: boolean; actionItemId: string }> => {
     if (!handoverId) throw new Error("Handover ID is required");
     return createActionItem(
-      authenticatedApiCall,
       handoverId,
       data.description,
       data.priority,
@@ -106,7 +100,6 @@ const createActionItemMutationConfig = (
 });
 
 const updateActionItemMutationConfig = (
-  authenticatedApiCall: AuthenticatedApiCall,
   queryClient: ReturnType<typeof useQueryClient>,
   handoverId?: string
 ): {
@@ -133,7 +126,6 @@ const updateActionItemMutationConfig = (
     if (!handoverId) throw new Error("Handover ID is required");
     if (data.updates.isCompleted !== undefined) {
       return updateActionItem(
-        authenticatedApiCall,
         handoverId,
         data.actionItemId,
         { isCompleted: data.updates.isCompleted }
@@ -147,7 +139,6 @@ const updateActionItemMutationConfig = (
 });
 
 const deleteActionItemMutationConfig = (
-  authenticatedApiCall: AuthenticatedApiCall,
   queryClient: ReturnType<typeof useQueryClient>,
   handoverId?: string
 ): {
@@ -156,7 +147,7 @@ const deleteActionItemMutationConfig = (
 } => ({
   mutationFn: async (actionItemId: string): Promise<{ success: boolean; message: string }> => {
     if (!handoverId) throw new Error("Handover ID is required");
-    return deleteActionItem(authenticatedApiCall, handoverId, actionItemId);
+    return deleteActionItem(handoverId, actionItemId);
   },
   onSuccess: (): void => {
     void queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
@@ -187,20 +178,19 @@ export function useActionItems({ handoverId, initialActionItems = [] }: UseActio
   isDeleting: boolean;
 } {
   const queryClient = useQueryClient();
-  const { authenticatedApiCall } = useAuthenticatedApi();
 
   // Simplified query and mutations using helper configs
   const actionItemsQuery = useQuery(
-    actionItemsQueryConfig(authenticatedApiCall, handoverId, initialActionItems)
+    actionItemsQueryConfig(handoverId, initialActionItems)
   );
   const createMutation = useMutation(
-    createActionItemMutationConfig(authenticatedApiCall, queryClient, handoverId)
+    createActionItemMutationConfig(queryClient, handoverId)
   );
   const updateMutation = useMutation(
-    updateActionItemMutationConfig(authenticatedApiCall, queryClient, handoverId)
+    updateActionItemMutationConfig(queryClient, handoverId)
   );
   const deleteMutation = useMutation(
-    deleteActionItemMutationConfig(authenticatedApiCall, queryClient, handoverId)
+    deleteActionItemMutationConfig(queryClient, handoverId)
   );
 
   return {

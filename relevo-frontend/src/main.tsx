@@ -7,6 +7,7 @@ import "./index.css";
 import "./common/i18n";
 import { shadcn } from "@clerk/themes";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
+import { setTokenProvider } from "./api/client";
 
 // Import your Publishable Key
 const PUBLISHABLE_KEY = import.meta.env["VITE_CLERK_PUBLISHABLE_KEY"] as string;
@@ -20,6 +21,15 @@ let router: TanstackRouter;
 // Create a router component that will have access to the auth context
 export const RouterWithAuth: React.FC = () => {
 	const auth = useAuth();
+
+	// Configure Axios Auth (Connects Clerk -> Axios)
+	React.useEffect(() => {
+		if (!auth.isSignedIn) {
+			setTokenProvider(null);
+			return;
+		}
+		setTokenProvider(() => auth.getToken());
+	}, [auth]);
 
 	// Create router only once or when auth changes
 	if (

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthenticatedApi } from "@/hooks/useAuthenticatedApi";
+import { api } from "../client";
 import type {
 	PaginatedHandovers,
 	Handover,
@@ -47,44 +47,30 @@ export const handoverQueryKeys = {
 // ----------------------------------------
 
 export async function getHandovers(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	parameters?: {
 		page?: number;
 		pageSize?: number;
 	}
 ): Promise<PaginatedHandovers> {
-	const data = await authenticatedApiCall<PaginatedHandovers>({
-		method: "GET",
-		url: "/me/handovers",
-		params: parameters,
-	});
+	const { data } = await api.get<PaginatedHandovers>("/me/handovers", { params: parameters });
 	return data;
 }
 
 export async function getHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<Handover> {
-	const data = await authenticatedApiCall<Handover>({
-		method: "GET",
-		url: `/handovers/${handoverId}`,
-	});
+	const { data } = await api.get<Handover>(`/handovers/${handoverId}`);
 	return data;
 }
 
 export async function getPatientHandoverData(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<PatientHandoverData> {
-	const data = await authenticatedApiCall<PatientHandoverData>({
-		method: "GET",
-		url: `/handovers/${handoverId}/patient`,
-	});
+	const { data } = await api.get<PatientHandoverData>(`/handovers/${handoverId}/patient`);
 	return data;
 }
 
 export async function createHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	request: {
 		patientId: string;
 		fromDoctorId: string;
@@ -95,11 +81,7 @@ export async function createHandover(
 		notes?: string;
 	}
 ): Promise<Handover> {
-	const data = await authenticatedApiCall<Handover>({
-		method: "POST",
-		url: "/handovers",
-		data: request,
-	});
+	const { data } = await api.post<Handover>("/handovers", request);
 	return data;
 }
 
@@ -107,65 +89,40 @@ export async function createHandover(
 // ----------------------------------------
 
 export async function readyHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/ready`,
-	});
+	await api.post(`/handovers/${handoverId}/ready`);
 }
 
 export async function startHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/start`,
-	});
+	await api.post(`/handovers/${handoverId}/start`);
 }
 
 export async function acceptHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/accept`,
-	});
+	await api.post(`/handovers/${handoverId}/accept`);
 }
 
 export async function completeHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/complete`,
-	});
+	await api.post(`/handovers/${handoverId}/complete`);
 }
 
 export async function cancelHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/cancel`,
-	});
+	await api.post(`/handovers/${handoverId}/cancel`);
 }
 
 export async function rejectHandover(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	reason: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "POST",
-		url: `/handovers/${handoverId}/reject`,
-		data: { reason },
-	});
+	await api.post(`/handovers/${handoverId}/reject`, { reason });
 }
 
 
@@ -173,14 +130,9 @@ export async function rejectHandover(
 // ----------------------------------------
 
 export async function getPendingHandovers(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	userId: string
 ): Promise<{ handovers: Array<Handover> }> {
-	const data = await authenticatedApiCall<{ handovers: Array<Handover> }>({
-		method: "GET",
-		url: `/handovers/pending`,
-		params: { userId },
-	});
+	const { data } = await api.get<{ handovers: Array<Handover> }>("/handovers/pending", { params: { userId } });
 	return data;
 }
 
@@ -190,13 +142,9 @@ export async function getPendingHandovers(
 // Removed getPatientData - data now consolidated into getPatientHandoverData
 
 export async function getSynthesis(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<SynthesisResponse> {
-	const data = await authenticatedApiCall<SynthesisResponse>({
-		method: "GET",
-		url: `/handovers/${handoverId}/synthesis`,
-	});
+	const { data } = await api.get<SynthesisResponse>(`/handovers/${handoverId}/synthesis`);
 	return data;
 }
 
@@ -204,27 +152,18 @@ export async function getSynthesis(
 // ----------------------------------------
 
 export async function getHandoverMessages(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<Array<HandoverMessage>> {
-	const data = await authenticatedApiCall<{messages: Array<HandoverMessage>}>({
-		method: "GET",
-		url: `/me/handovers/${handoverId}/messages`,
-	});
+	const { data } = await api.get<{messages: Array<HandoverMessage>}>(`/me/handovers/${handoverId}/messages`);
 	return data.messages;
 }
 
 export async function createHandoverMessage(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	messageText: string,
 	messageType: "message" | "system" | "notification" = "message"
 ): Promise<{ success: boolean; message: HandoverMessage }> {
-	const data = await authenticatedApiCall<{ success: boolean; message: HandoverMessage }>({
-		method: "POST",
-		url: `/me/handovers/${handoverId}/messages`,
-		data: { messageText, messageType },
-	});
+	const { data } = await api.post<{ success: boolean; message: HandoverMessage }>(`/me/handovers/${handoverId}/messages`, { messageText, messageType });
 	return data;
 }
 
@@ -232,13 +171,9 @@ export async function createHandoverMessage(
 // ----------------------------------------
 
 export async function getHandoverActivityLog(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<Array<HandoverActivityItem>> {
-	const data = await authenticatedApiCall<Array<HandoverActivityItem>>({
-		method: "GET",
-		url: `/me/handovers/${handoverId}/activity`,
-	});
+	const { data } = await api.get<Array<HandoverActivityItem>>(`/me/handovers/${handoverId}/activity`);
 	return data;
 }
 
@@ -246,27 +181,18 @@ export async function getHandoverActivityLog(
 // ----------------------------------------
 
 export async function getHandoverChecklists(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<Array<HandoverChecklistItem>> {
-	const data = await authenticatedApiCall<Array<HandoverChecklistItem>>({
-		method: "GET",
-		url: `/me/handovers/${handoverId}/checklists`,
-	});
+	const { data } = await api.get<Array<HandoverChecklistItem>>(`/me/handovers/${handoverId}/checklists`);
 	return data;
 }
 
 export async function updateChecklistItem(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	itemId: string,
 	isChecked: boolean
 ): Promise<{ success: boolean; message: string }> {
-	const data = await authenticatedApiCall<{ success: boolean; message: string }>({
-		method: "PUT",
-		url: `/me/handovers/${handoverId}/checklists/${itemId}`,
-		data: { isChecked },
-	});
+	const { data } = await api.put<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/checklists/${itemId}`, { isChecked });
 	return data;
 }
 
@@ -274,54 +200,36 @@ export async function updateChecklistItem(
 // ----------------------------------------
 
 export async function getHandoverActionItems(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<GetHandoverActionItemsResponse> {
-	const data = await authenticatedApiCall<GetHandoverActionItemsResponse>({
-		method: "GET",
-		url: `/me/handovers/${handoverId}/action-items`,
-	});
+	const { data } = await api.get<GetHandoverActionItemsResponse>(`/me/handovers/${handoverId}/action-items`);
 	return data;
 }
 
 export async function createActionItem(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	description: string,
 	priority: "low" | "medium" | "high" = "medium",
 	dueTime?: string
 ): Promise<{ success: boolean; actionItemId: string }> {
-	const data = await authenticatedApiCall<{ success: boolean; actionItemId: string }>({
-		method: "POST",
-		url: `/me/handovers/${handoverId}/action-items`,
-		data: { description, priority, dueTime },
-	});
+	const { data } = await api.post<{ success: boolean; actionItemId: string }>(`/me/handovers/${handoverId}/action-items`, { description, priority, dueTime });
 	return data;
 }
 
 export async function updateActionItem(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	actionItemId: string,
 	updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string }
 ): Promise<{ success: boolean; message: string }> {
-	const data = await authenticatedApiCall<{ success: boolean; message: string }>({
-		method: "PUT",
-		url: `/me/handovers/${handoverId}/action-items/${actionItemId}`,
-		data: updates,
-	});
+	const { data } = await api.put<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/action-items/${actionItemId}`, updates);
 	return data;
 }
 
 export async function deleteActionItem(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	actionItemId: string
 ): Promise<{ success: boolean; message: string }> {
-	const data = await authenticatedApiCall<{ success: boolean; message: string }>({
-		method: "DELETE",
-		url: `/me/handovers/${handoverId}/action-items/${actionItemId}`,
-	});
+	const { data } = await api.delete<{ success: boolean; message: string }>(`/me/handovers/${handoverId}/action-items/${actionItemId}`);
 	return data;
 }
 
@@ -333,13 +241,9 @@ export async function deleteActionItem(
  * V3 Migration: Uses /me/handovers/{id}/contingency-plans and extracts 'contingencyPlans' from response.
  */
 export async function getHandoverContingencyPlans(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<Array<HandoverContingencyPlan>> {
-	const data = await authenticatedApiCall<ContingencyPlansResponse>({
-		method: "GET",
-		url: `/me/handovers/${handoverId}/contingency-plans`,
-	});
+	const { data } = await api.get<ContingencyPlansResponse>(`/me/handovers/${handoverId}/contingency-plans`);
 	return data.contingencyPlans;
 }
 
@@ -348,17 +252,15 @@ export async function getHandoverContingencyPlans(
  * V3 Migration: Uses /me/handovers/{id}/contingency-plans and returns 'contingencyPlan' object.
  */
 export async function createContingencyPlan(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	conditionText: string,
 	actionText: string,
 	priority: "low" | "medium" | "high" = "medium"
 ): Promise<{ success: boolean; contingencyPlan: HandoverContingencyPlan }> {
-	const data = await authenticatedApiCall<{ success: boolean; contingencyPlan: HandoverContingencyPlan }>({
-		method: "POST",
-		url: `/me/handovers/${handoverId}/contingency-plans`,
-		data: { conditionText, actionText, priority },
-	});
+	const { data } = await api.post<{ success: boolean; contingencyPlan: HandoverContingencyPlan }>(
+		`/me/handovers/${handoverId}/contingency-plans`, 
+		{ conditionText, actionText, priority }
+	);
 	return data;
 }
 
@@ -373,32 +275,29 @@ export function useHandovers(parameters?: {
 	page?: number;
 	pageSize?: number;
 }): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.list({ ...parameters }),
-		queryFn: () => getHandovers(authenticatedApiCall, parameters),
+		queryFn: () => getHandovers(parameters),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 }
 
 export function useHandover(handoverId: string): ReturnType<typeof useQuery<Handover | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.detail(handoverId),
-		queryFn: () => getHandover(authenticatedApiCall, handoverId),
+		queryFn: () => getHandover(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 }
 
-export function useCreateHandover(): ReturnType<typeof useMutation<Handover, Error, Parameters<typeof createHandover>[1]>> {
+export function useCreateHandover(): ReturnType<typeof useMutation<Handover, Error, Parameters<typeof createHandover>[0]>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
-		mutationFn: (request) => createHandover(authenticatedApiCall, request),
+		mutationFn: (request) => createHandover(request),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.lists() });
 		},
@@ -410,14 +309,12 @@ export function useCreateHandover(): ReturnType<typeof useMutation<Handover, Err
 
 function useHandoverStateMutation(
 	mutationFn: (
-		authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 		handoverId: string
 	) => Promise<void>
 ): ReturnType<typeof useMutation<void, Error, string>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useMutation({
-		mutationFn: (handoverId: string) => mutationFn(authenticatedApiCall, handoverId),
+		mutationFn: (handoverId: string) => mutationFn(handoverId),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
 		},
@@ -446,10 +343,9 @@ export function useCancelHandover(): ReturnType<typeof useMutation<void, Error, 
 
 export function useRejectHandover(): ReturnType<typeof useMutation<void, Error, { handoverId: string; reason: string }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useMutation({
 		mutationFn: ({ handoverId, reason }: { handoverId: string; reason: string }) =>
-			rejectHandover(authenticatedApiCall, handoverId, reason),
+			rejectHandover(handoverId, reason),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
 		},
@@ -462,10 +358,9 @@ export function useRejectHandover(): ReturnType<typeof useMutation<void, Error, 
 // ----------------------------------------
 
 export function usePendingHandovers(userId: string): ReturnType<typeof useQuery<{ handovers: Array<Handover> } | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.list({ userId, status: "pending" }),
-		queryFn: () => getPendingHandovers(authenticatedApiCall, userId),
+		queryFn: () => getPendingHandovers(userId),
 		enabled: !!userId,
 		staleTime: 30 * 1000, // 30 seconds
 	});
@@ -478,11 +373,9 @@ export function usePendingHandovers(userId: string): ReturnType<typeof useQuery<
 // ----------------------------------------
 
 export function useHandoverMessages(handoverId: string): ReturnType<typeof useQuery<Array<HandoverMessage> | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
-
 	return useQuery({
 		queryKey: handoverQueryKeys.messages(handoverId),
-		queryFn: () => getHandoverMessages(authenticatedApiCall, handoverId),
+		queryFn: () => getHandoverMessages(handoverId),
 		enabled: !!handoverId,
 		staleTime: 30 * 1000, // 30 seconds
 	});
@@ -490,7 +383,6 @@ export function useHandoverMessages(handoverId: string): ReturnType<typeof useQu
 
 export function useCreateHandoverMessage(): ReturnType<typeof useMutation<{ success: boolean; message: HandoverMessage }, Error, { handoverId: string; messageText: string; messageType?: "message" | "system" | "notification" }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -501,7 +393,7 @@ export function useCreateHandoverMessage(): ReturnType<typeof useMutation<{ succ
 			handoverId: string;
 			messageText: string;
 			messageType?: "message" | "system" | "notification";
-		}) => createHandoverMessage(authenticatedApiCall, handoverId, messageText, messageType),
+		}) => createHandoverMessage(handoverId, messageText, messageType),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.messages(variables.handoverId),
@@ -514,10 +406,9 @@ export function useCreateHandoverMessage(): ReturnType<typeof useMutation<{ succ
 // ----------------------------------------
 
 export function useHandoverActivityLog(handoverId: string): ReturnType<typeof useQuery<Array<HandoverActivityItem> | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.activity(handoverId),
-		queryFn: () => getHandoverActivityLog(authenticatedApiCall, handoverId),
+		queryFn: () => getHandoverActivityLog(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -527,10 +418,9 @@ export function useHandoverActivityLog(handoverId: string): ReturnType<typeof us
 // ----------------------------------------
 
 export function useHandoverChecklists(handoverId: string): ReturnType<typeof useQuery<Array<HandoverChecklistItem> | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.checklists(handoverId),
-		queryFn: () => getHandoverChecklists(authenticatedApiCall, handoverId),
+		queryFn: () => getHandoverChecklists(handoverId),
 		enabled: !!handoverId,
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
@@ -538,7 +428,6 @@ export function useHandoverChecklists(handoverId: string): ReturnType<typeof use
 
 export function useUpdateChecklistItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; itemId: string; isChecked: boolean }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -549,7 +438,7 @@ export function useUpdateChecklistItem(): ReturnType<typeof useMutation<{ succes
 			handoverId: string;
 			itemId: string;
 			isChecked: boolean;
-		}) => updateChecklistItem(authenticatedApiCall, handoverId, itemId, isChecked),
+		}) => updateChecklistItem(handoverId, itemId, isChecked),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.checklists(variables.handoverId),
@@ -562,10 +451,9 @@ export function useUpdateChecklistItem(): ReturnType<typeof useMutation<{ succes
 // ----------------------------------------
 
 export function useHandoverActionItems(handoverId: string): ReturnType<typeof useQuery<GetHandoverActionItemsResponse | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.detail(handoverId).concat("action-items"),
-		queryFn: () => getHandoverActionItems(authenticatedApiCall, handoverId),
+		queryFn: () => getHandoverActionItems(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -573,7 +461,6 @@ export function useHandoverActionItems(handoverId: string): ReturnType<typeof us
 
 export function useCreateActionItem(): ReturnType<typeof useMutation<{ success: boolean; actionItemId: string }, Error, { handoverId: string; description: string; priority?: "low" | "medium" | "high"; dueTime?: string }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -586,7 +473,7 @@ export function useCreateActionItem(): ReturnType<typeof useMutation<{ success: 
 			description: string;
 			priority?: "low" | "medium" | "high";
 			dueTime?: string;
-		}) => createActionItem(authenticatedApiCall, handoverId, description, priority, dueTime),
+		}) => createActionItem(handoverId, description, priority, dueTime),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.detail(variables.handoverId),
@@ -597,7 +484,6 @@ export function useCreateActionItem(): ReturnType<typeof useMutation<{ success: 
 
 export function useUpdateActionItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; actionItemId: string; updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string } }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -608,7 +494,7 @@ export function useUpdateActionItem(): ReturnType<typeof useMutation<{ success: 
 			handoverId: string;
 			actionItemId: string;
 			updates: { description?: string; isCompleted?: boolean; priority?: "low" | "medium" | "high"; dueTime?: string };
-		}) => updateActionItem(authenticatedApiCall, handoverId, actionItemId, updates),
+		}) => updateActionItem(handoverId, actionItemId, updates),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.detail(variables.handoverId),
@@ -619,7 +505,6 @@ export function useUpdateActionItem(): ReturnType<typeof useMutation<{ success: 
 
 export function useDeleteActionItem(): ReturnType<typeof useMutation<{ success: boolean; message: string }, Error, { handoverId: string; actionItemId: string }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -628,7 +513,7 @@ export function useDeleteActionItem(): ReturnType<typeof useMutation<{ success: 
 		}: {
 			handoverId: string;
 			actionItemId: string;
-		}) => deleteActionItem(authenticatedApiCall, handoverId, actionItemId),
+		}) => deleteActionItem(handoverId, actionItemId),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.detail(variables.handoverId),
@@ -641,10 +526,9 @@ export function useDeleteActionItem(): ReturnType<typeof useMutation<{ success: 
 // ----------------------------------------
 
 export function useHandoverContingencyPlans(handoverId: string): ReturnType<typeof useQuery<Array<HandoverContingencyPlan> | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
-		queryFn: () => getHandoverContingencyPlans(authenticatedApiCall, handoverId),
+		queryFn: () => getHandoverContingencyPlans(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -652,7 +536,6 @@ export function useHandoverContingencyPlans(handoverId: string): ReturnType<type
 
 export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ success: boolean; contingencyPlan: HandoverContingencyPlan }, Error, { handoverId: string; conditionText: string; actionText: string; priority?: "low" | "medium" | "high" }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -665,7 +548,7 @@ export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ succ
 			conditionText: string;
 			actionText: string;
 			priority?: "low" | "medium" | "high";
-		}) => createContingencyPlan(authenticatedApiCall, handoverId, conditionText, actionText, priority),
+		}) => createContingencyPlan(handoverId, conditionText, actionText, priority),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
@@ -683,26 +566,17 @@ export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ succ
  * V3 Migration: Returns 'situationAwareness' object instead of 'section'.
  */
 export async function getSituationAwareness(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string
 ): Promise<SituationAwarenessResponse> {
-	const data = await authenticatedApiCall<SituationAwarenessResponse>({
-		method: "GET",
-		url: `/handovers/${handoverId}/situation-awareness`,
-	});
+	const { data } = await api.get<SituationAwarenessResponse>(`/handovers/${handoverId}/situation-awareness`);
 	return data;
 }
 
 export async function updatePatientData(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	request: UpdatePatientDataRequest
 ): Promise<ApiResponse> {
-	const data = await authenticatedApiCall<ApiResponse>({
-		method: "PUT",
-		url: `/handovers/${handoverId}/patient-data`,
-		data: request,
-	});
+	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/patient-data`, request);
 	return data;
 }
 
@@ -711,40 +585,26 @@ export async function updatePatientData(
  * V3 Migration: Requires 'status' field in request.
  */
 export async function updateSituationAwareness(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	request: UpdateSituationAwarenessRequest
 ): Promise<ApiResponse> {
-	const data = await authenticatedApiCall<ApiResponse>({
-		method: "PUT",
-		url: `/handovers/${handoverId}/situation-awareness`,
-		data: request,
-	});
+	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/situation-awareness`, request);
 	return data;
 }
 
 export async function updateSynthesis(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	request: { content?: string; status: string }
 ): Promise<ApiResponse> {
-	const data = await authenticatedApiCall<ApiResponse>({
-		method: "PUT",
-		url: `/handovers/${handoverId}/synthesis`,
-		data: request,
-	});
+	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/synthesis`, request);
 	return data;
 }
 
 export async function deleteContingencyPlan(
-	authenticatedApiCall: ReturnType<typeof useAuthenticatedApi>["authenticatedApiCall"],
 	handoverId: string,
 	contingencyId: string
 ): Promise<void> {
-	await authenticatedApiCall({
-		method: "DELETE",
-		url: `/handovers/${handoverId}/contingency-plans/${contingencyId}`,
-	});
+	await api.delete(`/handovers/${handoverId}/contingency-plans/${contingencyId}`);
 }
 
 // ========================================
@@ -752,10 +612,9 @@ export async function deleteContingencyPlan(
 // ========================================
 
 export function useSituationAwareness(handoverId: string): ReturnType<typeof useQuery<SituationAwarenessResponse | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.situationAwareness(handoverId),
-		queryFn: () => getSituationAwareness(authenticatedApiCall, handoverId),
+		queryFn: () => getSituationAwareness(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -764,10 +623,9 @@ export function useSituationAwareness(handoverId: string): ReturnType<typeof use
 // Removed usePatientData - data now consolidated into usePatientHandoverData
 
 export function useSynthesis(handoverId: string): ReturnType<typeof useQuery<SynthesisResponse | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.synthesis(handoverId),
-		queryFn: () => getSynthesis(authenticatedApiCall, handoverId),
+		queryFn: () => getSynthesis(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
@@ -775,11 +633,10 @@ export function useSynthesis(handoverId: string): ReturnType<typeof useQuery<Syn
 
 export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string } & UpdatePatientDataRequest>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({ handoverId, ...request }: { handoverId: string } & UpdatePatientDataRequest) =>
-			updatePatientData(authenticatedApiCall, handoverId, request),
+			updatePatientData(handoverId, request),
 		onSuccess: (_, { handoverId }) => {
 			return queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(handoverId) });
 		},
@@ -788,7 +645,6 @@ export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiRespons
 
 export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string; content: string; status?: SituationAwarenessStatus }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -799,7 +655,7 @@ export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<Api
 			handoverId: string;
 			content: string;
 			status?: SituationAwarenessStatus;
-		}) => updateSituationAwareness(authenticatedApiCall, handoverId, { content, status }),
+		}) => updateSituationAwareness(handoverId, { content, status }),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.situationAwareness(variables.handoverId),
@@ -810,7 +666,6 @@ export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<Api
 
 export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string; content?: string; status: string }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -821,7 +676,7 @@ export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse,
 			handoverId: string;
 			content?: string;
 			status: string;
-		}) => updateSynthesis(authenticatedApiCall, handoverId, { content, status }),
+		}) => updateSynthesis(handoverId, { content, status }),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.synthesis(variables.handoverId),
@@ -832,7 +687,6 @@ export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse,
 
 export function useDeleteContingencyPlan(): ReturnType<typeof useMutation<void, Error, { handoverId: string; contingencyId: string }>> {
 	const queryClient = useQueryClient();
-	const { authenticatedApiCall } = useAuthenticatedApi();
 
 	return useMutation({
 		mutationFn: ({
@@ -841,7 +695,7 @@ export function useDeleteContingencyPlan(): ReturnType<typeof useMutation<void, 
 		}: {
 			handoverId: string;
 			contingencyId: string;
-		}) => deleteContingencyPlan(authenticatedApiCall, handoverId, contingencyId),
+		}) => deleteContingencyPlan(handoverId, contingencyId),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.contingencyPlans(variables.handoverId),
@@ -851,10 +705,9 @@ export function useDeleteContingencyPlan(): ReturnType<typeof useMutation<void, 
 }
 
 export function usePatientHandoverData(handoverId: string): ReturnType<typeof useQuery<PatientHandoverData | undefined, Error>> {
-	const { authenticatedApiCall } = useAuthenticatedApi();
 	return useQuery({
 		queryKey: handoverQueryKeys.patientHandoverData(handoverId),
-		queryFn: () => getPatientHandoverData(authenticatedApiCall, handoverId),
+		queryFn: () => getPatientHandoverData(handoverId),
 		enabled: !!handoverId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes

@@ -1,5 +1,13 @@
 import axios from "axios";
 
+// Token provider strategy
+type TokenProvider = () => Promise<string | null>;
+let tokenProvider: TokenProvider | null = null;
+
+export function setTokenProvider(provider: TokenProvider | null): void {
+	tokenProvider = provider;
+}
+
 // Axios instance with default config
 export const api = axios.create({
 	baseURL: (import.meta.env["VITE_API_URL"] as string | undefined) || "https://localhost:57679",
@@ -9,26 +17,25 @@ export const api = axios.create({
 	},
 });
 
-// Helper function to create authenticated API calls
-export const createAuthenticatedApiCall = (getToken: () => Promise<string | null>) => {
-	return async <T = unknown>(config: Parameters<typeof api.request>[0]): Promise<T> => {
-		try {
-			const token = await getToken();
-
-			if (token) {
-				// Use Clerk's preferred header format that matches our backend middleware
-				config.headers = {
-					...config.headers,
-					"x-clerk-user-token": token,
-					Authorization: `Bearer ${token}`,
-				} as Record<string, string>;
+// Global Interceptor to inject Auth Token
+api.interceptors.request.use(
+	async (config) => {
+		if (tokenProvider) {
+			try {
+				const token = await tokenProvider();
+				if (token) {
+					config.headers.Authorization = `Bearer ${token}`;
+					config.headers["x-clerk-user-token"] = token;
+				}
+			} catch (error) {
+				console.error("Error getting token in interceptor:", error);
+				// We don't block the request here, we let the backend handle the 401 if needed
+				// or maybe we should reject? For now, proceed without token if fetching fails.
 			}
-
-			const response = await api.request<T>(config);
-			return response.data;
-		} catch (error) {
-			console.error("API call failed:", error);
-			throw error;
 		}
-	};
-};
+		return config;
+	},
+	(error: unknown) => {
+		return Promise.reject(error instanceof Error ? error : new Error(String(error)));
+	}
+);
