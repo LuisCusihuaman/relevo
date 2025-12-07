@@ -5,17 +5,6 @@ import type {
 	SyncStatus,
 } from "@/common/types";
 import type { Handover, PatientHandoverData, User } from "@/api";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
 	useSituationAwareness,
@@ -28,6 +17,7 @@ import {
 	SituationAwareness,
 	SynthesisByReceiver,
 } from "..";
+import { HandoverSection } from "./HandoverSection";
 
 interface MainContentProps {
 	layoutMode: "single" | "columns";
@@ -43,7 +33,7 @@ interface MainContentProps {
 	setHandoverComplete: (complete: boolean) => void;
 	currentUser: User | null;
 	handoverData?: Handover;
-    patientData: PatientHandoverData | null;
+	patientData: PatientHandoverData | null;
 }
 
 const toPhysician = (
@@ -102,7 +92,7 @@ export function MainContent({
 	setHandoverComplete,
 	currentUser,
 	handoverData,
-    patientData,
+	patientData,
 }: MainContentProps): React.JSX.Element {
 	const { t } = useTranslation(["handover", "mainContent"]);
 	const ipassGuidelines = getIpassGuidelines(t);
@@ -116,6 +106,7 @@ export function MainContent({
 		handoverId ?? "",
 	);
 
+	// Loading state
 	if (isSituationAwarenessLoading || isSynthesisLoading) {
 		return (
 			<div className="flex items-center justify-center p-8">
@@ -129,6 +120,7 @@ export function MainContent({
 		);
 	}
 
+	// Error state
 	if (situationAwarenessError || synthesisError) {
 		return (
 			<div className="flex items-center justify-center p-8">
@@ -146,6 +138,7 @@ export function MainContent({
 		);
 	}
 
+	// No data state
 	if (!handoverData) {
 		return (
 			<div className="flex items-center justify-center p-8">
@@ -171,709 +164,166 @@ export function MainContent({
 		role: "Doctor",
 	};
 
+	const isCollapsible = layoutMode === "single";
+
+	const responsiblePhysician = {
+		id: handoverData.responsiblePhysicianId,
+		name: handoverData.responsiblePhysicianName,
+	};
+
+	// Section labels (casted to string to satisfy strict typing)
+	const sectionLabels = {
+		illness: {
+			title: t("mainContent:sections.illnessSeverity") as string,
+			description: t("mainContent:sections.illnessSeverityDescription") as string,
+		},
+		patient: {
+			title: t("mainContent:sections.patientSummary") as string,
+			description: t("mainContent:sections.patientSummaryDescription") as string,
+		},
+		situation: {
+			title: t("mainContent:sections.situationAwareness") as string,
+			description: t("mainContent:sections.situationAwarenessDescription") as string,
+		},
+		actions: {
+			title: t("mainContent:sections.actionList") as string,
+			description: t("mainContent:sections.actionListDescription") as string,
+		},
+		synthesis: {
+			title: t("mainContent:sections.synthesisByReceiver") as string,
+			description: t("mainContent:sections.synthesisByReceiverDescription") as string,
+		},
+	};
+
+	// I-PASS Sections rendered ONCE, layout controlled by CSS
+	const IllnessSection = (
+		<HandoverSection
+			collapsible={isCollapsible}
+			description={sectionLabels.illness.description}
+			guidelines={ipassGuidelines.illness}
+			isExpanded={expandedSections.illness}
+			letter="I"
+			letterColor="blue"
+			title={sectionLabels.illness.title}
+		>
+			<IllnessSeverity
+				assignedPhysician={assignedPhysician}
+				currentUser={toPhysician(currentUser)}
+			/>
+		</HandoverSection>
+	);
+
+	const PatientSection = (
+		<HandoverSection
+			collapsible={isCollapsible}
+			description={sectionLabels.patient.description}
+			guidelines={ipassGuidelines.patient}
+			isExpanded={expandedSections.patient}
+			letter="P"
+			letterColor="blue"
+			title={sectionLabels.patient.title}
+		>
+			<PatientSummary
+				currentUser={toPhysician(currentUser)}
+				handoverId={handoverData.id}
+				handoverStateName={handoverData.stateName}
+				patientData={patientData || undefined}
+				responsiblePhysician={responsiblePhysician}
+				syncStatus={syncStatus}
+				onOpenThread={handleOpenDiscussion}
+				onRequestFullscreen={() => { handleOpenFullscreenEdit("patient-summary"); }}
+				onSyncStatusChange={setSyncStatus}
+			/>
+		</HandoverSection>
+	);
+
+	const SituationSection = (
+		<HandoverSection
+			collapsible={isCollapsible}
+			description={sectionLabels.situation.description}
+			guidelines={ipassGuidelines.awareness}
+			isExpanded={expandedSections.awareness}
+			letter="S"
+			letterColor="blue"
+			title={sectionLabels.situation.title}
+		>
+			<SituationAwareness
+				currentUser={toPhysician(currentUser)}
+				handoverId={handoverData.id}
+				onRequestFullscreen={() => { handleOpenFullscreenEdit("situation-awareness", true); }}
+			/>
+		</HandoverSection>
+	);
+
+	const ActionSection = (
+		<HandoverSection
+			collapsible={isCollapsible}
+			description={sectionLabels.actions.description}
+			guidelines={ipassGuidelines.actions}
+			isExpanded={expandedSections.actions}
+			letter="A"
+			letterColor="blue"
+			title={sectionLabels.actions.title}
+		>
+			<ActionList
+				expanded
+				assignedPhysician={assignedPhysician}
+				collaborators={[]}
+				currentUser={toPhysician(currentUser)}
+				handoverId={handoverData?.id}
+				onOpenThread={handleOpenDiscussion}
+			/>
+		</HandoverSection>
+	);
+
+	const SynthesisSection = (
+		<HandoverSection
+			collapsible={isCollapsible}
+			description={sectionLabels.synthesis.description}
+			guidelines={ipassGuidelines.synthesis}
+			isExpanded={expandedSections.synthesis}
+			letter="S"
+			letterColor="purple"
+			title={sectionLabels.synthesis.title}
+		>
+			<SynthesisByReceiver
+				currentUser={toPhysician(currentUser)}
+				handoverComplete={handoverData.stateName === "Completed"}
+				handoverState={handoverData.stateName}
+				receivingPhysician={formatPhysician(patientData?.receivingPhysician)}
+				onComplete={setHandoverComplete}
+				onOpenThread={handleOpenDiscussion}
+			/>
+		</HandoverSection>
+	);
+
+	// Single column (mobile/collapsible) layout
+	if (layoutMode === "single") {
+		return (
+			<div className="space-y-3">
+				{IllnessSection}
+				{PatientSection}
+				{ActionSection}
+				{SituationSection}
+				{SynthesisSection}
+			</div>
+		);
+	}
+
+	// Desktop: 3-column grid layout
 	return (
-		<div className="space-y-6">
-			{/* I-PASS Sections - Column Layout for Desktop */}
-			{layoutMode === "columns" ? (
-				<div className="hidden xl:grid xl:grid-cols-3 xl:gap-8">
-					{/* Left Column */}
-					<div className="xl:col-span-2 space-y-6">
-						{/* I - Illness Severity */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">I</span>
-									</div>
-									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
-											{t("mainContent:sections.illnessSeverity")}
-										</h3>
-										<p className="text-sm text-gray-600">
-											{t("mainContent:sections.illnessSeverityDescription")}
-										</p>
-									</div>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-												<Info className="w-4 h-4 text-gray-400" />
-											</button>
-										</TooltipTrigger>
-										<TooltipContent
-											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-											side="top"
-										>
-											<div className="space-y-2">
-												<h4 className="font-medium text-gray-900 text-sm">
-													{ipassGuidelines.illness.title}
-												</h4>
-												<ul className="space-y-1 text-xs text-gray-600">
-													{ipassGuidelines.illness.points.map(
-														(point, index) => (
-															<li
-																key={index}
-																className="flex items-start space-x-1"
-															>
-																<span className="text-gray-400 mt-0.5">•</span>
-																<span>{point}</span>
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-										</TooltipContent>
-									</Tooltip>
-								</div>
-							</div>
-							<div className="p-6">
-								<IllnessSeverity
-									assignedPhysician={assignedPhysician}
-									currentUser={toPhysician(currentUser)}
-								/>
-							</div>
-						</div>
+		<div className="grid xl:grid-cols-3 xl:gap-8 gap-6">
+			{/* Left Column - Main Sections */}
+			<div className="xl:col-span-2 space-y-6">
+				{IllnessSection}
+				{PatientSection}
+				{SituationSection}
+			</div>
 
-						{/* P - Patient Summary */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">P</span>
-									</div>
-									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
-											{t("mainContent:sections.patientSummary")}
-										</h3>
-										<p className="text-sm text-gray-600">
-											{t("mainContent:sections.patientSummaryDescription")}
-										</p>
-									</div>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-												<Info className="w-4 h-4 text-gray-400" />
-											</button>
-										</TooltipTrigger>
-										<TooltipContent
-											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-											side="top"
-										>
-											<div className="space-y-2">
-												<h4 className="font-medium text-gray-900 text-sm">
-													{ipassGuidelines.patient.title}
-												</h4>
-												<ul className="space-y-1 text-xs text-gray-600">
-													{ipassGuidelines.patient.points.map(
-														(point, index) => (
-															<li
-																key={index}
-																className="flex items-start space-x-1"
-															>
-																<span className="text-gray-400 mt-0.5">•</span>
-																<span>{point}</span>
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-										</TooltipContent>
-									</Tooltip>
-								</div>
-							</div>
-							<PatientSummary
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								handoverStateName={handoverData.stateName}
-								patientData={patientData || undefined}
-								syncStatus={syncStatus}
-								responsiblePhysician={{
-									id: handoverData.responsiblePhysicianId,
-									name: handoverData.responsiblePhysicianName,
-								}}
-								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("patient-summary");
-								}}
-							/>
-						</div>
-
-						{/* S - Current Situation */}
-						<div className="bg-white rounded-lg border border-gray-100">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-blue-700">S</span>
-									</div>
-									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
-											{t("mainContent:sections.situationAwareness")}
-										</h3>
-										<p className="text-sm text-gray-600">
-											{t("mainContent:sections.situationAwarenessDescription")}
-										</p>
-									</div>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-												<Info className="w-4 h-4 text-gray-400" />
-											</button>
-										</TooltipTrigger>
-										<TooltipContent
-											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-											side="top"
-										>
-											<div className="space-y-2">
-												<h4 className="font-medium text-gray-900 text-sm">
-													{ipassGuidelines.awareness.title}
-												</h4>
-												<ul className="space-y-1 text-xs text-gray-600">
-													{ipassGuidelines.awareness.points.map(
-														(point, index) => (
-															<li
-																key={index}
-																className="flex items-start space-x-1"
-															>
-																<span className="text-gray-400 mt-0.5">•</span>
-																<span>{point}</span>
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-										</TooltipContent>
-									</Tooltip>
-								</div>
-							</div>
-							<SituationAwareness
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("situation-awareness", true);
-								}}
-							/>
-						</div>
-					</div>
-
-					{/* Right Column */}
-					<div className="xl:col-span-1 space-y-6">
-						{/* A - Action List */}
-						<div className=" top-32">
-							<div className="bg-white rounded-lg border border-gray-100">
-								<div className="p-4 border-b border-gray-100">
-									<div className="flex items-center space-x-3">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">A</span>
-										</div>
-										<div className="flex-1">
-											<h3 className="font-medium text-gray-900">
-												{t("mainContent:sections.actionList")}
-											</h3>
-											<p className="text-sm text-gray-600">
-												{t("mainContent:sections.actionListDescription")}
-											</p>
-										</div>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-													<Info className="w-4 h-4 text-gray-400" />
-												</button>
-											</TooltipTrigger>
-											<TooltipContent
-												className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-												side="top"
-											>
-												<div className="space-y-2">
-													<h4 className="font-medium text-gray-900 text-sm">
-														{ipassGuidelines.actions.title}
-													</h4>
-													<ul className="space-y-1 text-xs text-gray-600">
-														{ipassGuidelines.actions.points.map(
-															(point, index) => (
-																<li
-																	key={index}
-																	className="flex items-start space-x-1"
-																>
-																	<span className="text-gray-400 mt-0.5">•</span>
-																	<span>{point}</span>
-																</li>
-															)
-														)}
-													</ul>
-												</div>
-											</TooltipContent>
-										</Tooltip>
-									</div>
-								</div>
-								<div className="p-6">
-									<ActionList
-										expanded
-										assignedPhysician={assignedPhysician}
-										collaborators={[]}
-										currentUser={toPhysician(currentUser)}
-										handoverId={handoverData?.id}
-										onOpenThread={handleOpenDiscussion}
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* S - Synthesis by Receiver */}
-						<div className="bg-white rounded-lg border border-gray-100 mt-6">
-							<div className="p-4 border-b border-gray-100">
-								<div className="flex items-center space-x-3">
-									<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-										<span className="font-bold text-purple-700">S</span>
-									</div>
-									<div className="flex-1">
-										<h3 className="font-medium text-gray-900">
-											{t("mainContent:sections.synthesisByReceiver")}
-										</h3>
-										<p className="text-sm text-gray-600">
-											{t(
-												"mainContent:sections.synthesisByReceiverDescription",
-											)}
-										</p>
-									</div>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<button className="w-5 h-5 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-												<Info className="w-4 h-4 text-gray-400" />
-											</button>
-										</TooltipTrigger>
-										<TooltipContent
-											className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-											side="top"
-										>
-											<div className="space-y-2">
-												<h4 className="font-medium text-gray-900 text-sm">
-													{ipassGuidelines.synthesis.title}
-												</h4>
-												<ul className="space-y-1 text-xs text-gray-600">
-													{ipassGuidelines.synthesis.points.map(
-														(point, index) => (
-															<li
-																key={index}
-																className="flex items-start space-x-1"
-															>
-																<span className="text-gray-400 mt-0.5">•</span>
-																<span>{point}</span>
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-										</TooltipContent>
-									</Tooltip>
-								</div>
-							</div>
-							<div className="p-6">
-								<SynthesisByReceiver
-									currentUser={toPhysician(currentUser)}
-									handoverComplete={handoverData.stateName === "Completed"}
-									handoverState={handoverData.stateName}
-									receivingPhysician={formatPhysician(
-										patientData?.receivingPhysician,
-									)}
-									onComplete={setHandoverComplete}
-									onOpenThread={handleOpenDiscussion}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			) : null}
-
-			{/* Single Column Layout - Subtle Borders & I-PASS Guidelines */}
-			<div
-				className={`space-y-3 ${layoutMode === "columns" ? "xl:hidden" : ""}`}
-			>
-				{/* I - Illness Severity */}
-				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">I</span>
-										</div>
-										<div>
-											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
-													{t("mainContent:sections.illnessSeverity")}
-												</h3>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-															<Info className="w-3 h-3 text-gray-400" />
-														</button>
-													</TooltipTrigger>
-													<TooltipContent
-														className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-														side="top"
-													>
-														<div className="space-y-2">
-															<h4 className="font-medium text-gray-900 text-sm">
-																{ipassGuidelines.illness.title}
-															</h4>
-															<ul className="space-y-1 text-xs text-gray-600">
-																{ipassGuidelines.illness.points.map(
-																	(point, index) => (
-																		<li
-																			key={index}
-																			className="flex items-start space-x-1"
-																		>
-																			<span className="text-gray-400 mt-0.5">•</span>
-																			<span>{point}</span>
-																		</li>
-																	)
-																)}
-															</ul>
-														</div>
-													</TooltipContent>
-												</Tooltip>
-											</div>
-											<p className="text-sm text-gray-700">
-												{t("mainContent:sections.illnessSeverityDescription")}
-											</p>
-										</div>
-										<div className="flex items-center">
-											{expandedSections.illness ? (
-												<ChevronUp className="w-4 h-4 text-gray-500" />
-											) : (
-												<ChevronDown className="w-4 h-4 text-gray-500" />
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<div className="p-6">
-								<IllnessSeverity
-									assignedPhysician={assignedPhysician}
-									currentUser={toPhysician(currentUser)}
-								/>
-							</div>
-						</CollapsibleContent>
-					</div>
-				</Collapsible>
-
-				{/* P - Patient Summary */}
-				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">P</span>
-										</div>
-										<div>
-											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
-													{t("mainContent:sections.patientSummary")}
-												</h3>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-															<Info className="w-3 h-3 text-gray-400" />
-														</button>
-													</TooltipTrigger>
-													<TooltipContent
-														className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-														side="top"
-													>
-														<div className="space-y-2">
-															<h4 className="font-medium text-gray-900 text-sm">
-																{ipassGuidelines.patient.title}
-															</h4>
-															<ul className="space-y-1 text-xs text-gray-600">
-																{ipassGuidelines.patient.points.map(
-																	(point, index) => (
-																		<li
-																			key={index}
-																			className="flex items-start space-x-1"
-																		>
-																			<span className="text-gray-400 mt-0.5">•</span>
-																			<span>{point}</span>
-																		</li>
-																	)
-																)}
-															</ul>
-														</div>
-													</TooltipContent>
-												</Tooltip>
-											</div>
-											<p className="text-sm text-gray-700">
-												{t("mainContent:sections.patientSummaryDescription")}
-											</p>
-										</div>
-										<div className="flex items-center">
-											{expandedSections.patient ? (
-												<ChevronUp className="w-4 h-4 text-gray-500" />
-											) : (
-												<ChevronDown className="w-4 h-4 text-gray-500" />
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<div className="p-6">
-								<PatientSummary
-									currentUser={toPhysician(currentUser)}
-									handoverId={handoverData.id}
-									handoverStateName={handoverData.stateName}
-									patientData={patientData || undefined}
-									syncStatus={syncStatus}
-									responsiblePhysician={{
-										id: handoverData.responsiblePhysicianId,
-										name: handoverData.responsiblePhysicianName,
-									}}
-									onOpenThread={handleOpenDiscussion}
-									onSyncStatusChange={setSyncStatus}
-									onRequestFullscreen={() => {
-										handleOpenFullscreenEdit("patient-summary");
-									}}
-								/>
-							</div>
-						</CollapsibleContent>
-					</div>
-				</Collapsible>
-
-				{/* A - Action List */}
-				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">A</span>
-										</div>
-										<div>
-											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
-													{t("mainContent:sections.actionList")}
-												</h3>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-															<Info className="w-3 h-3 text-gray-400" />
-														</button>
-													</TooltipTrigger>
-													<TooltipContent
-														className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-														side="top"
-													>
-														<div className="space-y-2">
-															<h4 className="font-medium text-gray-900 text-sm">
-																{ipassGuidelines.actions.title}
-															</h4>
-															<ul className="space-y-1 text-xs text-gray-600">
-																{ipassGuidelines.actions.points.map(
-																	(point, index) => (
-																		<li
-																			key={index}
-																			className="flex items-start space-x-1"
-																		>
-																			<span className="text-gray-400 mt-0.5">•</span>
-																			<span>{point}</span>
-																		</li>
-																	)
-																)}
-															</ul>
-														</div>
-													</TooltipContent>
-												</Tooltip>
-											</div>
-											<p className="text-sm text-gray-700">
-												{t("mainContent:sections.actionListDescription")}
-											</p>
-										</div>
-										<div className="flex items-center">
-											{expandedSections.actions ? (
-												<ChevronUp className="w-4 h-4 text-gray-500" />
-											) : (
-												<ChevronDown className="w-4 h-4 text-gray-500" />
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<div className="p-6">
-								<ActionList
-									expanded
-									assignedPhysician={assignedPhysician}
-									collaborators={[]}
-									currentUser={toPhysician(currentUser)}
-									handoverId={handoverData?.id}
-									onOpenThread={handleOpenDiscussion}
-								/>
-							</div>
-						</CollapsibleContent>
-					</div>
-				</Collapsible>
-
-				{/* S - Current Situation */}
-				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-blue-700">S</span>
-										</div>
-										<div>
-											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
-													{t("mainContent:sections.situationAwareness")}
-												</h3>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-															<Info className="w-3 h-3 text-gray-400" />
-														</button>
-													</TooltipTrigger>
-													<TooltipContent
-														className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-														side="top"
-													>
-														<div className="space-y-2">
-															<h4 className="font-medium text-gray-900 text-sm">
-																{ipassGuidelines.awareness.title}
-															</h4>
-															<ul className="space-y-1 text-xs text-gray-600">
-																{ipassGuidelines.awareness.points.map(
-																	(point, index) => (
-																		<li
-																			key={index}
-																			className="flex items-start space-x-1"
-																		>
-																			<span className="text-gray-400 mt-0.5">•</span>
-																			<span>{point}</span>
-																		</li>
-																	)
-																)}
-															</ul>
-														</div>
-													</TooltipContent>
-												</Tooltip>
-											</div>
-											<p className="text-sm text-gray-700">
-												{t(
-													"mainContent:sections.situationAwarenessDescription",
-												)}
-											</p>
-										</div>
-										<div className="flex items-center">
-											{expandedSections.awareness ? (
-												<ChevronUp className="w-4 h-4 text-gray-500" />
-											) : (
-												<ChevronDown className="w-4 h-4 text-gray-500" />
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<SituationAwareness
-								currentUser={toPhysician(currentUser)}
-								handoverId={handoverData.id}
-								onRequestFullscreen={() => {
-									handleOpenFullscreenEdit("situation-awareness", true);
-								}}
-							/>
-						</CollapsibleContent>
-					</div>
-				</Collapsible>
-
-				{/* S - Synthesis by Receiver */}
-				<Collapsible asChild>
-					<div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-						<CollapsibleTrigger asChild>
-							<div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center space-x-4">
-										<div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-											<span className="font-bold text-purple-700">S</span>
-										</div>
-										<div>
-											<div className="flex items-center space-x-2">
-												<h3 className="font-semibold text-gray-900">
-													{t("mainContent:sections.synthesisByReceiver")}
-												</h3>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-															<Info className="w-3 h-3 text-gray-400" />
-														</button>
-													</TooltipTrigger>
-													<TooltipContent
-														className="bg-white border border-gray-200 shadow-lg p-4 max-w-sm"
-														side="top"
-													>
-														<div className="space-y-2">
-															<h4 className="font-medium text-gray-900 text-sm">
-																{ipassGuidelines.synthesis.title}
-															</h4>
-															<ul className="space-y-1 text-xs text-gray-600">
-																{ipassGuidelines.synthesis.points.map(
-																	(point, index) => (
-																		<li
-																			key={index}
-																			className="flex items-start space-x-1"
-																		>
-																			<span className="text-gray-400 mt-0.5">•</span>
-																			<span>{point}</span>
-																		</li>
-																	)
-																)}
-															</ul>
-														</div>
-													</TooltipContent>
-												</Tooltip>
-											</div>
-											<p className="text-sm text-gray-700">
-												{t(
-													"mainContent:sections.synthesisByReceiverDescription",
-												)}
-											</p>
-										</div>
-										<div className="flex items-center">
-											{expandedSections.synthesis ? (
-												<ChevronUp className="w-4 h-4 text-gray-500" />
-											) : (
-												<ChevronDown className="w-4 h-4 text-gray-500" />
-											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</CollapsibleTrigger>
-						<CollapsibleContent>
-							<div className="p-6">
-								<SynthesisByReceiver
-									currentUser={toPhysician(currentUser)}
-									handoverComplete={handoverData.stateName === "Completed"}
-									handoverState={handoverData.stateName}
-									receivingPhysician={formatPhysician(
-										patientData?.receivingPhysician,
-									)}
-									onComplete={setHandoverComplete}
-									onOpenThread={handleOpenDiscussion}
-								/>
-							</div>
-						</CollapsibleContent>
-					</div>
-				</Collapsible>
+			{/* Right Column - Actions & Synthesis */}
+			<div className="xl:col-span-1 space-y-6">
+				{ActionSection}
+				{SynthesisSection}
 			</div>
 		</div>
 	);

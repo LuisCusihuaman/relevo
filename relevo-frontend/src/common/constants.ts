@@ -4,8 +4,21 @@ import type { Collaborator } from "./types";
 // REMOVED: Mock current user and patient data - now fetched from API
 // Use real API data instead of hardcoded constants
 
+export interface IpassGuidelineSection {
+  title: string;
+  points: Array<string>;
+}
+
+export interface IpassGuidelines {
+  illness: IpassGuidelineSection;
+  patient: IpassGuidelineSection;
+  actions: IpassGuidelineSection;
+  awareness: IpassGuidelineSection;
+  synthesis: IpassGuidelineSection;
+}
+
 // I-PASS Guidelines for each section
-export const getIpassGuidelines = (t: TFunction<"handover", undefined>) => ({
+export const getIpassGuidelines = (t: TFunction<"handover", undefined>): IpassGuidelines => ({
   illness: {
     title: t("ipassGuidelines.illness.title"),
     points: [
