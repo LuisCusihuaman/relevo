@@ -20,8 +20,8 @@ export const useShiftCheckInStore = create<ShiftCheckInStoreState & ShiftCheckIn
 	persist(
 		(set) => ({
 			...initialState,
-			setState: (newState: Partial<ShiftCheckInStoreState>) => set((state) => ({ ...state, ...newState })),
-			reset: () => set(initialState),
+			setState: (newState: Partial<ShiftCheckInStoreState>): void => { set((state) => ({ ...state, ...newState })); },
+			reset: (): void => { set(initialState); },
 		}),
 		{
 			name: "shift-check-in-storage", // unique name for localStorage key

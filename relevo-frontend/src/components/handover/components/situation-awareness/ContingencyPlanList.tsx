@@ -1,3 +1,5 @@
+import type { JSX } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -46,7 +48,7 @@ const getStatusBadge = (status: string): string => {
   }
 };
 
-export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyPlanListProps) {
+export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyPlanListProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
 
   return (

@@ -131,7 +131,7 @@ export function IllnessSeverity({
       setRealtimeUpdate(false);
     }
 
-    return () => {
+    return (): void => {
       if (interval) {
         clearInterval(interval);
       }

@@ -38,7 +38,7 @@ export function HandoverSection({
     purple: "bg-purple-100 text-purple-700",
   };
 
-  const GuidelinesTooltip = () => (
+  const GuidelinesTooltip = (): JSX.Element => (
     <Tooltip>
       <TooltipTrigger asChild>
         <button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
@@ -66,7 +66,7 @@ export function HandoverSection({
     </Tooltip>
   );
 
-  const LetterBadge = () => (
+  const LetterBadge = (): JSX.Element => (
     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${colorClasses[letterColor]}`}>
       <span className="font-bold">{letter}</span>
     </div>

@@ -87,8 +87,8 @@ export function FullscreenEditor(): JSX.Element | null {
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => { document.removeEventListener("keydown", handleKeyDown); };
-  }, [handleCloseFullscreenEdit, handleFullscreenSave]);
+  return (): void => { document.removeEventListener("keydown", handleKeyDown); };
+}, [handleCloseFullscreenEdit, handleFullscreenSave]);
 
   // Get component title
   const getComponentTitle = (): string => {

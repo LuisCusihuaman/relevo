@@ -1,7 +1,7 @@
 import i18n, { type InitOptions, type Resource, type ResourceLanguage } from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
-import { isProduction } from "@/common/utils";
+import { isProduction } from "@/common/utilities";
 
 // Load all JSON locales at build time: /assets/locales/<lng>/<ns>.json
 const files = import.meta.glob<{ default: ResourceLanguage }>("@/assets/locales/*/*.json", { eager: true });

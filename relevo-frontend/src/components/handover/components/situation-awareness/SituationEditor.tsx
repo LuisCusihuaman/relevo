@@ -41,14 +41,14 @@ export function SituationEditor({
 
   const contentHeight = fullscreenMode ? "min-h-[60vh]" : "h-80";
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if ((event.key === "Enter" || event.key === " ") && canEdit && !isEditing) {
       event.preventDefault();
       onEnterEdit?.();
     }
   };
 
-  const onTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+  const onTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
     onChange(event.target.value);
   };
 
@@ -111,7 +111,7 @@ export function SituationEditor({
                 <Textarea
                   ref={textareaRef}
                   className={`w-full h-full ${fullscreenMode ? "min-h-[60vh]" : "min-h-[400px]"} border-0 bg-transparent p-4 resize-none text-gray-900 leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none`}
-                  placeholder={t("editor.placeholder")}
+                  placeholder={String(t("editor.placeholder"))}
                   value={content}
                   style={{
                     fontFamily: "system-ui, -apple-system, sans-serif",

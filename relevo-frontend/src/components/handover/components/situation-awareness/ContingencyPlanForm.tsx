@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, X } from "lucide-react";
-import { type ChangeEvent, type KeyboardEvent, useState } from "react";
+import { type ChangeEvent, type KeyboardEvent, type JSX, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface NewPlanData {
@@ -16,7 +16,7 @@ interface ContingencyPlanFormProps {
   isSubmitting: boolean;
 }
 
-export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: ContingencyPlanFormProps) {
+export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: ContingencyPlanFormProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
   const [newPlan, setNewPlan] = useState<NewPlanData>({
     condition: "",
@@ -24,13 +24,13 @@ export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: Contin
     priority: "medium",
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     if (!newPlan.condition || !newPlan.action) return;
     await onSubmit(newPlan);
     // Reset form is handled by parent or here if successful, but parent usually closes or resets
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = (event: KeyboardEvent): void => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
       void handleSubmit();

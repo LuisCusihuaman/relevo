@@ -12,7 +12,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useHandoverActivityLog } from "@/api";
 
@@ -34,7 +34,7 @@ export function HandoverHistory({
   patientData,
   handoverId,
   hideHeader = false,
-}: HandoverHistoryProps) {
+}: HandoverHistoryProps): JSX.Element {
   const { t } = useTranslation("handoverHistory");
   const [selectedHandover, setSelectedHandover] = useState<string | null>(null);
 
@@ -43,7 +43,7 @@ export function HandoverHistory({
 
   // Transform activity log data into handover history format
   const handoverHistory = activityLog && activityLog.length > 0
-    ? activityLog.slice(0, 10).map((activity, _index) => ({
+    ? activityLog.slice(0, 10).map((activity) => ({
         id: activity.id,
         date: new Date(activity.createdAt).toLocaleDateString(),
         shift: "Current Shift", // Could be derived from activity metadata
@@ -78,7 +78,7 @@ export function HandoverHistory({
         },
       ];
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: string): string => {
     switch (severity) {
       case "stable":
         return "bg-green-100 text-green-800 border-green-200";
@@ -93,7 +93,7 @@ export function HandoverHistory({
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "completed":
         return "bg-green-100 text-green-800";
