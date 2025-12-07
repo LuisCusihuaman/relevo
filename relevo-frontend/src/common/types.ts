@@ -356,7 +356,7 @@ export interface Alert {
   // Helper functions for I-PASS documentation
   export const getIPassCompletionStatus = (
 	entries?: Documentation["ipassEntries"],
-  ) => {
+  ): { completed: number; total: number } => {
 	if (!entries) return { completed: 0, total: 4 };
   
 	const requiredSections = [
@@ -379,23 +379,27 @@ export interface Alert {
   
   export const getLastIPassActivity = (patient: Patient): string => {
 	if (patient.lastIPassUpdate) {
-	  const sectionNames = {
+	  /* eslint-disable camelcase -- API field names */
+	  const sectionNames: Record<string, string> = {
 		illness_severity: "Illness Severity",
 		patient_summary: "Patient Summary",
 		action_list: "Action List",
 		situation_awareness: "Situation Awareness",
 	  };
+	  /* eslint-enable camelcase */
 	  return `${sectionNames[patient.lastIPassUpdate.section]} updated`;
 	}
   
 	if (patient.ipassEntries && patient.ipassEntries.length > 0) {
 	  const latest = patient.ipassEntries[patient.ipassEntries.length - 1]!;
-	  const sectionNames = {
+	  /* eslint-disable camelcase -- API field names */
+	  const sectionNames: Record<string, string> = {
 		illness_severity: "Illness Severity",
 		patient_summary: "Patient Summary",
 		action_list: "Action List",
 		situation_awareness: "Situation Awareness",
 	  };
+	  /* eslint-enable camelcase */
 	  return `${sectionNames[latest.type]} documented`;
 	}
   

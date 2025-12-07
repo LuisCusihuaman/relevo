@@ -214,13 +214,13 @@ export function SynthesisByReceiver({
                 <div className="flex-shrink-0 pt-1">
                   <Checkbox
                     checked={item.checked}
-                    onCheckedChange={(checked) =>
-                      handleItemChange(item.id, checked as boolean)
-                    }
                     disabled={!canConfirm}
                     className={`${
                       item.critical ? "border-purple-400" : "border-gray-300"
                     } ${item.checked ? "bg-green-500 border-green-500" : ""}`}
+                    onCheckedChange={(checked) =>
+                      { handleItemChange(item.id, checked as boolean); }
+                    }
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -233,8 +233,8 @@ export function SynthesisByReceiver({
                       {item.label}
                       {item.critical && (
                         <Badge
-                          variant="outline"
                           className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200"
+                          variant="outline"
                         >
                           {t("critical")}
                         </Badge>
@@ -272,14 +272,14 @@ export function SynthesisByReceiver({
             </div>
 
             <Button
-              onClick={handleFinalConfirmation}
               disabled={!isComplete}
+              size="lg"
               className={`w-full ${
                 isComplete
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
-              size="lg"
+              onClick={handleFinalConfirmation}
             >
               {isComplete ? (
                 <>

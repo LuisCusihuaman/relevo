@@ -50,7 +50,7 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
 
   // Reset store on unmount
   useEffect(() => {
-    return () => reset();
+    return (): void => { reset(); };
   }, [reset]);
 
   const mappedPatientData = patientData ? {

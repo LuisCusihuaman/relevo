@@ -3,7 +3,7 @@ import { useParams } from "@tanstack/react-router";
 import { useUser } from "@clerk/clerk-react";
 import { useHandover } from "@/api/endpoints/handovers";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
-import { toPhysician, formatPhysician, type UserInfo } from "@/lib/user-utils";
+import { toPhysician, formatPhysician, type UserInfo } from "@/lib/user-utilities";
 import type { PatientHandoverData, Handover } from "@/api";
 
 interface CurrentHandoverData {
@@ -37,7 +37,7 @@ export function useCurrentHandover(): CurrentHandoverData {
         initials: toPhysician({ 
             id: handoverData.responsiblePhysicianId, 
             fullName: handoverData.responsiblePhysicianName 
-        } as any).initials,
+        }).initials,
         role: "Doctor",
       };
     }

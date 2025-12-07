@@ -12,8 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useState } from "react";
-import type { JSX } from "react";
+import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useActionItems, type ActionItem } from "@/hooks/useActionItems";
 
@@ -116,7 +115,7 @@ export function ActionList({
   const handleKeyDown = (event: React.KeyboardEvent): void => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
-      handleSubmitTask();
+      void handleSubmitTask();
     }
   };
 
@@ -149,7 +148,7 @@ export function ActionList({
             <Checkbox
               checked={task.isCompleted}
               className={`mt-1 ${task.isCompleted ? "bg-gray-600 border-gray-600" : ""}`}
-              onCheckedChange={() => { handleToggleComplete(task.id); }}
+              onCheckedChange={() => { void handleToggleComplete(task.id); }}
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-2">
@@ -179,7 +178,7 @@ export function ActionList({
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
                 size="sm"
                 variant="ghost"
-                onClick={() => { handleDeleteTask(task.id); }}
+                onClick={() => { void handleDeleteTask(task.id); }}
               >
                 <Trash2 className="w-3 h-3" />
               </Button>
@@ -219,11 +218,11 @@ export function ActionList({
           <h4 className="font-medium text-gray-900">{t("title")}</h4>
           <div className="flex items-center space-x-2">
             <Badge className="text-xs" variant="outline">
-              {pendingTasks.length} {t("pending").toLowerCase()}
+              {pendingTasks.length} {String(t("pending")).toLowerCase()}
             </Badge>
             {completedTasks.length > 0 && (
               <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs">
-                {completedTasks.length} {t("done").toLowerCase()}
+                {completedTasks.length} {String(t("done")).toLowerCase()}
               </Badge>
             )}
           </div>
@@ -307,11 +306,11 @@ export function ActionList({
                     <Textarea
                       className="min-h-[50px] text-sm border-gray-300 focus:border-blue-400 focus:ring-blue-100 bg-white resize-none"
                       disabled={isSubmitting}
-                    placeholder={t("describeTask")}
+                    placeholder={String(t("describeTask"))}
                     value={newTask.description}
                     onKeyDown={handleKeyDown}
-                    onChange={(e) =>
-                      { setNewTask({ ...newTask, description: e.target.value }); }
+                    onChange={(event_) =>
+                      { setNewTask({ ...newTask, description: event_.target.value }); }
                     }
                     />
                   </div>
@@ -322,10 +321,10 @@ export function ActionList({
                         className="w-full p-1.5 text-xs border border-gray-300 rounded bg-white focus:border-blue-400 focus:ring-blue-100"
                         disabled={isSubmitting}
                         value={newTask.priority}
-                        onChange={(e) =>
+                        onChange={(event_) =>
                           { setNewTask({
                             ...newTask,
-                            priority: e.target.value as
+                            priority: event_.target.value as
                               | "low"
                               | "medium"
                               | "high",
@@ -342,11 +341,11 @@ export function ActionList({
                       <input
                         className="w-full p-1.5 text-xs border border-gray-300 rounded bg-white focus:border-blue-400 focus:ring-blue-100"
                         disabled={isSubmitting}
-                        placeholder={t("dueTime")}
+                        placeholder={String(t("dueTime"))}
                         type="text"
                         value={newTask.dueTime}
-                        onChange={(e) =>
-                          { setNewTask({ ...newTask, dueTime: e.target.value }); }
+                        onChange={(event_) =>
+                          { setNewTask({ ...newTask, dueTime: event_.target.value }); }
                         }
                       />
                     </div>
@@ -396,11 +395,11 @@ export function ActionList({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Badge className="bg-blue-50 text-blue-700 border border-blue-200 text-xs">
-            {pendingTasks.length} {t("pending").toLowerCase()}
+            {pendingTasks.length} {String(t("pending")).toLowerCase()}
           </Badge>
           {completedTasks.length > 0 && (
             <Badge className="bg-gray-100 text-gray-600 border border-gray-200 text-xs">
-              {completedTasks.length} {t("done").toLowerCase()}
+              {completedTasks.length} {String(t("done")).toLowerCase()}
             </Badge>
           )}
         </div>
@@ -534,11 +533,11 @@ export function ActionList({
                     className="min-h-[60px] border-gray-300 focus:border-blue-400 focus:ring-blue-100 bg-white"
                     disabled={isSubmitting}
                     id="task-description"
-                    placeholder={t("taskDescriptionPlaceholder")}
+                    placeholder={String(t("taskDescriptionPlaceholder"))}
                     value={newTask.description}
                     onKeyDown={handleKeyDown}
-                    onChange={(e) =>
-                      { setNewTask({ ...newTask, description: e.target.value }); }
+                    onChange={(event_) =>
+                      { setNewTask({ ...newTask, description: event_.target.value }); }
                     }
                   />
                 </div>
@@ -556,10 +555,10 @@ export function ActionList({
                       disabled={isSubmitting}
                       id="task-priority"
                       value={newTask.priority}
-                      onChange={(e) =>
+                      onChange={(event_) =>
                         { setNewTask({
                           ...newTask,
-                          priority: e.target.value as "low" | "medium" | "high",
+                          priority: event_.target.value as "low" | "medium" | "high",
                         }); }
                       }
                     >
@@ -580,11 +579,11 @@ export function ActionList({
                       className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-blue-400 focus:ring-blue-100"
                       disabled={isSubmitting}
                       id="task-due-time"
-                      placeholder={t("dueTimePlaceholder")}
+                      placeholder={String(t("dueTimePlaceholder"))}
                       type="text"
                       value={newTask.dueTime}
-                      onChange={(e) =>
-                        { setNewTask({ ...newTask, dueTime: e.target.value }); }
+                      onChange={(event_) =>
+                        { setNewTask({ ...newTask, dueTime: event_.target.value }); }
                       }
                     />
                   </div>

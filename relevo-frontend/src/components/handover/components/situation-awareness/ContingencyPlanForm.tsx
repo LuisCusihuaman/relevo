@@ -73,7 +73,7 @@ export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: Contin
               )}
               onKeyDown={handleKeyDown}
               onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-                setNewPlan({ ...newPlan, condition: event.target.value })
+                { setNewPlan({ ...newPlan, condition: event.target.value }); }
               }
             />
           </div>
@@ -95,7 +95,7 @@ export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: Contin
               )}
               onKeyDown={handleKeyDown}
               onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-                setNewPlan({ ...newPlan, action: event.target.value })
+                { setNewPlan({ ...newPlan, action: event.target.value }); }
               }
             />
           </div>
@@ -113,7 +113,7 @@ export function ContingencyPlanForm({ onSubmit, onCancel, isSubmitting }: Contin
               id="plan-priority"
               value={newPlan.priority}
               onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                setNewPlan({ ...newPlan, priority: event.target.value as NewPlanData["priority"] })
+                { setNewPlan({ ...newPlan, priority: event.target.value as NewPlanData["priority"] }); }
               }
             >
               <option value="low">{t("priorities.low")}</option>

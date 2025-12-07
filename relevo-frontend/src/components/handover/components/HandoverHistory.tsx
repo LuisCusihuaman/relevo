@@ -114,10 +114,10 @@ export function HandoverHistory({
               {t("handoverHistory")}
             </h2>
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
               className="h-8 w-8 p-0"
+              size="sm"
+              variant="ghost"
+              onClick={onClose}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -143,10 +143,10 @@ export function HandoverHistory({
               {t("handoverHistory")}
             </h2>
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
               className="h-8 w-8 p-0"
+              size="sm"
+              variant="ghost"
+              onClick={onClose}
             >
               <X className="h-4 w-4" />
             </Button>

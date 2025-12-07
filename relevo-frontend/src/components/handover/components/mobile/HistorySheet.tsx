@@ -48,8 +48,8 @@ export function HistorySheet(): JSX.Element | null {
         <div className="flex-1 overflow-auto">
           <HandoverHistory
             hideHeader
-            patientData={patientInfo}
             handoverId={handoverId || ""}
+            patientData={patientInfo}
             onClose={() => { setShowHistory(false); }}
           />
         </div>

@@ -20,7 +20,7 @@ import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { useParams } from "@tanstack/react-router";
 import { useUser } from "@clerk/clerk-react";
-import { toPhysician, formatPhysician } from "@/lib/user-utils";
+import { toPhysician, formatPhysician } from "@/lib/user-utilities";
 
 export function FullscreenEditor(): JSX.Element | null {
   const { t } = useTranslation("fullscreenEditor");

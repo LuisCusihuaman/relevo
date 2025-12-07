@@ -14,7 +14,7 @@ interface HandoverUIState {
   
   // Actions
   setLayoutMode: (mode: 'single' | 'columns') => void;
-  setExpandedSections: (sections: ExpandedSections | ((prev: ExpandedSections) => ExpandedSections)) => void;
+  setExpandedSections: (sections: ExpandedSections | ((previous: ExpandedSections) => ExpandedSections)) => void;
   toggleSection: (section: keyof ExpandedSections) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setShowHistory: (show: boolean) => void;
@@ -45,30 +45,36 @@ export const useHandoverUIStore = create<HandoverUIState>((set) => ({
   fullscreenEditing: null,
   currentSaveFunction: null,
 
-  setLayoutMode: (mode) => set({ layoutMode: mode }),
-  setExpandedSections: (sections) => set((state) => ({
-    expandedSections: typeof sections === 'function' ? sections(state.expandedSections) : sections
-  })),
-  toggleSection: (section) => set((state) => ({
-    expandedSections: { ...state.expandedSections, [section]: !state.expandedSections[section] }
-  })),
-  setSyncStatus: (status) => set({ syncStatus: status }),
-  setShowHistory: (show) => set({ showHistory: show }),
-  setShowComments: (show) => set({ showComments: show }),
-  setShowCollaborators: (show) => set({ showCollaborators: show }),
-  setShowMobileMenu: (show) => set({ showMobileMenu: show }),
-  setFullscreenEditing: (state) => set({ fullscreenEditing: state }),
-  setCurrentSaveFunction: (fn) => set({ currentSaveFunction: fn }),
+  setLayoutMode: (mode): void => { set({ layoutMode: mode }); },
+  setExpandedSections: (sections): void => {
+    set((state) => ({
+      expandedSections: typeof sections === 'function' ? sections(state.expandedSections) : sections
+    }));
+  },
+  toggleSection: (section): void => {
+    set((state) => ({
+      expandedSections: { ...state.expandedSections, [section]: !state.expandedSections[section] }
+    }));
+  },
+  setSyncStatus: (status): void => { set({ syncStatus: status }); },
+  setShowHistory: (show): void => { set({ showHistory: show }); },
+  setShowComments: (show): void => { set({ showComments: show }); },
+  setShowCollaborators: (show): void => { set({ showCollaborators: show }); },
+  setShowMobileMenu: (show): void => { set({ showMobileMenu: show }); },
+  setFullscreenEditing: (editingState): void => { set({ fullscreenEditing: editingState }); },
+  setCurrentSaveFunction: (fn): void => { set({ currentSaveFunction: fn }); },
   
-  reset: () => set({
-    layoutMode: 'columns',
-    expandedSections: defaultExpandedSections,
-    syncStatus: 'synced',
-    showHistory: false,
-    showComments: false,
-    showCollaborators: false,
-    showMobileMenu: false,
-    fullscreenEditing: null,
-    currentSaveFunction: null,
-  })
+  reset: (): void => {
+    set({
+      layoutMode: 'columns',
+      expandedSections: defaultExpandedSections,
+      syncStatus: 'synced',
+      showHistory: false,
+      showComments: false,
+      showCollaborators: false,
+      showMobileMenu: false,
+      fullscreenEditing: null,
+      currentSaveFunction: null,
+    });
+  }
 }));

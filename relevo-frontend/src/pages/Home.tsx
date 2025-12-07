@@ -46,8 +46,7 @@ function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
 	};
 }
 
-export function Home({
-}: HomeProps): ReactElement {
+export function Home(_props: HomeProps): ReactElement {
 	const { currentPatient } = useUiStore();
 	const { data: assignedPatientsData, isLoading, error } = useAssignedPatients();
 

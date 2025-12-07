@@ -20,54 +20,54 @@ export interface IpassGuidelines {
 // I-PASS Guidelines for each section
 export const getIpassGuidelines = (t: TFunction<"handover", undefined>): IpassGuidelines => ({
   illness: {
-    title: t("ipassGuidelines.illness.title"),
+    title: String(t("ipassGuidelines.illness.title")),
     points: [
-      t("ipassGuidelines.illness.points.0"),
-      t("ipassGuidelines.illness.points.1"),
-      t("ipassGuidelines.illness.points.2"),
-      t("ipassGuidelines.illness.points.3"),
+      String(t("ipassGuidelines.illness.points.0")),
+      String(t("ipassGuidelines.illness.points.1")),
+      String(t("ipassGuidelines.illness.points.2")),
+      String(t("ipassGuidelines.illness.points.3")),
     ],
   },
   patient: {
-    title: t("ipassGuidelines.patient.title"),
+    title: String(t("ipassGuidelines.patient.title")),
     points: [
-      t("ipassGuidelines.patient.points.0"),
-      t("ipassGuidelines.patient.points.1"),
-      t("ipassGuidelines.patient.points.2"),
-      t("ipassGuidelines.patient.points.3"),
+      String(t("ipassGuidelines.patient.points.0")),
+      String(t("ipassGuidelines.patient.points.1")),
+      String(t("ipassGuidelines.patient.points.2")),
+      String(t("ipassGuidelines.patient.points.3")),
     ],
   },
   actions: {
-    title: t("ipassGuidelines.actions.title"),
+    title: String(t("ipassGuidelines.actions.title")),
     points: [
-      t("ipassGuidelines.actions.points.0"),
-      t("ipassGuidelines.actions.points.1"),
-      t("ipassGuidelines.actions.points.2"),
-      t("ipassGuidelines.actions.points.3"),
+      String(t("ipassGuidelines.actions.points.0")),
+      String(t("ipassGuidelines.actions.points.1")),
+      String(t("ipassGuidelines.actions.points.2")),
+      String(t("ipassGuidelines.actions.points.3")),
     ],
   },
   awareness: {
-    title: t("ipassGuidelines.awareness.title"),
+    title: String(t("ipassGuidelines.awareness.title")),
     points: [
-      t("ipassGuidelines.awareness.points.0"),
-      t("ipassGuidelines.awareness.points.1"),
-      t("ipassGuidelines.awareness.points.2"),
-      t("ipassGuidelines.awareness.points.3"),
+      String(t("ipassGuidelines.awareness.points.0")),
+      String(t("ipassGuidelines.awareness.points.1")),
+      String(t("ipassGuidelines.awareness.points.2")),
+      String(t("ipassGuidelines.awareness.points.3")),
     ],
   },
   synthesis: {
-    title: t("ipassGuidelines.synthesis.title"),
+    title: String(t("ipassGuidelines.synthesis.title")),
     points: [
-      t("ipassGuidelines.synthesis.points.0"),
-      t("ipassGuidelines.synthesis.points.1"),
-      t("ipassGuidelines.synthesis.points.2"),
-      t("ipassGuidelines.synthesis.points.3"),
+      String(t("ipassGuidelines.synthesis.points.0")),
+      String(t("ipassGuidelines.synthesis.points.1")),
+      String(t("ipassGuidelines.synthesis.points.2")),
+      String(t("ipassGuidelines.synthesis.points.3")),
     ],
   },
 });
 
 // CURRENT SHIFT HANDOVER PARTICIPANTS - Who is present RIGHT NOW
-export const currentlyPresent: Collaborator[] = [
+export const currentlyPresent: Array<Collaborator> = [
   // Currently assigned physician
   {
     id: 1,

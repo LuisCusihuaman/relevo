@@ -40,16 +40,16 @@ export function CollaborationPanel({
 
   // Transform API messages to component format
   const transformedMessages = messages
-    ? messages.map((msg) => ({
-        id: parseInt(msg.id) || Math.random(),
-        user: msg.userName,
-        userInitials: msg.userName.split(' ').map(n => n[0]).join('').toUpperCase(),
+    ? messages.map((apiMessage) => ({
+        id: parseInt(apiMessage.id) || Math.random(),
+        user: apiMessage.userName,
+        userInitials: apiMessage.userName.split(' ').map(n => n[0]).join('').toUpperCase(),
         userColor: "bg-blue-600", // Could be derived from user ID
         role: "Physician", // Could be derived from user role if available
-        message: msg.messageText,
-        time: new Date(msg.createdAt).toLocaleString(),
-        timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: msg.messageType as "message" | "system" | "notification",
+        message: apiMessage.messageText,
+        time: new Date(apiMessage.createdAt).toLocaleString(),
+        timestamp: new Date(apiMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: apiMessage.messageType,
         mentions: [], // Could be parsed from message content if needed
       }))
     : []; // No fallback hardcoded data
