@@ -106,18 +106,18 @@ export function PatientSummary({
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
-    if (fullscreenMode && autoEdit && canEdit) {
+    if (fullscreenMode && autoEdit && canEdit && !isEditing) {
       setIsEditing(true);
       setEditingText(displayText);
     }
-  }, [fullscreenMode, autoEdit, canEdit, displayText]);
+  }, [fullscreenMode, autoEdit, canEdit, displayText, isEditing]);
 
-  // Provide save function to parent when ready
+  // Provide save function to parent
   useEffect(() => {
-    if (onSaveReady && isEditing && fullscreenMode) {
+    if (onSaveReady) {
       onSaveReady(() => { void handleSave(); });
     }
-  }, [onSaveReady, isEditing, fullscreenMode, handleSave]);
+  }, [onSaveReady, handleSave]);
 
 
   const getTimeAgo = (): string => {

@@ -70,7 +70,7 @@ export function SituationAwareness({
   const deleteContingencyMutation = useDeleteContingencyPlan();
 
   // Local state for situation awareness content
-  const [currentSituation, setCurrentSituation] = useState("");
+  const [draft, setDraft] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "error">("saved");
 
@@ -85,21 +85,20 @@ export function SituationAwareness({
     return sections.map(section => section.join("\n")).join("\n\n");
   }, [t]);
 
-  // Update local state when API data loads
-  useEffect(() => {
-    if (situationData?.situationAwareness?.content) {
-      setCurrentSituation(situationData.situationAwareness.content);
-    } else if (!isLoadingSituation) {
-      setCurrentSituation(getDefaultSituationText());
-    }
-  }, [situationData, isLoadingSituation, getDefaultSituationText]);
+  // Derived state: what to show
+  const serverContent = situationData?.situationAwareness?.content;
+  const defaultContent = getDefaultSituationText();
+  // If editing, show draft. If not, show server content (or default if loaded but empty, or just default if not loaded yet but we want to show something)
+  // Actually, if loading, we might show skeleton (handled below).
+  const displayContent = isEditing ? draft : (serverContent || defaultContent);
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
-    if (fullscreenMode && autoEdit) {
+    if (fullscreenMode && autoEdit && !isEditing) {
+      setDraft(serverContent || defaultContent);
       setIsEditing(true);
     }
-  }, [fullscreenMode, autoEdit]);
+  }, [fullscreenMode, autoEdit, isEditing, serverContent, defaultContent]);
 
   // Convert API contingency plans to component format
   const contingencyPlans: Array<ContingencyPlan> = contingencyData?.map(plan => ({
@@ -125,7 +124,7 @@ export function SituationAwareness({
 
   // Handle situation documentation changes with real auto-save
   const handleSituationChange = async (value: string): Promise<void> => {
-    setCurrentSituation(value);
+    setDraft(value);
     setAutoSaveStatus("saving");
     onContentChange?.();
 
@@ -174,12 +173,15 @@ export function SituationAwareness({
 
   // Handle click for editing or fullscreen
   const handleEnterEdit = (): void => {
-    if (fullscreenMode) {
+    if (!isEditing) {
+      setDraft(displayContent); // Initialize draft with current content
       setIsEditing(true);
+    }
+    
+    if (fullscreenMode) {
+      // Already in fullscreen, just ensure editing is on (handled above)
     } else if (onRequestFullscreen) {
       onRequestFullscreen();
-    } else {
-      setIsEditing(true);
     }
   };
 
@@ -224,7 +226,7 @@ export function SituationAwareness({
         <SituationEditor
           autoSaveStatus={autoSaveStatus}
           canEdit={canEdit}
-          content={currentSituation}
+          content={displayContent}
           fullscreenMode={fullscreenMode}
           hideControls={hideControls}
           isEditing={isEditing}
