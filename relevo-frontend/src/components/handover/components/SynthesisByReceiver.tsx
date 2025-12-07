@@ -90,7 +90,7 @@ export function SynthesisByReceiver({
   ]);
 
   // Additional checks for confirmation permissions
-  const handoverInProgress = handoverState === "InProgress" || handoverState === "Accepted";
+  const handoverInProgress = handoverState === "InProgress";
   const handoverNotComplete = !handoverComplete;
 
   // Check if current user can confirm (must be receiver, handover in progress, and not already complete)

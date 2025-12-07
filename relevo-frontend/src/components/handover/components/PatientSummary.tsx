@@ -29,7 +29,7 @@ interface PatientSummaryProps {
     id: string;
     name: string;
   };
-  handoverStateName?: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
+  handoverStateName?: "Draft" | "Ready" | "InProgress" | "Completed" | "Cancelled";
   onContentChange?: () => void;
 }
 

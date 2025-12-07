@@ -40,11 +40,8 @@ function parseHandoverStatus(value: string | null | undefined): HandoverStatus {
 		"Draft",
 		"Ready",
 		"InProgress",
-		"Accepted",
 		"Completed",
 		"Cancelled",
-		"Rejected",
-		"Expired",
 	];
 	if (value && valid.includes(value as HandoverStatus)) {
 		return value as HandoverStatus;

@@ -20,11 +20,8 @@ export type HandoverStatus =
 	| "Draft"
 	| "Ready"
 	| "InProgress"
-	| "Accepted"
 	| "Completed"
-	| "Cancelled"
-	| "Rejected"
-	| "Expired";
+	| "Cancelled";
 
 export type ShiftCheckInStatus = "pending" | "in-progress" | "complete";
 
