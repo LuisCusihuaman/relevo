@@ -15,6 +15,7 @@ import {
 import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useHandoverActivityLog } from "@/api";
+import { getSeverityBadgeColor, getStatusBadgeColor } from "@/lib/formatters";
 
 interface PatientData {
   name: string;
@@ -77,32 +78,6 @@ export function HandoverHistory({
           ],
         },
       ];
-
-  const getSeverityColor = (severity: string): string => {
-    switch (severity) {
-      case "stable":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "guarded":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "unstable":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "critical":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   // Loading state
   if (isLoading) {
@@ -219,7 +194,7 @@ export function HandoverHistory({
                         {handover.date}
                       </span>
                     </div>
-                    <Badge className={getStatusColor(handover.status)}>
+                    <Badge className={getStatusBadgeColor(handover.status)}>
                       {t(
                         handover.status === "in-progress"
                           ? "status.current"
@@ -246,7 +221,7 @@ export function HandoverHistory({
                       <span className="text-xs text-gray-600">
                         {t("severityLabel")}
                       </span>
-                      <Badge className={getSeverityColor(handover.severity)}>
+                      <Badge className={getSeverityBadgeColor(handover.severity)}>
                         {t(`severity.${handover.severity}`).toUpperCase()}
                       </Badge>
                     </div>

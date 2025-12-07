@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Bell, MessageSquare, Send, Users, X } from "lucide-react";
 import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityFeed, type ActivityItem } from "./ActivityFeed";
+import { ActivityFeed } from "./ActivityFeed";
+import type { ActivityItem } from "@/types/domain";
 import { useHandoverMessages, useCreateHandoverMessage } from "@/api";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 

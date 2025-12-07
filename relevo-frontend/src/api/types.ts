@@ -1,4 +1,4 @@
-import type { ShiftCheckInPatient } from "@/types/domain";
+import type { ShiftCheckInPatient, IllnessSeverity, HandoverStatus } from "@/types/domain";
 
 
 // API Response Types (matching the OpenAPI schema)
@@ -40,15 +40,14 @@ export type PaginationInfo = {
 	pageSize: number;
 };
 
-export type PaginatedPatientSummaryCards = {
+export type PaginatedResponse<T> = {
 	pagination: PaginationInfo;
-	items: Array<PatientSummaryCard>;
+	items: Array<T>;
 };
 
-export type PaginatedPatientHandoverTimeline = {
-	pagination: PaginationInfo;
-	items: Array<PatientHandoverTimelineItem>;
-};
+export type PaginatedPatientSummaryCards = PaginatedResponse<PatientSummaryCard>;
+
+export type PaginatedPatientHandoverTimeline = PaginatedResponse<PatientHandoverTimelineItem>;
 
 export type PatientSummary = {
 	id: string;
@@ -93,7 +92,7 @@ export type GetHandoverActionItemsResponse = {
 };
 
 export type HandoverIllnessSeverity = {
-	severity: "Stable" | "Watcher" | "Unstable";
+	severity: IllnessSeverity;
 };
 
 export type HandoverPatientSummary = {
@@ -104,23 +103,33 @@ export type HandoverSynthesis = {
 	content: string;
 };
 
-export type Handover = {
+export type HandoverSummary = {
+	id: string;
+	patientId: string;
+	shiftName: string;
+	stateName: HandoverStatus;
+	illnessSeverity: HandoverIllnessSeverity;
+	createdBy: string;
+	createdAt?: string;
+	assignedTo: string;
+	responsiblePhysicianName: string;
+	handoverType?: "ShiftToShift" | "TemporaryCoverage" | "Consult";
+	updatedAt?: string;
+};
+
+export type HandoverDetail = {
 	id: string;
 	assignmentId: string;
 	patientId: string;
-	// patientName removed - use /patient endpoint
-	// status removed - use stateName
 	illnessSeverity: HandoverIllnessSeverity;
 	patientSummary: HandoverPatientSummary;
-	// situationAwarenessDocId removed - use /situation-awareness endpoint
-	// synthesis removed - use /synthesis endpoint
 	shiftName: string;
 	createdBy: string;
 	assignedTo: string;
 	receiverUserId?: string;
 	responsiblePhysicianId: string;
 	responsiblePhysicianName: string;
-	createdAt?: string; // Date when handover was created
+	createdAt?: string;
 	readyAt?: string;
 	startedAt?: string;
 	acknowledgedAt?: string;
@@ -135,7 +144,7 @@ export type Handover = {
 	fromShiftId?: string;
 	toShiftId?: string;
 	toDoctorId?: string;
-	stateName: "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
+	stateName: HandoverStatus;
 	// V3 Fields
 	shiftWindowId?: string;
 	previousHandoverId?: string;
@@ -147,10 +156,9 @@ export type Handover = {
 	cancelReason?: string;
 };
 
-export type PaginatedHandovers = {
-	pagination: PaginationInfo;
-	items: Array<Handover>;
-};
+export type Handover = HandoverDetail; // Deprecated: Use HandoverDetail or HandoverSummary
+
+export type PaginatedHandovers = PaginatedResponse<HandoverSummary>;
 
 // User types
 export type User = {

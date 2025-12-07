@@ -2,17 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import type { JSX } from "react";
-
-export interface ActivityItem {
-  id: number | string;
-  user: string;
-  userInitials: string;
-  userColor: string;
-  action: string;
-  section: string;
-  time: string;
-  type: "user_joined" | "content_updated" | "content_added" | "content_viewed";
-}
+import type { ActivityItem } from "@/types/domain";
 
 interface ActivityFeedProps {
   items: Array<ActivityItem>;
@@ -44,26 +34,26 @@ export function ActivityFeed({ items, onNavigateToSection }: ActivityFeedProps):
             <div className="flex items-start space-x-3">
               <Avatar className="w-7 h-7 flex-shrink-0">
                 <AvatarFallback
-                  className={`${activity.userColor} text-white text-xs`}
+                  className={`${activity.userColor || "bg-gray-400"} text-white text-xs`}
                 >
-                  {activity.userInitials}
+                  {activity.userInitials || activity.userName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
                   <span className="text-sm font-medium text-gray-900">
-                    {activity.user}
+                    {activity.userName}
                   </span>
-                  <span className="text-xs text-gray-500">{activity.time}</span>
+                  <span className="text-xs text-gray-500">{activity.createdAt}</span>
                 </div>
                 <div className="text-sm text-gray-600">
                   {activity.action}
-                  {activity.section !== "General" && (
+                  {activity.section && activity.section !== "General" && (
                     <button
                       className="text-blue-600 hover:text-blue-700 ml-1 hover:underline"
                       onClick={() =>
                         { onNavigateToSection(
-                          activity.section.toLowerCase().replace(" ", ""),
+                          activity.section!.toLowerCase().replace(" ", ""),
                         ); }
                       }
                     >

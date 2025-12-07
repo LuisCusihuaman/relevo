@@ -1,5 +1,5 @@
 import type { Handover as ApiHandover, PatientSummaryCard } from "./types";
-import type { Handover as UiHandover } from "@/components/home/types";
+import type { HandoverUI as UiHandover } from "@/components/home/types";
 
 // Configuration for mapping API states to UI properties
 type UiStateConfig = {

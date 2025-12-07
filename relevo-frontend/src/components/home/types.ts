@@ -12,7 +12,7 @@ export type SearchResult = {
 	type: "handover" | "team" | "patient" | "assistant";
 };
 
-export type Handover = {
+export type HandoverUI = {
 	id: string;
 	status: "Error" | "Ready";
 	statusColor: string;

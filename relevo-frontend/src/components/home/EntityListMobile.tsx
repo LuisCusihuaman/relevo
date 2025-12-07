@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { Handover } from "./types";
+import type { HandoverUI as Handover } from "./types";
 
 const monthMap: Record<string, string> = {
 	Jan: "Ene",

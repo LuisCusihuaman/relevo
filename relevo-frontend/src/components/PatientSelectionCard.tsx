@@ -1,6 +1,7 @@
 import { Activity, AlertTriangle, CheckCircle, Eye } from "lucide-react";
 import type { ReactElement } from "react";
 import type { ShiftCheckInPatient } from "@/types/domain";
+import { getSeverityColor, getStatusColor } from "@/lib/formatters";
 
 import i18n from "@/common/i18n";
 
@@ -26,39 +27,16 @@ export function PatientSelectionCard({
   const getSeverityIcon = (severity: string): typeof Activity => {
     switch (severity) {
       case "unstable":
+      case "Unstable":
         return AlertTriangle;
       case "watcher":
+      case "Watcher":
         return Eye;
       case "stable":
+      case "Stable":
         return CheckCircle;
       default:
         return Activity;
-    }
-  };
-
-  const getSeverityColor = (severity: string): string => {
-    switch (severity) {
-      case "unstable":
-        return "text-red-600";
-      case "watcher":
-        return "text-yellow-600";
-      case "stable":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case "pending":
-        return "text-orange-600";
-      case "in-progress":
-        return "text-blue-600";
-      case "complete":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
     }
   };
 

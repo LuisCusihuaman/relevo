@@ -4,17 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-interface ContingencyPlan {
-  id: string;
-  condition: string;
-  action: string;
-  priority: "low" | "medium" | "high";
-  status: "active" | "planned";
-  submittedBy: string;
-  submittedTime: string;
-  submittedDate: string;
-}
+import type { ContingencyPlan } from "@/types/domain";
 
 interface ContingencyPlanListProps {
   plans: Array<ContingencyPlan>;
@@ -118,12 +108,12 @@ export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyP
             <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
               <span>
                 {t("submittedBy", {
-                  name: plan.submittedBy,
-                  time: plan.submittedTime,
-                  date: plan.submittedDate,
+                  name: plan.createdBy,
+                  time: new Date(plan.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  date: new Date(plan.createdAt).toLocaleDateString(),
                 })}
               </span>
-              <span>{plan.submittedDate}</span>
+              <span>{new Date(plan.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>

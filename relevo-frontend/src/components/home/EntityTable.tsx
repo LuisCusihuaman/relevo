@@ -1,23 +1,9 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import type { Handover } from "./types";
+import type { HandoverUI as Handover } from "./types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-const monthMap: Record<string, string> = {
-	Jan: "Ene",
-	Feb: "Feb",
-	Mar: "Mar",
-	Apr: "Abr",
-	May: "May",
-	Jun: "Jun",
-	Jul: "Jul",
-	Aug: "Ago",
-	Sep: "Sep",
-	Oct: "Oct",
-	Nov: "Nov",
-	Dec: "Dic",
-};
+import { formatRelativeTime, getInitials } from "@/lib/formatters";
 
 type EntityTableProps = {
 	handovers: ReadonlyArray<Handover>;
@@ -33,29 +19,11 @@ export const EntityTable: FC<EntityTableProps> = ({
 	const { t } = useTranslation("home");
 	// environment label now shown only via status/time; keep mapping if needed later
 
-	const formatRelative = (value: string): string => {
-		let s = value;
-		s = s.replace(/(\d+)\s*d\s*ago/g, "hace $1 d");
-		s = s.replace(/ago/g, "");
-		s = s.replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, (m) => monthMap[m] || m);
-		return s.trim();
-	};
-
 	const formatAuthor = (name: string): string => {
 		if (!name) return String(t("table.system"));
 		const lower = name.toLowerCase();
 		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.system"));
 		return name;
-	};
-
-	const getInitials = (fullName: string): string => {
-		const cleaned = typeof fullName === "string" ? fullName.trim() : "";
-		const parts = cleaned.split(/\s+/).filter(Boolean);
-		const first = parts[0]?.[0] ?? "";
-		const second = parts[1]?.[0] ?? "";
-		const fallback = cleaned.slice(0, 2);
-		const result = (first + second) || fallback || "PX";
-		return result.toUpperCase();
 	};
 
 	const isString = (v: unknown): v is string => typeof v === "string";
@@ -162,7 +130,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 							</span>
 						</div>
 						<div className="text-xs text-gray-500">
-							{formatRelative(handover.statusTime)}
+							{formatRelativeTime(handover.statusTime)}
 						</div>
 					</div>
 
@@ -199,7 +167,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="flex items-center justify-end gap-2">
 							<GitBranch className="h-3 w-3 text-gray-400" />
 							<span className="text-xs text-gray-500">
-								{formatRelative(handover.time)} {String(t("table.createdBy", { author: formatAuthor(handover.author || "") }))}
+								{formatRelativeTime(handover.time)} {String(t("table.createdBy", { author: formatAuthor(handover.author || "") }))}
 							</span>
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
 								{handover.avatar}

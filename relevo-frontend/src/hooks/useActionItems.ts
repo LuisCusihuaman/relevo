@@ -5,24 +5,10 @@ import {
   getHandoverActionItems,
   updateActionItem,
 } from "@/api/endpoints/handovers";
+import type { HandoverActionItem } from "@/api/types";
+import type { ActionItem as DomainActionItem } from "@/types/domain";
 
-// API response type
-interface HandoverActionItemResponse {
-  id: string;
-  handoverId: string;
-  description: string;
-  isCompleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  completedAt: string | null;
-}
-
-export interface ActionItem {
-  id: string;
-  description: string;
-  priority: "low" | "medium" | "high";
-  dueTime?: string;
-  isCompleted: boolean;
+export interface ActionItem extends DomainActionItem {
   submittedBy: string;
   submittedTime: string;
   submittedDate: string;
@@ -35,11 +21,12 @@ export interface UseActionItemsProps {
 }
 
 // Helper function to transform API response to ActionItem
-const transformActionItem = (item: HandoverActionItemResponse): ActionItem => ({
+const transformActionItem = (item: HandoverActionItem): ActionItem => ({
   id: item.id,
   description: item.description,
-  priority: "medium" as const,
+  priority: "medium", // Default as it's missing in API type currently
   isCompleted: item.isCompleted,
+  createdAt: item.createdAt,
   submittedBy: "Current User",
   submittedTime: new Date(item.createdAt).toLocaleTimeString(),
   submittedDate: new Date(item.createdAt).toLocaleDateString(),

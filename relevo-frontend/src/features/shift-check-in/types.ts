@@ -1,6 +1,6 @@
 import type {
 	ShiftCheckInStatus,
-	SeverityLevel,
+	IllnessSeverity,
 	UnitConfig,
 	ShiftConfig,
 	ShiftCheckInPatient,
@@ -8,7 +8,7 @@ import type {
 
 export type {
 	ShiftCheckInStatus,
-	SeverityLevel,
+	IllnessSeverity,
 	UnitConfig,
 	ShiftConfig,
 	ShiftCheckInPatient,

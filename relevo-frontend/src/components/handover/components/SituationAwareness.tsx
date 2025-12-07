@@ -11,20 +11,10 @@ import {
   useDeleteContingencyPlan
 } from "@/api/endpoints/handovers";
 import type { SituationAwarenessStatus } from "@/api/types";
+import type { ContingencyPlan } from "@/types/domain";
 import { SituationEditor } from "./situation-awareness/SituationEditor";
 import { ContingencyPlanList } from "./situation-awareness/ContingencyPlanList";
 import { ContingencyPlanForm, type NewPlanData } from "./situation-awareness/ContingencyPlanForm";
-
-interface ContingencyPlan {
-  id: string;
-  condition: string;
-  action: string;
-  priority: "low" | "medium" | "high";
-  status: "active" | "planned";
-  submittedBy: string;
-  submittedTime: string;
-  submittedDate: string;
-}
 
 interface SituationAwarenessProps {
   handoverId: string;
@@ -109,13 +99,9 @@ export function SituationAwareness({
     condition: plan.conditionText,
     action: plan.actionText,
     priority: plan.priority,
-    status: plan.status as "active" | "planned",
-    submittedBy: plan.createdBy,
-    submittedTime: new Date(plan.createdAt).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-    submittedDate: new Date(plan.createdAt).toLocaleDateString(),
+    status: plan.status as "active" | "planned" | "completed",
+    createdBy: plan.createdBy,
+    createdAt: plan.createdAt,
   })) || [];
 
   // New plan form state
