@@ -1,5 +1,6 @@
-import {type FC, useState, useEffect } from "react";
+import { type FC, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Activity, GitBranch, MoreHorizontal, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { usePatientHandoverTimeline } from "@/api/endpoints/patients";
+import { patientHandoverTimelineQueryOptions } from "@/api/endpoints/patients";
 import type { Patient } from "./types";
 
 export type PatientDirectoryListProps = {
@@ -18,44 +19,8 @@ export type PatientDirectoryListProps = {
 export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }: PatientDirectoryListProps) => {
 	const { t } = useTranslation("home");
 	const navigate = useNavigate();
-	const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
-
-	// Get handover timeline for the selected patient
-	const { data: handoverTimeline, isLoading: loadingHandovers } = usePatientHandoverTimeline(
-		selectedPatientId || "",
-		{ pageSize: 50 } // Get recent handovers
-	);
-
-
-	// Handle navigation when handover data is loaded
-	useEffect(() => {
-		if (handoverTimeline?.items && handoverTimeline.items.length > 0 && selectedPatientId) {
-			// Find the most recent handover (regardless of status)
-			const mostRecentHandover = handoverTimeline.items[0]; // Items are already sorted by creation date
-
-			if (mostRecentHandover) {
-				// Find the patient to get the URL slug
-				const patient = patients.find((p: Patient) => p.id === selectedPatientId);
-				if (patient && mostRecentHandover.id) {
-					console.log("Navigating to most recent handover:", mostRecentHandover.id);
-					void navigate({
-						to: "/$patientSlug/$handoverId",
-						params: {
-							patientSlug: patient.url,
-							handoverId: mostRecentHandover.id,
-						},
-					});
-				}
-			} else {
-				// No handover found
-				console.log("No handover found for patient:", selectedPatientId);
-				alert("No se encontraron handovers para este paciente.");
-			}
-
-			// Reset selected patient
-			setSelectedPatientId(null);
-		}
-	}, [handoverTimeline, selectedPatientId, patients, navigate]);
+	const queryClient = useQueryClient();
+	const [loadingPatientId, setLoadingPatientId] = useState<string | null>(null);
 
 	const formatDate = (dateString: string): string => {
 		if (!/^[a-zA-Z]{3}\s\d{1,2}$/.test(dateString)) {
@@ -73,14 +38,44 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 		return status;
 	};
 
-	const handlePatientClick = (patient: Patient): void => {
-		console.log("Patient clicked:", patient);
-		// Set the selected patient to trigger handover lookup
-		setSelectedPatientId(patient.id);
+	// Direct navigation pattern - fetch and navigate in one action
+	const handlePatientClick = async (patient: Patient): Promise<void> => {
+		if (loadingPatientId) return; // Prevent double-clicks
+
+		setLoadingPatientId(patient.id);
+
+		try {
+			// Fetch handover timeline directly (not via useEffect)
+			const handoverTimeline = await queryClient.fetchQuery(
+				patientHandoverTimelineQueryOptions(patient.id, { pageSize: 50 })
+			);
+
+			if (handoverTimeline?.items && handoverTimeline.items.length > 0) {
+				const mostRecentHandover = handoverTimeline.items[0];
+
+				if (mostRecentHandover?.id) {
+					await navigate({
+						to: "/$patientSlug/$handoverId",
+						params: {
+							patientSlug: patient.url,
+							handoverId: mostRecentHandover.id,
+						},
+					});
+					return;
+				}
+			}
+
+			// No handover found - show user-friendly message
+			alert(t("patientList.noHandoversFound"));
+		} catch (error) {
+			console.error("Error fetching handovers:", error);
+			alert(t("patientList.errorLoadingHandovers"));
+		} finally {
+			setLoadingPatientId(null);
+		}
 	};
 
-	// Show loading indicator for the selected patient
-	const isLoadingPatient = loadingHandovers && selectedPatientId;
+	const isLoadingPatient = (patientId: string): boolean => loadingPatientId === patientId;
 
 	return (
 		<div className="flex-1 min-w-0">
@@ -94,11 +89,9 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 							<li
 								key={patient.id}
 								className={`grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 hover:bg-gray-50 cursor-pointer transition-colors ${
-									isLoadingPatient && selectedPatientId === patient.id ? 'bg-blue-50' : ''
+									isLoadingPatient(patient.id) ? 'bg-blue-50' : ''
 								}`}
-								onClick={() => {
-									handlePatientClick(patient);
-								}}
+								onClick={() => { void handlePatientClick(patient); }}
 							>
 								<div className="flex items-center gap-3 min-w-0">
 									<span className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
@@ -107,7 +100,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 									<div className="min-w-0 flex-1">
 										<div className="text-sm font-medium text-gray-900 truncate flex items-center gap-2">
 											{patient.name}
-											{isLoadingPatient && selectedPatientId === patient.id && (
+											{isLoadingPatient(patient.id) && (
 												<Loader2 className="h-3 w-3 animate-spin text-blue-600" />
 											)}
 										</div>
@@ -136,7 +129,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({ patients }
 								</div>
 
 								<div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
-									{/* Placeholder for future GitHub/status indicator */}
+									{/* Placeholder for future status indicator */}
 									<div className="w-[120px]"></div>
 									<button
 										className="h-8 w-8 rounded-full text-gray-400 hover:bg-gray-50 shrink-0 flex items-center justify-center"

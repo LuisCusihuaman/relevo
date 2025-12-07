@@ -115,7 +115,9 @@
   "patientList.changeFilters": "Change filters",
   "patientList.initialAdmission": "Initial admission",
   "patientList.noHandover": "No handover available",
-  "patientList.pendingClinicalNotes": "Pending clinical notes"
+  "patientList.pendingClinicalNotes": "Pending clinical notes",
+  "patientList.noHandoversFound": "No handovers found for this patient.",
+  "patientList.errorLoadingHandovers": "Error loading handovers. Please try again."
 }
 
 

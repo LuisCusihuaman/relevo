@@ -115,7 +115,9 @@
   "patientList.changeFilters": "Cambiar filtros",
   "patientList.initialAdmission": "Ingreso inicial",
   "patientList.noHandover": "Sin traspaso disponible",
-  "patientList.pendingClinicalNotes": "Notas clínicas pendientes"
+  "patientList.pendingClinicalNotes": "Notas clínicas pendientes",
+  "patientList.noHandoversFound": "No se encontraron traspasos para este paciente.",
+  "patientList.errorLoadingHandovers": "Error al cargar los traspasos. Intenta de nuevo."
 }
 
 

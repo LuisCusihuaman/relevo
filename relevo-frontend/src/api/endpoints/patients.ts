@@ -159,6 +159,29 @@ export function usePatientDetails(patientId: string): ReturnType<typeof useQuery
 }
 
 /**
+ * Query options for patient handover timeline (for use with queryClient.fetchQuery)
+ */
+export function patientHandoverTimelineQueryOptions(
+	patientId: string,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): {
+	queryKey: ReturnType<typeof patientQueryKeys.handoverTimelineById>;
+	queryFn: () => Promise<PaginatedHandovers>;
+	staleTime: number;
+	gcTime: number;
+} {
+	return {
+		queryKey: patientQueryKeys.handoverTimelineById(patientId, parameters),
+		queryFn: () => getPatientHandoverTimeline(patientId, parameters),
+		staleTime: 2 * 60 * 1000, // 2 minutes
+		gcTime: 5 * 60 * 1000, // 5 minutes
+	};
+}
+
+/**
  * Hook to get handover timeline for a specific patient
  */
 export function usePatientHandoverTimeline(
@@ -169,11 +192,8 @@ export function usePatientHandoverTimeline(
 	}
 ): ReturnType<typeof useQuery<PaginatedHandovers | undefined, Error>> {
 	return useQuery({
-		queryKey: patientQueryKeys.handoverTimelineById(patientId, parameters),
-		queryFn: () => getPatientHandoverTimeline(patientId, parameters),
+		...patientHandoverTimelineQueryOptions(patientId, parameters),
 		enabled: !!patientId,
-		staleTime: 2 * 60 * 1000, // 2 minutes
-		gcTime: 5 * 60 * 1000, // 5 minutes
 		select: (data: PaginatedHandovers | undefined) => data,
 	});
 }
