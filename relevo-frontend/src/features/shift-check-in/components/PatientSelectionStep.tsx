@@ -2,7 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle, Circle } from "lucide-react";
 import { PatientSelectionCard } from "@/components/PatientSelectionCard";
-import type { ShiftCheckInPatient, ShiftCheckInStep } from "../types";
+import type { ShiftCheckInPatient } from "@/types/domain";
+import type { ShiftCheckInStep } from "../types";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 

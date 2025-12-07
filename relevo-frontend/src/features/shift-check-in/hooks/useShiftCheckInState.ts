@@ -4,7 +4,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAssignPatients, usePatientsByUnit, useReadyHandover, usePendingHandovers } from "@/api";
 import { formatDiagnosis } from "@/lib/formatters";
 import { transformApiPatient } from "../utils/patientUtilities";
-import type { ShiftCheckInState, ShiftCheckInActions, ShiftCheckInPatient, ShiftCheckInStep } from "../types";
+import type { ShiftCheckInPatient } from "@/types/domain";
+import type { ShiftCheckInState, ShiftCheckInActions, ShiftCheckInStep } from "../types";
 import { useShiftCheckInStore } from "@/store/shift-check-in.store";
 
 export function useShiftCheckInState(): ShiftCheckInState & ShiftCheckInActions {

@@ -2,12 +2,9 @@
  * Shift Check-In Store Types
  * Rule: Zustand-CleanUp - Store-specific types only
  *
- * Domain types are imported from @/types/domain
+ * Domain types: import from @/types/domain
  */
 import type { ShiftCheckInPatient } from "@/types/domain";
-
-// Re-export domain types for convenience
-export type { ShiftCheckInPatient };
 
 export type ShiftCheckInStep = 0 | 1 | 2 | 3;
 

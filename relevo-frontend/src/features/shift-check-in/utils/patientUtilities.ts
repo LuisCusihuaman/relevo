@@ -1,4 +1,4 @@
-import type { ShiftCheckInPatient } from "../types";
+import type { ShiftCheckInPatient } from "@/types/domain";
 
 function toStatus(s?: string): "pending" | "in-progress" | "complete" {
 	return s === "pending" || s === "in-progress" || s === "complete" ? s : "pending";
