@@ -106,24 +106,24 @@ export function MainContent(): React.JSX.Element {
 	// Section labels (casted to string to satisfy strict typing)
 	const sectionLabels = {
 		illness: {
-			title: t("mainContent:sections.illnessSeverity") as string,
-			description: t("mainContent:sections.illnessSeverityDescription") as string,
+			title: t("mainContent:sections.illnessSeverity"),
+			description: t("mainContent:sections.illnessSeverityDescription"),
 		},
 		patient: {
-			title: t("mainContent:sections.patientSummary") as string,
-			description: t("mainContent:sections.patientSummaryDescription") as string,
+			title: t("mainContent:sections.patientSummary"),
+			description: t("mainContent:sections.patientSummaryDescription"),
 		},
 		situation: {
-			title: t("mainContent:sections.situationAwareness") as string,
-			description: t("mainContent:sections.situationAwarenessDescription") as string,
+			title: t("mainContent:sections.situationAwareness"),
+			description: t("mainContent:sections.situationAwarenessDescription"),
 		},
 		actions: {
-			title: t("mainContent:sections.actionList") as string,
-			description: t("mainContent:sections.actionListDescription") as string,
+			title: t("mainContent:sections.actionList"),
+			description: t("mainContent:sections.actionListDescription"),
 		},
 		synthesis: {
-			title: t("mainContent:sections.synthesisByReceiver") as string,
-			description: t("mainContent:sections.synthesisByReceiverDescription") as string,
+			title: t("mainContent:sections.synthesisByReceiver"),
+			description: t("mainContent:sections.synthesisByReceiverDescription"),
 		},
 	};
 

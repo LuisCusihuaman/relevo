@@ -7,15 +7,15 @@ export const SubNavigation: FC = () => {
 	const location = useLocation();
 
 	const tabs: Array<{ key: string; label: string; path: string }> = [
-		{ key: "summary", label: t("subnav.summary") as string, path: "/dashboard" },
+		{ key: "summary", label: t("subnav.summary"), path: "/dashboard" },
 		{
 			key: "patients",
-			label: t("subnav.patients") as string,
+			label: t("subnav.patients"),
 			path: "/patients",
 		},
 		{
 			key: "settings",
-			label: t("subnav.settings") as string,
+			label: t("subnav.settings"),
 			path: "/settings",
 		},
 	];

@@ -18,7 +18,7 @@ for (const [path, module_] of Object.entries(files)) {
 }
 
 // Default namespace
-const defaultNS = "actionList";
+const defaultNS = "actionList" as const;
 
 const i18nOptions: InitOptions = {
   resources, // bundled resources
@@ -29,6 +29,8 @@ const i18nOptions: InitOptions = {
   nonExplicitSupportedLngs: true,
   load: "languageOnly",
   debug: !isProduction,
+  returnNull: false,
+  returnEmptyString: false,
   detection: {
     order: ["navigator", "htmlTag"],
     caches: [],

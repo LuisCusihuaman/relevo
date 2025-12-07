@@ -15,7 +15,7 @@ export function PatientSelectionCard({
   const translate = (key: string, options?: Record<string, unknown>): string => {
     try {
       // Use i18n instance directly with patientSelectionCard namespace
-      const result = i18n.t(key, { ns: 'patientSelectionCard', ...options }) as string;
+      const result = i18n.t(key, { ns: 'patientSelectionCard', ...options });
       return result || key;
     } catch {
       return key;

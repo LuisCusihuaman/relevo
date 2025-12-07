@@ -47,22 +47,22 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 		switch (step) {
 			case 0:
 				return isEditing
-					? (t("stepTitle.updateInfo") as string) || "Update Info"
-					: (t("stepTitle.yourInfo") as string) || "Your Info";
+					? (t("stepTitle.updateInfo")) || "Update Info"
+					: (t("stepTitle.yourInfo")) || "Your Info";
 			case 1:
 				return isEditing
-					? (t("stepTitle.updateUnit") as string) || "Update Unit"
-					: (t("stepTitle.unitSelection") as string) || "Unit Selection";
+					? (t("stepTitle.updateUnit")) || "Update Unit"
+					: (t("stepTitle.unitSelection")) || "Unit Selection";
 			case 2:
 				return isEditing
-					? (t("stepTitle.updateShift") as string) || "Update Shift"
-					: (t("stepTitle.shiftSelection") as string) || "Shift Selection";
+					? (t("stepTitle.updateShift")) || "Update Shift"
+					: (t("stepTitle.shiftSelection")) || "Shift Selection";
 			case 3:
 				return isEditing
-					? (t("stepTitle.updatePatients") as string) || "Update Patients"
-					: (t("stepTitle.patientSelection") as string) || "Patient Selection";
+					? (t("stepTitle.updatePatients")) || "Update Patients"
+					: (t("stepTitle.patientSelection")) || "Patient Selection";
 			default:
-				return (t("stepTitle.setup") as string) || "Setup";
+				return (t("stepTitle.setup")) || "Setup";
 		}
 	};
 

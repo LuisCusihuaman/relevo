@@ -122,7 +122,7 @@ export function PatientSummary({
 
   const getTimeAgo = (): string => {
     const updatedAt = patientDataProp?.updatedAt;
-    if (!updatedAt) return t("time.never") as string;
+    if (!updatedAt) return t("time.never");
 
     const now = new Date();
     const lastUpdated = new Date(updatedAt);
@@ -130,10 +130,10 @@ export function PatientSummary({
       (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60),
     );
 
-    if (diffHours < 1) return t("time.lessThan1Hour") as string;
-    if (diffHours < 24) return t("time.hoursAgo", { count: diffHours }) as string;
+    if (diffHours < 1) return t("time.lessThan1Hour");
+    if (diffHours < 24) return t("time.hoursAgo", { count: diffHours });
     const diffDays = Math.floor(diffHours / 24);
-    return t("time.daysAgo", { count: diffDays }) as string;
+    return t("time.daysAgo", { count: diffDays });
   };
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK

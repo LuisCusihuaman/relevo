@@ -102,7 +102,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
 					<Input
 						readOnly
 						className="pl-10 pr-8 w-48 h-8 text-sm border-gray-300 focus:border-gray-400 focus:ring-0 cursor-pointer"
-						placeholder={t("search.placeholder") as string}
+						placeholder={t("search.placeholder")}
 						onClick={() => {
 							setIsSearchOpen(true);
 						}}
