@@ -1,14 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../client";
-import type {
-	PaginatedPatientSummaryCards,
-	PatientDetail,
-	PaginatedHandovers,
-	PatientSummaryResponse,
-	CreatePatientSummaryRequest,
-	UpdatePatientSummaryRequest,
-	PatientSummaryUpdateResponse,
-} from "../types";
+import type { Schemas } from "@/api/generated";
+import type { PatientSummaryCard, PatientDetail, HandoverSummary } from "@/types/domain";
+import { mapApiPatientSummaryCard, mapApiPatientDetail } from "@/api/mappers";
+import { mapApiHandoverRecord } from "@/api/mappers";
+
+// Response types from API (using generated types)
+type PaginatedPatientSummaryCards = {
+	items: Array<PatientSummaryCard>;
+	pagination: Schemas["PaginationInfo"];
+};
+
+type PaginatedHandovers = {
+	items: Array<HandoverSummary>;
+	pagination: Schemas["PaginationInfo"];
+};
+
+type PatientSummaryResponse = Schemas["GetPatientSummaryResponse"];
+type CreatePatientSummaryRequest = Schemas["CreatePatientSummaryRequest"];
+type UpdatePatientSummaryRequest = Schemas["UpdatePatientSummaryRequest"];
+type PatientSummaryUpdateResponse = Schemas["UpdatePatientSummaryResponse"];
 
 // Query Keys for cache invalidation
 export const patientQueryKeys = {
@@ -39,8 +50,11 @@ export async function getAllPatients(
 		pageSize?: number;
 	}
 ): Promise<PaginatedPatientSummaryCards> {
-	const { data } = await api.get<PaginatedPatientSummaryCards>("/patients", { params: parameters });
-	return data;
+	const { data } = await api.get<Schemas["GetAllPatientsResponse"]>("/patients", { params: parameters });
+	return {
+		items: (data.items ?? []).map(mapApiPatientSummaryCard),
+		pagination: data.pagination ?? { totalItems: 0, page: 1, pageSize: 10, totalPages: 0 },
+	};
 }
 
 /**
@@ -52,8 +66,11 @@ export async function getAssignedPatients(
 		pageSize?: number;
 	}
 ): Promise<PaginatedPatientSummaryCards> {
-	const { data } = await api.get<PaginatedPatientSummaryCards>("/me/patients", { params: parameters });
-	return data;
+	const { data } = await api.get<Schemas["GetMyPatientsResponse"]>("/me/patients", { params: parameters });
+	return {
+		items: (data.items ?? []).map(mapApiPatientSummaryCard),
+		pagination: data.pagination ?? { totalCount: 0, page: 1, pageSize: 10 },
+	};
 }
 
 /**
@@ -62,8 +79,8 @@ export async function getAssignedPatients(
 export async function getPatientDetails(
 	patientId: string
 ): Promise<PatientDetail> {
-	const { data } = await api.get<PatientDetail>(`/patients/${patientId}`);
-	return data;
+	const { data } = await api.get<Schemas["GetPatientByIdResponse"]>(`/patients/${patientId}`);
+	return mapApiPatientDetail(data);
 }
 
 /**
@@ -76,8 +93,11 @@ export async function getPatientHandoverTimeline(
 		pageSize?: number;
 	}
 ): Promise<PaginatedHandovers> {
-	const { data } = await api.get<PaginatedHandovers>(`/patients/${patientId}/handovers`, { params: parameters });
-	return data;
+	const { data } = await api.get<Schemas["GetPatientHandoversResponse"]>(`/patients/${patientId}/handovers`, { params: parameters });
+	return {
+		items: (data.items ?? []).map(mapApiHandoverRecord),
+		pagination: data.pagination ?? { totalItems: 0, page: 1, pageSize: 10, totalPages: 0 },
+	};
 }
 
 /**

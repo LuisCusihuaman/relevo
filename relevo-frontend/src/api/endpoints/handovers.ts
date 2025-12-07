@@ -1,22 +1,84 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
+import type { Schemas } from "@/api/generated";
 import type {
-	PaginatedHandovers,
-	Handover,
-	HandoverMessage,
-	HandoverActivityItem,
-	HandoverChecklistItem,
-	HandoverContingencyPlan,
-	SituationAwarenessResponse,
-	ContingencyPlansResponse,
-	UpdateSituationAwarenessRequest,
-	ApiResponse,
-	SynthesisResponse,
-	UpdatePatientDataRequest,
+	HandoverSummary,
+	HandoverDetail,
+	ContingencyPlan,
 	PatientHandoverData,
-	GetHandoverActionItemsResponse,
-} from "../types";
-import type { SituationAwarenessStatus } from "@/types/domain";
+	HandoverActionItem,
+	SituationAwarenessStatus,
+	IllnessSeverity,
+} from "@/types/domain";
+import {
+	mapApiHandoverRecord,
+	mapApiHandoverDetail,
+	mapApiContingencyPlan,
+	mapApiPatientHandoverData,
+} from "@/api/mappers";
+
+// Response types mapped to domain
+type PaginatedHandovers = {
+	items: Array<HandoverSummary>;
+	pagination: Schemas["PaginationInfo"];
+};
+
+// API Response types (using generated schemas)
+type SituationAwarenessResponse = Schemas["GetSituationAwarenessResponse"];
+type SynthesisResponse = Schemas["GetSynthesisResponse"];
+type UpdateSituationAwarenessRequest = Schemas["UpdateSituationAwarenessRequest"];
+type UpdatePatientDataRequest = {
+	illnessSeverity: IllnessSeverity;
+	summaryText?: string;
+};
+
+// Legacy types for compatibility (to be removed)
+type HandoverMessage = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	userName: string;
+	messageText: string;
+	messageType: "message" | "system" | "notification";
+	createdAt: string;
+	updatedAt: string;
+};
+
+type HandoverActivityItem = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	userName: string;
+	activityType: string;
+	activityDescription?: string;
+	sectionAffected?: string;
+	metadata?: Record<string, unknown>;
+	createdAt: string;
+};
+
+type HandoverChecklistItem = {
+	id: string;
+	handoverId: string;
+	userId: string;
+	itemId: string;
+	itemCategory: string;
+	itemLabel: string;
+	itemDescription?: string;
+	isRequired: boolean;
+	isChecked: boolean;
+	checkedAt?: string;
+	createdAt: string;
+};
+
+type ApiResponse<T> = {
+	success: boolean;
+	message: string;
+	data?: T;
+};
+
+type GetHandoverActionItemsResponse = {
+	actionItems: Array<HandoverActionItem>;
+};
 
 // ========================================
 // QUERY KEYS
@@ -52,22 +114,25 @@ export async function getHandovers(
 		pageSize?: number;
 	}
 ): Promise<PaginatedHandovers> {
-	const { data } = await api.get<PaginatedHandovers>("/me/handovers", { params: parameters });
-	return data;
+	const { data } = await api.get<Schemas["GetMyHandoversResponse"]>("/me/handovers", { params: parameters });
+	return {
+		items: (data.items ?? []).map(mapApiHandoverRecord),
+		pagination: data.pagination ?? { totalItems: 0, currentPage: 1, pageSize: 10, totalPages: 0 },
+	};
 }
 
 export async function getHandover(
 	handoverId: string
-): Promise<Handover> {
-	const { data } = await api.get<Handover>(`/handovers/${handoverId}`);
-	return data;
+): Promise<HandoverDetail> {
+	const { data } = await api.get<Schemas["GetHandoverByIdResponse"]>(`/handovers/${handoverId}`);
+	return mapApiHandoverDetail(data);
 }
 
 export async function getPatientHandoverData(
 	handoverId: string
 ): Promise<PatientHandoverData> {
-	const { data } = await api.get<PatientHandoverData>(`/handovers/${handoverId}/patient`);
-	return data;
+	const { data } = await api.get<Schemas["GetPatientHandoverDataResponse"]>(`/handovers/${handoverId}/patient`);
+	return mapApiPatientHandoverData(data);
 }
 
 export async function createHandover(
@@ -80,9 +145,9 @@ export async function createHandover(
 		initiatedBy: string;
 		notes?: string;
 	}
-): Promise<Handover> {
-	const { data } = await api.post<Handover>("/handovers", request);
-	return data;
+): Promise<HandoverDetail> {
+	const { data } = await api.post<Schemas["GetHandoverByIdResponse"]>("/handovers", request);
+	return mapApiHandoverDetail(data);
 }
 
 // HANDOVER STATE TRANSITIONS
@@ -131,9 +196,24 @@ export async function rejectHandover(
 
 export async function getPendingHandovers(
 	userId: string
-): Promise<{ handovers: Array<Handover> }> {
-	const { data } = await api.get<{ handovers: Array<Handover> }>("/handovers/pending", { params: { userId } });
-	return data;
+): Promise<{ handovers: Array<HandoverSummary> }> {
+	const { data } = await api.get<Schemas["GetPendingHandoversResponse"]>("/handovers/pending", { params: { userId } });
+	// Note: GetPendingHandoversResponse uses HandoverDto which is simpler, map what we can
+	return {
+		handovers: (data.handovers ?? []).map((h) => ({
+			id: h.id ?? "",
+			patientId: h.patientId ?? "",
+			patientName: h.patientName ?? null,
+			shiftName: h.shiftName ?? "",
+			stateName: (h.status as HandoverSummary["stateName"]) ?? "Draft",
+			illnessSeverity: "stable" as const,
+			createdBy: "",
+			createdByName: null,
+			assignedTo: "",
+			assignedToName: null,
+			responsiblePhysicianName: "",
+		})),
+	};
 }
 
 
@@ -242,9 +322,9 @@ export async function deleteActionItem(
  */
 export async function getHandoverContingencyPlans(
 	handoverId: string
-): Promise<Array<HandoverContingencyPlan>> {
-	const { data } = await api.get<ContingencyPlansResponse>(`/me/handovers/${handoverId}/contingency-plans`);
-	return data.contingencyPlans;
+): Promise<Array<ContingencyPlan>> {
+	const { data } = await api.get<Schemas["GetMeContingencyPlansResponse"]>(`/me/handovers/${handoverId}/contingency-plans`);
+	return (data.contingencyPlans ?? []).map(mapApiContingencyPlan);
 }
 
 /**
@@ -256,12 +336,15 @@ export async function createContingencyPlan(
 	conditionText: string,
 	actionText: string,
 	priority: "low" | "medium" | "high" = "medium"
-): Promise<{ success: boolean; contingencyPlan: HandoverContingencyPlan }> {
-	const { data } = await api.post<{ success: boolean; contingencyPlan: HandoverContingencyPlan }>(
+): Promise<{ success: boolean; contingencyPlan: ContingencyPlan | null }> {
+	const { data } = await api.post<Schemas["CreateMeContingencyPlanResponse"]>(
 		`/me/handovers/${handoverId}/contingency-plans`, 
 		{ conditionText, actionText, priority }
 	);
-	return data;
+	return {
+		success: data.success ?? false,
+		contingencyPlan: data.contingencyPlan ? mapApiContingencyPlan(data.contingencyPlan) : null,
+	};
 }
 
 // ========================================
@@ -283,7 +366,7 @@ export function useHandovers(parameters?: {
 	});
 }
 
-export function useHandover(handoverId: string): ReturnType<typeof useQuery<Handover | undefined, Error>> {
+export function useHandover(handoverId: string): ReturnType<typeof useQuery<HandoverDetail | undefined, Error>> {
 	return useQuery({
 		queryKey: handoverQueryKeys.detail(handoverId),
 		queryFn: () => getHandover(handoverId),
@@ -293,7 +376,7 @@ export function useHandover(handoverId: string): ReturnType<typeof useQuery<Hand
 	});
 }
 
-export function useCreateHandover(): ReturnType<typeof useMutation<Handover, Error, Parameters<typeof createHandover>[0]>> {
+export function useCreateHandover(): ReturnType<typeof useMutation<HandoverDetail, Error, Parameters<typeof createHandover>[0]>> {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -357,7 +440,7 @@ export function useRejectHandover(): ReturnType<typeof useMutation<void, Error, 
 // HOOKS: PENDING HANDOVERS
 // ----------------------------------------
 
-export function usePendingHandovers(userId: string): ReturnType<typeof useQuery<{ handovers: Array<Handover> } | undefined, Error>> {
+export function usePendingHandovers(userId: string): ReturnType<typeof useQuery<{ handovers: Array<HandoverSummary> } | undefined, Error>> {
 	return useQuery({
 		queryKey: handoverQueryKeys.list({ userId, status: "pending" }),
 		queryFn: () => getPendingHandovers(userId),
@@ -525,7 +608,7 @@ export function useDeleteActionItem(): ReturnType<typeof useMutation<{ success: 
 // HOOKS: HANDOVER CONTINGENCY PLANS
 // ----------------------------------------
 
-export function useHandoverContingencyPlans(handoverId: string): ReturnType<typeof useQuery<Array<HandoverContingencyPlan> | undefined, Error>> {
+export function useHandoverContingencyPlans(handoverId: string): ReturnType<typeof useQuery<Array<ContingencyPlan> | undefined, Error>> {
 	return useQuery({
 		queryKey: handoverQueryKeys.contingencyPlans(handoverId),
 		queryFn: () => getHandoverContingencyPlans(handoverId),
@@ -534,7 +617,7 @@ export function useHandoverContingencyPlans(handoverId: string): ReturnType<type
 	});
 }
 
-export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ success: boolean; contingencyPlan: HandoverContingencyPlan }, Error, { handoverId: string; conditionText: string; actionText: string; priority?: "low" | "medium" | "high" }>> {
+export function useCreateContingencyPlan(): ReturnType<typeof useMutation<{ success: boolean; contingencyPlan: ContingencyPlan | null }, Error, { handoverId: string; conditionText: string; actionText: string; priority?: "low" | "medium" | "high" }>> {
 	const queryClient = useQueryClient();
 
 	return useMutation({

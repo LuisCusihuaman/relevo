@@ -6,7 +6,7 @@ import {
 	FilterToolbar,
 	ListHeader,
 } from "@/components/home";
-import type { HandoverUI as Handover } from "@/components/home/types";
+import type { HandoverUI as Handover } from "@/types/domain";
 import { useAllPatients, mapApiPatientToUiHandover } from "@/api";
 
 export function Patients(): ReactElement {

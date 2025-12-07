@@ -1,4 +1,4 @@
-import type { PhysicianAssignment } from "@/api";
+import type { PhysicianAssignment } from "@/types/domain";
 
 export function formatDiagnosis(input: unknown): string {
 	if (typeof input === "string") return input;

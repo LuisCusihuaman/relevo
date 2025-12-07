@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import type { SearchResult } from "./types";
+import type { SearchResult } from "@/types/domain";
 
 type CommandPaletteProps = {
 	setIsSearchOpen: (isOpen: boolean) => void;

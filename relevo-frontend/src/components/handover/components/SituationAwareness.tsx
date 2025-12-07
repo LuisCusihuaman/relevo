@@ -93,15 +93,7 @@ export function SituationAwareness({
   const displayContent = isEditing ? draft : (serverContent || defaultContent);
 
   // Convert API contingency plans to component format
-  const contingencyPlans: Array<ContingencyPlan> = contingencyData?.map(plan => ({
-    id: plan.id,
-    condition: plan.conditionText,
-    action: plan.actionText,
-    priority: plan.priority,
-    status: plan.status,
-    createdBy: plan.createdBy,
-    createdAt: plan.createdAt,
-  })) || [];
+  const contingencyPlans: Array<ContingencyPlan> = contingencyData || [];
 
   // New plan form state
   const [showNewPlanForm, setShowNewPlanForm] = useState(false);
@@ -120,7 +112,7 @@ export function SituationAwareness({
       await updateSituationMutation.mutateAsync({
         handoverId,
         content: value,
-        status: situationData?.situationAwareness?.status || "Draft",
+        status: (situationData?.situationAwareness?.status as any) || "Draft",
       });
       setAutoSaveStatus("saved");
     } catch (error) {

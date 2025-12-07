@@ -1,10 +1,9 @@
-
 import type {
 	HandoverUI as Handover,
 	Metric,
 	RecentPreview,
 	SearchResult,
-} from "../components/home/types";
+} from "@/types/domain";
 
 export const patients: Array<any> = [
 	{

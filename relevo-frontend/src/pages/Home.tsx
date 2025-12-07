@@ -8,7 +8,8 @@ import {
 	VersionNotice,
 } from "@/components/home";
 import { recentPreviews } from "@/pages/data";
-import { useAssignedPatients, type PatientSummaryCard } from "@/api";
+import { useAssignedPatients } from "@/api";
+import type { PatientSummaryCard } from "@/types/domain";
 import { useUiStore } from "@/store/ui.store";
 
 export type HomeProps = {

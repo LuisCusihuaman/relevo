@@ -1,5 +1,6 @@
 import { CheckCircle, Calendar, Clock } from "lucide-react";
-import type { ShiftConfig, ShiftCheckInStep } from "../types";
+import type { ShiftConfig } from "@/types/domain";
+import type { ShiftCheckInStep } from "../types";
 import type { ReactElement } from "react";
 
 type ShiftSelectionStepProps = {

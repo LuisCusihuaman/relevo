@@ -1,5 +1,5 @@
 import { usePatientHandoverData as usePatientHandoverDataApi } from "@/api/endpoints/handovers";
-import type { PatientHandoverData } from "@/api";
+import type { PatientHandoverData } from "@/types/domain";
 
 export function usePatientHandoverData(handoverId?: string): {
 	patientData: PatientHandoverData | null;

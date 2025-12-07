@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import type { RecentPreview } from "./types";
+import type { RecentPreview } from "@/types/domain";
 
 type RecentActivityCardProps = {
 	recentPreviews: Array<RecentPreview>;

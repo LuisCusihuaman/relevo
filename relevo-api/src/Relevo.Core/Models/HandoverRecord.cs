@@ -1,30 +1,32 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Relevo.Core.Models;
 
 public record HandoverRecord(
-    string Id,
-    string PatientId,
+    [property: Required] string Id,
+    [property: Required] string PatientId,
     string? PatientName,
-    string Status,
+    [property: Required] string Status,
     string? IllnessSeverity,
     string? PatientSummary,
     string? SituationAwarenessDocId,
     string? Synthesis,
-    string? ShiftName,
-    string? CreatedBy, // Maps to CREATED_BY_USER_ID
-    string? AssignedTo, // Maps to RECEIVER_USER_ID or COMPLETED_BY_USER_ID
+    [property: Required] string? ShiftName,
+    [property: Required] string? CreatedBy, // Maps to CREATED_BY_USER_ID
+    [property: Required] string? AssignedTo, // Maps to RECEIVER_USER_ID or COMPLETED_BY_USER_ID
     string? CreatedByName,
     string? AssignedToName,
     string? ReceiverUserId, // Maps to RECEIVER_USER_ID
-    string? ResponsiblePhysicianId, // Maps to SENDER_USER_ID
-    string? ResponsiblePhysicianName,
+    [property: Required] string? ResponsiblePhysicianId, // Maps to SENDER_USER_ID
+    [property: Required] string? ResponsiblePhysicianName,
     string? CreatedAt,
     string? ReadyAt,
     string? StartedAt,
     string? CompletedAt,
     string? CancelledAt,
     DateTime? HandoverWindowDate, // Derived from SHIFT_WINDOWS
-    string StateName,
-    int Version,
+    [property: Required] string StateName,
+    [property: Required] int Version,
     // V3 Fields
     string? ShiftWindowId,
     string? PreviousHandoverId,

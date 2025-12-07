@@ -1,9 +1,14 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "../client";
-import type { Unit, Shift, AssignPatientsPayload, ShiftCheckInPatientsResponse } from "../types";
-import type { ShiftCheckInPatient } from "@/types/domain";
-
+import type { Schemas } from "@/api/generated";
+import type { Unit, Shift, ShiftCheckInPatient } from "@/types/domain";
+import { mapApiUnit, mapApiShift, mapApiPatientRecordToShiftCheckIn } from "@/api/mappers";
 import { patientQueryKeys } from "./patients";
+
+type AssignPatientsPayload = {
+	shiftId: string;
+	patientIds: Array<string>;
+};
 
 // Shift Check-In query keys
 export const shiftCheckInQueryKeys = {
@@ -18,16 +23,16 @@ export const shiftCheckInQueryKeys = {
  * Get hospital units
  */
 export async function getUnits(): Promise<Array<Unit>> {
-	const { data } = await api.get<{ units?: Array<Unit>; Units?: Array<Unit> }>("/shift-check-in/units");
-	return data.units ?? data.Units ?? [];
+	const { data } = await api.get<Schemas["UnitListResponse"]>("/shift-check-in/units");
+	return (data.units ?? []).map(mapApiUnit);
 }
 
 /**
  * Get available shifts
  */
 export async function getShifts(): Promise<Array<Shift>> {
-	const { data } = await api.get<{ shifts?: Array<Shift>; Shifts?: Array<Shift> }>("/shift-check-in/shifts");
-	return data.shifts ?? data.Shifts ?? [];
+	const { data } = await api.get<Schemas["ShiftListResponse"]>("/shift-check-in/shifts");
+	return (data.shifts ?? []).map(mapApiShift);
 }
 
 /**
@@ -40,8 +45,8 @@ export async function getPatientsByUnit(
 		pageSize?: number;
 	}
 ): Promise<Array<ShiftCheckInPatient>> {
-	const { data } = await api.get<ShiftCheckInPatientsResponse>(`/units/${unitId}/patients`, { params: parameters });
-	return data.patients ?? data.Patients ?? [];
+	const { data } = await api.get<Schemas["GetPatientsByUnitResponse"]>(`/units/${unitId}/patients`, { params: parameters });
+	return (data.patients ?? []).map(mapApiPatientRecordToShiftCheckIn);
 }
 
 /**

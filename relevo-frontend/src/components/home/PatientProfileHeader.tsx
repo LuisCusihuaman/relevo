@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
-import type { PatientHandoverData } from "@/api";
+import type { PatientHandoverData } from "@/types/domain";
 
 type PatientProfileHeaderProps = {
 	currentPatient: PatientHandoverData;

@@ -3,6 +3,7 @@ using MediatR;
 using Relevo.Core.Interfaces;
 using Relevo.UseCases.Handovers.CreateContingencyPlan;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
@@ -65,8 +66,11 @@ public class CreateContingencyPlanRequest
     public string Priority { get; set; } = string.Empty;
 }
 
+// ...
+
 public class CreateContingencyPlanResponse
 {
-    public ContingencyPlanDto Plan { get; set; } = new();
+    [Required]
+    public required ContingencyPlanDto Plan { get; set; }
 }
 

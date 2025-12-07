@@ -1,5 +1,6 @@
 import { CheckCircle, MapPin } from "lucide-react";
-import type { UnitConfig, ShiftCheckInStep } from "../types";
+import type { UnitConfig } from "@/types/domain";
+import type { ShiftCheckInStep } from "../types";
 import type { ReactElement } from "react";
 
 type UnitSelectionStepProps = {

@@ -3,7 +3,7 @@ import { useParams } from "@tanstack/react-router";
 import { useHandover } from "@/api/endpoints/handovers";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { formatPhysician, getInitials } from "@/lib/formatters";
-import type { PatientHandoverData, Handover } from "@/api";
+import type { PatientHandoverData, HandoverDetail as Handover } from "@/types/domain";
 import {
 	useCurrentPhysician,
 	type UserInfo,

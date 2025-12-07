@@ -91,7 +91,7 @@ export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyP
                   {t("contingencyPlanning.ifPrefix")}
                 </span>
                 <span className="text-sm text-gray-900">
-                  {plan.condition}
+                  {plan.conditionText}
                 </span>
               </div>
               <div className="flex items-start space-x-2">
@@ -99,7 +99,7 @@ export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyP
                   {t("contingencyPlanning.thenPrefix")}
                 </span>
                 <span className="text-sm text-gray-900">
-                  {plan.action}
+                  {plan.actionText}
                 </span>
               </div>
             </div>

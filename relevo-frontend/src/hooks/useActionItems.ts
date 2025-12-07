@@ -5,8 +5,10 @@ import {
   getHandoverActionItems,
   updateActionItem,
 } from "@/api/endpoints/handovers";
-import type { HandoverActionItem } from "@/api/types";
-import type { ActionItem as DomainActionItem } from "@/types/domain";
+import type { HandoverActionItem } from "@/types/domain";
+
+// Extended ActionItem for UI display
+type DomainActionItem = HandoverActionItem;
 
 export interface ActionItem extends DomainActionItem {
   submittedBy: string;
@@ -23,10 +25,14 @@ export interface UseActionItemsProps {
 // Helper function to transform API response to ActionItem
 const transformActionItem = (item: HandoverActionItem): ActionItem => ({
   id: item.id,
+  handoverId: item.handoverId,
   description: item.description,
-  priority: "medium", // Default as it's missing in API type currently
+  priority: item.priority ?? "medium",
   isCompleted: item.isCompleted,
   createdAt: item.createdAt,
+  updatedAt: item.updatedAt,
+  completedAt: item.completedAt,
+  dueTime: item.dueTime,
   submittedBy: "Current User",
   submittedTime: new Date(item.createdAt).toLocaleTimeString(),
   submittedDate: new Date(item.createdAt).toLocaleDateString(),

@@ -1,0 +1,3906 @@
+{
+  "x-generator": "NSwag v14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Relevo.Web",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:57679"
+    }
+  ],
+  "paths": {
+    "/units/{unitId}/patients": {
+      "get": {
+        "tags": [
+          "Units"
+        ],
+        "operationId": "RelevoWebUnitsGetPatientsByUnit",
+        "parameters": [
+          {
+            "name": "unitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientsByUnitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/shift-check-in/shifts": {
+      "get": {
+        "tags": [
+          "Shift-Check-In"
+        ],
+        "operationId": "RelevoWebShiftCheckInGetShifts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/shift-check-in/units": {
+      "get": {
+        "tags": [
+          "Shift-Check-In"
+        ],
+        "operationId": "RelevoWebShiftCheckInGetUnits",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/patients/{patientId}/summary": {
+      "post": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsCreatePatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreatePatientSummaryRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePatientSummaryRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePatientSummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientSummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsUpdatePatientSummary",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdatePatientSummaryRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatientSummaryRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePatientSummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/patients/{patientId}/action-items": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientActionItems",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientActionItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/patients": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetAllPatients",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllPatientsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/patients/{patientId}": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientById",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientByIdResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/patients/{patientId}/handovers": {
+      "get": {
+        "tags": [
+          "Patients"
+        ],
+        "operationId": "RelevoWebPatientsGetPatientHandovers",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientHandoversResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/handovers/{handoverId}/action-items": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateHandoverActionItem",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateHandoverActionItemRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverActionItemRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverActionItemResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverActionItems",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverActionItemsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/handovers/{handoverId}/messages": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateHandoverMessageEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateHandoverMessageRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverMessageRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverMessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetHandoverMessagesEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverMessagesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/handovers/{handoverId}/contingency-plans": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeCreateMeContingencyPlanEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateMeContingencyPlanRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMeContingencyPlanRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMeContingencyPlanResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMeContingencyPlansEndpoint",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMeContingencyPlansResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/handovers/{handoverId}/action-items/{itemId}": {
+      "delete": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeDeleteHandoverActionItem",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteHandoverActionItemResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeUpdateHandoverActionItem",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateHandoverActionItemRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHandoverActionItemRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateHandoverActionItemResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/handovers": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyHandoversEndpoint",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyHandoversResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/patients": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyPatientsEndpoint",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyPatientsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/profile": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeGetMyProfileEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMyProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/assignments": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMePostAssignments",
+        "requestBody": {
+          "x-name": "PostAssignmentsRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostAssignmentsRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/assignments/{shiftInstanceId}/patients/{patientId}": {
+      "delete": {
+        "tags": [
+          "Me"
+        ],
+        "operationId": "RelevoWebMeUnassignPatient",
+        "parameters": [
+          {
+            "name": "shiftInstanceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "patientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/cancel": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCancelHandover",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CancelHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/complete": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCompleteHandover",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/contingency-plans": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCreateContingencyPlan",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "CreateContingencyPlanRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContingencyPlanRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateContingencyPlanResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetContingencyPlans",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetContingencyPlansResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversCreateHandover",
+        "requestBody": {
+          "x-name": "CreateHandoverRequestDto",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandoverRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateHandoverResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/contingency-plans/{contingencyId}": {
+      "delete": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversDeleteContingencyPlan",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contingencyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteContingencyPlanResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetHandoverById",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHandoverByIdResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/patient-data": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetClinicalData",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetClinicalDataResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutClinicalData",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateClinicalDataRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClinicalDataRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/patient": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetPatientHandoverData",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPatientHandoverDataResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/pending": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetPendingHandovers",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPendingHandoversResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/situation-awareness": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetSituationAwareness",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSituationAwarenessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutSituationAwareness",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateSituationAwarenessRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSituationAwarenessRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/synthesis": {
+      "get": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversGetSynthesis",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSynthesisResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversPutSynthesis",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "PutSynthesisRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutSynthesisRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PutSynthesisResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/ready": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversReadyHandover",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/reject": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversRejectHandover",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "RejectHandoverRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectHandoverRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/return-for-changes": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversReturnForChanges",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/handovers/{handoverId}/start": {
+      "post": {
+        "tags": [
+          "Handovers"
+        ],
+        "operationId": "RelevoWebHandoversStartHandover",
+        "parameters": [
+          {
+            "name": "handoverId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/Contributors": {
+      "post": {
+        "tags": [
+          "Contributors"
+        ],
+        "summary": "Create a new Contributor",
+        "description": "Creates a new Contributor given a name.",
+        "operationId": "RelevoWebContributorsCreate",
+        "requestBody": {
+          "x-name": "CreateContributorRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContributorRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateContributorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Contributors"
+        ],
+        "summary": "List all Contributors",
+        "description": "List all contributors - returns a ContributorListResponse containing the Contributors.",
+        "operationId": "RelevoWebContributorsList",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContributorListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/Contributors/{contributorId}": {
+      "delete": {
+        "tags": [
+          "Contributors"
+        ],
+        "summary": "Delete a Contributor.",
+        "description": "Delete a Contributor by providing a valid integer id.",
+        "operationId": "RelevoWebContributorsDelete",
+        "parameters": [
+          {
+            "name": "contributorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Contributors"
+        ],
+        "summary": "Get a Contributor by integer ID.",
+        "description": "Takes a positive integer ID and returns a matching Contributor record.",
+        "operationId": "RelevoWebContributorsGetById",
+        "parameters": [
+          {
+            "name": "contributorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContributorRecord"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Contributors"
+        ],
+        "summary": "Update an existing Contributor.",
+        "description": "Update an existing Contributor by providing a fully defined replacement set of values.\nSee: https://stackoverflow.com/questions/60761955/rest-update-best-practice-put-collection-id-without-id-in-body-vs-put-collecti",
+        "operationId": "RelevoWebContributorsUpdate",
+        "parameters": [
+          {
+            "name": "contributorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "UpdateContributorRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContributorRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateContributorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetPatientsByUnitResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientRecord"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PatientRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "room": {
+            "type": "string"
+          },
+          "diagnosis": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "severity": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetPatientsByUnitRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ShiftListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shifts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShiftRecord"
+            }
+          }
+        }
+      },
+      "ShiftRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "UnitListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnitRecord"
+            }
+          }
+        }
+      },
+      "UnitRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreatePatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/PatientSummaryDto"
+          }
+        }
+      },
+      "PatientSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "physicianId": {
+            "type": "string"
+          },
+          "summaryText": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastEditedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "CreatePatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summaryText": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientActionItemsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "actionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientActionItemDto"
+            }
+          }
+        }
+      },
+      "PatientActionItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "shiftName": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientActionItemsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetAllPatientsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientSummaryCard"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "PatientSummaryCard": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaginationInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetAllPatientsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientByIdResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "admissionDate": {
+            "type": "string"
+          },
+          "currentUnit": {
+            "type": "string"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "diagnosis": {
+            "type": "string"
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "medications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverRecord"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo"
+          }
+        }
+      },
+      "HandoverRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "patientId",
+          "status",
+          "shiftName",
+          "createdBy",
+          "assignedTo",
+          "responsiblePhysicianId",
+          "responsiblePhysicianName",
+          "stateName",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patientId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "illnessSeverity": {
+            "type": "string",
+            "nullable": true
+          },
+          "patientSummary": {
+            "type": "string",
+            "nullable": true
+          },
+          "situationAwarenessDocId": {
+            "type": "string",
+            "nullable": true
+          },
+          "synthesis": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assignedTo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignedToName": {
+            "type": "string",
+            "nullable": true
+          },
+          "receiverUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "responsiblePhysicianId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "responsiblePhysicianName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverWindowDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shiftWindowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousHandoverId": {
+            "type": "string",
+            "nullable": true
+          },
+          "senderUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetPatientHandoversRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summary": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PatientSummaryDto"
+              }
+            ]
+          }
+        }
+      },
+      "GetPatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdatePatientSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatePatientSummaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "summaryText": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "actionItemId": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverMessageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/HandoverMessageRecord"
+              }
+            ]
+          }
+        }
+      },
+      "HandoverMessageRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "messageText": {
+            "type": "string"
+          },
+          "messageType": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateHandoverMessageRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messageText": {
+            "type": "string"
+          },
+          "messageType": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateMeContingencyPlanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "contingencyPlan": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ContingencyPlanRecord"
+              }
+            ]
+          }
+        }
+      },
+      "ContingencyPlanRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string"
+          },
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateMeContingencyPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "DeleteHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeleteHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetHandoverActionItemsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "actionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverActionItemFullRecord"
+            }
+          }
+        }
+      },
+      "HandoverActionItemFullRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "handoverId",
+          "description",
+          "isCompleted",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoverId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "GetHandoverActionItemsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetHandoverMessagesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverMessageRecord"
+            }
+          }
+        }
+      },
+      "GetHandoverMessagesRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMeContingencyPlansResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contingencyPlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContingencyPlanRecord"
+            }
+          }
+        }
+      },
+      "GetMeContingencyPlansRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMyHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverRecord"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfo2"
+          }
+        }
+      },
+      "PaginationInfo2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetMyHandoversRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMyPatientsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientSummaryCard2"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PatientsPaginationInfo"
+          }
+        }
+      },
+      "PatientSummaryCard2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "handoverStatus": {
+            "type": "string"
+          },
+          "handoverId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PatientsPaginationInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetMyPatientsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetMyProfileResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PostAssignmentsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shiftId": {
+            "type": "string"
+          },
+          "patientIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UnassignPatientRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateHandoverActionItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateHandoverActionItemRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CancelHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompleteHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateContingencyPlanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "plan"
+        ],
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/ContingencyPlanDto"
+          }
+        }
+      },
+      "ContingencyPlanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "handoverId",
+          "conditionText",
+          "actionText",
+          "priority",
+          "status",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoverId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conditionText": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actionText": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          }
+        }
+      },
+      "CreateContingencyPlanRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conditionText": {
+            "type": "string"
+          },
+          "actionText": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateHandoverResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftWindowId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateHandoverRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patientId": {
+            "type": "string"
+          },
+          "fromDoctorId": {
+            "type": "string"
+          },
+          "toDoctorId": {
+            "type": "string"
+          },
+          "fromShiftId": {
+            "type": "string"
+          },
+          "toShiftId": {
+            "type": "string"
+          },
+          "initiatedBy": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteContingencyPlanResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "DeleteContingencyPlanRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetHandoverByIdResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "patientId",
+          "status",
+          "responsiblePhysicianId",
+          "responsiblePhysicianName",
+          "illnessSeverity",
+          "patientSummary",
+          "shiftName",
+          "createdBy",
+          "assignedTo",
+          "stateName",
+          "version",
+          "actionItems"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patientId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "responsiblePhysicianId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "responsiblePhysicianName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "illnessSeverity": {
+            "$ref": "#/components/schemas/GetHandoverByIdResponse_IllnessSeverityDto"
+          },
+          "patientSummary": {
+            "$ref": "#/components/schemas/GetHandoverByIdResponse_PatientSummaryDto"
+          },
+          "situationAwarenessDocId": {
+            "type": "string",
+            "nullable": true
+          },
+          "synthesis": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetHandoverByIdResponse_SynthesisDto"
+              }
+            ]
+          },
+          "shiftName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "createdBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assignedTo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "receiverUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "handoverWindowDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetHandoverByIdResponse_ActionItemDto"
+            }
+          },
+          "shiftWindowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousHandoverId": {
+            "type": "string",
+            "nullable": true
+          },
+          "senderUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "readyByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelledByUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetHandoverByIdResponse_IllnessSeverityDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "severity"
+        ],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "GetHandoverByIdResponse_PatientSummaryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "GetHandoverByIdResponse_SynthesisDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "GetHandoverByIdResponse_ActionItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description",
+          "isCompleted"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetHandoverByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetClinicalDataResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "handoverId",
+          "illnessSeverity",
+          "summaryText",
+          "lastEditedBy",
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "handoverId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "illnessSeverity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summaryText": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          }
+        }
+      },
+      "GetClinicalDataRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetContingencyPlansResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContingencyPlanDto"
+            }
+          }
+        }
+      },
+      "GetContingencyPlansRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPatientHandoverDataResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "admissionDate": {
+            "type": "string"
+          },
+          "currentDateTime": {
+            "type": "string"
+          },
+          "primaryTeam": {
+            "type": "string"
+          },
+          "primaryDiagnosis": {
+            "type": "string"
+          },
+          "room": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "assignedPhysician": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetPatientHandoverDataResponse_PhysicianDto"
+              }
+            ]
+          },
+          "receivingPhysician": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetPatientHandoverDataResponse_PhysicianDto"
+              }
+            ]
+          },
+          "illnessSeverity": {
+            "type": "string",
+            "nullable": true
+          },
+          "summaryText": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetPatientHandoverDataResponse_PhysicianDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "shiftEnd": {
+            "type": "string",
+            "nullable": true
+          },
+          "shiftStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "patientAssignment": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPatientHandoverDataRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetPendingHandoversResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "handovers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverDto"
+            }
+          }
+        }
+      },
+      "HandoverDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "patientName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "shiftName": {
+            "type": "string"
+          }
+        }
+      },
+      "GetSituationAwarenessResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "situationAwareness": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SituationAwarenessDto"
+              }
+            ]
+          }
+        }
+      },
+      "SituationAwarenessDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "handoverId",
+          "status",
+          "lastEditedBy",
+          "updatedAt"
+        ],
+        "properties": {
+          "handoverId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          }
+        }
+      },
+      "GetSituationAwarenessRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GetSynthesisResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "synthesis": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SynthesisDto"
+              }
+            ]
+          }
+        }
+      },
+      "SynthesisDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "handoverId",
+          "status",
+          "lastEditedBy",
+          "updatedAt"
+        ],
+        "properties": {
+          "handoverId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastEditedBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          }
+        }
+      },
+      "GetSynthesisRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateClinicalDataRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "illnessSeverity": {
+            "type": "string"
+          },
+          "summaryText": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateSituationAwarenessRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "PutSynthesisResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PutSynthesisRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "ReadyHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "RejectHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "ReturnForChangesRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "StartHandoverRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateContributorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "the dto used to send an error response to the client",
+        "additionalProperties": false,
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "description": "the http status code sent to the client. default is 400.",
+            "format": "int32",
+            "default": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "the message for the error response",
+            "default": "One or more errors occurred!"
+          },
+          "errors": {
+            "type": "object",
+            "description": "the collection of errors for the current context",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "CreateContributorRequest": {
+        "type": "object",
+        "example": {
+          "name": "Contributor Name",
+          "phoneNumber": null
+        },
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "nullable": false
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteContributorRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ContributorRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetContributorByIdRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ContributorListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contributors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContributorRecord"
+            }
+          }
+        }
+      },
+      "UpdateContributorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "contributor": {
+            "$ref": "#/components/schemas/ContributorRecord"
+          }
+        }
+      },
+      "UpdateContributorRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "nullable": false
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

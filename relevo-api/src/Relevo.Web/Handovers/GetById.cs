@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Handovers.GetById;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
@@ -88,19 +89,29 @@ public class GetHandoverByIdRequest
 
 public class GetHandoverByIdResponse
 {
-  public string Id { get; set; } = string.Empty;
-  public string PatientId { get; set; } = string.Empty;
+  [Required]
+  public required string Id { get; set; }
+  [Required]
+  public required string PatientId { get; set; }
   public string? PatientName { get; set; }
-  public string Status { get; set; } = string.Empty;
-  public string ResponsiblePhysicianId { get; set; } = string.Empty;
-  public string ResponsiblePhysicianName { get; set; } = string.Empty;
-  public IllnessSeverityDto illnessSeverity { get; set; } = new();
-  public PatientSummaryDto patientSummary { get; set; } = new();
+  [Required]
+  public required string Status { get; set; }
+  [Required]
+  public required string ResponsiblePhysicianId { get; set; }
+  [Required]
+  public required string ResponsiblePhysicianName { get; set; }
+  [Required]
+  public required IllnessSeverityDto illnessSeverity { get; set; }
+  [Required]
+  public required PatientSummaryDto patientSummary { get; set; }
   public string? situationAwarenessDocId { get; set; }
   public SynthesisDto? synthesis { get; set; }
-  public string ShiftName { get; set; } = string.Empty;
-  public string CreatedBy { get; set; } = string.Empty;
-  public string AssignedTo { get; set; } = string.Empty;
+  [Required]
+  public required string ShiftName { get; set; }
+  [Required]
+  public required string CreatedBy { get; set; }
+  [Required]
+  public required string AssignedTo { get; set; }
   public string? ReceiverUserId { get; set; }
   public string? CreatedAt { get; set; }
   public string? ReadyAt { get; set; }
@@ -108,9 +119,12 @@ public class GetHandoverByIdResponse
   public string? CompletedAt { get; set; }
   public string? CancelledAt { get; set; }
   public string? HandoverWindowDate { get; set; }
-  public string StateName { get; set; } = string.Empty;
-  public int Version { get; set; }
-  public List<ActionItemDto> actionItems { get; set; } = new();
+  [Required]
+  public required string StateName { get; set; }
+  [Required]
+  public required int Version { get; set; }
+  [Required]
+  public required List<ActionItemDto> actionItems { get; set; }
   // V3 Fields
   public string? ShiftWindowId { get; set; }
   public string? PreviousHandoverId { get; set; }
@@ -123,24 +137,30 @@ public class GetHandoverByIdResponse
 
   public class IllnessSeverityDto
   {
-    public string severity { get; set; } = string.Empty;
+    [Required]
+    public required string severity { get; set; }
   }
 
   public class PatientSummaryDto
   {
-    public string content { get; set; } = string.Empty;
+    [Required]
+    public required string content { get; set; }
   }
 
   public class SynthesisDto
   {
-    public string content { get; set; } = string.Empty;
+    [Required]
+    public required string content { get; set; }
   }
 
   public class ActionItemDto
   {
-    public string id { get; set; } = string.Empty;
-    public string description { get; set; } = string.Empty;
-    public bool isCompleted { get; set; }
+    [Required]
+    public required string id { get; set; }
+    [Required]
+    public required string description { get; set; }
+    [Required]
+    public required bool isCompleted { get; set; }
   }
 }
 

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 
-import type { PatientHandoverData } from "@/api";
+import type { PatientHandoverData } from "@/types/domain";
 import { useTranslation } from "react-i18next";
 
 type MobileMenuProps = {

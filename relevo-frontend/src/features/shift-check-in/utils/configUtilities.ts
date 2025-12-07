@@ -1,4 +1,4 @@
-import type { UnitConfig, ShiftConfig } from "../types";
+import type { UnitConfig, ShiftConfig } from "@/types/domain";
 
 export function transformApiUnit(apiUnit: {
 	id: string;

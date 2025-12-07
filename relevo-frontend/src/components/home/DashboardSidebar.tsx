@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import type { RecentPreview } from "@/components/home/types";
+import type { RecentPreview } from "@/types/domain";
 import { SectionMeta } from "@/components/home/SectionMeta";
 import { RecentActivityCard } from "@/components/home/RecentActivityCard";
 

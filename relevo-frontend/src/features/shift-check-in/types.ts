@@ -1,25 +1,20 @@
-import type {
-	ShiftCheckInStatus,
-	IllnessSeverity,
-	UnitConfig,
-	ShiftConfig,
-	ShiftCheckInPatient,
-} from "../../types/domain";
+/**
+ * Shift Check-In Store Types
+ * Rule: Zustand-CleanUp - Store-specific types only
+ *
+ * Domain types are imported from @/types/domain
+ */
+import type { ShiftCheckInPatient } from "@/types/domain";
 
-export type {
-	ShiftCheckInStatus,
-	IllnessSeverity,
-	UnitConfig,
-	ShiftConfig,
-	ShiftCheckInPatient,
-};
+// Re-export domain types for convenience
+export type { ShiftCheckInPatient };
 
 export type ShiftCheckInStep = 0 | 1 | 2 | 3;
 
 export type ShiftCheckInState = {
 	currentStep: ShiftCheckInStep;
 	isMobile: boolean;
-	doctorName: string; // Derived from Clerk user
+	doctorName: string;
 	unit: string;
 	shift: string;
 	selectedIndexes: Array<number>;

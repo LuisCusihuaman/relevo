@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronRight, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
-import type { PatientHandoverData } from "@/api";
+import type { PatientHandoverData } from "@/types/domain";
 import { useTranslation } from "react-i18next";
 import { NotificationsPopover } from "./NotificationsPopover";
 import { UserMenuPopover } from "./UserMenuPopover";

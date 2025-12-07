@@ -16,4 +16,6 @@ export * from "./SectionMeta";
 export * from "./SubNavigation";
 export * from "./UserMenuPopover";
 export * from "./VersionNotice";
-export type * from "./types";
+
+// Re-export home UI types from domain
+export type { RecentPreview, SearchResult, HandoverUI, Metric } from "@/types/domain";

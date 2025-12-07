@@ -7,7 +7,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import type { Metric } from "./types";
+import type { Metric } from "@/types/domain";
 import { metrics } from "@/pages/data";
 
 

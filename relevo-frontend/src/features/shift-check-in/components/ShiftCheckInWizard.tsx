@@ -2,6 +2,7 @@ import { memo, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent } from "@/components/ui/card";
+import type { ShiftConfig, UnitConfig } from "@/types/domain";
 
 import { DoctorInfoStep } from "./DoctorInfoStep";
 import { PatientSelectionStep } from "./PatientSelectionStep";
@@ -10,7 +11,6 @@ import { ShiftCheckInNavigation } from "./ShiftCheckInNavigation";
 import { ShiftSelectionStep } from "./ShiftSelectionStep";
 import { UnitSelectionStep } from "./UnitSelectionStep";
 import { useShiftCheckInState } from "../hooks/useShiftCheckInState";
-import type { ShiftConfig, UnitConfig } from "../types";
 
 type ShiftCheckInWizardProps = {
 	units: Array<UnitConfig>;

@@ -10,7 +10,7 @@ import {
 import { Activity, GitBranch, MoreHorizontal, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { patientHandoverTimelineQueryOptions } from "@/api/endpoints/patients";
-import type { PatientSummaryCard } from "@/api";
+import type { PatientSummaryCard } from "@/types/domain";
 
 export type PatientDirectoryListProps = {
 	patients: ReadonlyArray<PatientSummaryCard>;

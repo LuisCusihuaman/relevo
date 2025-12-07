@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Handovers.GetClinicalData;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
@@ -47,11 +48,17 @@ public class GetClinicalDataRequest
 
 public class GetClinicalDataResponse
 {
-    public string HandoverId { get; set; } = string.Empty;
-    public string IllnessSeverity { get; set; } = string.Empty;
-    public string SummaryText { get; set; } = string.Empty;
-    public string LastEditedBy { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public DateTime UpdatedAt { get; set; }
+    [Required]
+    public required string HandoverId { get; set; }
+    [Required]
+    public required string IllnessSeverity { get; set; }
+    [Required]
+    public required string SummaryText { get; set; }
+    [Required]
+    public required string LastEditedBy { get; set; }
+    [Required]
+    public required string Status { get; set; }
+    [Required]
+    public required DateTime UpdatedAt { get; set; }
 }
 

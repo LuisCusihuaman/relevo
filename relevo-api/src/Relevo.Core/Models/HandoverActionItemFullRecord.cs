@@ -1,12 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Relevo.Core.Models;
 
 public record HandoverActionItemFullRecord(
-    string Id,
-    string HandoverId,
-    string Description,
-    bool IsCompleted,
-    DateTime CreatedAt,
-    DateTime UpdatedAt,
+    [property: Required] string Id,
+    [property: Required] string HandoverId,
+    [property: Required] string Description,
+    [property: Required] bool IsCompleted,
+    [property: Required] DateTime CreatedAt,
+    [property: Required] DateTime UpdatedAt,
     DateTime? CompletedAt
 )
 {

@@ -1,5 +1,10 @@
-import type { Handover as ApiHandover, PatientSummaryCard } from "./types";
-import type { HandoverUI as UiHandover } from "@/components/home/types";
+/**
+ * UI mappers - Transform domain types to UI-specific types
+ * Rule: Concise-FP - Functional, no classes
+ */
+import type { HandoverDetail, PatientSummaryCard, HandoverUI as UiHandover } from "@/types/domain";
+
+type ApiHandover = HandoverDetail;
 
 // Configuration for mapping API states to UI properties
 type UiStateConfig = {
@@ -97,27 +102,23 @@ function getUiConfig(stateName: string): UiStateConfig {
 }
 
 // Get first letter of patient name
-const getInitials = (name: string): string => {
+function getInitials(name: string): string {
 	return name.charAt(0).toUpperCase();
-};
+}
 
 // Generate patient key from patient ID
-const getPatientKey = (id: string): string => {
+function getPatientKey(id: string): string {
 	return id.toLowerCase().replace(/[^a-z0-9]/g, "-");
-};
+}
 
 /**
  * Mapping function to convert API Handover to UI Handover type
  */
-export function mapApiHandoverToUiHandover(
-	apiHandover: ApiHandover,
-): UiHandover {
+export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover {
 	const config = getUiConfig(apiHandover.stateName);
 
 	// Use patient name from handover if available, otherwise fallback to patient ID
-	// Since patientName is removed from API, we use a placeholder or fetch it separately.
-	// For now, we use "Patient {ID}" as placeholder.
-	const patientName = `Patient ${apiHandover.patientId}`;
+	const patientName = apiHandover.patientName ?? `Patient ${apiHandover.patientId}`;
 
 	return {
 		id: apiHandover.id,
@@ -133,21 +134,19 @@ export function mapApiHandoverToUiHandover(
 			bg: "bg-blue-100",
 			text: "text-gray-700",
 		},
-		time: apiHandover.createdAt || new Date().toISOString(), // Use created date from API or current date as fallback
+		time: apiHandover.createdAt || new Date().toISOString(),
 		statusTime: config.isActive ? "Active" : "Inactive",
-		environmentType: "Preview", // Default to Preview
+		environmentType: "Preview",
 		current: config.isActive,
 		author: apiHandover.createdBy || "System",
-		avatar: "", // Default empty avatar
+		avatar: "",
 	};
 }
 
 /**
  * Mapping function to convert API PatientSummaryCard to UI Handover type
  */
-export function mapApiPatientToUiHandover(
-	apiPatient: PatientSummaryCard,
-): UiHandover {
+export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHandover {
 	const config = getUiConfig(apiPatient.handoverStatus);
 
 	return {
@@ -164,7 +163,7 @@ export function mapApiPatientToUiHandover(
 			bg: "bg-blue-100",
 			text: "text-gray-700",
 		},
-		time: new Date().toISOString(), // Use current date as fallback
+		time: new Date().toISOString(),
 		statusTime: "Active",
 		environmentType: "Preview",
 		current: config.isActive,

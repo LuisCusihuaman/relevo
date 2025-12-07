@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
-import type { HandoverUI as Handover } from "./types";
+import type { HandoverUI as Handover } from "@/types/domain";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatRelativeTime, getInitials } from "@/lib/formatters";
 

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PatientHandoverData } from "@/api";
+import type { PatientHandoverData } from "@/types/domain";
 
 type UiState = {
 	isSearchOpen: boolean;

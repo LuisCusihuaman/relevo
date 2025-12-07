@@ -1,3 +1,19 @@
+/**
+ * Domain Types - Single Source of Truth for UI types
+ *
+ * Rule: Strict-TS - All types used by the UI after API mapping
+ *
+ * Architecture:
+ *   OpenAPI Schema (SSOT) → Mappers → Domain Types → Views
+ *
+ * These types represent the data as the UI consumes it, not as the API returns it.
+ * For API types, use @/api/generated
+ */
+
+// =============================================================================
+// Enums & Literals
+// =============================================================================
+
 export type IllnessSeverity = "stable" | "watcher" | "unstable";
 
 export type HandoverStatus =
@@ -12,28 +28,19 @@ export type HandoverStatus =
 
 export type ShiftCheckInStatus = "pending" | "in-progress" | "complete";
 
-export type SituationAwarenessStatus =
-	| "Draft"
-	| "Ready"
-	| "InProgress"
-	| "Completed";
+export type SituationAwarenessStatus = "Draft" | "Ready" | "InProgress" | "Completed";
 
-// Use (string & {}) to preserve autocompletion for known values while allowing any string
 export type UserRole = "physician" | "nurse" | "admin" | "student" | (string & {});
 
-export interface UnitConfig {
-	id: string;
-	name: string;
-	description: string;
-}
+export type Priority = "low" | "medium" | "high";
 
-export interface ShiftConfig {
-	id: string;
-	name: string;
-	time: string;
-}
+export type ContingencyStatus = "active" | "planned" | "completed";
 
-export interface Patient {
+// =============================================================================
+// Patient Types
+// =============================================================================
+
+export type Patient = {
 	id: string;
 	name: string;
 	mrn: string;
@@ -50,81 +57,232 @@ export interface Patient {
 	allergies?: Array<string>;
 	medications?: Array<string>;
 	notes?: string;
-}
+};
 
-export interface ShiftCheckInPatient extends Omit<Partial<Patient>, "id"> {
+export type PatientSummaryCard = {
+	id: string;
+	name: string;
+	handoverStatus: string;
+	handoverId: string | null;
+};
+
+export type PatientDetail = {
+	id: string;
+	name: string;
+	mrn: string;
+	dob: string;
+	gender: "Male" | "Female" | "Other" | "Unknown";
+	admissionDate: string;
+	currentUnit: string;
+	roomNumber: string;
+	diagnosis: string;
+	allergies: Array<string>;
+	medications: Array<string>;
+	notes: string;
+};
+
+export type PhysicianAssignment = {
+	name: string;
+	role: string;
+	color: string;
+	shiftEnd?: string;
+	shiftStart?: string;
+	status: string;
+	patientAssignment: string;
+};
+
+export type PatientHandoverData = Patient & {
+	currentDateTime: string;
+	primaryTeam: string;
+	primaryDiagnosis: string;
+	assignedPhysician: PhysicianAssignment | null;
+	receivingPhysician: PhysicianAssignment | null;
+	summaryText?: string;
+	lastEditedBy?: string;
+	updatedAt?: string;
+};
+
+// =============================================================================
+// Handover Types
+// =============================================================================
+
+export type HandoverSummary = {
+	id: string;
+	patientId: string;
+	patientName: string | null;
+	shiftName: string;
+	stateName: HandoverStatus;
+	illnessSeverity: IllnessSeverity;
+	createdBy: string;
+	createdByName: string | null;
+	assignedTo: string;
+	assignedToName: string | null;
+	responsiblePhysicianName: string;
+	createdAt?: string;
+	completedAt?: string;
+};
+
+export type HandoverDetail = {
+	id: string;
+	patientId: string;
+	patientName: string | null;
+	shiftName: string;
+	stateName: HandoverStatus;
+	illnessSeverity: IllnessSeverity;
+	patientSummaryContent: string;
+	synthesisContent: string | null;
+	responsiblePhysicianId: string;
+	responsiblePhysicianName: string;
+	createdBy: string;
+	assignedTo: string;
+	receiverUserId?: string;
+	createdAt?: string;
+	readyAt?: string;
+	startedAt?: string;
+	completedAt?: string;
+	cancelledAt?: string;
+	version: number;
+	shiftWindowId?: string;
+	previousHandoverId?: string;
+	cancelReason?: string;
+};
+
+export type HandoverActionItem = {
+	id: string;
+	handoverId: string;
+	description: string;
+	isCompleted: boolean;
+	createdAt: string;
+	updatedAt: string;
+	completedAt: string | null;
+	priority?: Priority;
+	dueTime?: string;
+};
+
+export type ActivityItem = {
+	id: string;
+	userId: string;
+	userName: string;
+	userInitials?: string;
+	userColor?: string;
+	action: string;
+	section?: string;
+	createdAt: string;
+	type: "user_joined" | "content_updated" | "content_added" | "content_viewed";
+};
+
+export type ContingencyPlan = {
+	id: string;
+	handoverId: string;
+	conditionText: string;
+	actionText: string;
+	priority: Priority;
+	status: ContingencyStatus;
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type SituationAwareness = {
+	handoverId: string;
+	content: string | null;
+	status: SituationAwarenessStatus;
+	lastEditedBy: string;
+	updatedAt: string;
+};
+
+export type Synthesis = {
+	handoverId: string;
+	content: string | null;
+	status: string;
+	lastEditedBy: string;
+	updatedAt: string;
+};
+
+export type ClinicalData = {
+	handoverId: string;
+	illnessSeverity: IllnessSeverity;
+	summaryText: string;
+	lastEditedBy: string;
+	status: string;
+	updatedAt: string;
+};
+
+// =============================================================================
+// Shift Check-In Types
+// =============================================================================
+
+export type ShiftCheckInPatient = {
 	id: string | number;
 	name: string;
 	status: ShiftCheckInStatus;
 	severity: IllnessSeverity;
 	room: string;
 	diagnosis: string;
-}
+	age?: number;
+};
 
-export interface ActionItem {
+export type Unit = {
 	id: string;
-	handoverId?: string;
+	name: string;
+};
+
+export type Shift = {
+	id: string;
+	name: string;
+	startTime?: string;
+	endTime?: string;
+};
+
+// UI-specific config types (transformed from API types)
+export type UnitConfig = {
+	id: string;
+	name: string;
 	description: string;
-	priority: "low" | "medium" | "high";
-	dueTime?: string;
-	isCompleted: boolean;
-	createdAt: string;
-	completedAt?: string | null;
-	createdBy?: string;
-}
+};
 
-export interface ActivityItem {
+export type ShiftConfig = {
 	id: string;
-	userId: string;
-	userName: string;
-	userInitials?: string;
-	userColor?: string;
-	action: string; // "activityType" in API
-	section?: string;
-	createdAt: string;
-	type:
-		| "user_joined"
-		| "content_updated"
-		| "content_added"
-		| "content_viewed";
-}
+	name: string;
+	time: string;
+};
 
-export interface ContingencyPlan {
+// =============================================================================
+// User Types
+// =============================================================================
+
+export type User = {
 	id: string;
-	handoverId?: string;
-	condition: string;
-	action: string;
-	priority: "low" | "medium" | "high";
-	status: "active" | "planned" | "completed";
-	createdAt: string;
-	createdBy: string;
-}
+	email: string;
+	firstName: string;
+	lastName: string;
+	fullName: string;
+	roles: Array<string>;
+	isActive: boolean;
+};
 
-// UI & Store Types
+// =============================================================================
+// UI-Only Types (not from API)
+// =============================================================================
 
-export type SyncStatus =
-	| "synced"
-	| "syncing"
-	| "pending"
-	| "offline"
-	| "error";
+export type SyncStatus = "synced" | "syncing" | "pending" | "offline" | "error";
 
 export type FullscreenComponent = "patient-summary" | "situation-awareness";
 
-export interface FullscreenEditingState {
+export type FullscreenEditingState = {
 	component: FullscreenComponent;
 	autoEdit: boolean;
-}
+};
 
-export interface ExpandedSections {
+export type ExpandedSections = {
 	illness: boolean;
 	patient: boolean;
 	actions: boolean;
 	awareness: boolean;
 	synthesis: boolean;
-}
+};
 
-export interface Collaborator {
+export type Collaborator = {
 	id: number;
 	name: string;
 	initials: string;
@@ -133,9 +291,55 @@ export interface Collaborator {
 	lastSeen: string;
 	activity: string;
 	role: string;
-	presenceType:
-		| "assigned-current"
-		| "assigned-receiving"
-		| "participating"
-		| "supporting";
-}
+	presenceType: "assigned-current" | "assigned-receiving" | "participating" | "supporting";
+};
+
+// =============================================================================
+// Home/Dashboard UI Types
+// =============================================================================
+
+export type RecentPreview = {
+	title: string;
+	avatars: Array<{ src: string | null; fallback: string; bg: string }>;
+	status: string;
+	pr: string;
+	color?: string;
+};
+
+export type SearchResult = {
+	name: string;
+	category: string;
+	type: "handover" | "team" | "patient" | "assistant";
+};
+
+export type HandoverUI = {
+	id: string;
+	status: "Error" | "Ready";
+	statusColor: string;
+	environment: string;
+	environmentColor: string;
+	patientKey: string;
+	patientName: string;
+	patientIcon: {
+		type: "text";
+		value: string;
+		bg: string;
+		text?: string;
+	};
+	time: string;
+	statusTime: string;
+	environmentType: "Preview" | "Production";
+	current?: boolean;
+	bedLabel?: string;
+	mrn?: string;
+	author?: string;
+	avatar?: string;
+};
+
+export type Metric = {
+	label: string;
+	value: string;
+	tooltip: string;
+	currentValue: string;
+	totalValue: string;
+};

@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Handovers.GetContingencyPlans;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
@@ -49,16 +50,27 @@ public class GetContingencyPlansResponse
   public List<ContingencyPlanDto> Plans { get; set; } = [];
 }
 
+// ...
+
 public class ContingencyPlanDto
 {
-    public string Id { get; set; } = string.Empty;
-    public string HandoverId { get; set; } = string.Empty;
-    public string ConditionText { get; set; } = string.Empty;
-    public string ActionText { get; set; } = string.Empty;
-    public string Priority { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public string CreatedBy { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    [Required]
+    public required string Id { get; set; }
+    [Required]
+    public required string HandoverId { get; set; }
+    [Required]
+    public required string ConditionText { get; set; }
+    [Required]
+    public required string ActionText { get; set; }
+    [Required]
+    public required string Priority { get; set; }
+    [Required]
+    public required string Status { get; set; }
+    [Required]
+    public required string CreatedBy { get; set; }
+    [Required]
+    public required DateTime CreatedAt { get; set; }
+    [Required]
+    public required DateTime UpdatedAt { get; set; }
 }
 

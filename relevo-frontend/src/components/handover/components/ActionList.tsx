@@ -153,9 +153,9 @@ export function ActionList({
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-2">
                 <div
-                  className={`text-xs px-2 py-1 rounded border font-medium ${getPriorityColor(task.priority)}`}
+                  className={`text-xs px-2 py-1 rounded border font-medium ${getPriorityColor(task.priority || "medium")}`}
                 >
-                  {t(`priorities.${task.priority}`)}
+                  {t(`priorities.${task.priority || "medium"}`)}
                 </div>
               </div>
               <p

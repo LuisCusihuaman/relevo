@@ -14,16 +14,6 @@ export { ShiftCheckInNavigation } from "./components/ShiftCheckInNavigation";
 // Hooks
 export { useShiftCheckInState } from "./hooks/useShiftCheckInState";
 
-// Types
-export type {
-	ShiftCheckInStatus,
-	UnitConfig,
-	ShiftConfig,
-	ShiftCheckInPatient,
-	ShiftCheckInStep,
-	ShiftCheckInState,
-	ShiftCheckInActions,
-} from "./types";
-
-export type SeverityLevel = IllnessSeverity;
-import type { IllnessSeverity } from "@/types/domain";
+// Types - Store types from local, Domain types from @/types/domain
+export type { ShiftCheckInStep, ShiftCheckInState, ShiftCheckInActions, ShiftCheckInPatient } from "./types";
+export type { ShiftCheckInStatus, UnitConfig, ShiftConfig, IllnessSeverity as SeverityLevel } from "@/types/domain";
