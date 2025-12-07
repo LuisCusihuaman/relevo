@@ -1,5 +1,11 @@
-import type { ShiftCheckInPatient, IllnessSeverity, HandoverStatus } from "@/types/domain";
-
+import type {
+	ShiftCheckInPatient,
+	IllnessSeverity,
+	HandoverStatus,
+	Patient,
+	SituationAwarenessStatus,
+	UserRole,
+} from "@/types/domain";
 
 // API Response Types (matching the OpenAPI schema)
 export type PatientSummaryCard = {
@@ -9,20 +15,21 @@ export type PatientSummaryCard = {
 	handoverId: string | null;
 };
 
-export type PatientDetail = {
+// Extends Patient but enforces certain fields that are optional in Patient but required in API
+export interface PatientDetail extends Patient {
 	id: string;
 	name: string;
 	mrn: string;
-	dob: string;
+	dob: string; // Enforce string format from API
 	gender: "Male" | "Female" | "Other" | "Unknown";
 	admissionDate: string;
-	currentUnit: string;
-	roomNumber: string;
+	currentUnit: string; // Maps to 'unit' in Patient but named different in API? Check mapper.
+	roomNumber: string; // Maps to 'room'
 	diagnosis: string;
 	allergies: Array<string>;
 	medications: Array<string>;
 	notes: string;
-};
+}
 
 export type PatientHandoverTimelineItem = {
 	handoverId: string;
@@ -30,7 +37,7 @@ export type PatientHandoverTimelineItem = {
 	createdAt: string;
 	completedAt: string | null;
 	shiftName: string;
-	illnessSeverity: "Stable" | "Watcher" | "Unstable";
+	illnessSeverity: IllnessSeverity;
 };
 
 export type PaginationInfo = {
@@ -47,7 +54,8 @@ export type PaginatedResponse<T> = {
 
 export type PaginatedPatientSummaryCards = PaginatedResponse<PatientSummaryCard>;
 
-export type PaginatedPatientHandoverTimeline = PaginatedResponse<PatientHandoverTimelineItem>;
+export type PaginatedPatientHandoverTimeline =
+	PaginatedResponse<PatientHandoverTimelineItem>;
 
 export type PatientSummary = {
 	id: string;
@@ -57,6 +65,12 @@ export type PatientSummary = {
 	createdAt: string;
 	updatedAt: string;
 	lastEditedBy: string;
+};
+
+export type ApiResponse<T> = {
+	success: boolean;
+	message: string;
+	data?: T;
 };
 
 export type PatientSummaryResponse = {
@@ -71,10 +85,7 @@ export type UpdatePatientSummaryRequest = {
 	summaryText: string;
 };
 
-export type PatientSummaryUpdateResponse = {
-	success: boolean;
-	message: string;
-};
+export type PatientSummaryUpdateResponse = ApiResponse<void>;
 
 // Handover types (matching the OpenAPI schema)
 export type HandoverActionItem = {
@@ -91,6 +102,7 @@ export type GetHandoverActionItemsResponse = {
 	actionItems: Array<HandoverActionItem>;
 };
 
+// Wrapper types kept for API compatibility, but using Domain types
 export type HandoverIllnessSeverity = {
 	severity: IllnessSeverity;
 };
@@ -167,7 +179,7 @@ export type User = {
 	firstName: string;
 	lastName: string;
 	fullName: string;
-	roles: Array<string>;
+	roles: Array<UserRole>;
 	isActive: boolean;
 };
 
@@ -241,7 +253,7 @@ export type HandoverContingencyPlan = {
 export type SituationAwarenessDto = {
 	handoverId: string;
 	content: string | null;
-	status: string;
+	status: SituationAwarenessStatus;
 	lastEditedBy: string;
 	updatedAt: string;
 };
@@ -255,34 +267,34 @@ export type ContingencyPlansResponse = {
 };
 
 export type PatientDataDto = {
-    handoverId: string;
-    illnessSeverity: string;
-    summaryText?: string;
-    lastEditedBy?: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
+	handoverId: string;
+	illnessSeverity: IllnessSeverity; // Ideally just IllnessSeverity, but keeping string for safety if API sends invalid
+	summaryText?: string;
+	lastEditedBy?: string;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
 };
 
 export type PatientDataResponse = {
-    patientData: PatientDataDto | null;
+	patientData: PatientDataDto | null;
 };
 
 export type UpdatePatientDataRequest = {
-    illnessSeverity: string;
-    summaryText?: string;
+	illnessSeverity: IllnessSeverity;
+	summaryText?: string;
 };
 
 export type SynthesisDto = {
-    handoverId: string;
-    content?: string;
-    status: string;
-    lastEditedBy: string;
-    updatedAt: string;
+	handoverId: string;
+	content?: string;
+	status: string;
+	lastEditedBy: string;
+	updatedAt: string;
 };
 
 export type SynthesisResponse = {
-    synthesis: SynthesisDto | null;
+	synthesis: SynthesisDto | null;
 };
 
 export type CreateContingencyPlanRequest = {
@@ -291,16 +303,9 @@ export type CreateContingencyPlanRequest = {
 	priority: "low" | "medium" | "high";
 };
 
-export type SituationAwarenessStatus = "Draft" | "Ready" | "InProgress" | "Completed";
-
 export type UpdateSituationAwarenessRequest = {
 	content: string;
 	status: SituationAwarenessStatus;
-};
-
-export type ApiResponse = {
-	success: boolean;
-	message: string;
 };
 
 // Additional types for Shift Check-In
@@ -338,39 +343,29 @@ export type ShiftCheckInPatientsResponse = {
 	Patients?: Array<ShiftCheckInPatient>;
 };
 
-// Patient Handover Data - Complete patient data for handover (consolidated from /patient and /patient-data)
-export type PatientHandoverData = {
-	id: string;
+// Consolidated types to avoid God Object
+export type PhysicianAssignment = {
 	name: string;
-	dob: string; // Raw DOB, frontend calculates age
-	mrn: string;
-	admissionDate: string;
+	role: string;
+	color: string;
+	shiftEnd?: string;
+	shiftStart?: string;
+	status: string;
+	patientAssignment: string;
+};
+
+// Patient Handover Data - Complete patient data for handover
+export interface PatientHandoverData extends Patient {
+	id: string;
+	// Inherits name, mrn, room, unit, diagnosis (primaryDiagnosis in API?) from Patient
+	// We need to map if names differ
 	currentDateTime: string;
 	primaryTeam: string;
-	primaryDiagnosis: string;
-	room: string;
-	unit: string;
-	assignedPhysician: {
-		name: string;
-		role: string;
-		color: string;
-		shiftEnd?: string;
-		shiftStart?: string;
-		status: string;
-		patientAssignment: string;
-	} | null;
-	receivingPhysician: {
-		name: string;
-		role: string;
-		color: string;
-		shiftEnd?: string;
-		shiftStart?: string;
-		status: string;
-		patientAssignment: string;
-	} | null;
-	// Medical status data (consolidated from /patient-data endpoint)
-	illnessSeverity?: string;
+	primaryDiagnosis: string; // Map to diagnosis?
+	assignedPhysician: PhysicianAssignment | null;
+	receivingPhysician: PhysicianAssignment | null;
+	// Medical status data
 	summaryText?: string;
 	lastEditedBy?: string;
 	updatedAt?: string;
-};
+}

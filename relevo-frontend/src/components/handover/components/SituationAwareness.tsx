@@ -10,7 +10,6 @@ import {
   useCreateContingencyPlan,
   useDeleteContingencyPlan
 } from "@/api/endpoints/handovers";
-import type { SituationAwarenessStatus } from "@/api/types";
 import type { ContingencyPlan } from "@/types/domain";
 import { SituationEditor } from "./situation-awareness/SituationEditor";
 import { ContingencyPlanList } from "./situation-awareness/ContingencyPlanList";
@@ -121,7 +120,7 @@ export function SituationAwareness({
       await updateSituationMutation.mutateAsync({
         handoverId,
         content: value,
-        status: (situationData?.situationAwareness?.status as SituationAwarenessStatus) || "Draft",
+        status: situationData?.situationAwareness?.status || "Draft",
       });
       setAutoSaveStatus("saved");
     } catch (error) {

@@ -1,4 +1,4 @@
-import type { PatientHandoverData } from "@/api";
+import type { PhysicianAssignment } from "@/api";
 
 export function formatDiagnosis(input: unknown): string {
 	if (typeof input === "string") return input;
@@ -28,8 +28,7 @@ export const getInitials = (name?: string | null): string => {
 
 export const formatPhysician = (
 	physician:
-		| PatientHandoverData["assignedPhysician"]
-		| PatientHandoverData["receivingPhysician"]
+		| PhysicianAssignment
 		| null
 		| undefined,
 ): { name: string; initials: string; role: string } => {

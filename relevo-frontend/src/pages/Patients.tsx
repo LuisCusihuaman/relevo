@@ -6,7 +6,7 @@ import {
 	FilterToolbar,
 	ListHeader,
 } from "@/components/home";
-import type { Handover } from "@/components/home/types";
+import type { HandoverUI as Handover } from "@/components/home/types";
 import { useAllPatients, mapApiPatientToUiHandover } from "@/api";
 
 export function Patients(): ReactElement {
@@ -24,10 +24,10 @@ export function Patients(): ReactElement {
 		patientName: string,
 	): void => {
 		// Find the handover by ID to get the patient information
-		const handover: Handover | undefined = handovers.find((h: Handover): boolean => h.id === handoverId);
+		const handover = handovers.find(h => h.id === handoverId);
 
 		if (handover) {
-			const patientSlug: string = handover.patientKey || patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
+			const patientSlug: string = handover?.patientKey || patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
 			void navigate({ to: `/${patientSlug}/${handoverId}` });
 		} else {
 			// Fallback to patient name if handover not found

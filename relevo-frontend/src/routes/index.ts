@@ -10,14 +10,16 @@ export const Route = createFileRoute("/")({
 
 		if (!context.auth?.isSignedIn) {
 			// User is not authenticated, redirect to login
-			throw redirect({
+		// eslint-disable-next-line @typescript-eslint/only-throw-error
+	throw redirect({
 				to: "/login",
 				search: {},
 			});
 		}
 
 		// User is authenticated, redirect to dashboard
-		throw redirect({
+	// eslint-disable-next-line @typescript-eslint/only-throw-error
+	throw redirect({
 			to: "/dashboard",
 			search: {},
 		});

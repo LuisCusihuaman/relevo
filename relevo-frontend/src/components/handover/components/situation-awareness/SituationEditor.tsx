@@ -18,17 +18,18 @@ interface SituationEditorProps {
   onEnterEdit?: () => void;
 }
 
-export function SituationEditor({
-  content,
-  isEditing,
-  onEditChange,
-  onChange,
-  autoSaveStatus,
-  fullscreenMode = false,
-  hideControls = false,
-  canEdit,
-  onEnterEdit,
-}: SituationEditorProps) {
+export function SituationEditor(props: SituationEditorProps): JSX.Element {
+  const {
+    content,
+    isEditing,
+    onEditChange,
+    onChange,
+    autoSaveStatus,
+    fullscreenMode = false,
+    hideControls = false,
+    canEdit,
+    onEnterEdit,
+  } = props;
   const { t } = useTranslation("situationAwareness");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -236,4 +237,3 @@ export function SituationEditor({
     </div>
   );
 }
-

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
-import type { SeverityLevel } from "@/types/domain";
+import type { IllnessSeverity as SeverityLevel } from "@/types/domain";
 
 const severityLevelIds: Array<SeverityLevel> = ["stable", "watcher", "unstable"];
 

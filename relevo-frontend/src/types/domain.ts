@@ -1,8 +1,25 @@
-export type IllnessSeverity = "Stable" | "Watcher" | "Unstable";
+export type IllnessSeverity = "stable" | "watcher" | "unstable";
 
-export type HandoverStatus = "Draft" | "Ready" | "InProgress" | "Accepted" | "Completed" | "Cancelled" | "Rejected" | "Expired";
+export type HandoverStatus =
+	| "Draft"
+	| "Ready"
+	| "InProgress"
+	| "Accepted"
+	| "Completed"
+	| "Cancelled"
+	| "Rejected"
+	| "Expired";
 
 export type ShiftCheckInStatus = "pending" | "in-progress" | "complete";
+
+export type SituationAwarenessStatus =
+	| "Draft"
+	| "Ready"
+	| "InProgress"
+	| "Completed";
+
+// Use (string & {}) to preserve autocompletion for known values while allowing any string
+export type UserRole = "physician" | "nurse" | "admin" | "student" | (string & {});
 
 export interface UnitConfig {
 	id: string;
@@ -16,7 +33,26 @@ export interface ShiftConfig {
 	time: string;
 }
 
-export interface ShiftCheckInPatient extends Partial<Patient> {
+export interface Patient {
+	id: string;
+	name: string;
+	mrn: string;
+	dob?: string;
+	age?: number;
+	gender?: "Male" | "Female" | "Other" | "Unknown";
+	admissionDate?: string;
+	room?: string;
+	bed?: string;
+	unit?: string;
+	diagnosis?: string;
+	illnessSeverity?: IllnessSeverity;
+	primaryTeam?: string;
+	allergies?: Array<string>;
+	medications?: Array<string>;
+	notes?: string;
+}
+
+export interface ShiftCheckInPatient extends Omit<Partial<Patient>, "id"> {
 	id: string | number;
 	name: string;
 	status: ShiftCheckInStatus;
@@ -46,7 +82,11 @@ export interface ActivityItem {
 	action: string; // "activityType" in API
 	section?: string;
 	createdAt: string;
-	type: "user_joined" | "content_updated" | "content_added" | "content_viewed";
+	type:
+		| "user_joined"
+		| "content_updated"
+		| "content_added"
+		| "content_viewed";
 }
 
 export interface ContingencyPlan {
@@ -60,28 +100,14 @@ export interface ContingencyPlan {
 	createdBy: string;
 }
 
-export interface Patient {
-	id: string;
-	name: string;
-	mrn: string;
-	dob?: string;
-	age?: number;
-	gender?: "Male" | "Female" | "Other" | "Unknown";
-	admissionDate?: string;
-	room?: string;
-	bed?: string;
-	unit?: string;
-	diagnosis?: string;
-	illnessSeverity?: IllnessSeverity;
-	primaryTeam?: string;
-	allergies?: Array<string>;
-	medications?: Array<string>;
-	notes?: string;
-}
-
 // UI & Store Types
 
-export type SyncStatus = "synced" | "syncing" | "pending" | "offline" | "error";
+export type SyncStatus =
+	| "synced"
+	| "syncing"
+	| "pending"
+	| "offline"
+	| "error";
 
 export type FullscreenComponent = "patient-summary" | "situation-awareness";
 

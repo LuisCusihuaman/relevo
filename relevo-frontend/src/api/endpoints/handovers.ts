@@ -576,7 +576,7 @@ export async function updatePatientData(
 	handoverId: string,
 	request: UpdatePatientDataRequest
 ): Promise<ApiResponse> {
-	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/patient-data`, request);
+	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/patient-data`, request);
 	return data;
 }
 
@@ -588,7 +588,7 @@ export async function updateSituationAwareness(
 	handoverId: string,
 	request: UpdateSituationAwarenessRequest
 ): Promise<ApiResponse> {
-	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/situation-awareness`, request);
+	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/situation-awareness`, request);
 	return data;
 }
 
@@ -596,7 +596,7 @@ export async function updateSynthesis(
 	handoverId: string,
 	request: { content?: string; status: string }
 ): Promise<ApiResponse> {
-	const { data } = await api.put<ApiResponse>(`/handovers/${handoverId}/synthesis`, request);
+	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/synthesis`, request);
 	return data;
 }
 
@@ -631,7 +631,7 @@ export function useSynthesis(handoverId: string): ReturnType<typeof useQuery<Syn
 	});
 }
 
-export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string } & UpdatePatientDataRequest>> {
+export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string } & UpdatePatientDataRequest>> {
 	const queryClient = useQueryClient();
 
 	return useMutation({
@@ -643,14 +643,14 @@ export function useUpdatePatientData(): ReturnType<typeof useMutation<ApiRespons
 	});
 }
 
-export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string; content: string; status?: SituationAwarenessStatus }>> {
+export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string; content: string; status?: SituationAwarenessStatus }>> {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: ({
 			handoverId,
 			content,
-			status = "Draft",
+			status = "Draft" as const,
 		}: {
 			handoverId: string;
 			content: string;
@@ -664,7 +664,7 @@ export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<Api
 	});
 }
 
-export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse, Error, { handoverId: string; content?: string; status: string }>> {
+export function useUpdateSynthesis(): ReturnType<typeof useMutation<ApiResponse<void>, Error, { handoverId: string; content?: string; status: string }>> {
 	const queryClient = useQueryClient();
 
 	return useMutation({

@@ -11,7 +11,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 		if (!context.auth?.isSignedIn) {
 			// User is not authenticated, redirect to login
-			throw redirect({
+		// eslint-disable-next-line @typescript-eslint/only-throw-error
+	throw redirect({
 				to: "/login",
 				search: {},
 			});
@@ -20,7 +21,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 		// Check if daily setup is completed
 		const completed = window.localStorage.getItem("dailySetupCompleted") === "true";
 		if (!completed) {
-			throw redirect({
+		// eslint-disable-next-line @typescript-eslint/only-throw-error
+	throw redirect({
 				to: "/shift-check-in",
 				search: {},
 			});
