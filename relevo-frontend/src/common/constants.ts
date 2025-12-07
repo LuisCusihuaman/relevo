@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
-import type { Collaborator } from "./types";
+import type { Collaborator } from "../types/domain";
+
 
 // REMOVED: Mock current user and patient data - now fetched from API
 // Use real API data instead of hardcoded constants

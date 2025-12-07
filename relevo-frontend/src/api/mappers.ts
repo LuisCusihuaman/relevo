@@ -1,95 +1,118 @@
 import type { Handover as ApiHandover, PatientSummaryCard } from "./types";
 import type { Handover as UiHandover } from "@/components/home/types";
 
+// Configuration for mapping API states to UI properties
+type UiStateConfig = {
+	status: "Error" | "Ready";
+	statusColor: string;
+	environment: string;
+	environmentColor: string;
+	isActive: boolean;
+};
+
+const DEFAULT_STATE_CONFIG: UiStateConfig = {
+	status: "Error",
+	statusColor: "bg-red-500",
+	environment: "Unknown",
+	environmentColor: "text-gray-600",
+	isActive: false,
+};
+
+const HANDOVER_STATE_MAP: Record<string, UiStateConfig> = {
+	Draft: {
+		status: "Error",
+		statusColor: "bg-red-500",
+		environment: "Draft",
+		environmentColor: "text-red-600",
+		isActive: true,
+	},
+	Ready: {
+		status: "Error",
+		statusColor: "bg-red-500",
+		environment: "Ready",
+		environmentColor: "text-red-600",
+		isActive: true,
+	},
+	InProgress: {
+		status: "Error",
+		statusColor: "bg-red-500",
+		environment: "In Progress",
+		environmentColor: "text-red-600",
+		isActive: true,
+	},
+	Accepted: {
+		status: "Error",
+		statusColor: "bg-red-500",
+		environment: "Accepted",
+		environmentColor: "text-red-600",
+		isActive: true,
+	},
+	Completed: {
+		status: "Ready",
+		statusColor: "bg-green-500",
+		environment: "Completed",
+		environmentColor: "text-green-600",
+		isActive: false,
+	},
+	Cancelled: {
+		status: "Ready",
+		statusColor: "bg-green-500",
+		environment: "Cancelled",
+		environmentColor: "text-green-600",
+		isActive: false,
+	},
+	Rejected: {
+		status: "Ready",
+		statusColor: "bg-green-500",
+		environment: "Rejected",
+		environmentColor: "text-green-600",
+		isActive: false,
+	},
+	Expired: {
+		status: "Ready",
+		statusColor: "bg-green-500",
+		environment: "Expired",
+		environmentColor: "text-green-600",
+		isActive: false,
+	},
+	// PatientSummaryCard statuses
+	NotStarted: {
+		status: "Error",
+		statusColor: "bg-gray-500",
+		environment: "Not Started",
+		environmentColor: "text-gray-600",
+		isActive: false,
+	},
+	Active: {
+		status: "Error",
+		statusColor: "bg-red-500",
+		environment: "Active",
+		environmentColor: "text-red-600",
+		isActive: true,
+	},
+};
+
+function getUiConfig(stateName: string): UiStateConfig {
+	return HANDOVER_STATE_MAP[stateName] || DEFAULT_STATE_CONFIG;
+}
+
+// Get first letter of patient name
+const getInitials = (name: string): string => {
+	return name.charAt(0).toUpperCase();
+};
+
+// Generate patient key from patient ID
+const getPatientKey = (id: string): string => {
+	return id.toLowerCase().replace(/[^a-z0-9]/g, "-");
+};
+
 /**
  * Mapping function to convert API Handover to UI Handover type
  */
-export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover {
-	// Generate patient key from patient ID
-	const patientKey = apiHandover.patientId.toLowerCase().replace(/[^a-z0-9]/g, "-");
-
-	// Map handover status to UI status
-	const getStatusFromHandoverStatus = (stateName: ApiHandover["stateName"]): "Error" | "Ready" => {
-		switch (stateName) {
-			case "Draft":
-			case "Ready":
-			case "InProgress":
-			case "Accepted":
-				return "Error"; // In the UI, "Error" seems to mean "In Progress" / Active
-			case "Completed":
-			case "Cancelled":
-			case "Rejected":
-			case "Expired":
-				return "Ready";
-			default:
-				return "Error";
-		}
-	};
-
-	// Map status colors
-	const getStatusColor = (stateName: ApiHandover["stateName"]): string => {
-		switch (stateName) {
-			case "Draft":
-			case "Ready":
-			case "InProgress":
-			case "Accepted":
-				return "bg-red-500";
-			case "Completed":
-			case "Cancelled":
-			case "Rejected":
-			case "Expired":
-				return "bg-green-500";
-			default:
-				return "bg-red-500";
-		}
-	};
-
-	// Map environment
-	const getEnvironment = (stateName: ApiHandover["stateName"]): string => {
-		switch (stateName) {
-			case "Draft":
-				return "Draft";
-			case "Ready":
-				return "Ready";
-			case "InProgress":
-				return "In Progress";
-			case "Accepted":
-				return "Accepted";
-			case "Completed":
-				return "Completed";
-			case "Cancelled":
-				return "Cancelled";
-			case "Rejected":
-				return "Rejected";
-			case "Expired":
-				return "Expired";
-			default:
-				return "Unknown";
-		}
-	};
-
-	// Map environment color
-	const getEnvironmentColor = (stateName: ApiHandover["stateName"]): string => {
-		switch (stateName) {
-			case "Draft":
-			case "Ready":
-			case "InProgress":
-			case "Accepted":
-				return "text-red-600";
-			case "Completed":
-			case "Cancelled":
-			case "Rejected":
-			case "Expired":
-				return "text-green-600";
-			default:
-				return "text-gray-600";
-		}
-	};
-
-	// Get first letter of patient name
-	const getInitials = (name: string): string => {
-		return name.charAt(0).toUpperCase();
-	};
+export function mapApiHandoverToUiHandover(
+	apiHandover: ApiHandover,
+): UiHandover {
+	const config = getUiConfig(apiHandover.stateName);
 
 	// Use patient name from handover if available, otherwise fallback to patient ID
 	// Since patientName is removed from API, we use a placeholder or fetch it separately.
@@ -98,11 +121,11 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 
 	return {
 		id: apiHandover.id,
-		status: getStatusFromHandoverStatus(apiHandover.stateName),
-		statusColor: getStatusColor(apiHandover.stateName),
-		environment: getEnvironment(apiHandover.stateName),
-		environmentColor: getEnvironmentColor(apiHandover.stateName),
-		patientKey: patientKey,
+		status: config.status,
+		statusColor: config.statusColor,
+		environment: config.environment,
+		environmentColor: config.environmentColor,
+		patientKey: getPatientKey(apiHandover.patientId),
 		patientName: patientName,
 		patientIcon: {
 			type: "text",
@@ -111,9 +134,9 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 			text: "text-gray-700",
 		},
 		time: apiHandover.createdAt || new Date().toISOString(), // Use created date from API or current date as fallback
-		statusTime: ["Draft", "Ready", "InProgress", "Accepted"].includes(apiHandover.stateName) ? "Active" : "Inactive",
+		statusTime: config.isActive ? "Active" : "Inactive",
 		environmentType: "Preview", // Default to Preview
-		current: ["Draft", "Ready", "InProgress", "Accepted"].includes(apiHandover.stateName),
+		current: config.isActive,
 		author: apiHandover.createdBy || "System",
 		avatar: "", // Default empty avatar
 	};
@@ -122,83 +145,18 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 /**
  * Mapping function to convert API PatientSummaryCard to UI Handover type
  */
-export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHandover {
-	// Generate patient key from patient ID
-	const patientKey = apiPatient.id.toLowerCase().replace(/[^a-z0-9]/g, "-");
-
-	// Map handover status to UI status
-	const getStatusFromHandoverStatus = (status: PatientSummaryCard["handoverStatus"]): "Error" | "Ready" => {
-		switch (status) {
-			case "NotStarted":
-				return "Error"; // Not started means "Error" in UI terms
-			case "InProgress":
-			case "Active":
-				return "Error"; // In progress means "Error" in UI terms
-			case "Completed":
-				return "Ready";
-			default:
-				return "Error";
-		}
-	};
-
-	// Map status colors
-	const getStatusColor = (status: PatientSummaryCard["handoverStatus"]): string => {
-		switch (status) {
-			case "NotStarted":
-				return "bg-gray-500";
-			case "Active":
-			case "InProgress":
-				return "bg-red-500";
-			case "Completed":
-				return "bg-green-500";
-			default:
-				return "bg-gray-500";
-		}
-	};
-
-	// Map environment
-	const getEnvironment = (status: PatientSummaryCard["handoverStatus"]): string => {
-		switch (status) {
-			case "NotStarted":
-				return "Not Started";
-			case "Active":
-				return "Active";
-			case "InProgress":
-				return "In Progress";
-			case "Completed":
-				return "Completed";
-			default:
-				return "Unknown";
-		}
-	};
-
-	// Map environment color
-	const getEnvironmentColor = (status: PatientSummaryCard["handoverStatus"]): string => {
-		switch (status) {
-			case "NotStarted":
-				return "text-gray-600";
-			case "Active":
-			case "InProgress":
-				return "text-red-600";
-			case "Completed":
-				return "text-green-600";
-			default:
-				return "text-gray-600";
-		}
-	};
-
-	// Get first letter of patient name
-	const getInitials = (name: string): string => {
-		return name.charAt(0).toUpperCase();
-	};
+export function mapApiPatientToUiHandover(
+	apiPatient: PatientSummaryCard,
+): UiHandover {
+	const config = getUiConfig(apiPatient.handoverStatus);
 
 	return {
 		id: apiPatient.handoverId || apiPatient.id,
-		status: getStatusFromHandoverStatus(apiPatient.handoverStatus),
-		statusColor: getStatusColor(apiPatient.handoverStatus),
-		environment: getEnvironment(apiPatient.handoverStatus),
-		environmentColor: getEnvironmentColor(apiPatient.handoverStatus),
-		patientKey: patientKey,
+		status: config.status,
+		statusColor: config.statusColor,
+		environment: config.environment,
+		environmentColor: config.environmentColor,
+		patientKey: getPatientKey(apiPatient.id),
 		patientName: apiPatient.name,
 		patientIcon: {
 			type: "text",
@@ -209,7 +167,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		time: new Date().toISOString(), // Use current date as fallback
 		statusTime: "Active",
 		environmentType: "Preview",
-		current: apiPatient.handoverStatus === "Active" || apiPatient.handoverStatus === "InProgress",
+		current: config.isActive,
 		author: "System",
 		avatar: "",
 	};

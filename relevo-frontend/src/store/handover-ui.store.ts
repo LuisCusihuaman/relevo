@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { ExpandedSections, FullscreenEditingState, SyncStatus } from '@/common/types';
+import type { ExpandedSections, FullscreenEditingState, SyncStatus } from '@/types/domain';
+
 
 interface HandoverUIState {
   layoutMode: 'single' | 'columns';

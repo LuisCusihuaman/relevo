@@ -1,9 +1,9 @@
 import type { FC } from "react";
 import { RotateCcw } from "lucide-react";
-import type { Patient } from "./types";
+import type { PatientHandoverData } from "@/api";
 
 type PatientProfileHeaderProps = {
-	currentPatient: Patient;
+	currentPatient: PatientHandoverData;
 };
 
 export const PatientProfileHeader: FC<PatientProfileHeaderProps> = ({

@@ -1,7 +1,8 @@
 import { getIpassGuidelines } from "@/common/constants";
 import type {
 	FullscreenComponent,
-} from "@/common/types";
+} from "@/types/domain";
+
 import { useTranslation } from "react-i18next";
 import {
 	useSituationAwareness,

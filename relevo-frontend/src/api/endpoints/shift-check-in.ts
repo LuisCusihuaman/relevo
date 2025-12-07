@@ -1,7 +1,8 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "../client";
 import type { Unit, Shift, AssignPatientsPayload, ShiftCheckInPatientsResponse } from "../types";
-import type { ShiftCheckInPatient } from "@/common/types";
+import type { ShiftCheckInPatient } from "@/types/domain";
+
 import { patientQueryKeys } from "./patients";
 
 // Shift Check-In query keys

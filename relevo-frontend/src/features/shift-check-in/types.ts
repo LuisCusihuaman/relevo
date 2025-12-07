@@ -1,26 +1,17 @@
-export type ShiftCheckInStatus = "pending" | "in-progress" | "complete";
-export type SeverityLevel = "stable" | "watcher" | "unstable";
+import type {
+	ShiftCheckInStatus,
+	SeverityLevel,
+	UnitConfig,
+	ShiftConfig,
+	ShiftCheckInPatient,
+} from "../../types/domain";
 
-export type UnitConfig = {
-	id: string;
-	name: string;
-	description: string;
-};
-
-export type ShiftConfig = {
-	id: string;
-	name: string;
-	time: string;
-};
-
-export type ShiftCheckInPatient = {
-	id: string | number;
-	name: string;
-	age?: number;
-	room: string;
-	diagnosis: string;
-	status: ShiftCheckInStatus;
-	severity: SeverityLevel;
+export type {
+	ShiftCheckInStatus,
+	SeverityLevel,
+	UnitConfig,
+	ShiftConfig,
+	ShiftCheckInPatient,
 };
 
 export type ShiftCheckInStep = 0 | 1 | 2 | 3;

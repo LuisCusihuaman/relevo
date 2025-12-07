@@ -1,4 +1,5 @@
-import type { ShiftCheckInPatient } from "@/common/types";
+import type { ShiftCheckInPatient } from "@/types/domain";
+
 
 // API Response Types (matching the OpenAPI schema)
 export type PatientSummaryCard = {

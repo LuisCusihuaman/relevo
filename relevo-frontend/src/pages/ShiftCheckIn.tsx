@@ -1,7 +1,8 @@
 import { memo, type ReactElement, useMemo } from "react";
 
 import { useShifts, useUnits } from "@/api";
-import type { ShiftConfig, UnitConfig } from "@/common/types";
+import type { ShiftConfig, UnitConfig } from "@/types/domain";
+
 import { ShiftCheckInWizard } from "@/features/shift-check-in";
 import { transformApiShift, transformApiUnit } from "@/features/shift-check-in/utils/configUtilities";
 

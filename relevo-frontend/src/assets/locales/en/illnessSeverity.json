@@ -4,17 +4,13 @@
       "label": "Stable",
       "description": "Patient condition is stable with minimal intervention needed"
     },
-    "guarded": {
-      "label": "Guarded",
+    "watcher": {
+      "label": "Watcher",
       "description": "Patient requires close monitoring with potential for change"
     },
     "unstable": {
       "label": "Unstable",
       "description": "Patient condition is unstable requiring immediate intervention"
-    },
-    "critical": {
-      "label": "Critical",
-      "description": "Patient in critical condition requiring urgent care"
     }
   },
   "justNow": "Just now",

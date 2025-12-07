@@ -4,17 +4,13 @@
       "label": "Estable",
       "description": "La condición del paciente es estable con mínima intervención necesaria"
     },
-    "guarded": {
+    "watcher": {
       "label": "Vigilado",
       "description": "El paciente requiere una monitorización estrecha con potencial de cambio"
     },
     "unstable": {
       "label": "Inestable",
       "description": "La condición del paciente es inestable y requiere intervención inmediata"
-    },
-    "critical": {
-      "label": "Crítico",
-      "description": "Paciente en estado crítico que requiere atención urgente"
     }
   },
   "justNow": "Justo ahora",

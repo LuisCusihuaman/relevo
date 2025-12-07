@@ -8,7 +8,6 @@ import {
 	VersionNotice,
 } from "@/components/home";
 import { recentPreviews } from "@/pages/data";
-import type { Patient } from "@/components/home/types";
 import { useAssignedPatients, type PatientSummaryCard } from "@/api";
 import { useUiStore } from "@/store/ui.store";
 
@@ -16,44 +15,14 @@ export type HomeProps = {
 	patientSlug?: string;
 };
 
-// Mapping function to convert API PatientSummaryCard to UI Patient type
-function mapPatientSummaryToPatient(patientCard: PatientSummaryCard): Patient {
-	const getStatusFromHandoverStatus = (status: PatientSummaryCard["handoverStatus"]): string => {
-		switch (status) {
-			case "NotStarted":
-				return "home:patientList.noHandover";
-			case "InProgress":
-				return "home:patientList.startHandover";
-			case "Completed":
-				return "home:patientList.handoverCompleted";
-			default:
-				return "home:patientList.noHandover";
-		}
-	};
-
-	// Create a slug from the patient name for URL purposes
-	const patientSlug = patientCard.name.toLowerCase().replace(/\s+/g, "-");
-
-	return {
-		id: patientCard.id,
-		name: patientCard.name,
-		url: patientSlug,
-		status: getStatusFromHandoverStatus(patientCard.handoverStatus),
-		date: new Date().toLocaleDateString("es-ES", { month: "short", day: "numeric" }),
-		icon: patientCard.name.charAt(0).toUpperCase(),
-		unit: "Assigned", // Default unit for assigned patients
-		handoverId: patientCard.handoverId,
-	};
-}
-
 export function Home(): ReactElement {
 	const { currentPatient } = useUiStore();
 	const { data: assignedPatientsData, isLoading, error } = useAssignedPatients();
 
 	// Memoize the mapped patients to avoid unnecessary re-computations
-	const patients: ReadonlyArray<Patient> = useMemo(() => {
+	const patients: ReadonlyArray<PatientSummaryCard> = useMemo(() => {
 		if (!assignedPatientsData?.items) return [];
-		return assignedPatientsData.items.map(mapPatientSummaryToPatient);
+		return assignedPatientsData.items;
 	}, [assignedPatientsData]);
 
 	const isPatientView: boolean = Boolean(currentPatient);
@@ -113,16 +82,7 @@ export function Home(): ReactElement {
 
 			{isPatientView && currentPatient ? (
 				<div className="space-y-6">
-					<PatientProfileHeader currentPatient={{
-						id: currentPatient.id,
-						name: currentPatient.name,
-						url: `/patient/${currentPatient.id}`,
-						status: "Active",
-						date: currentPatient.admissionDate,
-						icon: "User",
-						unit: currentPatient.unit,
-						handoverId: null
-					}} />
+					<PatientProfileHeader currentPatient={currentPatient} />
 				</div>
 			) : null}
 		</div>
