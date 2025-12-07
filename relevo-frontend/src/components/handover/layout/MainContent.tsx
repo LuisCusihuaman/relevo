@@ -346,12 +346,8 @@ export function MainContent({
 								</div>
 							</div>
 							<SituationAwareness
-								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
-								syncStatus={syncStatus}
-								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
 								onRequestFullscreen={() => {
 									handleOpenFullscreenEdit("situation-awareness", true);
 								}}
@@ -789,12 +785,8 @@ export function MainContent({
 						</CollapsibleTrigger>
 						<CollapsibleContent>
 							<SituationAwareness
-								collaborators={[]}
 								currentUser={toPhysician(currentUser)}
 								handoverId={handoverData.id}
-								syncStatus={syncStatus}
-								onOpenThread={handleOpenDiscussion}
-								onSyncStatusChange={setSyncStatus}
 								onRequestFullscreen={() => {
 									handleOpenFullscreenEdit("situation-awareness", true);
 								}}

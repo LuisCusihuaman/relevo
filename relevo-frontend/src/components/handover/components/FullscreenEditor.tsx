@@ -268,22 +268,17 @@ export function FullscreenEditor({
             {fullscreenEditing.component === "situation-awareness" && (
               <div className="h-full">
                 <SituationAwareness
-                  handoverId={handoverData?.id || ""}
-                  currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
                   assignedPhysician={patientData?.assignedPhysician ? {
                     name: patientData.assignedPhysician.name,
                     initials: patientData.assignedPhysician.name.split(' ').map(n => n[0]).join('').toUpperCase(),
                     role: patientData.assignedPhysician.role
                   } : { name: "Unknown", initials: "U", role: "Unknown" }}
-                  fullscreenMode
-                  hideControls
                   autoEdit={fullscreenEditing.autoEdit}
-                  collaborators={activeCollaborators}
-                  syncStatus={syncStatus}
+                  currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
+                  fullscreenMode
+                  handoverId={handoverData?.id || ""}
+                  hideControls
                   onContentChange={handleContentChange}
-                  onOpenThread={handleOpenDiscussion}
-                  onSave={handleFullscreenSave}
-                  onSyncStatusChange={setSyncStatus}
                 />
               </div>
             )}
