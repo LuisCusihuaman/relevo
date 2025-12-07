@@ -1,5 +1,4 @@
 import type { JSX } from "react";
-import type { User as UserType } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { activeCollaborators } from "../../../common/constants";
 import { CollaborationPanel } from "./CollaborationPanel";
 import { HandoverHistory } from "./HandoverHistory";
-import type { PatientHandoverData } from "@/api";
+import { useHandoverUIStore } from "@/store/handover-ui.store";
+import { useParams } from "@tanstack/react-router";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
+import { useHandoverSession } from "@/components/handover/hooks/useHandoverSession";
 
 const calculateAgeFromDob = (dobString: string): number => {
   if (!dobString) return 0;
@@ -45,44 +47,34 @@ const calculateAgeFromDob = (dobString: string): number => {
   }
 };
 
-interface MobileMenusProps {
-  showMobileMenu: boolean;
-  setShowMobileMenu: (show: boolean) => void;
-  showHistory: boolean;
-  setShowHistory: (show: boolean) => void;
-  showComments: boolean;
-  setShowComments: (show: boolean) => void;
-  fullscreenEditing: boolean;
-  getTimeUntilHandover: () => string;
-  getSessionDuration: () => string;
-  handleNavigateToSection: (section: string) => void;
-  currentUser: UserType;
-  handoverId?: string;
-  participants?: any[];
-  patientData: PatientHandoverData | null;
-}
-
-export function MobileMenus({
-  showMobileMenu,
-  setShowMobileMenu,
-  showHistory,
-  setShowHistory,
-  showComments,
-  setShowComments,
-  fullscreenEditing,
-  getTimeUntilHandover,
-  getSessionDuration,
-  handleNavigateToSection,
-  currentUser: _currentUser,
-  handoverId,
-  participants: _participants,
-  patientData,
-}: MobileMenusProps): JSX.Element {
+// No props needed!
+export function MobileMenus(): JSX.Element {
   const { t } = useTranslation("mobileMenus");
   const isMobile = useIsMobile();
+  
+  const { 
+    showMobileMenu, setShowMobileMenu, 
+    showHistory, setShowHistory, 
+    showComments, setShowComments, 
+    fullscreenEditing, 
+    layoutMode,
+    setExpandedSections
+  } = useHandoverUIStore();
+
+  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
+  const { patientData } = usePatientHandoverData(handoverId);
+  const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
+
   const activeUsers = activeCollaborators.filter(
     (user) => user.status === "active" || user.status === "viewing",
   );
+
+  const handleNavigateToSection = (section: string): void => {
+    if (layoutMode === "single") {
+      setExpandedSections((previous) => ({ ...previous, [section]: true }));
+    }
+    console.log(`Navigating to I-PASS section: ${section}`);
+  };
 
   return (
     <>
@@ -326,7 +318,6 @@ export function MobileMenus({
                 hideHeader
                 handoverId={handoverId || ""}
                 onClose={() => { setShowComments(false); }}
-                onNavigateToSection={handleNavigateToSection}
               />
             </div>
           </SheetContent>

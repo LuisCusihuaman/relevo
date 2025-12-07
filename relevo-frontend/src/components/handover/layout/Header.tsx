@@ -3,7 +3,6 @@ import {
   activeCollaborators,
   currentlyPresent,
 } from "@/common/constants";
-import type { PatientHandoverData } from "@/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,41 +29,39 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useHandoverUIStore } from "@/store/handover-ui.store";
+import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
+import { useHandoverSession } from "@/components/handover/hooks/useHandoverSession";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
+import { useParams } from "@tanstack/react-router";
 
 interface HeaderProps {
-  showCollaborators: boolean;
-  setShowCollaborators: (show: boolean) => void;
-  setShowComments: (show: boolean) => void;
-  setShowHistory: (show: boolean) => void;
-  setShowMobileMenu: (show: boolean) => void;
-  showComments: boolean;
-  showHistory: boolean;
-  getSyncStatusDisplay: () => {
-    icon: React.ReactNode;
-    text: string;
-    color: string;
-  };
-  getTimeUntilHandover: () => string;
-  getSessionDuration: () => string;
   onBack?: () => void;
-  patientData: PatientHandoverData | null;
 }
 
 export function Header({
-  showCollaborators,
-  setShowCollaborators,
-  setShowComments,
-  setShowHistory,
-  setShowMobileMenu,
-  showComments,
-  showHistory,
-  getSyncStatusDisplay,
-  getTimeUntilHandover,
-  getSessionDuration,
   onBack,
-  patientData,
 }: HeaderProps): JSX.Element {
   const { t } = useTranslation(["header", "handover", "patientHeader"]);
+  
+  // UI Store
+  const {
+    showCollaborators,
+    setShowCollaborators,
+    showComments,
+    setShowComments,
+    showHistory,
+    setShowHistory,
+    setShowMobileMenu,
+  } = useHandoverUIStore();
+
+  // Hooks
+  const { getSyncStatusDisplay } = useSyncStatus();
+  const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
+  
+  // Data
+  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
+  const { patientData } = usePatientHandoverData(handoverId);
 
   // Calculate age from DOB
   const calculateAgeFromDob = (dobString: string): number => {

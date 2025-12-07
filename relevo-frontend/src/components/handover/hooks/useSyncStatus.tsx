@@ -1,13 +1,12 @@
+import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { AlertTriangle, CheckCircle, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-type SyncStatus = "synced" | "syncing" | "pending" | "offline" | "error";
-
 export function useSyncStatus(): {
   isOnline: boolean;
-  syncStatus: SyncStatus;
-  setSyncStatus: (status: SyncStatus) => void;
+  syncStatus: string;
+  setSyncStatus: (status: "synced" | "syncing" | "pending" | "offline" | "error") => void;
   getSyncStatusDisplay: () => {
     icon: React.ReactNode;
     text: string;
@@ -15,8 +14,8 @@ export function useSyncStatus(): {
   };
 } {
   const { t } = useTranslation("header");
+  const { syncStatus, setSyncStatus } = useHandoverUIStore();
   const [isOnline, setIsOnline] = useState(true);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("synced");
 
   // Simulate network status changes
   useEffect((): (() => void) => {
@@ -40,7 +39,7 @@ export function useSyncStatus(): {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
+  }, [setSyncStatus]);
 
   // Real-time collaboration sync status indicator
   const getSyncStatusDisplay = (): {

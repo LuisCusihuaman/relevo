@@ -1,8 +1,6 @@
 import {
     activeCollaborators,
 } from "@/common/constants";
-import type { PatientHandoverData } from "@/api";
-import type { FullscreenEditingState, SyncStatus } from "@/common/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,41 +15,47 @@ import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { PatientSummary } from "./PatientSummary";
 import { SituationAwareness } from "./SituationAwareness";
+import { useHandoverUIStore } from "@/store/handover-ui.store";
+import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
+import { useParams } from "@tanstack/react-router";
+import { useUser } from "@clerk/clerk-react";
 
-interface FullscreenEditorProps {
-  fullscreenEditing: FullscreenEditingState;
-  handleCloseFullscreenEdit: () => void;
-  handleFullscreenSave: () => void;
-  handleSaveReady: (saveFunction: () => void) => void;
-  handleOpenDiscussion: () => void;
-  syncStatus: SyncStatus;
-  setSyncStatus: (status: SyncStatus) => void;
-  patientData: PatientHandoverData | null;
-  handoverData?: { id: string };
-  currentUser: {
-    id: string;
-    name: string;
-    initials: string;
-    role: string;
-  } | undefined;
-}
-
-export function FullscreenEditor({
-  fullscreenEditing,
-  handleCloseFullscreenEdit,
-  handleFullscreenSave,
-  handleSaveReady,
-  handleOpenDiscussion,
-  syncStatus,
-  setSyncStatus,
-  patientData,
-  handoverData,
-  currentUser,
-}: FullscreenEditorProps): JSX.Element {
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+export function FullscreenEditor(): JSX.Element | null {
+  const { t } = useTranslation("fullscreenEditor");
   const isMobile = useIsMobile();
   const saveButtonRef = useRef<HTMLButtonElement>(null);
-  const { t } = useTranslation("fullscreenEditor");
+  
+  // Store
+  const { 
+    fullscreenEditing, 
+    setFullscreenEditing, 
+    currentSaveFunction,
+    setCurrentSaveFunction 
+  } = useHandoverUIStore();
+
+  // Hooks
+  const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
+  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
+  const { patientData } = usePatientHandoverData(handoverId);
+  const { user: clerkUser } = useUser();
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Derived values
+  const componentType = fullscreenEditing?.component;
+
+  // Transform user for components
+  const currentUser = clerkUser ? {
+    id: clerkUser.id,
+    name: clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'Unknown User',
+    initials: (clerkUser.fullName || `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`)
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || 'U',
+    role: (Array.isArray(clerkUser.publicMetadata['roles']) ? (clerkUser.publicMetadata['roles'] as Array<string>).join(", ") : "Doctor"),
+  } : undefined;
 
   // Get active collaborators with stable reference
   const activeUsers = useRef(
@@ -63,22 +67,17 @@ export function FullscreenEditor({
       })),
   ).current;
 
-  // Stable save function reference
-  const saveFunction = useCallback(() => {
-    console.log(`Saving ${fullscreenEditing.component} changes`);
-    setSyncStatus("pending");
+  // Handle Close
+  const handleCloseFullscreenEdit = useCallback(() => {
+    setFullscreenEditing(null);
+  }, [setFullscreenEditing]);
 
-    // Simulate save operation
-    setTimeout(() => {
-      setSyncStatus("synced");
-      setHasUnsavedChanges(false);
-    }, 1000);
-  }, [fullscreenEditing.component, setSyncStatus]);
-
-  // Register save function when component mounts or save function changes
-  useEffect(() => {
-    handleSaveReady(saveFunction);
-  }, [saveFunction, handleSaveReady]);
+  // Handle Save (call the function registered in store)
+  const handleFullscreenSave = useCallback(() => {
+    if (currentSaveFunction) {
+        currentSaveFunction();
+    }
+  }, [currentSaveFunction]);
 
   // Handle content changes
   const handleContentChange = useCallback((): void => {
@@ -103,7 +102,7 @@ export function FullscreenEditor({
 
   // Get component title
   const getComponentTitle = (): string => {
-    switch (fullscreenEditing.component) {
+    switch (componentType) {
       case "patient-summary":
         return t("titles.patientSummary");
       case "situation-awareness":
@@ -113,21 +112,9 @@ export function FullscreenEditor({
     }
   };
 
-  // Get sync status display
-  const getSyncStatusDisplay = (): { icon: React.ReactNode; text: string; color: string } => {
-    switch (syncStatus) {
-      case "synced":
-        return { icon: <div className="w-2 h-2 bg-green-600 rounded-full" />, text: t("syncStatus.synced"), color: "text-green-600" };
-      case "pending":
-        return { icon: <div className="w-2 h-2 bg-yellow-600 rounded-full" />, text: t("syncStatus.pending"), color: "text-yellow-600" };
-      case "error":
-        return { icon: <div className="w-2 h-2 bg-red-600 rounded-full" />, text: t("syncStatus.error"), color: "text-red-600" };
-      default:
-        return { icon: <div className="w-2 h-2 bg-gray-600 rounded-full" />, text: t("syncStatus.ready"), color: "text-gray-600" };
-    }
-  };
-
   const syncDisplay = getSyncStatusDisplay();
+
+  if (!fullscreenEditing) return null;
 
   return (
     <div className="fixed inset-0 bg-white z-[9999] flex flex-col">
@@ -250,17 +237,14 @@ export function FullscreenEditor({
                 <PatientSummary
                   fullscreenMode
                   hideControls
-                  handoverId={handoverData?.id || ""}
-                  patientData={patientData || undefined}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser}
-                  syncStatus={syncStatus}
+                  handoverId={handoverId}
+                  patientData={patientData || undefined}
                   onContentChange={handleContentChange}
-                  onOpenThread={handleOpenDiscussion}
                   onRequestFullscreen={() => {}}
                   onSave={handleFullscreenSave}
-                  onSaveReady={handleSaveReady}
-                  onSyncStatusChange={setSyncStatus}
+                  onSaveReady={setCurrentSaveFunction}
                 />
               </div>
             )}
@@ -268,6 +252,8 @@ export function FullscreenEditor({
             {fullscreenEditing.component === "situation-awareness" && (
               <div className="h-full">
                 <SituationAwareness
+                  fullscreenMode
+                  hideControls
                   assignedPhysician={patientData?.assignedPhysician ? {
                     name: patientData.assignedPhysician.name,
                     initials: patientData.assignedPhysician.name.split(' ').map(n => n[0]).join('').toUpperCase(),
@@ -275,9 +261,7 @@ export function FullscreenEditor({
                   } : { name: "Unknown", initials: "U", role: "Unknown" }}
                   autoEdit={fullscreenEditing.autoEdit}
                   currentUser={currentUser || { name: "Unknown User", initials: "U", role: "Unknown" }}
-                  fullscreenMode
-                  handoverId={handoverData?.id || ""}
-                  hideControls
+                  handoverId={handoverId}
                   onContentChange={handleContentChange}
                 />
               </div>

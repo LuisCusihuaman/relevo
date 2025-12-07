@@ -4,7 +4,6 @@ export * from "./DashboardSidebar";
 export * from "./EntityListMobile";
 export * from "./EntityTable";
 export * from "./FilterToolbar";
-export * from "./HandoverSkeleton";
 export * from "./ListHeader";
 export * from "./MobileMenu";
 export * from "./NotificationsPopover";

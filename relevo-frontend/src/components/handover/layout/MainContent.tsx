@@ -1,14 +1,13 @@
 import { getIpassGuidelines } from "@/common/constants";
 import type {
-	ExpandedSections,
 	FullscreenComponent,
-	SyncStatus,
 } from "@/common/types";
-import type { Handover, PatientHandoverData, User } from "@/api";
+import type { PatientHandoverData } from "@/api";
 import { useTranslation } from "react-i18next";
 import {
 	useSituationAwareness,
 	useSynthesis,
+    useHandover
 } from "@/api/endpoints/handovers";
 import {
 	ActionList,
@@ -18,26 +17,13 @@ import {
 	SynthesisByReceiver,
 } from "..";
 import { HandoverSection } from "./HandoverSection";
-
-interface MainContentProps {
-	layoutMode: "single" | "columns";
-	expandedSections: ExpandedSections;
-	getSessionDuration: () => string;
-	handleOpenDiscussion: () => void;
-	handleOpenFullscreenEdit: (
-		component: FullscreenComponent,
-		autoEdit?: boolean,
-	) => void;
-	syncStatus: SyncStatus;
-	setSyncStatus: (status: SyncStatus) => void;
-	setHandoverComplete: (complete: boolean) => void;
-	currentUser: User | null;
-	handoverData?: Handover;
-	patientData: PatientHandoverData | null;
-}
+import { useParams } from "@tanstack/react-router";
+import { useUser } from "@clerk/clerk-react";
+import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
+import { useHandoverUIStore } from "@/store/handover-ui.store";
 
 const toPhysician = (
-	user: User | null,
+	user: { id: string; firstName?: string | null; lastName?: string | null; fullName?: string | null; publicMetadata?: { roles?: unknown } } | null | undefined,
 ): { id: string; name: string; initials: string; role: string } => {
 	if (!user) {
 		return {
@@ -47,6 +33,7 @@ const toPhysician = (
 			role: "Unknown",
 		};
 	}
+    const roles = Array.isArray(user.publicMetadata?.roles) ? user.publicMetadata?.roles as Array<string> : [];
 	return {
 		id: user.id,
 		name: user.fullName ?? `${user.firstName} ${user.lastName}`,
@@ -56,7 +43,7 @@ const toPhysician = (
 				.map((n) => n[0])
 				.join("")
 				.toUpperCase() ?? "",
-		role: user.roles?.join(", ") ?? "",
+		role: roles.join(", ") || "Doctor",
 	};
 };
 
@@ -82,21 +69,20 @@ const formatPhysician = (
 	};
 };
 
-export function MainContent({
-	layoutMode,
-	expandedSections,
-	handleOpenDiscussion,
-	handleOpenFullscreenEdit,
-	syncStatus,
-	setSyncStatus,
-	setHandoverComplete,
-	currentUser,
-	handoverData,
-	patientData,
-}: MainContentProps): React.JSX.Element {
+export function MainContent(): React.JSX.Element {
 	const { t } = useTranslation(["handover", "mainContent"]);
+    const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
+    const { user: clerkUser } = useUser();
+    const { data: handoverData } = useHandover(handoverId);
+    const { patientData } = usePatientHandoverData(handoverId);
+    
+    const { 
+        layoutMode, 
+        expandedSections, 
+        setFullscreenEditing 
+    } = useHandoverUIStore();
+
 	const ipassGuidelines = getIpassGuidelines(t);
-	const handoverId = handoverData?.id;
 
 	const {
 		isLoading: isSituationAwarenessLoading,
@@ -105,6 +91,10 @@ export function MainContent({
 	const { isLoading: isSynthesisLoading, error: synthesisError } = useSynthesis(
 		handoverId ?? "",
 	);
+
+    const handleOpenFullscreenEdit = (component: FullscreenComponent, autoEdit: boolean = true): void => {
+        setFullscreenEditing({ component, autoEdit });
+    };
 
 	// Loading state
 	if (isSituationAwarenessLoading || isSynthesisLoading) {
@@ -170,6 +160,8 @@ export function MainContent({
 		id: handoverData.responsiblePhysicianId,
 		name: handoverData.responsiblePhysicianName,
 	};
+    
+    const currentUser = toPhysician(clerkUser);
 
 	// Section labels (casted to string to satisfy strict typing)
 	const sectionLabels = {
@@ -208,7 +200,7 @@ export function MainContent({
 		>
 			<IllnessSeverity
 				assignedPhysician={assignedPhysician}
-				currentUser={toPhysician(currentUser)}
+				currentUser={currentUser}
 			/>
 		</HandoverSection>
 	);
@@ -224,15 +216,12 @@ export function MainContent({
 			title={sectionLabels.patient.title}
 		>
 			<PatientSummary
-				currentUser={toPhysician(currentUser)}
+				currentUser={currentUser}
 				handoverId={handoverData.id}
 				handoverStateName={handoverData.stateName}
 				patientData={patientData || undefined}
 				responsiblePhysician={responsiblePhysician}
-				syncStatus={syncStatus}
-				onOpenThread={handleOpenDiscussion}
 				onRequestFullscreen={() => { handleOpenFullscreenEdit("patient-summary"); }}
-				onSyncStatusChange={setSyncStatus}
 			/>
 		</HandoverSection>
 	);
@@ -248,7 +237,7 @@ export function MainContent({
 			title={sectionLabels.situation.title}
 		>
 			<SituationAwareness
-				currentUser={toPhysician(currentUser)}
+				currentUser={currentUser}
 				handoverId={handoverData.id}
 				onRequestFullscreen={() => { handleOpenFullscreenEdit("situation-awareness", true); }}
 			/>
@@ -266,12 +255,9 @@ export function MainContent({
 			title={sectionLabels.actions.title}
 		>
 			<ActionList
-				expanded
 				assignedPhysician={assignedPhysician}
-				collaborators={[]}
-				currentUser={toPhysician(currentUser)}
+				currentUser={currentUser}
 				handoverId={handoverData?.id}
-				onOpenThread={handleOpenDiscussion}
 			/>
 		</HandoverSection>
 	);
@@ -287,12 +273,10 @@ export function MainContent({
 			title={sectionLabels.synthesis.title}
 		>
 			<SynthesisByReceiver
-				currentUser={toPhysician(currentUser)}
+				currentUser={currentUser}
 				handoverComplete={handoverData.stateName === "Completed"}
 				handoverState={handoverData.stateName}
 				receivingPhysician={formatPhysician(patientData?.receivingPhysician)}
-				onComplete={setHandoverComplete}
-				onOpenThread={handleOpenDiscussion}
 			/>
 		</HandoverSection>
 	);

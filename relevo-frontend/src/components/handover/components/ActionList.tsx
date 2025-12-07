@@ -17,19 +17,7 @@ import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useActionItems, type ActionItem } from "@/hooks/useActionItems";
 
-interface Collaborator {
-  id: number;
-  name: string;
-  initials: string;
-  color: string;
-  role: string;
-}
-
-
 interface ActionListProps {
-  expanded?: boolean;
-  collaborators?: Array<Collaborator>;
-  onOpenThread?: (section: string) => void;
   compact?: boolean;
   handoverId?: string;
   currentUser?: {
@@ -45,9 +33,6 @@ interface ActionListProps {
 }
 
 export function ActionList({
-  expanded: _expanded,
-  collaborators: _collaborators,
-  onOpenThread: _onOpenThread,
   compact = false,
   handoverId,
   currentUser,

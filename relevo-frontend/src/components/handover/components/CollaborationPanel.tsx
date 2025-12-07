@@ -8,15 +8,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Bell, MessageSquare, Send, Users, X } from "lucide-react";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityFeed, type ActivityItem } from "./ActivityFeed";
-import type { JSX } from "react";
 import { useHandoverMessages, useCreateHandoverMessage } from "@/api";
+import { useHandoverUIStore } from "@/store/handover-ui.store";
 
 interface CollaborationPanelProps {
   onClose: () => void;
-  onNavigateToSection: (section: string) => void;
   handoverId: string;
   hideHeader?: boolean;
 }
@@ -25,11 +24,11 @@ interface CollaborationPanelProps {
 
 export function CollaborationPanel({
   onClose,
-  onNavigateToSection,
   handoverId,
   hideHeader = false,
 }: CollaborationPanelProps): JSX.Element {
   const [newMessage, setNewMessage] = useState("");
+  const { layoutMode, setExpandedSections } = useHandoverUIStore();
 
   // Fetch handover messages
   const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
@@ -71,6 +70,13 @@ export function CollaborationPanel({
       event.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleNavigateToSection = (section: string): void => {
+    if (layoutMode === "single") {
+      setExpandedSections((previous) => ({ ...previous, [section]: true }));
+    }
+    console.log(`Navigating to I-PASS section: ${section}`);
   };
 
   return (
@@ -236,7 +242,7 @@ export function CollaborationPanel({
         <TabsContent className="flex-1 flex flex-col mt-0" value="activity">
           <ActivityFeed
             items={currentRecentActivity as Array<ActivityItem>}
-            onNavigateToSection={onNavigateToSection}
+            onNavigateToSection={handleNavigateToSection}
           />
         </TabsContent>
       </Tabs>

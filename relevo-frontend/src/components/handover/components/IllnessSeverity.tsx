@@ -57,14 +57,12 @@ interface IllnessSeverityProps {
     role: string;
   };
   severityContent?: string | null;
-  severityStatus?: string;
 }
 
 export function IllnessSeverity({
   currentUser,
   assignedPhysician,
   severityContent,
-  severityStatus: _severityStatus,
 }: IllnessSeverityProps): JSX.Element {
   const { t } = useTranslation("illnessSeverity");
   // Use real data from backend if available, otherwise use defaults

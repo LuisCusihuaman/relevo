@@ -1,4 +1,3 @@
-import type { SyncStatus } from "@/common/types";
 import type { PatientHandoverData } from "@/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,15 +13,12 @@ import {
 interface PatientSummaryProps {
   handoverId: string; // Required: ID of the handover
   patientData?: PatientHandoverData; // Patient data including summary text
-  onOpenThread?: (section: string) => void;
   fullscreenMode?: boolean;
   autoEdit?: boolean;
   onRequestFullscreen?: () => void;
   hideControls?: boolean; // NEW PROP to hide internal save/done buttons
   onSave?: () => void; // Handler for external save button
   onSaveReady?: (saveFunction: () => void) => void; // Provide save function to parent
-  syncStatus?: SyncStatus;
-  onSyncStatusChange?: (status: SyncStatus) => void;
   currentUser?: {
     id: string;
     name: string;
@@ -40,18 +36,12 @@ interface PatientSummaryProps {
 export function PatientSummary({
   handoverId,
   patientData: patientDataProp,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onOpenThread: _onOpenThread,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
   hideControls = false, // Default to false for backwards compatibility
   onSave, // External save handler
   onSaveReady,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  syncStatus: _syncStatus = "synced",
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSyncStatusChange: _onSyncStatusChange,
   currentUser,
   responsiblePhysician,
   handoverStateName,

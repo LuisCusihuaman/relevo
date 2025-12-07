@@ -15,7 +15,6 @@ import { useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 interface SynthesisByReceiverProps {
-  onOpenThread?: (section: string) => void;
   onComplete?: (completed: boolean) => void;
   currentUser: {
     name: string;
@@ -32,7 +31,6 @@ interface SynthesisByReceiverProps {
 }
 
 export function SynthesisByReceiver({
-  onOpenThread: _onOpenThread,
   onComplete,
   currentUser,
   receivingPhysician,
