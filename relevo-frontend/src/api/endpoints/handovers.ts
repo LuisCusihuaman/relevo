@@ -15,8 +15,8 @@ import type {
 	UpdatePatientDataRequest,
 	PatientHandoverData,
 	GetHandoverActionItemsResponse,
-	SituationAwarenessStatus,
 } from "../types";
+import type { SituationAwarenessStatus } from "@/types/domain";
 
 // ========================================
 // QUERY KEYS
@@ -575,7 +575,7 @@ export async function getSituationAwareness(
 export async function updatePatientData(
 	handoverId: string,
 	request: UpdatePatientDataRequest
-): Promise<ApiResponse> {
+): Promise<ApiResponse<void>> {
 	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/patient-data`, request);
 	return data;
 }
@@ -587,7 +587,7 @@ export async function updatePatientData(
 export async function updateSituationAwareness(
 	handoverId: string,
 	request: UpdateSituationAwarenessRequest
-): Promise<ApiResponse> {
+): Promise<ApiResponse<void>> {
 	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/situation-awareness`, request);
 	return data;
 }
@@ -595,7 +595,7 @@ export async function updateSituationAwareness(
 export async function updateSynthesis(
 	handoverId: string,
 	request: { content?: string; status: string }
-): Promise<ApiResponse> {
+): Promise<ApiResponse<void>> {
 	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/synthesis`, request);
 	return data;
 }
@@ -650,12 +650,14 @@ export function useUpdateSituationAwareness(): ReturnType<typeof useMutation<Api
 		mutationFn: ({
 			handoverId,
 			content,
-			status = "Draft" as const,
+			status,
 		}: {
 			handoverId: string;
 			content: string;
 			status?: SituationAwarenessStatus;
-		}) => updateSituationAwareness(handoverId, { content, status }),
+		}) =>
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			updateSituationAwareness(handoverId, { content, status: status ?? "Draft" }),
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({
 				queryKey: handoverQueryKeys.situationAwareness(variables.handoverId),

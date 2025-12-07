@@ -17,7 +17,6 @@ export { useShiftCheckInState } from "./hooks/useShiftCheckInState";
 // Types
 export type {
 	ShiftCheckInStatus,
-	SeverityLevel,
 	UnitConfig,
 	ShiftConfig,
 	ShiftCheckInPatient,
@@ -25,3 +24,6 @@ export type {
 	ShiftCheckInState,
 	ShiftCheckInActions,
 } from "./types";
+
+export type SeverityLevel = IllnessSeverity;
+import type { IllnessSeverity } from "@/types/domain";

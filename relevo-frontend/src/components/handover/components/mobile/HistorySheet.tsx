@@ -28,7 +28,7 @@ export function HistorySheet(): JSX.Element | null {
   const patientInfo = patientData ? {
     name: patientData.name,
     mrn: patientData.mrn,
-    admissionDate: patientData.admissionDate
+    admissionDate: patientData.admissionDate || ""
   } : { name: "", mrn: "", admissionDate: "" };
 
   return (

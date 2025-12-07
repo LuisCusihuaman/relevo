@@ -98,7 +98,7 @@ export function SituationAwareness({
     condition: plan.conditionText,
     action: plan.actionText,
     priority: plan.priority,
-    status: plan.status as "active" | "planned" | "completed",
+    status: plan.status,
     createdBy: plan.createdBy,
     createdAt: plan.createdAt,
   })) || [];

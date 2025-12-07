@@ -25,7 +25,7 @@ export function useCurrentPhysician(): UserInfo {
 		const name =
 			clerkUser.fullName ||
 			`${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
-		const roles = (clerkUser.publicMetadata?.roles as Array<string>) || [];
+		const roles = (clerkUser.publicMetadata?.['roles'] as Array<string>) || [];
 
 		return {
 			id: clerkUser.id,

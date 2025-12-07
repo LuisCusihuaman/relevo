@@ -18,7 +18,7 @@ interface SituationEditorProps {
   onEnterEdit?: () => void;
 }
 
-export function SituationEditor(props: SituationEditorProps): JSX.Element {
+export function SituationEditor(props: SituationEditorProps): React.ReactElement {
   const {
     content,
     isEditing,

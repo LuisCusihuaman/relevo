@@ -80,7 +80,7 @@ export function PatientSummary({
       await updateSummaryMutation.mutateAsync({
         handoverId,
         summaryText: editingText,
-        illnessSeverity: patientDataProp?.illnessSeverity || "Stable", // Default to stable if not present
+        illnessSeverity: patientDataProp?.illnessSeverity || "stable", // Default to stable if not present
       });
 
       setIsEditing(false);
