@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Handovers.GetPatientData;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Handovers;
 
@@ -75,16 +76,26 @@ public class GetPatientHandoverDataRequest
 
 public class GetPatientHandoverDataResponse
 {
-  public string id { get; set; } = string.Empty;
-  public string name { get; set; } = string.Empty;
-  public string dob { get; set; } = string.Empty;
-  public string mrn { get; set; } = string.Empty;
-  public string admissionDate { get; set; } = string.Empty;
-  public string currentDateTime { get; set; } = string.Empty;
-  public string primaryTeam { get; set; } = string.Empty;
-  public string primaryDiagnosis { get; set; } = string.Empty;
-  public string room { get; set; } = string.Empty;
-  public string unit { get; set; } = string.Empty;
+  [Required]
+  public required string id { get; set; }
+  [Required]
+  public required string name { get; set; }
+  [Required]
+  public required string dob { get; set; }
+  [Required]
+  public required string mrn { get; set; }
+  [Required]
+  public required string admissionDate { get; set; }
+  [Required]
+  public required string currentDateTime { get; set; }
+  [Required]
+  public required string primaryTeam { get; set; }
+  [Required]
+  public required string primaryDiagnosis { get; set; }
+  [Required]
+  public required string room { get; set; }
+  [Required]
+  public required string unit { get; set; }
   public PhysicianDto? assignedPhysician { get; set; }
   public PhysicianDto? receivingPhysician { get; set; }
   public string? illnessSeverity { get; set; }
@@ -94,13 +105,18 @@ public class GetPatientHandoverDataResponse
 
   public class PhysicianDto
   {
-    public string name { get; set; } = string.Empty;
-    public string role { get; set; } = string.Empty;
-    public string color { get; set; } = string.Empty;
+    [Required]
+    public required string name { get; set; }
+    [Required]
+    public required string role { get; set; }
+    [Required]
+    public required string color { get; set; }
     public string? shiftEnd { get; set; }
     public string? shiftStart { get; set; }
-    public string status { get; set; } = string.Empty;
-    public string patientAssignment { get; set; } = string.Empty;
+    [Required]
+    public required string status { get; set; }
+    [Required]
+    public required string patientAssignment { get; set; }
   }
 }
 

@@ -583,14 +583,14 @@ export interface components {
             pageSize?: number;
         };
         PatientRecord: {
-            id?: string;
-            name?: string;
-            handoverStatus?: string;
+            id: string;
+            name: string;
+            handoverStatus: string;
             handoverId?: string | null;
             /** Format: decimal */
             age?: number | null;
-            room?: string;
-            diagnosis?: string;
+            room: string;
+            diagnosis: string;
             status?: string | null;
             severity?: string | null;
         };
@@ -599,17 +599,17 @@ export interface components {
             shifts?: components["schemas"]["ShiftRecord"][];
         };
         ShiftRecord: {
-            id?: string;
-            name?: string;
-            startTime?: string;
-            endTime?: string;
+            id: string;
+            name: string;
+            startTime: string;
+            endTime: string;
         };
         UnitListResponse: {
             units?: components["schemas"]["UnitRecord"][];
         };
         UnitRecord: {
-            id?: string;
-            name?: string;
+            id: string;
+            name: string;
         };
         CreatePatientSummaryResponse: {
             summary?: components["schemas"]["PatientSummaryDto"];
@@ -647,9 +647,9 @@ export interface components {
             pagination?: components["schemas"]["PaginationInfo"];
         };
         PatientSummaryCard: {
-            id?: string;
-            name?: string;
-            handoverStatus?: string;
+            id: string;
+            name: string;
+            handoverStatus: string;
             handoverId?: string | null;
         };
         PaginationInfo: {
@@ -664,18 +664,18 @@ export interface components {
         };
         GetAllPatientsRequest: Record<string, never>;
         GetPatientByIdResponse: {
-            id?: string;
-            name?: string;
-            mrn?: string;
-            dob?: string;
-            gender?: string;
-            admissionDate?: string;
-            currentUnit?: string;
-            roomNumber?: string;
-            diagnosis?: string;
-            allergies?: string[];
-            medications?: string[];
-            notes?: string;
+            id: string;
+            name: string;
+            mrn: string;
+            dob: string;
+            gender: string;
+            admissionDate: string;
+            currentUnit: string;
+            roomNumber: string;
+            diagnosis: string;
+            allergies: string[];
+            medications: string[];
+            notes: string;
         };
         GetPatientByIdRequest: Record<string, never>;
         GetPatientHandoversResponse: {
@@ -843,13 +843,13 @@ export interface components {
         };
         GetMyPatientsRequest: Record<string, never>;
         GetMyProfileResponse: {
-            id?: string;
-            email?: string;
-            firstName?: string;
-            lastName?: string;
-            fullName?: string;
-            roles?: string[];
-            isActive?: boolean;
+            id: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            fullName: string;
+            roles: string[];
+            isActive: boolean;
         };
         PostAssignmentsRequest: {
             shiftId?: string;
@@ -973,16 +973,16 @@ export interface components {
         };
         GetContingencyPlansRequest: Record<string, never>;
         GetPatientHandoverDataResponse: {
-            id?: string;
-            name?: string;
-            dob?: string;
-            mrn?: string;
-            admissionDate?: string;
-            currentDateTime?: string;
-            primaryTeam?: string;
-            primaryDiagnosis?: string;
-            room?: string;
-            unit?: string;
+            id: string;
+            name: string;
+            dob: string;
+            mrn: string;
+            admissionDate: string;
+            currentDateTime: string;
+            primaryTeam: string;
+            primaryDiagnosis: string;
+            room: string;
+            unit: string;
             assignedPhysician?: components["schemas"]["GetPatientHandoverDataResponse_PhysicianDto"] | null;
             receivingPhysician?: components["schemas"]["GetPatientHandoverDataResponse_PhysicianDto"] | null;
             illnessSeverity?: string | null;
@@ -991,13 +991,13 @@ export interface components {
             updatedAt?: string | null;
         };
         GetPatientHandoverDataResponse_PhysicianDto: {
-            name?: string;
-            role?: string;
-            color?: string;
+            name: string;
+            role: string;
+            color: string;
             shiftEnd?: string | null;
             shiftStart?: string | null;
-            status?: string;
-            patientAssignment?: string;
+            status: string;
+            patientAssignment: string;
         };
         GetPatientHandoverDataRequest: Record<string, never>;
         GetPendingHandoversResponse: {

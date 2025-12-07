@@ -1,13 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Relevo.Core.Models;
 
 public record PatientRecord(
-    string Id,
-    string Name,
-    string HandoverStatus,
+    [property: Required] string Id,
+    [property: Required] string Name,
+    [property: Required] string HandoverStatus,
     string? HandoverId,
     decimal? Age,
-    string Room,
-    string Diagnosis,
+    [property: Required] string Room,
+    [property: Required] string Diagnosis,
     string? Status,
     string? Severity
 )

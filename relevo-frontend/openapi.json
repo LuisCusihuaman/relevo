@@ -2091,15 +2091,25 @@
       "PatientRecord": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "handoverStatus",
+          "room",
+          "diagnosis"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "handoverStatus": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "handoverId": {
             "type": "string",
@@ -2111,10 +2121,12 @@
             "nullable": true
           },
           "room": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "diagnosis": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "status": {
             "type": "string",
@@ -2145,18 +2157,28 @@
       "ShiftRecord": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "startTime",
+          "endTime"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "startTime": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "endTime": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },
@@ -2175,12 +2197,18 @@
       "UnitRecord": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },
@@ -2293,15 +2321,23 @@
       "PatientSummaryCard": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "handoverStatus"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "handoverStatus": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "handoverId": {
             "type": "string",
@@ -2338,33 +2374,56 @@
       "GetPatientByIdResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "mrn",
+          "dob",
+          "gender",
+          "admissionDate",
+          "currentUnit",
+          "roomNumber",
+          "diagnosis",
+          "allergies",
+          "medications",
+          "notes"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "mrn": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "dob": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "gender": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "admissionDate": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "currentUnit": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "roomNumber": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "diagnosis": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "allergies": {
             "type": "array",
@@ -2379,7 +2438,8 @@
             }
           },
           "notes": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },
@@ -2950,21 +3010,35 @@
       "GetMyProfileResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "fullName",
+          "roles",
+          "isActive"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "fullName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "roles": {
             "type": "array",
@@ -3458,36 +3532,58 @@
       "GetPatientHandoverDataResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "dob",
+          "mrn",
+          "admissionDate",
+          "currentDateTime",
+          "primaryTeam",
+          "primaryDiagnosis",
+          "room",
+          "unit"
+        ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "dob": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "mrn": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "admissionDate": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "currentDateTime": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "primaryTeam": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "primaryDiagnosis": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "room": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "assignedPhysician": {
             "nullable": true,
@@ -3526,15 +3622,25 @@
       "GetPatientHandoverDataResponse_PhysicianDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "name",
+          "role",
+          "color",
+          "status",
+          "patientAssignment"
+        ],
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "role": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "color": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "shiftEnd": {
             "type": "string",
@@ -3545,10 +3651,12 @@
             "nullable": true
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "patientAssignment": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },

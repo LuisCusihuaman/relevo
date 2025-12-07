@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Patients.GetById;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Patients;
 
@@ -53,17 +54,29 @@ public class GetPatientByIdRequest
 
 public class GetPatientByIdResponse
 {
-  public string Id { get; set; } = string.Empty;
-  public string Name { get; set; } = string.Empty;
-  public string Mrn { get; set; } = string.Empty;
-  public string Dob { get; set; } = string.Empty;
-  public string Gender { get; set; } = string.Empty;
-  public string AdmissionDate { get; set; } = string.Empty;
-  public string CurrentUnit { get; set; } = string.Empty;
-  public string RoomNumber { get; set; } = string.Empty;
-  public string Diagnosis { get; set; } = string.Empty;
-  public List<string> Allergies { get; set; } = [];
-  public List<string> Medications { get; set; } = [];
-  public string Notes { get; set; } = string.Empty;
+  [Required]
+  public required string Id { get; set; }
+  [Required]
+  public required string Name { get; set; }
+  [Required]
+  public required string Mrn { get; set; }
+  [Required]
+  public required string Dob { get; set; }
+  [Required]
+  public required string Gender { get; set; }
+  [Required]
+  public required string AdmissionDate { get; set; }
+  [Required]
+  public required string CurrentUnit { get; set; }
+  [Required]
+  public required string RoomNumber { get; set; }
+  [Required]
+  public required string Diagnosis { get; set; }
+  [Required]
+  public required List<string> Allergies { get; set; }
+  [Required]
+  public required List<string> Medications { get; set; }
+  [Required]
+  public required string Notes { get; set; }
 }
 

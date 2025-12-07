@@ -7,12 +7,12 @@ import type { User } from "@/types/domain";
 
 export function mapApiUserProfile(api: ApiGetMyProfileResponse): User {
 	return {
-		id: api.id ?? "",
-		email: api.email ?? "",
-		firstName: api.firstName ?? "",
-		lastName: api.lastName ?? "",
-		fullName: api.fullName ?? "",
-		roles: api.roles ?? [],
-		isActive: api.isActive ?? false,
+		id: api.id,
+		email: api.email,
+		firstName: api.firstName,
+		lastName: api.lastName,
+		fullName: api.fullName,
+		roles: api.roles as Array<string>,
+		isActive: api.isActive,
 	};
 }

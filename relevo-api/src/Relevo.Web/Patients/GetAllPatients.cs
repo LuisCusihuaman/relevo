@@ -2,6 +2,7 @@ using FastEndpoints;
 using MediatR;
 using Relevo.UseCases.Patients.GetAllPatients;
 using Relevo.Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Patients;
 
@@ -56,9 +57,12 @@ public class GetAllPatientsResponse
 
 public class PatientSummaryCard
 {
-    public string Id { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string HandoverStatus { get; set; } = "NotStarted";
+    [Required]
+    public required string Id { get; set; }
+    [Required]
+    public required string Name { get; set; }
+    [Required]
+    public required string HandoverStatus { get; set; }
     public string? HandoverId { get; set; }
 }
 

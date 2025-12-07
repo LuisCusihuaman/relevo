@@ -2,18 +2,26 @@ using FastEndpoints;
 using MediatR;
 using Relevo.Core.Interfaces;
 using Relevo.UseCases.Me.Profile;
+using System.ComponentModel.DataAnnotations;
 
 namespace Relevo.Web.Me;
 
 public record GetMyProfileResponse
 {
-    public string Id { get; init; } = string.Empty;
-    public string Email { get; init; } = string.Empty;
-    public string FirstName { get; init; } = string.Empty;
-    public string LastName { get; init; } = string.Empty;
-    public string FullName { get; init; } = string.Empty;
-    public IReadOnlyList<string> Roles { get; init; } = [];
-    public bool IsActive { get; init; } = true;
+    [Required]
+    public required string Id { get; init; }
+    [Required]
+    public required string Email { get; init; }
+    [Required]
+    public required string FirstName { get; init; }
+    [Required]
+    public required string LastName { get; init; }
+    [Required]
+    public required string FullName { get; init; }
+    [Required]
+    public required IReadOnlyList<string> Roles { get; init; }
+    [Required]
+    public required bool IsActive { get; init; }
 }
 
 public class GetMyProfileEndpoint(IMediator _mediator, ICurrentUser _currentUser)

@@ -194,7 +194,7 @@ const unicornConfig = {
 
 const eslintConfig = typescriptEslint.config(
   {
-    ignores: ["src/components/ui/**/*"]
+    ignores: ["src/components/ui/**/*", "src/api/generated/**/*"]
   },
   baseESLintConfig,
   typescriptConfig,

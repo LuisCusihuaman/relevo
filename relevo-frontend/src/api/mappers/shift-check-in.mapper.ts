@@ -7,16 +7,16 @@ import type { Shift, Unit } from "@/types/domain";
 
 export function mapApiUnit(api: ApiUnitRecord): Unit {
 	return {
-		id: api.id ?? "",
-		name: api.name ?? "",
+		id: api.id,
+		name: api.name,
 	};
 }
 
 export function mapApiShift(api: ApiShiftRecord): Shift {
 	return {
-		id: api.id ?? "",
-		name: api.name ?? "",
-		startTime: api.startTime ?? undefined,
-		endTime: api.endTime ?? undefined,
+		id: api.id,
+		name: api.name,
+		startTime: api.startTime,
+		endTime: api.endTime,
 	};
 }

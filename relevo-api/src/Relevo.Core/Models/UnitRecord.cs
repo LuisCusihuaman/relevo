@@ -1,4 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Relevo.Core.Models;
 
-public record UnitRecord(string Id, string Name);
+public record UnitRecord(
+    [property: Required] string Id,
+    [property: Required] string Name
+);
 

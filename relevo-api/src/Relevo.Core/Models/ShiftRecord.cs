@@ -1,4 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Relevo.Core.Models;
 
-public record ShiftRecord(string Id, string Name, string StartTime, string EndTime);
+public record ShiftRecord(
+    [property: Required] string Id,
+    [property: Required] string Name,
+    [property: Required] string StartTime,
+    [property: Required] string EndTime
+);
 
