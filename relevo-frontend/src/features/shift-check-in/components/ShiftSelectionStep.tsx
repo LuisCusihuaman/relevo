@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCircle, Calendar, Clock } from "lucide-react";
 import type { ShiftConfig } from "@/types/domain";
 import type { ShiftCheckInStep } from "../types";
@@ -7,29 +8,27 @@ type ShiftSelectionStepProps = {
 	currentStep: ShiftCheckInStep;
 	selectedShift: string;
 	shifts: Array<ShiftConfig>;
-	isEditing: boolean;
 	onShiftSelect: (shiftId: string) => void;
-	translation: (key: string, options?: Record<string, unknown>) => string;
 };
 
 export function ShiftSelectionStep({
 	currentStep,
 	selectedShift,
 	shifts,
-	isEditing,
 	onShiftSelect,
-	translation: t,
 }: ShiftSelectionStepProps): ReactElement {
+	const { t } = useTranslation(["dailySetup", "handover"]);
+
 	if (currentStep !== 2) return <></>;
 
 	return (
 		<div className="space-y-6">
 			<div className="text-center space-y-2">
 				<h3 className="text-xl font-semibold text-foreground">
-					{isEditing ? t("updateYourShift") : t("selectYourShift")}
+					{t("selectYourShift")}
 				</h3>
 				<p className="text-muted-foreground">
-					{isEditing ? t("changeShiftAssignment") : t("whenProvidingCare")}
+					{t("whenProvidingCare")}
 				</p>
 			</div>
 

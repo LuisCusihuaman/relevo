@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCircle, MapPin } from "lucide-react";
 import type { UnitConfig } from "@/types/domain";
 import type { ShiftCheckInStep } from "../types";
@@ -8,9 +9,7 @@ type UnitSelectionStepProps = {
 	doctorName: string;
 	selectedUnit: string;
 	units: Array<UnitConfig>;
-	isEditing: boolean;
 	onUnitSelect: (unitId: string) => void;
-	translation: (key: string, options?: Record<string, unknown>) => string;
 };
 
 function getUnitIcon(unitId: string): typeof MapPin {
@@ -35,10 +34,10 @@ export function UnitSelectionStep({
 	doctorName,
 	selectedUnit,
 	units,
-	isEditing,
 	onUnitSelect,
-	translation: t,
 }: UnitSelectionStepProps): ReactElement {
+	const { t } = useTranslation(["dailySetup", "handover"]);
+
 	if (currentStep !== 1) return <></>;
 
 	return (
@@ -48,7 +47,7 @@ export function UnitSelectionStep({
 					{t("greeting", { doctorName })}
 				</h2>
 				<p className="text-muted-foreground">
-					{isEditing ? t("updateUnitAssignment") : t("configureShiftDetails")}
+					{t("configureShiftDetails")}
 				</p>
 			</div>
 
@@ -58,7 +57,7 @@ export function UnitSelectionStep({
 						<MapPin className="w-5 h-5 text-primary" />
 					</div>
 					<h3 className="font-medium text-foreground">
-						{isEditing ? t("changeYourUnit") : t("selectYourUnit")}
+						{t("selectYourUnit")}
 					</h3>
 				</div>
 

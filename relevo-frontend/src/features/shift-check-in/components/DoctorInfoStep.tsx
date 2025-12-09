@@ -1,18 +1,17 @@
+import { useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
 import type { ReactElement } from "react";
 
 type DoctorInfoStepProps = {
 	doctorName: string;
-	isEditing: boolean;
-	translation: (key: string, options?: Record<string, unknown>) => string;
 };
 
 export function DoctorInfoStep({
 	doctorName,
-	isEditing,
-	translation: t,
 }: DoctorInfoStepProps): ReactElement {
+	const { t } = useTranslation(["dailySetup", "handover"]);
+
 	return (
 		<div className="space-y-6">
 			<div className="text-center space-y-4">
@@ -24,18 +23,16 @@ export function DoctorInfoStep({
 
 				<div className="space-y-2">
 					<h1 className="text-2xl font-semibold text-foreground">
-						{isEditing ? t("updateYourSetup") : t("welcome")}
+						{t("welcome")}
 					</h1>
 					<p className="text-muted-foreground">
-						{isEditing ? t("modifyAssignments") : t("platformDescription")}
+						{t("platformDescription")}
 					</p>
-					{!isEditing && (
-						<div className="flex items-center justify-center gap-4 text-sm text-muted-foreground pt-1">
-							<span>{t("ipassProtocol")}</span>
-							<span>•</span>
-							<span>{t("secureDocumentation")}</span>
-						</div>
-					)}
+					<div className="flex items-center justify-center gap-4 text-sm text-muted-foreground pt-1">
+						<span>{t("ipassProtocol")}</span>
+						<span>•</span>
+						<span>{t("secureDocumentation")}</span>
+					</div>
 				</div>
 			</div>
 
@@ -52,7 +49,7 @@ export function DoctorInfoStep({
 						<span className="truncate">{doctorName || "…"}</span>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						{isEditing ? t("updateNameHelp") : t("nameHelp")}
+						{t("nameHelp")}
 					</p>
 				</div>
 			</div>

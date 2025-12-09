@@ -1,7 +1,7 @@
 import { memo, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import type { ShiftConfig, UnitConfig } from "@/types/domain";
 
 import { DoctorInfoStep } from "./DoctorInfoStep";
@@ -24,13 +24,11 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 
 	const {
 		currentStep,
-		isMobile,
 		doctorName,
 		unit,
 		shift,
 		selectedIndexes,
 		showValidationError,
-		isEditing,
 		patients,
 		isFetching,
 		setUnit,
@@ -46,21 +44,13 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 	const getStepTitle = (step: number): string => {
 		switch (step) {
 			case 0:
-				return isEditing
-					? (t("stepTitle.updateInfo")) || "Update Info"
-					: (t("stepTitle.yourInfo")) || "Your Info";
+				return (t("stepTitle.yourInfo")) || "Your Info";
 			case 1:
-				return isEditing
-					? (t("stepTitle.updateUnit")) || "Update Unit"
-					: (t("stepTitle.unitSelection")) || "Unit Selection";
+				return (t("stepTitle.unitSelection")) || "Unit Selection";
 			case 2:
-				return isEditing
-					? (t("stepTitle.updateShift")) || "Update Shift"
-					: (t("stepTitle.shiftSelection")) || "Shift Selection";
+				return (t("stepTitle.shiftSelection")) || "Shift Selection";
 			case 3:
-				return isEditing
-					? (t("stepTitle.updatePatients")) || "Update Patients"
-					: (t("stepTitle.patientSelection")) || "Patient Selection";
+				return (t("stepTitle.patientSelection")) || "Patient Selection";
 			default:
 				return (t("stepTitle.setup")) || "Setup";
 		}
@@ -74,8 +64,6 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 				return (
 					<DoctorInfoStep
 						doctorName={doctorName}
-						isEditing={isEditing}
-						translation={t}
 					/>
 				);
 			case 1:
@@ -83,9 +71,7 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 					<UnitSelectionStep
 						currentStep={currentStep}
 						doctorName={doctorName}
-						isEditing={isEditing}
 						selectedUnit={unit}
-						translation={t}
 						units={units}
 						onUnitSelect={setUnit}
 					/>
@@ -94,10 +80,8 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 				return (
 					<ShiftSelectionStep
 						currentStep={currentStep}
-						isEditing={isEditing}
 						selectedShift={shift}
 						shifts={shifts}
-						translation={t}
 						onShiftSelect={setShift}
 					/>
 				);
@@ -105,7 +89,6 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 				return (
 					<PatientSelectionStep
 						currentStep={currentStep}
-						isEditing={isEditing}
 						isFetching={isFetching}
 						patients={patients}
 						selectedIndexes={selectedIndexes}
@@ -121,91 +104,43 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 		}
 	};
 
-	if (isMobile) {
-		return (
-			<div
-				className="bg-background flex flex-col"
-				style={{
-					height: "100dvh",
-					maxHeight: "100dvh",
-				}}
-			>
-				<ShiftCheckInHeader
-					currentStep={currentStep}
-					doctorName={doctorName}
-					getStepTitle={getStepTitle}
-					isEditing={isEditing}
-					isMobile={isMobile}
-					totalSteps={TOTAL_STEPS}
-					translation={t}
-					onSignOut={handleSignOut}
-				/>
-
-				<div className="flex-1 flex flex-col min-h-0">
-					<div className="flex-1 overflow-y-auto mobile-scroll-fix">
-						<div className="p-4 pt-28 pb-32">{renderStepContent()}</div>
-					</div>
-				</div>
-
-				<ShiftCheckInNavigation
-					canProceed={canProceed}
-					currentStep={currentStep}
-					isEditing={isEditing}
-					isMobile={isMobile}
-					totalSteps={TOTAL_STEPS}
-					translation={t}
-					onBack={handleBackStep}
-					onNext={() => {
-						handleNextStep(patients);
-					}}
-				/>
-
-				{currentStep === 3 && selectedIndexes.length === 0 && (
-					<div
-						className="fixed bottom-0 left-0 right-0 z-20 bg-red-50 border-t border-red-200 px-4 py-2"
-						style={{
-							paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
-							marginBottom: "96px",
-						}}
-					>
-						<p className="text-xs text-red-700 text-center">{t("mobileValidation")}</p>
-					</div>
-				)}
-			</div>
-		);
-	}
-
 	return (
-		<div className="min-h-screen bg-background flex items-center justify-center p-6">
-			<Card className="w-full max-w-4xl bg-white shadow-sm border border-border">
+		<div className="min-h-[100dvh] bg-background flex flex-col md:items-center md:justify-center md:p-6">
+			<ShiftCheckInNavigation
+				canProceed={canProceed}
+				currentStep={currentStep}
+				totalSteps={TOTAL_STEPS}
+				onBack={handleBackStep}
+				onNext={() => {
+					handleNextStep(patients);
+				}}
+			/>
+
+			<Card className="w-full h-[100dvh] md:h-auto md:max-w-4xl bg-background md:bg-white shadow-none md:shadow-sm border-0 md:border md:border-border flex flex-col">
 				<ShiftCheckInHeader
 					currentStep={currentStep}
 					doctorName={doctorName}
 					getStepTitle={getStepTitle}
-					isEditing={isEditing}
-					isMobile={isMobile}
 					totalSteps={TOTAL_STEPS}
-					translation={t}
 					onSignOut={handleSignOut}
 				/>
 
-				<CardContent className="space-y-6 pt-28">
+				<div className="flex-1 overflow-y-auto p-4 pt-28 pb-32 md:p-6 md:pt-28 mobile-scroll-fix space-y-6">
 					{renderStepContent()}
-
-					<ShiftCheckInNavigation
-						canProceed={canProceed}
-						currentStep={currentStep}
-						isEditing={isEditing}
-						isMobile={isMobile}
-						totalSteps={TOTAL_STEPS}
-						translation={t}
-						onBack={handleBackStep}
-						onNext={() => {
-							handleNextStep(patients);
-						}}
-					/>
-				</CardContent>
+				</div>
 			</Card>
+
+			{currentStep === 3 && selectedIndexes.length === 0 && (
+				<div
+					className="fixed bottom-0 left-0 right-0 z-20 bg-red-50 border-t border-red-200 px-4 py-2"
+					style={{
+						paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+						marginBottom: "96px",
+					}}
+				>
+					<p className="text-xs text-red-700 text-center">{t("mobileValidation")}</p>
+				</div>
+			)}
 		</div>
 	);
 }
