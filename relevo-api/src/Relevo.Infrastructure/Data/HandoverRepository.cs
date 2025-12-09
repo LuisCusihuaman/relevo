@@ -158,16 +158,15 @@ public class HandoverRepository(
   {
     using var conn = _connectionFactory.CreateConnection();
 
-    // V3 Schema: Uses SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID
+    // V3 Schema: Uses SENDER_USER_ID for AssignedPhysician, RECEIVER_USER_ID for ReceivingPhysician
     const string sql = @"
       SELECT
           h.ID,
           h.PATIENT_ID,
           h.CURRENT_STATE as STATUS, -- Virtual column
-          h.CREATED_BY_USER_ID as CREATED_BY, -- V3: CREATED_BY_USER_ID
+          h.SENDER_USER_ID, -- V3: The responsible sender (primary of FROM shift)
           COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as RECEIVER_USER_ID, -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
-          NULL as CreatedByName, -- Join USERS if needed, or fetch separately
-          NULL as ReceiverName, -- Join USERS if needed
+          h.SHIFT_WINDOW_ID,
           p.NAME,
           TO_CHAR(p.DATE_OF_BIRTH, 'YYYY-MM-DD') as Dob,
           p.MRN,
@@ -189,14 +188,42 @@ public class HandoverRepository(
 
     if (data == null) return null;
 
-    string createdBy = (string)data.CREATED_BY;
-    string receiverId = (string?)data.RECEIVER_USER_ID ?? "";
+    string? senderUserId = (string?)data.SENDER_USER_ID;
+    string? receiverUserId = (string?)data.RECEIVER_USER_ID;
+    string patientId = (string)data.PATIENT_ID;
+    string? shiftWindowId = (string?)data.SHIFT_WINDOW_ID;
     
-    // Fetch Physician Names (Assuming stored in USERS table or just mocking for now if table not populated/joined)
-    // Better to join USERS in the main query if possible, but let's do separate for clarity or if USERS is in another service (it is in DB here)
-    
-    var creator = await GetPhysicianInfo(conn, createdBy, (string)data.STATUS ?? "Draft", "creator");
-    var receiver = !string.IsNullOrEmpty(receiverId) ? await GetPhysicianInfo(conn, receiverId, (string)data.STATUS ?? "Draft", "assignee") : null;
+    // V3: AssignedPhysician = Sender (responsible from FROM shift)
+    PhysicianRecord? assignedPhysician = null;
+    if (!string.IsNullOrEmpty(senderUserId))
+    {
+        assignedPhysician = await GetPhysicianInfo(conn, senderUserId, (string)data.STATUS ?? "Draft", "creator");
+    }
+
+    // V3: ReceivingPhysician = Receiver (from RECEIVER_USER_ID or lookup from TO shift coverage)
+    PhysicianRecord? receivingPhysician = null;
+    if (!string.IsNullOrEmpty(receiverUserId))
+    {
+        receivingPhysician = await GetPhysicianInfo(conn, receiverUserId, (string)data.STATUS ?? "Draft", "assignee");
+    }
+    else if (!string.IsNullOrEmpty(shiftWindowId))
+    {
+        // Try to find someone with coverage in TO shift (potential receiver)
+        const string toShiftCoverageSql = @"
+            SELECT sc.RESPONSIBLE_USER_ID
+            FROM SHIFT_WINDOWS sw
+            JOIN SHIFT_COVERAGE sc ON sw.TO_SHIFT_INSTANCE_ID = sc.SHIFT_INSTANCE_ID
+                AND sc.PATIENT_ID = :patientId
+            WHERE sw.ID = :shiftWindowId
+            AND ROWNUM <= 1
+            ORDER BY sc.IS_PRIMARY DESC, sc.ASSIGNED_AT ASC";
+        
+        var potentialReceiverId = await conn.ExecuteScalarAsync<string>(toShiftCoverageSql, new { patientId, shiftWindowId });
+        if (!string.IsNullOrEmpty(potentialReceiverId))
+        {
+            receivingPhysician = await GetPhysicianInfo(conn, potentialReceiverId, (string)data.STATUS ?? "Draft", "assignee");
+        }
+    }
 
     return new PatientHandoverDataRecord(
         (string)data.PATIENT_ID,
@@ -208,8 +235,8 @@ public class HandoverRepository(
         (string?)data.DIAGNOSIS ?? "",
         (string?)data.ROOM_NUMBER ?? "",
         (string)data.UNITNAME,
-        creator,
-        receiver,
+        assignedPhysician,
+        receivingPhysician,
         (string?)data.ILLNESS_SEVERITY,
         (string?)data.SUMMARY_TEXT,
         (string?)data.LAST_EDITED_BY,
@@ -993,7 +1020,13 @@ public class HandoverRepository(
         LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID -- V3: From shift template
         LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID -- V3: To shift template
         LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
-        WHERE (h.RECEIVER_USER_ID = :userId OR h.COMPLETED_BY_USER_ID = :userId OR h.SENDER_USER_ID = :userId)
+        LEFT JOIN SHIFT_COVERAGE sc_to ON sw.TO_SHIFT_INSTANCE_ID = sc_to.SHIFT_INSTANCE_ID 
+             AND h.PATIENT_ID = sc_to.PATIENT_ID
+             AND sc_to.RESPONSIBLE_USER_ID = :userId
+        WHERE (h.RECEIVER_USER_ID = :userId 
+            OR h.COMPLETED_BY_USER_ID = :userId 
+            OR h.SENDER_USER_ID = :userId
+            OR sc_to.ID IS NOT NULL)
           AND h.CURRENT_STATE IN ('Draft', 'Ready', 'InProgress')";
 
     var handovers = await conn.QueryAsync<HandoverRecord>(sql, new { userId });
@@ -1140,13 +1173,18 @@ public class HandoverRepository(
     const string countSql = @"
         SELECT COUNT(1)
         FROM HANDOVERS h
+        LEFT JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+        LEFT JOIN SHIFT_COVERAGE sc_to ON sw.TO_SHIFT_INSTANCE_ID = sc_to.SHIFT_INSTANCE_ID 
+             AND h.PATIENT_ID = sc_to.PATIENT_ID
+             AND sc_to.RESPONSIBLE_USER_ID = :userId
         WHERE h.SENDER_USER_ID = :userId 
            OR h.RECEIVER_USER_ID = :userId 
            OR h.CREATED_BY_USER_ID = :userId 
            OR h.COMPLETED_BY_USER_ID = :userId
            OR h.READY_BY_USER_ID = :userId
            OR h.STARTED_BY_USER_ID = :userId
-           OR h.CANCELLED_BY_USER_ID = :userId";
+           OR h.CANCELLED_BY_USER_ID = :userId
+           OR sc_to.ID IS NOT NULL";
 
     var total = await conn.ExecuteScalarAsync<int>(countSql, new { userId });
 
@@ -1206,6 +1244,9 @@ public class HandoverRepository(
             LEFT JOIN USERS td ON COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) = td.ID -- V3: COMPLETED_BY_USER_ID or RECEIVER_USER_ID
             LEFT JOIN USERS rp ON h.SENDER_USER_ID = rp.ID -- V3: SENDER_USER_ID
             LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+            LEFT JOIN SHIFT_COVERAGE sc_to ON sw.TO_SHIFT_INSTANCE_ID = sc_to.SHIFT_INSTANCE_ID 
+                 AND h.PATIENT_ID = sc_to.PATIENT_ID
+                 AND sc_to.RESPONSIBLE_USER_ID = :userId
             WHERE h.SENDER_USER_ID = :userId 
                OR h.RECEIVER_USER_ID = :userId 
                OR h.CREATED_BY_USER_ID = :userId 
@@ -1213,6 +1254,7 @@ public class HandoverRepository(
                OR h.READY_BY_USER_ID = :userId
                OR h.STARTED_BY_USER_ID = :userId
                OR h.CANCELLED_BY_USER_ID = :userId
+               OR sc_to.ID IS NOT NULL
         )
         WHERE RN > :offset AND RN <= :maxRow";
 
