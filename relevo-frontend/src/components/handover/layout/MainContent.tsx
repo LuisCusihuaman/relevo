@@ -4,9 +4,11 @@ import type {
 } from "@/types/domain";
 
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
 	useSituationAwareness,
 	useSynthesis,
+	useCompleteHandover,
 } from "@/api/endpoints/handovers";
 import {
 	ActionList,
@@ -38,6 +40,16 @@ export function MainContent(): React.JSX.Element {
     const setFullscreenEditing = useHandoverUIStore(state => state.setFullscreenEditing);
 
 	const ipassGuidelines = getIpassGuidelines(t);
+
+	const { mutate: completeHandover } = useCompleteHandover();
+
+	const handleConfirmHandover = () => {
+		if (!handoverData?.id) return;
+		completeHandover(handoverData.id, {
+			onSuccess: () => toast.success("Handover completed successfully"),
+			onError: (err) => toast.error(`Failed to complete handover: ${err.message}`),
+		});
+	};
 
 	const {
 		isLoading: isSituationAwarenessLoading,
@@ -218,6 +230,7 @@ export function MainContent(): React.JSX.Element {
 				handoverComplete={handoverData.stateName === "Completed"}
 				handoverState={handoverData.stateName}
 				receivingPhysician={receivingPhysician}
+				onConfirm={handleConfirmHandover}
 			/>
 		</HandoverSection>
 	);

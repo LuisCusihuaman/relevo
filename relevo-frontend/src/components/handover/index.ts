@@ -8,6 +8,7 @@ export { ActionList } from "./components/ActionList";
 export { MobileMenus } from "./components/MobileMenus";
 export { FullscreenEditor } from "./components/FullscreenEditor";
 export { CollaborationPanel } from "./components/CollaborationPanel";
+export { HandoverStatusControls } from "./components/HandoverStatusControls";
 
 // Hooks
 export { useHandoverSession } from "./hooks/useHandoverSession";

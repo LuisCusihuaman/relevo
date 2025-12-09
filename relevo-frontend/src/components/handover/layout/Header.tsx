@@ -32,8 +32,7 @@ import { useTranslation } from "react-i18next";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
 import { useHandoverSession } from "@/components/handover/hooks/useHandoverSession";
-import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
-import { useParams } from "@tanstack/react-router";
+import { useCurrentHandover, HandoverStatusControls } from "@/components/handover";
 
 interface HeaderProps {
   onBack?: () => void;
@@ -60,8 +59,20 @@ export function Header({
   const { getTimeUntilHandover, getSessionDuration } = useHandoverSession();
   
   // Data
-  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
-  const { patientData } = usePatientHandoverData(handoverId);
+  const { 
+    patientData, 
+    handoverData, 
+    currentUser, 
+    assignedPhysician, 
+    receivingPhysician 
+  } = useCurrentHandover();
+
+  // Determine roles for controls
+  const isSender = !!assignedPhysician.id && currentUser.id === assignedPhysician.id;
+  // Receiver logic: Use ID if available, otherwise name match as fallback (legacy)
+  const isReceiver = receivingPhysician.id 
+    ? currentUser.id === receivingPhysician.id
+    : currentUser.name === receivingPhysician.name;
 
   // Calculate age from DOB
   const calculateAgeFromDob = (dobString: string): number => {
@@ -291,6 +302,16 @@ export function Header({
 
           {/* Right Section - Controls */}
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+            {/* Status Controls */}
+            {handoverData && (
+              <HandoverStatusControls
+                handover={handoverData}
+                currentUserId={currentUser.id}
+                isSender={isSender}
+                isReceiver={isReceiver}
+              />
+            )}
+
             {/* Sync status indicator */}
             <div className="hidden md:flex items-center space-x-2 text-xs text-gray-600">
               {getSyncStatusDisplay().icon}

@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 
 interface SynthesisByReceiverProps {
   onComplete?: (completed: boolean) => void;
+  onConfirm?: () => void;
   currentUser: {
     name: string;
     initials: string;
@@ -118,7 +119,7 @@ export function SynthesisByReceiver({
     if (!canConfirm || !isComplete) return;
 
     // Mark handover as complete
-    onComplete?.(true);
+    onConfirm?.();
     console.log("Handover officially confirmed by", receivingPhysician.name);
   };
 

@@ -14,8 +14,8 @@ interface CurrentHandoverData {
 	handoverData: Handover | null;
 	patientData: PatientHandoverData | null;
 	currentUser: UserInfo;
-	assignedPhysician: { name: string; initials: string; role: string };
-	receivingPhysician: { name: string; initials: string; role: string };
+	assignedPhysician: { id?: string; name: string; initials: string; role: string };
+	receivingPhysician: { id?: string; name: string; initials: string; role: string };
 	isLoading: boolean;
 	error: Error | null;
 }
@@ -53,10 +53,30 @@ export function useCurrentHandover(): CurrentHandoverData {
 		return formatPhysician(patientData?.assignedPhysician);
 	}, [handoverData, patientData?.assignedPhysician]);
 
-	const receivingPhysician = useMemo(
-		() => formatPhysician(patientData?.receivingPhysician),
-		[patientData?.receivingPhysician],
-	);
+	const receivingPhysician = useMemo(() => {
+		// Priority 1: Use receiver from handover data (SSOT for the transaction)
+		if (handoverData?.receiverUserId) {
+			// If we had a way to get user details by ID sync, we'd use it.
+			// For now, we might need to rely on the patient data fallback if name is missing,
+			// or assume the UI will fetch user details elsewhere.
+			// But wait, the handover object usually doesn't carry receiver name if it's just an ID.
+			// However, looking at HandoverDetail type, it has `receiverUserId` but no `receiverName`.
+			// We can try to match with patientData.receivingPhysician if IDs match, or use it as fallback.
+		}
+		
+		// Fallback: Use patient data (which might be the planned receiver)
+		const patientReceiver = formatPhysician(patientData?.receivingPhysician);
+		
+		// If we have handover data with receiver ID, try to enrich the patient receiver object
+		if (handoverData?.receiverUserId && patientReceiver) {
+			return {
+				...patientReceiver,
+				id: handoverData.receiverUserId // Ensure ID is from handover if available
+			};
+		}
+
+		return patientReceiver;
+	}, [handoverData?.receiverUserId, patientData?.receivingPhysician]);
 
 	// 4. Return stable object
 	return useMemo(

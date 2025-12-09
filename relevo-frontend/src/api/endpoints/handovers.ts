@@ -134,12 +134,12 @@ export async function createHandover(request: {
 }
 
 // State Transitions
-export const readyHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/ready`).then(() => undefined);
-export const startHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/start`).then(() => undefined);
-export const acceptHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/accept`).then(() => undefined);
+export const readyHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/ready`, {}).then(() => undefined);
+export const startHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/start`, {}).then(() => undefined);
+export const acceptHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/accept`, {}).then(() => undefined);
 export const completeHandover = (id: string): Promise<void> =>
-	api.post(`/handovers/${id}/complete`).then(() => undefined);
-export const cancelHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/cancel`).then(() => undefined);
+	api.post(`/handovers/${id}/complete`, {}).then(() => undefined);
+export const cancelHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/cancel`, {}).then(() => undefined);
 export const rejectHandover = (id: string, reason: string): Promise<void> =>
 	api.post(`/handovers/${id}/reject`, { reason }).then(() => undefined);
 

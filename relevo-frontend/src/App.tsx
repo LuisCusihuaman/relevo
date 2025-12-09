@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import type { JSX } from "react";
 import type { TanstackRouter } from "./main";
 import { TanStackRouterDevelopmentTools } from "./components/utils/development-tools/TanStackRouterDevelopmentTools";
@@ -21,6 +22,7 @@ const App = ({ router }: AppProps): JSX.Element => {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />
+			<Toaster position="top-center" richColors />
 			<TanStackRouterDevelopmentTools
 				initialIsOpen={false}
 				position="bottom-left"
