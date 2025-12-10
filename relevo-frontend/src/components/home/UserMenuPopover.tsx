@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/popover";
 import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+import { useSignOut } from "@/hooks/useSignOut";
 
 type UserMenuPopoverProps = {
   onOpenMobileMenu?: () => void;
@@ -17,7 +18,7 @@ type UserMenuPopoverProps = {
 export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) => {
   const { t } = useTranslation("home");
   const { user: clerkUser } = useUser();
-  const { signOut } = useClerk();
+  const { signOut } = useSignOut();
 
   const displayName = clerkUser?.fullName || "";
   const primaryEmail = clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || "";

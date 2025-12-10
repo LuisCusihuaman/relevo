@@ -10,7 +10,8 @@ import {
 	Moon,
 	LogOut,
 } from "lucide-react";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+import { useSignOut } from "@/hooks/useSignOut";
 
 import type { PatientHandoverData } from "@/types/domain";
 import { useTranslation } from "react-i18next";
@@ -27,7 +28,7 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 	setIsMobileMenuOpen,
 }) => {
     const { user } = useUser();
-    const { signOut } = useClerk();
+    const { signOut } = useSignOut();
     const { t } = useTranslation("home");
 
     const unitName = "UCIP"; // For now, hardcoded as per previous usage
