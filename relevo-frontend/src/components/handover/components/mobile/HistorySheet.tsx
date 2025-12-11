@@ -20,7 +20,7 @@ export function HistorySheet(): JSX.Element | null {
   const fullscreenEditing = useHandoverUIStore(state => state.fullscreenEditing);
 
   // Data
-  const { handoverId, patientData } = useCurrentHandover();
+  const { handoverId, handoverData, patientData } = useCurrentHandover();
 
   // Don't render if not open or if in fullscreen
   if (!showHistory || fullscreenEditing) return null;
@@ -30,6 +30,11 @@ export function HistorySheet(): JSX.Element | null {
     mrn: patientData.mrn,
     admissionDate: patientData.admissionDate || ""
   } : { name: "", mrn: "", admissionDate: "" };
+
+  const patientId = handoverData?.patientId || "";
+  
+  // Debug log - remove after testing
+  console.log("[HistorySheet] patientId:", patientId, "handoverData:", handoverData);
 
   return (
     <Sheet open={showHistory} onOpenChange={setShowHistory}>
@@ -48,7 +53,8 @@ export function HistorySheet(): JSX.Element | null {
         <div className="flex-1 overflow-auto">
           <HandoverHistory
             hideHeader
-            handoverId={handoverId || ""}
+            patientId={patientId}
+            currentHandoverId={handoverId}
             patientData={patientInfo}
             onClose={() => { setShowHistory(false); }}
           />

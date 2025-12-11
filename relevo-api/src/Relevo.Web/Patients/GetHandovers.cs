@@ -15,8 +15,12 @@ public class GetPatientHandovers(IMediator _mediator)
 
   public override async Task HandleAsync(GetPatientHandoversRequest req, CancellationToken ct)
   {
+    Console.WriteLine($"[GetPatientHandovers] Request for PatientId: {req.PatientId}, Page: {req.Page}, PageSize: {req.PageSize}");
+    
     var query = new GetPatientHandoversQuery(req.PatientId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
     var result = await _mediator.Send(query, ct);
+
+    Console.WriteLine($"[GetPatientHandovers] Result IsSuccess: {result.IsSuccess}, Count: {(result.IsSuccess ? result.Value.Items.Count : 0)}");
 
     if (result.IsSuccess)
     {
@@ -31,6 +35,9 @@ public class GetPatientHandovers(IMediator _mediator)
           TotalPages = (int)Math.Ceiling((double)result.Value.TotalCount / result.Value.PageSize)
         }
       };
+      
+      Console.WriteLine($"[GetPatientHandovers] Returning {Response.Items.Count} handovers for patient {req.PatientId}");
+      
       await SendAsync(Response, cancellation: ct);
     }
   }

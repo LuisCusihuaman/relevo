@@ -164,7 +164,8 @@ export default function HandoverPage({ onBack }: HandoverProps = {}): JSX.Elemen
             <SidebarContent>
               <HandoverHistory
                 hideHeader
-                handoverId={handoverId}
+                patientId={handoverData?.patientId || ""}
+                currentHandoverId={handoverId}
                 patientData={mappedPatientData}
                 onClose={() => {
                   setShowHistory(false);

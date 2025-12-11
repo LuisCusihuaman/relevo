@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
-import { useHandoverActivityLog } from "@/api";
+import { usePatientHandoverTimeline } from "@/api/endpoints/patients";
 import { getSeverityBadgeColor, getStatusBadgeColor } from "@/lib/formatters";
 
 interface PatientData {
@@ -26,58 +26,53 @@ interface PatientData {
 interface HandoverHistoryProps {
   onClose: () => void;
   patientData: PatientData;
-  handoverId: string;
+  patientId: string;
+  currentHandoverId?: string;
   hideHeader?: boolean;
 }
 
 export function HandoverHistory({
   onClose,
   patientData,
-  handoverId,
+  patientId,
+  currentHandoverId,
   hideHeader = false,
 }: HandoverHistoryProps): JSX.Element {
   const { t } = useTranslation("handoverHistory");
   const [selectedHandover, setSelectedHandover] = useState<string | null>(null);
 
-  // Fetch handover activity log
-  const { data: activityLog, isLoading, error } = useHandoverActivityLog(handoverId);
+  // Fetch handover timeline for the patient
+  const { data: handoverData, isLoading, error } = usePatientHandoverTimeline(patientId);
+  
+  // Debug log - remove after testing
+  console.log("[HandoverHistory] patientId:", patientId, "data:", handoverData, "isLoading:", isLoading, "error:", error);
 
-  // Transform activity log data into handover history format
-  const handoverHistory = activityLog && activityLog.length > 0
-    ? activityLog.slice(0, 10).map((activity) => ({
-        id: activity.id,
-        date: new Date(activity.createdAt).toLocaleDateString(),
-        shift: "Current Shift", // Could be derived from activity metadata
-        time: new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: "completed", // All past activities are completed
-        outgoingTeam: "Previous Team", // Could be derived from activity
-        incomingTeam: "Current Team", // Could be derived from activity
-        primaryPhysician: activity.userName,
-        receivingPhysician: "Current Physician", // Could be derived from context
-        severity: "stable", // Could be derived from activity type
-        keyPoints: [
-          activity.activityDescription || activity.activityType,
-        ].filter(Boolean),
-      }))
-    : [
-        // Fallback data when no activity log is available
-        {
-          id: "current",
-          date: new Date().toLocaleDateString(),
-          shift: "shifts.dayToEvening",
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: "in-progress",
-          outgoingTeam: "teams.dayInternal",
-          incomingTeam: "teams.eveningInternal",
-          primaryPhysician: "Current Physician",
-          receivingPhysician: "Next Physician",
-          severity: "stable",
-          keyPoints: [
-            "keyPoints.currentHandover",
-            "keyPoints.patientStable",
-          ],
-        },
-      ];
+  // Helper to get display name (avoid showing user IDs)
+  const getDisplayName = (name: string | null | undefined, fallbackId?: string): string => {
+    if (name && name.trim()) return name;
+    // Don't show Clerk user IDs (start with "user_")
+    if (fallbackId?.startsWith("user_")) return t("unknownUser");
+    return fallbackId || t("unknownUser");
+  };
+
+  // Transform handover data into display format
+  const handoverHistory = handoverData?.items?.map((handover) => ({
+    id: handover.id,
+    date: handover.createdAt 
+      ? new Date(handover.createdAt).toLocaleDateString() 
+      : new Date().toLocaleDateString(),
+    shift: handover.shiftName || "shifts.dayToEvening",
+    time: handover.createdAt 
+      ? new Date(handover.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : "",
+    status: handover.id === currentHandoverId ? "in-progress" : handover.stateName.toLowerCase(),
+    outgoingTeam: getDisplayName(handover.createdByName, handover.createdBy),
+    incomingTeam: getDisplayName(handover.assignedToName, handover.assignedTo),
+    primaryPhysician: getDisplayName(handover.responsiblePhysicianName),
+    receivingPhysician: getDisplayName(handover.assignedToName, handover.assignedTo),
+    severity: handover.illnessSeverity || "stable",
+    completedAt: handover.completedAt,
+  })) ?? [];
 
   // Loading state
   if (isLoading) {
@@ -172,6 +167,12 @@ export function HandoverHistory({
 
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-4">
+            {handoverHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <History className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">{t("noHandovers")}</p>
+              </div>
+            ) : null}
             {handoverHistory.map((handover) => (
               <Card
                 key={handover.id}
@@ -231,73 +232,29 @@ export function HandoverHistory({
                       <div className="flex items-center space-x-2 text-xs">
                         <User className="w-3 h-3 text-gray-400" />
                         <span className="text-gray-600">
-                          {t("from")} {t(handover.primaryPhysician)}
+                          {t("from")} {handover.primaryPhysician}
                         </span>
                       </div>
                       <div className="flex items-center space-x-2 text-xs">
                         <ArrowRight className="w-3 h-3 text-gray-400" />
                         <span className="text-gray-600">
-                          {t("to")} {t(handover.receivingPhysician)}
+                          {t("to")} {handover.receivingPhysician}
                         </span>
                       </div>
                     </div>
 
-                    {/* Key Points Preview */}
-                    <div className="space-y-1">
-                      <span className="text-xs text-gray-600">
-                        {t("keyPointsLabel")}
-                      </span>
-                      <ul className="text-xs text-gray-700 space-y-1">
-                        {handover.keyPoints.slice(0, 2).map((point, index) => (
-                          <li key={index} className="flex items-start space-x-1">
-                            <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <span>{t(point)}</span>
-                          </li>
-                        ))}
-                        {handover.keyPoints.length > 2 && (
-                          <li className="text-gray-500">
-                            {t("moreKeyPoints", {
-                              count: handover.keyPoints.length - 2,
-                            })}
-                          </li>
-                        )}
-                      </ul>
-                    </div>
+                    {/* Completed info */}
+                    {handover.completedAt && (
+                      <div className="text-xs text-gray-500">
+                        {t("completedAt", { 
+                          date: new Date(handover.completedAt).toLocaleString() 
+                        })}
+                      </div>
+                    )}
 
                     {/* Expanded Details */}
                     {selectedHandover === handover.id && (
-                      <div className="pt-3 border-t border-gray-200 space-y-3">
-                        <div>
-                          <span className="text-xs text-gray-600 font-medium">
-                            {t("teamsLabel")}
-                          </span>
-                          <div className="text-xs text-gray-700 mt-1">
-                            <p>
-                              {t("out")} {t(handover.outgoingTeam)}
-                            </p>
-                            <p>
-                              {t("in")} {t(handover.incomingTeam)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <span className="text-xs text-gray-600 font-medium">
-                            {t("allKeyPointsLabel")}
-                          </span>
-                          <ul className="text-xs text-gray-700 space-y-1 mt-1">
-                            {handover.keyPoints.map((point, index) => (
-                              <li
-                                key={index}
-                                className="flex items-start space-x-1"
-                              >
-                                <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                                <span>{t(point)}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
+                      <div className="pt-3 border-t border-gray-200">
                         <div className="flex space-x-2">
                           <Button
                             className="text-xs"

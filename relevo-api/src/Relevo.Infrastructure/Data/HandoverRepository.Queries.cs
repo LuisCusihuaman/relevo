@@ -10,6 +10,8 @@ public partial class HandoverRepository
 {
     public async Task<(IReadOnlyList<HandoverRecord> Handovers, int TotalCount)> GetPatientHandoversAsync(string patientId, int page, int pageSize)
     {
+        Console.WriteLine($"[GetPatientHandoversAsync] Starting query for PatientId: {patientId}, Page: {page}, PageSize: {pageSize}");
+        
         using var conn = _connectionFactory.CreateConnection();
 
         var p = Math.Max(page, 1);
@@ -20,6 +22,8 @@ public partial class HandoverRepository
         var total = await conn.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM HANDOVERS WHERE PATIENT_ID = :PatientId",
             new { PatientId = patientId });
+
+        Console.WriteLine($"[GetPatientHandoversAsync] Total handovers found for PatientId {patientId}: {total}");
 
         if (total == 0)
             return (Array.Empty<HandoverRecord>(), 0);
@@ -39,11 +43,11 @@ public partial class HandoverRepository
                     s_from.NAME as ShiftName,
                     h.CREATED_BY_USER_ID as CreatedBy,
                     COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) as AssignedTo,
-                    NULL as CreatedByName,
-                    NULL as AssignedToName,
+                    u_created.FULL_NAME as CreatedByName,
+                    u_assigned.FULL_NAME as AssignedToName,
                     h.RECEIVER_USER_ID as ReceiverUserId,
                     h.SENDER_USER_ID as ResponsiblePhysicianId,
-                    NULL as ResponsiblePhysicianName,
+                    u_sender.FULL_NAME as ResponsiblePhysicianName,
                     TO_CHAR(h.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CreatedAt,
                     TO_CHAR(h.READY_AT, 'YYYY-MM-DD HH24:MI:SS') as ReadyAt,
                     TO_CHAR(h.STARTED_AT, 'YYYY-MM-DD HH24:MI:SS') as StartedAt,
@@ -69,6 +73,9 @@ public partial class HandoverRepository
                 LEFT JOIN SHIFTS s_from ON si_from.SHIFT_ID = s_from.ID
                 LEFT JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID
                 LEFT JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+                LEFT JOIN USERS u_created ON h.CREATED_BY_USER_ID = u_created.ID
+                LEFT JOIN USERS u_assigned ON COALESCE(h.COMPLETED_BY_USER_ID, h.RECEIVER_USER_ID) = u_assigned.ID
+                LEFT JOIN USERS u_sender ON h.SENDER_USER_ID = u_sender.ID
                 WHERE h.PATIENT_ID = :PatientId
             )
             WHERE RN BETWEEN :StartRow AND :EndRow";
