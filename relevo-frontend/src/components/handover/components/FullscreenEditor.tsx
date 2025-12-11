@@ -17,9 +17,7 @@ import { PatientSummary } from "./PatientSummary";
 import { SituationAwareness } from "./SituationAwareness";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
-import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
-import { useParams } from "@tanstack/react-router";
-import { useCurrentPhysician } from "@/hooks/useCurrentPhysician";
+import { useCurrentHandover } from "@/components/handover/hooks/useCurrentHandover";
 import { formatPhysician } from "@/lib/formatters";
 
 export function FullscreenEditor(): JSX.Element | null {
@@ -35,16 +33,12 @@ export function FullscreenEditor(): JSX.Element | null {
 
   // Hooks
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
-  const { handoverId } = useParams({ from: "/_authenticated/$patientSlug/$handoverId" }) as unknown as { handoverId: string };
-  const { patientData } = usePatientHandoverData(handoverId);
+  const { handoverId, patientData, currentUser } = useCurrentHandover();
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Derived values
   const componentType = fullscreenEditing?.component;
-
-  // Transform user for components
-  const currentUser = useCurrentPhysician();
 
   // Get active collaborators with stable reference
   const activeUsers = useRef(

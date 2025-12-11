@@ -16,7 +16,8 @@ import { Route as SetupShiftCheckInRouteImport } from './routes/_setup/shift-che
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as AuthenticatedPatientSlugHandoverIdRouteImport } from './routes/_authenticated/$patientSlug.$handoverId'
+import { Route as AuthenticatedPatientPatientIdRouteImport } from './routes/_authenticated/patient.$patientId'
+import { Route as AuthenticatedPatientPatientIdHistoryHandoverIdRouteImport } from './routes/_authenticated/patient.$patientId.history.$handoverId'
 
 const SetupRouteRoute = SetupRouteRouteImport.update({
   id: '/_setup',
@@ -51,11 +52,17 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedPatientSlugHandoverIdRoute =
-  AuthenticatedPatientSlugHandoverIdRouteImport.update({
-    id: '/$patientSlug/$handoverId',
-    path: '/$patientSlug/$handoverId',
+const AuthenticatedPatientPatientIdRoute =
+  AuthenticatedPatientPatientIdRouteImport.update({
+    id: '/patient/$patientId',
+    path: '/patient/$patientId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPatientPatientIdHistoryHandoverIdRoute =
+  AuthenticatedPatientPatientIdHistoryHandoverIdRouteImport.update({
+    id: '/history/$handoverId',
+    path: '/history/$handoverId',
+    getParentRoute: () => AuthenticatedPatientPatientIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -64,7 +71,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/shift-check-in': typeof SetupShiftCheckInRoute
-  '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
+  '/patient/$patientId': typeof AuthenticatedPatientPatientIdRouteWithChildren
+  '/patient/$patientId/history/$handoverId': typeof AuthenticatedPatientPatientIdHistoryHandoverIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -72,7 +80,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/shift-check-in': typeof SetupShiftCheckInRoute
-  '/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
+  '/patient/$patientId': typeof AuthenticatedPatientPatientIdRouteWithChildren
+  '/patient/$patientId/history/$handoverId': typeof AuthenticatedPatientPatientIdHistoryHandoverIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -83,7 +92,8 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_setup/shift-check-in': typeof SetupShiftCheckInRoute
-  '/_authenticated/$patientSlug/$handoverId': typeof AuthenticatedPatientSlugHandoverIdRoute
+  '/_authenticated/patient/$patientId': typeof AuthenticatedPatientPatientIdRouteWithChildren
+  '/_authenticated/patient/$patientId/history/$handoverId': typeof AuthenticatedPatientPatientIdHistoryHandoverIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -93,7 +103,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/patients'
     | '/shift-check-in'
-    | '/$patientSlug/$handoverId'
+    | '/patient/$patientId'
+    | '/patient/$patientId/history/$handoverId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -101,7 +112,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/patients'
     | '/shift-check-in'
-    | '/$patientSlug/$handoverId'
+    | '/patient/$patientId'
+    | '/patient/$patientId/history/$handoverId'
   id:
     | '__root__'
     | '/'
@@ -111,7 +123,8 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/patients'
     | '/_setup/shift-check-in'
-    | '/_authenticated/$patientSlug/$handoverId'
+    | '/_authenticated/patient/$patientId'
+    | '/_authenticated/patient/$patientId/history/$handoverId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -172,27 +185,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/$patientSlug/$handoverId': {
-      id: '/_authenticated/$patientSlug/$handoverId'
-      path: '/$patientSlug/$handoverId'
-      fullPath: '/$patientSlug/$handoverId'
-      preLoaderRoute: typeof AuthenticatedPatientSlugHandoverIdRouteImport
+    '/_authenticated/patient/$patientId': {
+      id: '/_authenticated/patient/$patientId'
+      path: '/patient/$patientId'
+      fullPath: '/patient/$patientId'
+      preLoaderRoute: typeof AuthenticatedPatientPatientIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/patient/$patientId/history/$handoverId': {
+      id: '/_authenticated/patient/$patientId/history/$handoverId'
+      path: '/history/$handoverId'
+      fullPath: '/patient/$patientId/history/$handoverId'
+      preLoaderRoute: typeof AuthenticatedPatientPatientIdHistoryHandoverIdRouteImport
+      parentRoute: typeof AuthenticatedPatientPatientIdRoute
     }
   }
 }
 
+interface AuthenticatedPatientPatientIdRouteChildren {
+  AuthenticatedPatientPatientIdHistoryHandoverIdRoute: typeof AuthenticatedPatientPatientIdHistoryHandoverIdRoute
+}
+
+const AuthenticatedPatientPatientIdRouteChildren: AuthenticatedPatientPatientIdRouteChildren =
+  {
+    AuthenticatedPatientPatientIdHistoryHandoverIdRoute:
+      AuthenticatedPatientPatientIdHistoryHandoverIdRoute,
+  }
+
+const AuthenticatedPatientPatientIdRouteWithChildren =
+  AuthenticatedPatientPatientIdRoute._addFileChildren(
+    AuthenticatedPatientPatientIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
-  AuthenticatedPatientSlugHandoverIdRoute: typeof AuthenticatedPatientSlugHandoverIdRoute
+  AuthenticatedPatientPatientIdRoute: typeof AuthenticatedPatientPatientIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
-  AuthenticatedPatientSlugHandoverIdRoute:
-    AuthenticatedPatientSlugHandoverIdRoute,
+  AuthenticatedPatientPatientIdRoute:
+    AuthenticatedPatientPatientIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

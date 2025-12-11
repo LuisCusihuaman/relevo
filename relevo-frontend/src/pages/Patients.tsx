@@ -21,19 +21,14 @@ export function Patients(): ReactElement {
 
 	const handleHandoverClick = (
 		handoverId: string,
-		patientName: string,
+		_patientName: string,
 	): void => {
-		// Find the handover by ID to get the patient information
-		const handover = handovers.find(h => h.id === handoverId);
-
-		if (handover) {
-			const patientSlug: string = handover?.patientKey || patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-			void navigate({ to: `/${patientSlug}/${handoverId}` });
-		} else {
-			// Fallback to patient name if handover not found
-			const patientSlug: string = patientName.toLowerCase().replace(/[^a-z0-9]/g, "-");
-			void navigate({ to: `/${patientSlug}/${handoverId}` });
-		}
+		// Navigate to patient page - handoverId here is actually the patient ID
+		// The patient page will resolve the active handover
+		void navigate({ 
+			to: "/patient/$patientId", 
+			params: { patientId: handoverId } 
+		});
 	};
 
 	// Show loading state

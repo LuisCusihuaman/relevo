@@ -70,20 +70,11 @@ public class HandoverRepositoryHasCoverageInToShiftTests : BaseDapperRepoTestFix
         // Arrange
         var repository = GetHandoverRepository();
         var handoverId = DapperTestSeeder.HandoverId;
-        var userIdWithoutCoverage = "user-without-coverage";
+        var testRunId = Guid.NewGuid().ToString("N")[..8];
+        var userIdWithoutCoverage = $"user-no-cov-{testRunId}";
 
-        // Ensure this user doesn't exist or doesn't have coverage
-        var connectionFactory = _scope.ServiceProvider.GetRequiredService<DapperConnectionFactory>();
-        using var conn = connectionFactory.CreateConnection();
-        var userExists = await conn.ExecuteScalarAsync<int>(
-            "SELECT COUNT(*) FROM USERS WHERE ID = :userId",
-            new { userId = userIdWithoutCoverage });
-        
-        if (userExists == 0)
-        {
-            // Create user but don't assign coverage using helper
-            await CreateTestUserAsync(userIdWithoutCoverage, null, "nocoverage@test.com", "No", "Coverage");
-        }
+        // Create user without any coverage using unique ID
+        await CreateTestUserAsync(testRunId, userIdWithoutCoverage, $"nocoverage-{testRunId}@test.com", "No", "Coverage");
 
         // Act
         var hasCoverage = await repository.HasCoverageInToShiftAsync(handoverId, userIdWithoutCoverage);

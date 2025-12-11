@@ -1,15 +1,13 @@
-import { type FC, useState } from "react";
+import { type FC } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Activity, GitBranch, MoreHorizontal, Loader2 } from "lucide-react";
+import { Activity, GitBranch, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { patientHandoverTimelineQueryOptions } from "@/api/endpoints/patients";
 import type { PatientSummaryCard } from "@/types/domain";
 
 export type PatientDirectoryListProps = {
@@ -21,8 +19,6 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 }: PatientDirectoryListProps) => {
 	const { t } = useTranslation("home");
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-	const [loadingPatientId, setLoadingPatientId] = useState<string | null>(null);
 
 	const formatDate = (date: Date): string => {
 		return date.toLocaleDateString("es-ES", { month: "short", day: "numeric" });
@@ -51,51 +47,13 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 		return statusKey;
 	};
 
-	const getPatientSlug = (name: string): string => {
-		return name.toLowerCase().replace(/\s+/g, "-");
+	// Simple navigation - page handles handover resolution
+	const handlePatientClick = (patient: PatientSummaryCard): void => {
+		void navigate({
+			to: "/patient/$patientId",
+			params: { patientId: patient.id },
+		});
 	};
-
-	// Direct navigation pattern - fetch and navigate in one action
-	const handlePatientClick = async (
-		patient: PatientSummaryCard,
-	): Promise<void> => {
-		if (loadingPatientId) return; // Prevent double-clicks
-
-		setLoadingPatientId(patient.id);
-
-		try {
-			// Fetch handover timeline directly (not via useEffect)
-			const handoverTimeline = await queryClient.fetchQuery(
-				patientHandoverTimelineQueryOptions(patient.id, { pageSize: 50 }),
-			);
-
-			if (handoverTimeline?.items && handoverTimeline.items.length > 0) {
-				const mostRecentHandover = handoverTimeline.items[0];
-
-				if (mostRecentHandover?.id) {
-					await navigate({
-						to: "/$patientSlug/$handoverId",
-						params: {
-							patientSlug: getPatientSlug(patient.name),
-							handoverId: mostRecentHandover.id,
-						},
-					});
-					return;
-				}
-			}
-
-			// No handover found - show user-friendly message
-			alert(t("patientList.noHandoversFound"));
-		} catch (error) {
-			console.error("Error fetching handovers:", error);
-			alert(t("patientList.errorLoadingHandovers"));
-		} finally {
-			setLoadingPatientId(null);
-		}
-	};
-
-	const isLoadingPatient = (patientId: string): boolean =>
-		loadingPatientId === patientId;
 
 	return (
 		<div className="flex-1 min-w-0">
@@ -118,23 +76,16 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 							return (
 								<li
 									key={patient.id}
-									className={`grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 hover:bg-gray-50 cursor-pointer transition-colors ${
-										isLoadingPatient(patient.id) ? "bg-blue-50" : ""
-									}`}
-									onClick={() => {
-										void handlePatientClick(patient);
-									}}
+									className="grid grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] items-center gap-6 py-4 px-6 hover:bg-gray-50 cursor-pointer transition-colors"
+									onClick={() => { handlePatientClick(patient); }}
 								>
 									<div className="flex items-center gap-3 min-w-0">
 										<span className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
 											{initial}
 										</span>
 										<div className="min-w-0 flex-1">
-											<div className="text-sm font-medium text-gray-900 truncate flex items-center gap-2">
+											<div className="text-sm font-medium text-gray-900 truncate">
 												{patient.name}
-												{isLoadingPatient(patient.id) && (
-													<Loader2 className="h-3 w-3 animate-spin text-blue-600" />
-												)}
 											</div>
 											<div className="text-xs text-gray-600 truncate">
 												{getTranslatedStatus(statusKey)}

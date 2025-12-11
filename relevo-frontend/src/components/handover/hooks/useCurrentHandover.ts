@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useParams } from "@tanstack/react-router";
+import { useParams, useRouterState } from "@tanstack/react-router";
 import { useHandover } from "@/api/endpoints/handovers";
 import { usePatientHandoverData } from "@/hooks/usePatientHandoverData";
 import { formatPhysician, getInitials } from "@/lib/formatters";
@@ -8,9 +8,11 @@ import {
 	useCurrentPhysician,
 	type UserInfo,
 } from "@/hooks/useCurrentPhysician";
+import { usePatientCurrentHandover } from "@/hooks/usePatientCurrentHandover";
 
-interface CurrentHandoverData {
+export interface CurrentHandoverData {
 	handoverId: string;
+	patientId: string;
 	handoverData: Handover | null;
 	patientData: PatientHandoverData | null;
 	currentUser: UserInfo;
@@ -21,10 +23,37 @@ interface CurrentHandoverData {
 }
 
 export function useCurrentHandover(): CurrentHandoverData {
-	// 1. Get ID from params
-	const { handoverId } = useParams({
-		from: "/_authenticated/$patientSlug/$handoverId",
-	}) as unknown as { handoverId: string };
+	// Get current route to determine how to extract params
+	const routerState = useRouterState();
+	const currentPath = routerState.location.pathname;
+
+	// Try to get params from new route structure
+	const params = useParams({ strict: false }) as { 
+		patientId?: string; 
+		handoverId?: string;
+	};
+
+	// Resolve handoverId based on route
+	// If we're on /patient/$patientId (no handoverId in URL), resolve from timeline
+	// If we're on /patient/$patientId/history/$handoverId, use the handoverId from params
+	const isHistoryRoute = currentPath.includes("/history/");
+	const isPatientRoute = currentPath.startsWith("/patient/") && !isHistoryRoute;
+
+	// Get patientId from params
+	const patientId = params.patientId || "";
+
+	// For patient route, get active handover from timeline
+	const { 
+		currentHandover: resolvedHandover,
+		isLoading: resolvingHandover 
+	} = usePatientCurrentHandover(isPatientRoute ? patientId : "");
+
+	// Determine the handoverId to use
+	const handoverId = isHistoryRoute 
+		? (params.handoverId || "") 
+		: isPatientRoute 
+			? (resolvedHandover?.id || "") 
+			: (params.handoverId || "");
 
 	// 2. Fetch Data (React Query handles deduping/caching)
 	const {
@@ -84,21 +113,24 @@ export function useCurrentHandover(): CurrentHandoverData {
 	return useMemo(
 		(): CurrentHandoverData => ({
 			handoverId,
+			patientId,
 			handoverData: handoverData || null,
 			patientData: patientData || null,
 			currentUser,
 			assignedPhysician,
 			receivingPhysician,
-			isLoading: handoverLoading || patientLoading,
+			isLoading: resolvingHandover || handoverLoading || patientLoading,
 			error: (handoverError as Error) || (patientError as Error) || null,
 		}),
 		[
 			handoverId,
+			patientId,
 			handoverData,
 			patientData,
 			currentUser,
 			assignedPhysician,
 			receivingPhysician,
+			resolvingHandover,
 			handoverLoading,
 			patientLoading,
 			handoverError,

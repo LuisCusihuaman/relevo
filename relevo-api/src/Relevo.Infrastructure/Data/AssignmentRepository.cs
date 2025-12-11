@@ -201,15 +201,15 @@ public class AssignmentRepository(
     {
         using var conn = _connectionFactory.CreateConnection();
 
-        // Get total count - patients where user has coverage in current or recent shift instances
-        // For simplicity, get patients from shift instances that started today or later
+        // Get total count - patients where user has coverage in active or recent shift instances
+        // Include shifts that haven't ended yet OR started within last 24 hours
         const string countSql = @"
             SELECT COUNT(DISTINCT p.ID) 
             FROM PATIENTS p 
             INNER JOIN SHIFT_COVERAGE sc ON p.ID = sc.PATIENT_ID
             INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
             WHERE sc.RESPONSIBLE_USER_ID = :userId
-              AND si.START_AT >= TRUNC(SYSDATE)";
+              AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)";
 
         var total = await conn.ExecuteScalarAsync<int>(countSql, new { userId });
 
@@ -220,14 +220,23 @@ public class AssignmentRepository(
         var ps = Math.Max(pageSize, 1);
         var offset = (p_ - 1) * ps;
 
-        // Get patients with pagination
+        // Get patients with pagination, including active handover info
         const string pageSql = @"
             SELECT * FROM (
                 SELECT 
                     p.ID AS Id, 
                     p.NAME AS Name, 
-                    'not-started' AS HandoverStatus,
-                    CAST(NULL AS VARCHAR2(255)) AS HandoverId,
+                    COALESCE(
+                        (SELECT h.CURRENT_STATE FROM HANDOVERS h 
+                         WHERE h.PATIENT_ID = p.ID 
+                           AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                           AND ROWNUM = 1),
+                        'not-started'
+                    ) AS HandoverStatus,
+                    (SELECT h.ID FROM HANDOVERS h 
+                     WHERE h.PATIENT_ID = p.ID 
+                       AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                       AND ROWNUM = 1) AS HandoverId,
                     FLOOR(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH) / 12) AS Age,
                     p.ROOM_NUMBER AS Room,
                     p.DIAGNOSIS AS Diagnosis,
@@ -238,7 +247,7 @@ public class AssignmentRepository(
                 INNER JOIN SHIFT_COVERAGE sc ON p.ID = sc.PATIENT_ID
                 INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
                 WHERE sc.RESPONSIBLE_USER_ID = :userId
-                  AND si.START_AT >= TRUNC(SYSDATE)
+                  AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
             ) WHERE rn > :offset AND rn <= :maxRow";
 
         var items = await conn.QueryAsync<PatientRecord>(pageSql, new { userId, offset, maxRow = offset + ps });
