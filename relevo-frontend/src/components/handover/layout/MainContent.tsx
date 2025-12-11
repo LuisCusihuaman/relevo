@@ -154,6 +154,8 @@ export function MainContent(): React.JSX.Element {
 			<IllnessSeverity
 				assignedPhysician={assignedPhysician}
 				currentUser={currentUser}
+				handoverId={handoverData.id}
+				initialSeverity={patientData?.illnessSeverity ?? "stable"}
 			/>
 		</HandoverSection>
 	);

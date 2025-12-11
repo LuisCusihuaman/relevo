@@ -11,6 +11,10 @@
     "unstable": {
       "label": "Unstable",
       "description": "Patient condition is unstable requiring immediate intervention"
+    },
+    "critical": {
+      "label": "Critical",
+      "description": "Patient is in critical condition requiring immediate intensive care"
     }
   },
   "justNow": "Just now",
@@ -44,5 +48,7 @@
   "unit": "{{unit}}",
   "primaryDiagnosis": "{{diagnosis}}",
   "handover": "Traspaso",
-  "inHandoverTime": "en {{time}}"
+  "inHandoverTime": "en {{time}}",
+  "severityUpdated": "Severity updated successfully",
+  "severityUpdateError": "Failed to update severity"
 }

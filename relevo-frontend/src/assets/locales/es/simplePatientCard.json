@@ -4,7 +4,8 @@
   "severity": {
     "Unstable": "Inestable",
     "Watcher": "Vigilancia",
-    "Stable": "Estable"
+    "Stable": "Estable",
+    "Critical": "Crítico"
   },
   "alerts": {
     "critical_one": "{{count}} Crítica",

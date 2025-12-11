@@ -4,7 +4,8 @@
   "severity": {
     "Unstable": "Unstable",
     "Watcher": "Watcher",
-    "Stable": "Stable"
+    "Stable": "Stable",
+    "Critical": "Critical"
   },
   "alerts": {
     "critical_one": "{{count}} Critical",

@@ -30,7 +30,7 @@ import type {
 
 function parseIllnessSeverity(value: string | null | undefined): IllnessSeverity {
 	const normalized = value?.toLowerCase();
-	if (normalized === "stable" || normalized === "watcher" || normalized === "unstable") {
+	if (normalized === "stable" || normalized === "watcher" || normalized === "unstable" || normalized === "critical") {
 		return normalized;
 	}
 	return "stable";

@@ -11,6 +11,10 @@
     "unstable": {
       "label": "Inestable",
       "description": "La condición del paciente es inestable y requiere intervención inmediata"
+    },
+    "critical": {
+      "label": "Crítico",
+      "description": "El paciente está en estado crítico y requiere cuidados intensivos inmediatos"
     }
   },
   "justNow": "Justo ahora",
@@ -45,5 +49,7 @@
   "unit": "{{unit}}",
   "primaryDiagnosis": "{{diagnosis}}",
   "handover": "Traspaso",
-  "inHandoverTime": "en {{time}}"
+  "inHandoverTime": "en {{time}}",
+  "severityUpdated": "Gravedad actualizada correctamente",
+  "severityUpdateError": "Error al actualizar la gravedad"
 }

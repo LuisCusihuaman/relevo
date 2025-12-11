@@ -1,26 +1,29 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useMemo, useState, type JSX } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
-	Brain,
+	AlertTriangle,
 	CheckCircle2,
 	Clock,
 	Edit,
 	Eye,
-	Heart,
-	Thermometer,
+	Siren,
 	User,
 	Wifi,
+	ShieldCheck,
 } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type { IllnessSeverity as SeverityLevel } from "@/types/domain";
+import { useUpdatePatientData } from "@/api/endpoints/handovers";
 
-const severityLevelIds: Array<SeverityLevel> = ["stable", "watcher", "unstable"];
+const severityLevelIds: Array<SeverityLevel> = ["stable", "watcher", "unstable", "critical"];
 
 const severityIcons: Record<SeverityLevel, React.ElementType> = {
-	stable: Thermometer,
-	watcher: Heart,
-	unstable: Brain,
+	stable: ShieldCheck,      // Paciente protegido/seguro
+	watcher: Eye,             // Monitorizaci�n cercana
+	unstable: AlertTriangle,  // Advertencia, necesita intervenci�n
+	critical: Siren,          // Emergencia, cuidados intensivos
 };
 
 const severityStyling: Record<
@@ -33,11 +36,16 @@ const severityStyling: Record<
 		borderColor: "border-emerald-300",
 	},
 	watcher: {
-		textColor: "text-amber-600",
-		bgColor: "bg-amber-50",
-		borderColor: "border-amber-300",
+		textColor: "text-yellow-600",
+		bgColor: "bg-yellow-50",
+		borderColor: "border-yellow-300",
 	},
 	unstable: {
+		textColor: "text-orange-600",
+		bgColor: "bg-orange-50",
+		borderColor: "border-orange-300",
+	},
+	critical: {
 		textColor: "text-red-600",
 		bgColor: "bg-red-50",
 		borderColor: "border-red-300",
@@ -45,41 +53,41 @@ const severityStyling: Record<
 };
 
 interface IllnessSeverityProps {
+	handoverId: string;
 	currentUser: {
+		id?: string;
 		name: string;
 		initials: string;
 		role: string;
 	};
 	assignedPhysician?: {
+		id?: string;
 		name: string;
 		initials: string;
 		role: string;
 	};
-	severityContent?: string | null;
+	initialSeverity?: SeverityLevel;
 }
 
 export function IllnessSeverity({
+	handoverId,
 	currentUser,
 	assignedPhysician,
-	severityContent,
+	initialSeverity = "stable",
 }: IllnessSeverityProps): JSX.Element {
 	const { t } = useTranslation("illnessSeverity");
-	// Use real data from backend if available, otherwise use defaults
-	const [selectedSeverity, setSelectedSeverity] = useState<SeverityLevel>(() => {
-		if (severityContent) {
-			// Try to extract severity from content
-			const content = severityContent.toLowerCase();
-			if (content.includes("stable")) return "stable";
-			if (content.includes("watcher") || content.includes("guarded"))
-				return "watcher";
-			if (content.includes("unstable")) return "unstable";
-		}
-		return "stable";
-	});
+	const { mutate: updatePatientData, isPending } = useUpdatePatientData();
+	
+	const [selectedSeverity, setSelectedSeverity] = useState<SeverityLevel>(initialSeverity);
 
-	const [canEdit] = useState(
-		assignedPhysician ? currentUser.name === assignedPhysician.name : true,
-	);
+	// Only the sender (assignedPhysician) can edit - compare by ID, fallback to name
+	const canEdit = useMemo(() => {
+		if (!assignedPhysician) return true;
+		
+		return assignedPhysician.id
+			? currentUser.id === assignedPhysician.id
+			: currentUser.name === assignedPhysician.name;
+	}, [currentUser.id, currentUser.name, assignedPhysician]);
 	const [realtimeUpdate, setRealtimeUpdate] = useState(false);
 	const [lastUpdated, setLastUpdated] = useState(t("justNow"));
 
@@ -92,18 +100,31 @@ export function IllnessSeverity({
 	}));
 
 	const handleSeverityChange = (severityId: SeverityLevel): void => {
-		if (canEdit) {
-			setSelectedSeverity(severityId);
-			setRealtimeUpdate(true);
-			setLastUpdated(t("justNow"));
+		if (!canEdit || isPending || severityId === selectedSeverity) return;
+		
+		const previousSeverity = selectedSeverity;
+		
+		// Optimistic update
+		setSelectedSeverity(severityId);
+		setRealtimeUpdate(true);
+		setLastUpdated(t("justNow"));
 
-			// Simulate real-time update animation
-			setTimeout(() => {
-				setRealtimeUpdate(false);
-			}, 2000);
-
-			console.log(`Severity updated to: ${severityId}`);
-		}
+		updatePatientData(
+			{ handoverId, illnessSeverity: severityId },
+			{
+				onSuccess: () => {
+					toast.success(t("severityUpdated"));
+					setTimeout(() => { setRealtimeUpdate(false); }, 2000);
+				},
+				onError: (error) => {
+					// Rollback on error
+					setSelectedSeverity(previousSeverity);
+					setRealtimeUpdate(false);
+					toast.error(t("severityUpdateError"));
+					console.error("Failed to update severity:", error);
+				},
+			}
+		);
 	};
 
 	// Simulate receiving real-time updates from other users
@@ -184,15 +205,17 @@ export function IllnessSeverity({
 					const isSelected = selectedSeverity === level.id;
 					const isClickable = canEdit;
 
+					const isDisabled = !isClickable || isPending;
+
 					return (
 						<button
 							key={level.id}
-							disabled={!isClickable}
+							disabled={isDisabled}
 							className={`medical-severity-option group relative p-3 rounded-lg border-2 text-left transition-all duration-150 ${
 								isSelected
 									? `${level.borderColor} ${level.bgColor} ${realtimeUpdate ? "realtime-update" : ""}`
 									: "border-gray-200 bg-white hover:border-gray-300"
-							} ${!isClickable ? "cursor-default" : "cursor-pointer"}`}
+							} ${isDisabled ? "cursor-default opacity-70" : "cursor-pointer"}`}
 							onClick={() => {
 								handleSeverityChange(level.id);
 							}}
@@ -273,8 +296,8 @@ export function IllnessSeverity({
 			<div className="text-xs text-gray-500 text-center space-y-1">
 				<p>
 					{t(canEdit ? "changesSynced" : "onlyUserCanModify", {
-						user: assignedPhysician?.initials || "Unknown",
-						role: assignedPhysician?.role || "Unknown",
+						user: assignedPhysician?.name || "el m�dico responsable",
+						role: assignedPhysician?.role || "Doctor",
 					})}
 				</p>
 				{!canEdit && <p className="text-gray-400">{t("updatesAutomatic")}</p>}

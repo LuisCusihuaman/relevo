@@ -10,7 +10,8 @@
   "severity": {
     "unstable": "Unstable",
     "watcher": "Watcher",
-    "stable": "Stable"
+    "stable": "Stable",
+    "critical": "Critical"
   },
   "toggleAssignment": {
     "add": "Click to add to assignment",

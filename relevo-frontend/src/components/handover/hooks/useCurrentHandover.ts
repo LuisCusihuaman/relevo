@@ -43,11 +43,13 @@ export function useCurrentHandover(): CurrentHandoverData {
 
 	const assignedPhysician = useMemo(() => {
 		if (handoverData) {
+			// Fallback to patientData name if responsiblePhysicianName is empty
+			const name = handoverData.responsiblePhysicianName || patientData?.assignedPhysician?.name || "";
 			return {
 				id: handoverData.responsiblePhysicianId,
-				name: handoverData.responsiblePhysicianName,
-				initials: getInitials(handoverData.responsiblePhysicianName),
-				role: "Doctor",
+				name,
+				initials: getInitials(name),
+				role: patientData?.assignedPhysician?.role || "Doctor",
 			};
 		}
 		return formatPhysician(patientData?.assignedPhysician);

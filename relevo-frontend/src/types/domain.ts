@@ -14,7 +14,7 @@
 // Enums & Literals
 // =============================================================================
 
-export type IllnessSeverity = "stable" | "watcher" | "unstable";
+export type IllnessSeverity = "stable" | "watcher" | "unstable" | "critical";
 
 export type HandoverStatus =
 	| "Draft"
