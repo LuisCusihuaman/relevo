@@ -3,7 +3,6 @@ import type { ExpandedSections, FullscreenEditingState, SyncStatus } from '@/typ
 
 
 interface HandoverUIState {
-  layoutMode: 'single' | 'columns';
   expandedSections: ExpandedSections;
   syncStatus: SyncStatus;
   showHistory: boolean;
@@ -14,7 +13,6 @@ interface HandoverUIState {
   currentSaveFunction: (() => void) | null;
   
   // Actions
-  setLayoutMode: (mode: 'single' | 'columns') => void;
   setExpandedSections: (sections: ExpandedSections | ((previous: ExpandedSections) => ExpandedSections)) => void;
   toggleSection: (section: keyof ExpandedSections) => void;
   setSyncStatus: (status: SyncStatus) => void;
@@ -36,7 +34,6 @@ const defaultExpandedSections: ExpandedSections = {
 };
 
 export const useHandoverUIStore = create<HandoverUIState>((set) => ({
-  layoutMode: 'columns',
   expandedSections: defaultExpandedSections,
   syncStatus: 'synced',
   showHistory: false,
@@ -46,7 +43,6 @@ export const useHandoverUIStore = create<HandoverUIState>((set) => ({
   fullscreenEditing: null,
   currentSaveFunction: null,
 
-  setLayoutMode: (mode): void => { set({ layoutMode: mode }); },
   setExpandedSections: (sections): void => {
     set((state) => ({
       expandedSections: typeof sections === 'function' ? sections(state.expandedSections) : sections
@@ -67,7 +63,6 @@ export const useHandoverUIStore = create<HandoverUIState>((set) => ({
   
   reset: (): void => {
     set({
-      layoutMode: 'columns',
       expandedSections: defaultExpandedSections,
       syncStatus: 'synced',
       showHistory: false,

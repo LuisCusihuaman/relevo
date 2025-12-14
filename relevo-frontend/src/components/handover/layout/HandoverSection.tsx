@@ -14,23 +14,25 @@ import type { JSX, ReactNode } from "react";
 
 interface HandoverSectionProps {
   children: ReactNode;
-  collapsible?: boolean;
   description: string;
   guidelines: IpassGuidelineSection;
-  isExpanded?: boolean;
+  isMobile: boolean;
+  isExpanded: boolean;
   letter: string;
   letterColor?: "blue" | "purple";
+  onToggle?: () => void;
   title: string;
 }
 
 export function HandoverSection({
   children,
-  collapsible = false,
   description,
   guidelines,
-  isExpanded = true,
+  isMobile,
+  isExpanded,
   letter,
   letterColor = "blue",
+  onToggle,
   title,
 }: HandoverSectionProps): JSX.Element {
   const colorClasses = {
@@ -41,7 +43,10 @@ export function HandoverSection({
   const GuidelinesTooltip = (): JSX.Element => (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+        <button 
+          className="w-4 h-4 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity"
+          onClick={(e) => { e.stopPropagation(); }}
+        >
           <Info className="w-3 h-3 text-gray-400" />
         </button>
       </TooltipTrigger>
@@ -72,24 +77,34 @@ export function HandoverSection({
     </div>
   );
 
-  // Collapsible mode (mobile)
-  if (collapsible) {
-    return (
-      <Collapsible defaultOpen={isExpanded}>
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-          <CollapsibleTrigger asChild>
-            <div className="p-4 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <LetterBadge />
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold text-gray-900">{title}</h3>
-                      <GuidelinesTooltip />
-                    </div>
-                    <p className="text-sm text-gray-700">{description}</p>
+  // Single tree: Collapsible always mounted
+  // Desktop: open=true, trigger disabled
+  // Mobile: controlled by isExpanded + onToggle
+  return (
+    <Collapsible
+      open={isMobile ? isExpanded : true}
+      onOpenChange={isMobile ? onToggle : undefined}
+    >
+      <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+        <CollapsibleTrigger
+          disabled={!isMobile}
+          className={`w-full ${!isMobile ? "pointer-events-none cursor-default" : "cursor-pointer"}`}
+          asChild
+        >
+          <div className={`p-4 border-b border-gray-100 ${isMobile ? "hover:bg-gray-50" : ""} transition-colors`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <LetterBadge />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-semibold text-gray-900">{title}</h3>
+                    <GuidelinesTooltip />
                   </div>
+                  <p className="text-sm text-gray-700">{description}</p>
                 </div>
+              </div>
+              {/* Chevron only visible on mobile */}
+              {isMobile && (
                 <div className="flex items-center">
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-gray-500" />
@@ -97,32 +112,18 @@ export function HandoverSection({
                     <ChevronDown className="w-4 h-4 text-gray-500" />
                   )}
                 </div>
-              </div>
+              )}
             </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="p-6">{children}</div>
-          </CollapsibleContent>
-        </div>
-      </Collapsible>
-    );
-  }
-
-  // Fixed mode (desktop)
-  return (
-    <div className="bg-white rounded-lg border border-gray-100">
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3">
-          <LetterBadge />
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
           </div>
-          <GuidelinesTooltip />
-        </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent forceMount className="data-[state=closed]:hidden">
+          {/* 
+            forceMount + data-[state=closed]:hidden:
+            Keeps content mounted (preserves editor state, focus) but hides via CSS when closed
+          */}
+          <div className="p-6">{children}</div>
+        </CollapsibleContent>
       </div>
-      <div className="p-6">{children}</div>
-    </div>
+    </Collapsible>
   );
 }
-

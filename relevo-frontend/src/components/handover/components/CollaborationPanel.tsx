@@ -14,6 +14,7 @@ import { ActivityFeed } from "./ActivityFeed";
 import type { ActivityItem } from "@/types/domain";
 import { useHandoverMessages, useCreateHandoverMessage } from "@/api";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CollaborationPanelProps {
   onClose: () => void;
@@ -29,7 +30,8 @@ export function CollaborationPanel({
   hideHeader = false,
 }: CollaborationPanelProps): JSX.Element {
   const [newMessage, setNewMessage] = useState("");
-  const { layoutMode, setExpandedSections } = useHandoverUIStore();
+  const isMobile = useIsMobile();
+  const setExpandedSections = useHandoverUIStore(state => state.setExpandedSections);
 
   // Fetch handover messages
   const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
@@ -74,7 +76,7 @@ export function CollaborationPanel({
   };
 
   const handleNavigateToSection = (section: string): void => {
-    if (layoutMode === "single") {
+    if (isMobile) {
       setExpandedSections((previous) => ({ ...previous, [section]: true }));
     }
     console.log(`Navigating to I-PASS section: ${section}`);
