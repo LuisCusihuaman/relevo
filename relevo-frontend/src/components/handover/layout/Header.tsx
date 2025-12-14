@@ -376,40 +376,46 @@ export function Header({
       {/* Patient Info Bar - Continuous with header (no gap) */}
       <div className="px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-3 h-3" />
-              <span>{t("age", { age: calculateAgeFromDob(patientData?.dob || ""), ns: "patientHeader" })}</span>
+          <div className="flex flex-col space-y-2">
+            {/* First line: Main patient info */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-3 h-3" />
+                <span>{t("age", { age: calculateAgeFromDob(patientData?.dob || ""), ns: "patientHeader" })}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-3 h-3" />
+                <span>{t("admissionDate", { date: formatAdmissionDate(patientData?.admissionDate), ns: "patientHeader" })}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <FileText className="w-3 h-3" />
+                <span className="font-mono text-xs">{t("mrn", { mrn: patientData?.mrn || "Unknown", ns: "patientHeader" })}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <MapPin className="w-3 h-3" />
+                <span>{patientData?.unit || "Unknown"}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Activity className="w-3 h-3" />
+                <span>
+                  {patientData?.primaryDiagnosis
+                    ? (patientData.primaryDiagnosis.includes('.')
+                      ? t(patientData.primaryDiagnosis, { ns: 'patientHeader' })
+                      : patientData.primaryDiagnosis)
+                    : "Unknown"}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-3 h-3" />
-              <span>{t("admissionDate", { date: formatAdmissionDate(patientData?.admissionDate), ns: "patientHeader" })}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <FileText className="w-3 h-3" />
-              <span className="font-mono text-xs">{t("mrn", { mrn: patientData?.mrn || "Unknown", ns: "patientHeader" })}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Scale className="w-3 h-3" />
-              <span>{t("weight", { weight: patientData?.weight ?? "N/D", ns: "patientHeader" })}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Ruler className="w-3 h-3" />
-              <span>{t("height", { height: patientData?.height ?? "N/D", ns: "patientHeader" })}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <MapPin className="w-3 h-3" />
-              <span>{patientData?.unit || "Unknown"}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Activity className="w-3 h-3" />
-              <span>
-                {patientData?.primaryDiagnosis
-                  ? (patientData.primaryDiagnosis.includes('.')
-                    ? t(patientData.primaryDiagnosis, { ns: 'patientHeader' })
-                    : patientData.primaryDiagnosis)
-                  : "Unknown"}
-              </span>
+            {/* Second line: Weight and Height */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center space-x-1">
+                <Scale className="w-3 h-3" />
+                <span>{t("weight", { weight: patientData?.weight ?? "N/D", ns: "patientHeader" })}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Ruler className="w-3 h-3" />
+                <span>{t("height", { height: patientData?.height ?? "N/D", ns: "patientHeader" })}</span>
+              </div>
             </div>
           </div>
           <div className="flex items-center space-x-3 text-sm">
