@@ -26,6 +26,7 @@ import {
   MapPin,
   MessageSquare,
   MoreHorizontal,
+  Ruler,
   Scale,
   UserPlus,
 } from "lucide-react";
@@ -391,6 +392,10 @@ export function Header({
             <div className="flex items-center space-x-1">
               <Scale className="w-3 h-3" />
               <span>{t("weight", { weight: patientData?.weight ?? "N/D", ns: "patientHeader" })}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Ruler className="w-3 h-3" />
+              <span>{t("height", { height: patientData?.height ?? "N/D", ns: "patientHeader" })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <MapPin className="w-3 h-3" />

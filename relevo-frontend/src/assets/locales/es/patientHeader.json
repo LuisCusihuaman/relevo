@@ -5,6 +5,7 @@
   "admitted": "Ingresado: {{date}}",
   "mrn": "Nº Historial: {{mrn}}",
   "weight": "Peso: {{weight}} kg",
+  "height": "Altura: {{height}} cm",
   "handoverInProgress": "Traspaso en Curso",
   "handoverComplete": "Traspaso Completo",
   "los": "Días de estadía: {{count}}",

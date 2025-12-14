@@ -5,6 +5,7 @@
   "admitted": "Admitted: {{date}}",
   "mrn": "MRN: {{mrn}}",
   "weight": "Weight: {{weight}} kg",
+  "height": "Height: {{height}} cm",
   "handoverInProgress": "Handover In Progress",
   "handoverComplete": "Handover Complete",
   "los": "LOS: {{count}} days",
