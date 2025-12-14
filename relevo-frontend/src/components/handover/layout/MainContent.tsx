@@ -34,9 +34,9 @@ export function MainContent(): React.JSX.Element {
 		receivingPhysician,
 	} = useCurrentHandover();
 
-	// Zustand selectors - only expandedSections needed now
+	// Zustand selectors
 	const expandedSections = useHandoverUIStore(state => state.expandedSections);
-	const toggleSection = useHandoverUIStore(state => state.toggleSection);
+	const setExpandedSection = useHandoverUIStore(state => state.setExpandedSection);
 	const setFullscreenEditing = useHandoverUIStore(state => state.setFullscreenEditing);
 
 	const ipassGuidelines = getIpassGuidelines(t);
@@ -138,54 +138,67 @@ export function MainContent(): React.JSX.Element {
 		},
 	};
 
-	// CSS responsive layout: flex-col on mobile, 3-col grid on desktop
-	// I-PASS sections with single tree pattern (Collapsible always mounted)
+	/*
+	 * Layout Strategy:
+	 * - Mobile (flex-col): I → P → A → S(Situation) → S(Synthesis) using CSS order
+	 *   Column wrappers use `contents` to flatten, allowing order to work across all items
+	 * - Desktop (flex-row with two independent columns):
+	 *     Left (2/3): I, P, S-Situation flow vertically
+	 *     Right (1/3): A, S-Synthesis flow vertically
+	 *   Each column flows independently - no row alignment issues
+	 * 
+	 * Single instance of each component (no unmount/mount on resize)
+	 */
 	return (
-		<div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-6">
-			{/* Left Column (desktop) - I, P, S */}
-			<div className="md:col-span-2 space-y-3 md:space-y-6">
+		<div className="flex flex-col gap-3 md:flex-row md:gap-6">
+			{/* Left Column - contents on mobile to flatten for order, flex-col on desktop */}
+			<div className="contents md:flex md:flex-col md:w-2/3 md:gap-6">
 				{/* I - Illness Severity */}
-				<HandoverSection
-					description={sectionLabels.illness.description}
-					guidelines={ipassGuidelines.illness}
-					isExpanded={expandedSections.illness}
-					isMobile={isMobile}
-					letter="I"
-					letterColor="blue"
-					title={sectionLabels.illness.title}
-					onToggle={() => { toggleSection('illness'); }}
-				>
-					<IllnessSeverity
-						assignedPhysician={assignedPhysician}
-						currentUser={currentUser}
-						handoverId={handoverData.id}
-						initialSeverity={patientData?.illnessSeverity ?? "stable"}
-					/>
-				</HandoverSection>
+				<div className="order-1 md:order-none">
+					<HandoverSection
+						description={sectionLabels.illness.description}
+						guidelines={ipassGuidelines.illness}
+						isExpanded={expandedSections.illness}
+						isMobile={isMobile}
+						letter="I"
+						letterColor="blue"
+						title={sectionLabels.illness.title}
+						onOpenChange={(open) => { setExpandedSection('illness', open); }}
+					>
+						<IllnessSeverity
+							assignedPhysician={assignedPhysician}
+							currentUser={currentUser}
+							handoverId={handoverData.id}
+							initialSeverity={patientData?.illnessSeverity ?? "stable"}
+						/>
+					</HandoverSection>
+				</div>
 
 				{/* P - Patient Summary */}
-				<HandoverSection
-					description={sectionLabels.patient.description}
-					guidelines={ipassGuidelines.patient}
-					isExpanded={expandedSections.patient}
-					isMobile={isMobile}
-					letter="P"
-					letterColor="blue"
-					title={sectionLabels.patient.title}
-					onToggle={() => { toggleSection('patient'); }}
-				>
-					<PatientSummary
-						currentUser={currentUser}
-						handoverId={handoverData.id}
-						handoverStateName={handoverData.stateName}
-						patientData={patientData || undefined}
-						responsiblePhysician={responsiblePhysician}
-						onRequestFullscreen={() => { handleOpenFullscreenEdit("patient-summary"); }}
-					/>
-				</HandoverSection>
+				<div className="order-2 md:order-none">
+					<HandoverSection
+						description={sectionLabels.patient.description}
+						guidelines={ipassGuidelines.patient}
+						isExpanded={expandedSections.patient}
+						isMobile={isMobile}
+						letter="P"
+						letterColor="blue"
+						title={sectionLabels.patient.title}
+						onOpenChange={(open) => { setExpandedSection('patient', open); }}
+					>
+						<PatientSummary
+							currentUser={currentUser}
+							handoverId={handoverData.id}
+							handoverStateName={handoverData.stateName}
+							patientData={patientData || undefined}
+							responsiblePhysician={responsiblePhysician}
+							onRequestFullscreen={() => { handleOpenFullscreenEdit("patient-summary"); }}
+						/>
+					</HandoverSection>
+				</div>
 
-				{/* S - Situation Awareness (on desktop, left column) */}
-				<div className="hidden md:block">
+				{/* S - Situation Awareness */}
+				<div className="order-4 md:order-none">
 					<HandoverSection
 						description={sectionLabels.situation.description}
 						guidelines={ipassGuidelines.awareness}
@@ -194,7 +207,7 @@ export function MainContent(): React.JSX.Element {
 						letter="S"
 						letterColor="blue"
 						title={sectionLabels.situation.title}
-						onToggle={() => { toggleSection('awareness'); }}
+						onOpenChange={(open) => { setExpandedSection('awareness', open); }}
 					>
 						<SituationAwareness
 							currentUser={currentUser}
@@ -205,65 +218,49 @@ export function MainContent(): React.JSX.Element {
 				</div>
 			</div>
 
-			{/* Right Column (desktop) - A, S */}
-			<div className="md:col-span-1 space-y-3 md:space-y-6">
+			{/* Right Column - contents on mobile to flatten for order, flex-col on desktop */}
+			<div className="contents md:flex md:flex-col md:w-1/3 md:gap-6">
 				{/* A - Action List */}
-				<HandoverSection
-					description={sectionLabels.actions.description}
-					guidelines={ipassGuidelines.actions}
-					isExpanded={expandedSections.actions}
-					isMobile={isMobile}
-					letter="A"
-					letterColor="blue"
-					title={sectionLabels.actions.title}
-					onToggle={() => { toggleSection('actions'); }}
-				>
-					<ActionList
-						assignedPhysician={assignedPhysician}
-						currentUser={currentUser}
-						handoverId={handoverData?.id}
-					/>
-				</HandoverSection>
-
-				{/* S - Situation Awareness (on mobile, after Action) */}
-				<div className="md:hidden">
+				<div className="order-3 md:order-none">
 					<HandoverSection
-						description={sectionLabels.situation.description}
-						guidelines={ipassGuidelines.awareness}
-						isExpanded={expandedSections.awareness}
+						description={sectionLabels.actions.description}
+						guidelines={ipassGuidelines.actions}
+						isExpanded={expandedSections.actions}
 						isMobile={isMobile}
-						letter="S"
+						letter="A"
 						letterColor="blue"
-						title={sectionLabels.situation.title}
-						onToggle={() => { toggleSection('awareness'); }}
+						title={sectionLabels.actions.title}
+						onOpenChange={(open) => { setExpandedSection('actions', open); }}
 					>
-						<SituationAwareness
+						<ActionList
+							assignedPhysician={assignedPhysician}
 							currentUser={currentUser}
-							handoverId={handoverData.id}
-							onRequestFullscreen={() => { handleOpenFullscreenEdit("situation-awareness", true); }}
+							handoverId={handoverData?.id}
 						/>
 					</HandoverSection>
 				</div>
 
 				{/* S - Synthesis by Receiver */}
-				<HandoverSection
-					description={sectionLabels.synthesis.description}
-					guidelines={ipassGuidelines.synthesis}
-					isExpanded={expandedSections.synthesis}
-					isMobile={isMobile}
-					letter="S"
-					letterColor="purple"
-					title={sectionLabels.synthesis.title}
-					onToggle={() => { toggleSection('synthesis'); }}
-				>
-					<SynthesisByReceiver
-						currentUser={currentUser}
-						handoverComplete={handoverData.stateName === "Completed"}
-						handoverState={handoverData.stateName}
-						receivingPhysician={receivingPhysician}
-						onConfirm={handleConfirmHandover}
-					/>
-				</HandoverSection>
+				<div className="order-5 md:order-none">
+					<HandoverSection
+						description={sectionLabels.synthesis.description}
+						guidelines={ipassGuidelines.synthesis}
+						isExpanded={expandedSections.synthesis}
+						isMobile={isMobile}
+						letter="S"
+						letterColor="purple"
+						title={sectionLabels.synthesis.title}
+						onOpenChange={(open) => { setExpandedSection('synthesis', open); }}
+					>
+						<SynthesisByReceiver
+							currentUser={currentUser}
+							handoverComplete={handoverData.stateName === "Completed"}
+							handoverState={handoverData.stateName}
+							receivingPhysician={receivingPhysician}
+							onConfirm={handleConfirmHandover}
+						/>
+					</HandoverSection>
+				</div>
 			</div>
 		</div>
 	);

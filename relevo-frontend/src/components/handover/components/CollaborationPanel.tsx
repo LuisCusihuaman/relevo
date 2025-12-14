@@ -31,7 +31,7 @@ export function CollaborationPanel({
 }: CollaborationPanelProps): JSX.Element {
   const [newMessage, setNewMessage] = useState("");
   const isMobile = useIsMobile();
-  const setExpandedSections = useHandoverUIStore(state => state.setExpandedSections);
+  const setExpandedSection = useHandoverUIStore(state => state.setExpandedSection);
 
   // Fetch handover messages
   const { data: messages, isLoading: messagesLoading, error: messagesError } = useHandoverMessages(handoverId);
@@ -77,7 +77,8 @@ export function CollaborationPanel({
 
   const handleNavigateToSection = (section: string): void => {
     if (isMobile) {
-      setExpandedSections((previous) => ({ ...previous, [section]: true }));
+      // Section names match ExpandedSections keys: illness, patient, actions, awareness, synthesis
+      setExpandedSection(section as 'illness' | 'patient' | 'actions' | 'awareness' | 'synthesis', true);
     }
     console.log(`Navigating to I-PASS section: ${section}`);
   };

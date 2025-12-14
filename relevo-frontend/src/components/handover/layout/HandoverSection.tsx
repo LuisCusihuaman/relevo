@@ -20,7 +20,7 @@ interface HandoverSectionProps {
   isExpanded: boolean;
   letter: string;
   letterColor?: "blue" | "purple";
-  onToggle?: () => void;
+  onOpenChange?: (open: boolean) => void;
   title: string;
 }
 
@@ -32,7 +32,7 @@ export function HandoverSection({
   isExpanded,
   letter,
   letterColor = "blue",
-  onToggle,
+  onOpenChange,
   title,
 }: HandoverSectionProps): JSX.Element {
   const colorClasses = {
@@ -78,20 +78,22 @@ export function HandoverSection({
   );
 
   // Single tree: Collapsible always mounted
-  // Desktop: open=true, trigger disabled
-  // Mobile: controlled by isExpanded + onToggle
+  // Desktop: open=true, onOpenChange=undefined (no interaction)
+  // Mobile: controlled by isExpanded + onOpenChange
   return (
     <Collapsible
       open={isMobile ? isExpanded : true}
-      onOpenChange={isMobile ? onToggle : undefined}
+      onOpenChange={isMobile ? onOpenChange : undefined}
     >
       <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-        <CollapsibleTrigger
-          disabled={!isMobile}
-          className={`w-full ${!isMobile ? "pointer-events-none cursor-default" : "cursor-pointer"}`}
-          asChild
-        >
-          <div className={`p-4 border-b border-gray-100 ${isMobile ? "hover:bg-gray-50" : ""} transition-colors`}>
+        <CollapsibleTrigger disabled={!isMobile} asChild>
+          {/* All styling on the div child, CollapsibleTrigger stays minimal */}
+          <div 
+            className={`
+              w-full p-4 border-b border-gray-100 transition-colors
+              ${isMobile ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none cursor-default"}
+            `}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <LetterBadge />

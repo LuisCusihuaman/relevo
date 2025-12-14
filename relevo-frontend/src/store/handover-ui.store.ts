@@ -14,6 +14,7 @@ interface HandoverUIState {
   
   // Actions
   setExpandedSections: (sections: ExpandedSections | ((previous: ExpandedSections) => ExpandedSections)) => void;
+  setExpandedSection: (section: keyof ExpandedSections, open: boolean) => void;
   toggleSection: (section: keyof ExpandedSections) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setShowHistory: (show: boolean) => void;
@@ -46,6 +47,11 @@ export const useHandoverUIStore = create<HandoverUIState>((set) => ({
   setExpandedSections: (sections): void => {
     set((state) => ({
       expandedSections: typeof sections === 'function' ? sections(state.expandedSections) : sections
+    }));
+  },
+  setExpandedSection: (section, open): void => {
+    set((state) => ({
+      expandedSections: { ...state.expandedSections, [section]: open }
     }));
   },
   toggleSection: (section): void => {
