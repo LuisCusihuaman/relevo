@@ -53,4 +53,21 @@ public interface IHandoverRepository
     /// <param name="toShiftId">The shift template ID (e.g., "shift-day", "shift-night")</param>
     /// <returns>Handover ID if an active handover exists with this TO shift, null otherwise</returns>
     Task<string?> GetActiveHandoverForPatientAndToShiftAsync(string patientId, string toShiftId);
+
+    /// <summary>
+    /// Gets the ID of an active handover where the given shift is the FROM shift.
+    /// Used to prevent duplicate handover creation when completing a handover.
+    /// </summary>
+    /// <param name="patientId">Patient ID</param>
+    /// <param name="fromShiftId">The shift template ID (e.g., "shift-day", "shift-night")</param>
+    /// <returns>Handover ID if an active handover exists with this FROM shift, null otherwise</returns>
+    Task<string?> GetActiveHandoverForPatientAndFromShiftAsync(string patientId, string fromShiftId);
+
+    /// <summary>
+    /// Gets the information needed to create the next handover after completing one.
+    /// Used by HandoverCompletedHandler to create the chained handover.
+    /// </summary>
+    /// <param name="handoverId">The completed handover ID</param>
+    /// <returns>Tuple with PatientId, ToShiftId (shift template ID), and UnitId</returns>
+    Task<(string PatientId, string ToShiftId, string UnitId)?> GetHandoverCompletionInfoAsync(string handoverId);
 }

@@ -172,6 +172,8 @@ Este documento describe las reglas de negocio del sistema Relevo V3, extraídas 
 - **Transiciones de estado:** Implementadas en `HandoverStateMachineHandlers` con validaciones de coverage y sender.
 - **ReturnForChanges:** Implementado en `ReturnForChangesHandler`. Limpia `READY_AT` y `READY_BY_USER_ID` (vuelve a Draft).
 - **Auto-creación de handovers:** Implementada mediante eventos de dominio `PatientAssignedToShiftEvent` y `PatientAssignedToShiftHandler`.
+- **Encadenamiento de handovers (Regla #15):** Al completar un handover, se crea automáticamente el siguiente. Implementado mediante `HandoverCompletedEvent` y `HandoverCompletedHandler`. El receiver se convierte en sender del nuevo handover. El `PREVIOUS_HANDOVER_ID` enlaza los handovers.
+- **Copia de Patient Summary (Regla #52):** Al crear un nuevo handover (ya sea por asignación o por completar), se copia el `PATIENT_SUMMARY` del handover anterior más reciente.
 
 ### ⚠️ Limitaciones Conocidas
 

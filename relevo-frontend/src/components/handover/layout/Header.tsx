@@ -319,7 +319,6 @@ export function Header({
             {handoverData && (
               <HandoverStatusControls
                 handover={handoverData}
-                currentUserId={currentUser.id}
                 isSender={isSender}
                 isReceiver={isReceiver}
               />

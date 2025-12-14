@@ -3,47 +3,36 @@ import { Button } from "@/components/ui/button";
 import {
 	useReadyHandover,
 	useStartHandover,
-	useCompleteHandover,
 } from "@/api/endpoints/handovers";
 import type { HandoverDetail } from "@/types/domain";
-import { Loader2, CheckCircle2, ArrowRight, Play, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, Play, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
 interface HandoverStatusControlsProps {
 	handover: HandoverDetail;
-	currentUserId: string;
 	isSender: boolean;
 	isReceiver: boolean;
 }
 
 export function HandoverStatusControls({
 	handover,
-	currentUserId,
 	isSender,
 	isReceiver,
-}: HandoverStatusControlsProps): JSX.Element {
+}: HandoverStatusControlsProps): JSX.Element | null {
 	const { mutate: markReady, isPending: isReadyPending } = useReadyHandover();
 	const { mutate: startHandover, isPending: isStartPending } = useStartHandover();
-	const { mutate: completeHandover, isPending: isCompletePending } = useCompleteHandover();
 
-	const handleReady = () => {
+	const handleReady = (): void => {
 		markReady(handover.id, {
 			onSuccess: () => toast.success("Handover marked as Ready"),
 			onError: (err) => toast.error(`Error: ${err.message}`),
 		});
 	};
 
-	const handleStart = () => {
+	const handleStart = (): void => {
 		startHandover(handover.id, {
 			onSuccess: () => toast.success("Handover started"),
-			onError: (err) => toast.error(`Error: ${err.message}`),
-		});
-	};
-
-	const handleComplete = () => {
-		completeHandover(handover.id, {
-			onSuccess: () => toast.success("Handover completed"),
 			onError: (err) => toast.error(`Error: ${err.message}`),
 		});
 	};
@@ -102,29 +91,19 @@ export function HandoverStatusControls({
 		);
 	}
 
-	// Status: InProgress
+	// Status: InProgress - Receiver must complete via Synthesis section checklist
 	if (handover.stateName === "InProgress") {
-		if (!isReceiver) {
+		if (isReceiver) {
 			return (
-				<Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 animate-pulse h-7">
-					In Progress
+				<Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 h-7 animate-pulse">
+					In Progress • Verify Checklist Below
 				</Badge>
 			);
 		}
 		return (
-			<Button
-				size="sm"
-				onClick={handleComplete}
-				disabled={isCompletePending}
-				className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer h-7 text-xs px-3 shadow-sm"
-			>
-				{isCompletePending ? (
-					<Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
-				) : (
-					<CheckCircle2 className="w-3 h-3 mr-1.5" />
-				)}
-				Complete Handover
-			</Button>
+			<Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 animate-pulse h-7">
+				In Progress
+			</Badge>
 		);
 	}
 

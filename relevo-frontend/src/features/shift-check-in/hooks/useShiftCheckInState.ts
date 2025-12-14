@@ -37,7 +37,7 @@ export function useShiftCheckInState(): ShiftCheckInState & ShiftCheckInActions 
 		}
 	}, [navigation.currentStep, user?.fullName, data.unit, data.shift, data.patients.length, data.selectedIndexes.length]);
 
-	const handleNextStep = useCallback((patients: Array<ShiftCheckInPatient>): void => {
+	const handleNextStep = useCallback((_patients: Array<ShiftCheckInPatient>): void => {
 		if (navigation.currentStep === 3 && data.selectedIndexes.length === 0) {
 			data.setShowValidationError(true);
 			return;

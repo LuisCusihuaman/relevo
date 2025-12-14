@@ -457,4 +457,55 @@ public partial class HandoverRepository
         var handoverId = await conn.ExecuteScalarAsync<string>(sql, new { patientId, toShiftId });
         return handoverId;
     }
+
+    public async Task<string?> GetActiveHandoverForPatientAndFromShiftAsync(string patientId, string fromShiftId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Find an active handover where the FROM shift matches the given shift template
+        // Used to prevent duplicate handover creation when completing a handover
+        // 
+        // We only look for handovers created TODAY to avoid false positives from old handovers
+        const string sql = @"
+            SELECT ID FROM (
+                SELECT h.ID
+                FROM HANDOVERS h
+                JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+                JOIN SHIFT_INSTANCES si_from ON sw.FROM_SHIFT_INSTANCE_ID = si_from.ID
+                WHERE h.PATIENT_ID = :patientId
+                  AND si_from.SHIFT_ID = :fromShiftId
+                  AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                  AND TRUNC(h.CREATED_AT) = TRUNC(SYSDATE)
+                ORDER BY h.CREATED_AT DESC
+            ) WHERE ROWNUM <= 1";
+
+        var handoverId = await conn.ExecuteScalarAsync<string>(sql, new { patientId, fromShiftId });
+        return handoverId;
+    }
+
+    public async Task<(string PatientId, string ToShiftId, string UnitId)?> GetHandoverCompletionInfoAsync(string handoverId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Get the information needed to create the next handover after completing this one
+        // ToShiftId is the shift template ID of the TO shift (becomes FROM shift of next handover)
+        const string sql = @"
+            SELECT h.PATIENT_ID as PatientId, 
+                   s_to.ID as ToShiftId, 
+                   h.UNIT_ID as UnitId
+            FROM HANDOVERS h
+            JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+            JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID
+            JOIN SHIFTS s_to ON si_to.SHIFT_ID = s_to.ID
+            WHERE h.ID = :handoverId";
+
+        var result = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { handoverId });
+        
+        if (result == null)
+        {
+            return null;
+        }
+
+        return ((string)result.PATIENTID, (string)result.TOSHIFTID, (string)result.UNITID);
+    }
 }

@@ -33,6 +33,7 @@ interface SynthesisByReceiverProps {
 
 export function SynthesisByReceiver({
   onComplete,
+  onConfirm,
   currentUser,
   receivingPhysician,
   handoverState,

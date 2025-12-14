@@ -3,6 +3,7 @@ using Relevo.Core.Models;
 using Relevo.UseCases.Handovers.StateMachine;
 using ActionItemRecord = Relevo.Core.Models.ActionItemRecord;
 using FluentAssertions;
+using MediatR;
 using NSubstitute;
 using Xunit;
 using Ardalis.Result;
@@ -12,11 +13,12 @@ namespace Relevo.UnitTests.UseCases.Handovers.StateMachine;
 public class StartHandoverHandlerHandle
 {
     private readonly IHandoverRepository _repository = Substitute.For<IHandoverRepository>();
+    private readonly IMediator _mediator = Substitute.For<IMediator>();
     private readonly HandoverStateMachineHandlers _handler;
 
     public StartHandoverHandlerHandle()
     {
-        _handler = new HandoverStateMachineHandlers(_repository);
+        _handler = new HandoverStateMachineHandlers(_repository, _mediator);
     }
 
     [Fact]

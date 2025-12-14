@@ -1,10 +1,14 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
+using MediatR;
+using Relevo.Core.Events;
 using Relevo.Core.Interfaces;
 
 namespace Relevo.UseCases.Handovers.StateMachine;
 
-public class HandoverStateMachineHandlers(IHandoverRepository _repository) :
+public class HandoverStateMachineHandlers(
+    IHandoverRepository _repository,
+    IMediator _mediator) :
     ICommandHandler<StartHandoverCommand, Result>,
     ICommandHandler<RejectHandoverCommand, Result>,
     ICommandHandler<CancelHandoverCommand, Result>,
@@ -61,7 +65,43 @@ public class HandoverStateMachineHandlers(IHandoverRepository _repository) :
             return Result.Error("Cannot complete handover: sender cannot complete the handover.");
         }
 
-        return await ExecuteStateChange(request.HandoverId, request.UserId, (id, uid) => _repository.CompleteHandoverAsync(id, uid));
+        // Execute the completion
+        var success = await _repository.CompleteHandoverAsync(request.HandoverId, request.UserId);
+        if (!success)
+        {
+            return Result.Error("Failed to complete handover.");
+        }
+
+        // V3_PLAN.md Regla #15: "al completar, el receptor 'toma' el pase y el próximo handover lo tendrá como emisor"
+        // Publish HandoverCompletedEvent to trigger creation of the next handover
+        var completionInfo = await _repository.GetHandoverCompletionInfoAsync(request.HandoverId);
+        if (completionInfo.HasValue)
+        {
+            var (patientId, toShiftId, unitId) = completionInfo.Value;
+            var completedEvent = new HandoverCompletedEvent(
+                request.HandoverId,
+                patientId,
+                request.UserId,
+                toShiftId,
+                unitId
+            );
+            
+            // Fire-and-forget: don't await, don't block the completion
+            // The next handover creation is a side effect, not critical path
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _mediator.Publish(completedEvent, CancellationToken.None);
+                }
+                catch
+                {
+                    // Log but don't fail - next handover can be created manually or on next assignment
+                }
+            }, CancellationToken.None);
+        }
+
+        return Result.Success();
     }
 
     private async Task<Result> ExecuteStateChange(string handoverId, string userId, Func<string, string, Task<bool>> action)
@@ -70,4 +110,3 @@ public class HandoverStateMachineHandlers(IHandoverRepository _repository) :
         return success ? Result.Success() : Result.Error("Failed to update handover state.");
     }
 }
-
