@@ -46,7 +46,7 @@ public class CreateMeContingencyPlanEndpoint(IMediator _mediator, ICurrentUser _
                 req.ConditionText,
                 req.ActionText,
                 req.Priority,
-                userId),
+                _currentUser.FullName ?? _currentUser.Id ?? "Unknown"),
             ct);
 
         if (!result.IsSuccess)

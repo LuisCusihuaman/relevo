@@ -242,6 +242,7 @@ export function SituationAwareness({
 
           <ContingencyPlanList
             canDelete={canDeletePlans}
+            currentUserName={currentUser?.name}
             plans={contingencyPlans}
             onDelete={handleDeletePlan}
           />

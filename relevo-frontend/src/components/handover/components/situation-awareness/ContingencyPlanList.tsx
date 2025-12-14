@@ -10,6 +10,7 @@ interface ContingencyPlanListProps {
   plans: Array<ContingencyPlan>;
   canDelete: boolean;
   onDelete: (id: string) => void;
+  currentUserName?: string;
 }
 
 // Priority colors
@@ -38,8 +39,18 @@ const getStatusBadge = (status: string): string => {
   }
 };
 
-export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyPlanListProps): JSX.Element {
+export function ContingencyPlanList({ plans, canDelete, onDelete, currentUserName }: ContingencyPlanListProps): JSX.Element {
   const { t } = useTranslation("situationAwareness");
+
+  // Helper to get display name (avoid showing Clerk user IDs)
+  const getDisplayName = (createdBy?: string): string => {
+    if (!createdBy) return currentUserName || "Usuario";
+    // Don't show Clerk user IDs (start with "user_")
+    if (createdBy.startsWith("user_")) {
+      return currentUserName || "Usuario";
+    }
+    return createdBy;
+  };
 
   return (
     <div className="space-y-3">
@@ -108,7 +119,7 @@ export function ContingencyPlanList({ plans, canDelete, onDelete }: ContingencyP
             <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
               <span>
                 {t("submittedBy", {
-                  name: plan.createdBy,
+                  name: getDisplayName(plan.createdBy),
                   time: new Date(plan.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                   date: new Date(plan.createdAt).toLocaleDateString(),
                 })}
