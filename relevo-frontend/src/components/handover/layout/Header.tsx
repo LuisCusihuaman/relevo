@@ -26,6 +26,7 @@ import {
   MapPin,
   MessageSquare,
   MoreHorizontal,
+  Scale,
   UserPlus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -386,6 +387,10 @@ export function Header({
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
               <span className="font-mono text-xs">{t("mrn", { mrn: patientData?.mrn || "Unknown", ns: "patientHeader" })}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Scale className="w-3 h-3" />
+              <span>{t("weight", { weight: patientData?.weight ?? "N/D", ns: "patientHeader" })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <MapPin className="w-3 h-3" />

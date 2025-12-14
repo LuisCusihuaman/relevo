@@ -45,6 +45,7 @@ export type Patient = {
 	age?: number;
 	gender?: "Male" | "Female" | "Other" | "Unknown";
 	admissionDate?: string;
+	weight?: string | number;
 	room?: string;
 	bed?: string;
 	unit?: string;

@@ -4,6 +4,7 @@
   "room": "Habitación: {{room}}",
   "admitted": "Ingresado: {{date}}",
   "mrn": "Nº Historial: {{mrn}}",
+  "weight": "Peso: {{weight}} kg",
   "handoverInProgress": "Traspaso en Curso",
   "handoverComplete": "Traspaso Completo",
   "los": "Días de estadía: {{count}}",

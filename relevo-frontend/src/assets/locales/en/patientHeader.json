@@ -4,6 +4,7 @@
   "room": "Room: {{room}}",
   "admitted": "Admitted: {{date}}",
   "mrn": "MRN: {{mrn}}",
+  "weight": "Weight: {{weight}} kg",
   "handoverInProgress": "Handover In Progress",
   "handoverComplete": "Handover Complete",
   "los": "LOS: {{count}} days",
