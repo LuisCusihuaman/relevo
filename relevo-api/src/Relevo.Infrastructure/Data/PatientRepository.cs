@@ -221,7 +221,9 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         p.DIAGNOSIS,
         p.ALLERGIES,
         p.MEDICATIONS,
-        p.NOTES
+        p.NOTES,
+        p.WEIGHT,
+        p.HEIGHT
       FROM PATIENTS p
       LEFT JOIN UNITS u ON p.UNIT_ID = u.ID
       WHERE p.ID = :PatientId";
@@ -250,7 +252,9 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         (string?)result.DIAGNOSIS ?? "",
         allergies,
         medications,
-        (string?)result.NOTES ?? ""
+        (string?)result.NOTES ?? "",
+        (string?)result.WEIGHT,
+        (string?)result.HEIGHT
     );
   }
 }

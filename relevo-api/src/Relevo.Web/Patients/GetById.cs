@@ -40,7 +40,9 @@ public class GetPatientById(IMediator _mediator)
         Diagnosis = patient.Diagnosis,
         Allergies = patient.Allergies.ToList(),
         Medications = patient.Medications.ToList(),
-        Notes = patient.Notes
+        Notes = patient.Notes,
+        Weight = patient.Weight,
+        Height = patient.Height
       };
       await SendAsync(Response, cancellation: ct);
     }
@@ -78,5 +80,7 @@ public class GetPatientByIdResponse
   public required List<string> Medications { get; set; }
   [Required]
   public required string Notes { get; set; }
+  public string? Weight { get; set; }
+  public string? Height { get; set; }
 }
 

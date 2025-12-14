@@ -12,6 +12,8 @@ public record PatientDetailRecord(
     string Diagnosis,
     IReadOnlyList<string> Allergies,
     IReadOnlyList<string> Medications,
-    string Notes
+    string Notes,
+    string? Weight,
+    string? Height
 );
 
