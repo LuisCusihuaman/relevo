@@ -342,7 +342,7 @@ export function ActionList({
                         className="w-full p-1.5 text-xs border border-gray-300 rounded bg-white focus:border-blue-400 focus:ring-blue-100"
                         disabled={isSubmitting}
                         placeholder={String(t("dueTime"))}
-                        type="text"
+                        type="time"
                         value={newTask.dueTime}
                         onChange={(event_) =>
                           { setNewTask({ ...newTask, dueTime: event_.target.value }); }
@@ -579,8 +579,7 @@ export function ActionList({
                       className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-blue-400 focus:ring-blue-100"
                       disabled={isSubmitting}
                       id="task-due-time"
-                      placeholder={String(t("dueTimePlaceholder"))}
-                      type="text"
+                      type="time"
                       value={newTask.dueTime}
                       onChange={(event_) =>
                         { setNewTask({ ...newTask, dueTime: event_.target.value }); }
