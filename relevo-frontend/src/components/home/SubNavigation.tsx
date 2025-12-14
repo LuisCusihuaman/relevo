@@ -6,6 +6,11 @@ export const SubNavigation: FC = () => {
 	const { t } = useTranslation("home");
 	const location = useLocation();
 
+	// Hide SubNavigation on patient handover pages (they have their own navigation)
+	if (location.pathname.startsWith("/patient/")) {
+		return null;
+	}
+
 	const tabs: Array<{ key: string; label: string; path: string }> = [
 		{ key: "summary", label: t("subnav.summary"), path: "/dashboard" },
 		{
