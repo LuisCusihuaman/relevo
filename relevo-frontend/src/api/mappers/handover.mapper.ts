@@ -135,6 +135,13 @@ export function mapApiHandoverDetail(api: ApiGetHandoverByIdResponse): HandoverD
 }
 
 export function mapApiActionItem(api: ApiHandoverActionItemFullRecord): HandoverActionItem {
+	// Type assertion to access new fields that may not be in generated schema yet
+	const apiWithNewFields = api as ApiHandoverActionItemFullRecord & {
+		priority?: string;
+		dueTime?: string;
+		createdBy?: string;
+	};
+
 	return {
 		id: api.id,
 		handoverId: api.handoverId,
@@ -143,6 +150,9 @@ export function mapApiActionItem(api: ApiHandoverActionItemFullRecord): Handover
 		createdAt: api.createdAt,
 		updatedAt: api.updatedAt,
 		completedAt: api.completedAt ?? null,
+		priority: apiWithNewFields.priority as Priority | undefined,
+		dueTime: apiWithNewFields.dueTime,
+		createdBy: apiWithNewFields.createdBy,
 	};
 }
 

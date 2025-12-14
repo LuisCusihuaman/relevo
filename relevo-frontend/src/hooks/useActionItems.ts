@@ -20,10 +20,11 @@ export interface ActionItem extends DomainActionItem {
 export interface UseActionItemsProps {
   handoverId?: string;
   initialActionItems?: Array<ActionItem>;
+  currentUserName?: string;
 }
 
 // Helper function to transform API response to ActionItem
-const transformActionItem = (item: HandoverActionItem): ActionItem => ({
+const transformActionItem = (item: HandoverActionItem, currentUserName?: string): ActionItem => ({
   id: item.id,
   handoverId: item.handoverId,
   description: item.description,
@@ -33,7 +34,7 @@ const transformActionItem = (item: HandoverActionItem): ActionItem => ({
   updatedAt: item.updatedAt,
   completedAt: item.completedAt,
   dueTime: item.dueTime,
-  submittedBy: "Current User",
+  submittedBy: item.createdBy || currentUserName || "Usuario",
   submittedTime: new Date(item.createdAt).toLocaleTimeString(),
   submittedDate: new Date(item.createdAt).toLocaleDateString(),
   shift: "Current Shift",
@@ -42,7 +43,8 @@ const transformActionItem = (item: HandoverActionItem): ActionItem => ({
 // Query configuration
 const actionItemsQueryConfig = (
   handoverId?: string,
-  initialActionItems: Array<ActionItem> = []
+  initialActionItems: Array<ActionItem> = [],
+  currentUserName?: string
 ): {
   queryKey: Array<string | undefined>;
   queryFn: () => Promise<Array<ActionItem>>;
@@ -55,7 +57,7 @@ const actionItemsQueryConfig = (
     if (!handoverId) return initialActionItems;
 
     const response = await getHandoverActionItems(handoverId);
-    return response.actionItems.map(transformActionItem);
+    return response.actionItems.map((item) => transformActionItem(item, currentUserName));
   },
   enabled: !!handoverId,
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -147,7 +149,7 @@ const deleteActionItemMutationConfig = (
   },
 });
 
-export function useActionItems({ handoverId, initialActionItems = [] }: UseActionItemsProps = {}): {
+export function useActionItems({ handoverId, initialActionItems = [], currentUserName }: UseActionItemsProps = {}): {
   actionItems: Array<ActionItem>;
   isLoading: boolean;
   error: Error | null;
@@ -174,7 +176,7 @@ export function useActionItems({ handoverId, initialActionItems = [] }: UseActio
 
   // Simplified query and mutations using helper configs
   const actionItemsQuery = useQuery(
-    actionItemsQueryConfig(handoverId, initialActionItems)
+    actionItemsQueryConfig(handoverId, initialActionItems, currentUserName)
   );
   const createMutation = useMutation(
     createActionItemMutationConfig(queryClient, handoverId)

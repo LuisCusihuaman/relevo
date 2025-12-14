@@ -156,6 +156,7 @@ export type HandoverActionItem = {
 	completedAt: string | null;
 	priority?: Priority;
 	dueTime?: string;
+	createdBy?: string;
 };
 
 export type ActivityItem = {

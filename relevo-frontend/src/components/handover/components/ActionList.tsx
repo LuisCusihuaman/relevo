@@ -50,6 +50,7 @@ export function ActionList({
   } = useActionItems({
     handoverId,
     initialActionItems: [], // Start with empty array, will be populated by API
+    currentUserName: currentUser?.name,
   });
 
   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
