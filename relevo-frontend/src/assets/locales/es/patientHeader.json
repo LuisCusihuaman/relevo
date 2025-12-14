@@ -1,5 +1,6 @@
 {
   "age": "Edad: {{age}}",
+  "admissionDate": "FI: {{date}}",
   "room": "Habitación: {{room}}",
   "admitted": "Ingresado: {{date}}",
   "mrn": "Nº Historial: {{mrn}}",

@@ -29,6 +29,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
 import { useHandoverSession } from "@/components/handover/hooks/useHandoverSession";
@@ -92,6 +93,16 @@ export function Header({
       return age;
     } catch {
       return 0;
+    }
+  };
+
+  // Format admission date
+  const formatAdmissionDate = (dateString?: string): string => {
+    if (!dateString) return "N/D";
+    try {
+      return dayjs(dateString).format("DD/MM/YYYY");
+    } catch {
+      return dateString;
     }
   };
 
@@ -367,6 +378,10 @@ export function Header({
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>{t("age", { age: calculateAgeFromDob(patientData?.dob || ""), ns: "patientHeader" })}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-3 h-3" />
+              <span>{t("admissionDate", { date: formatAdmissionDate(patientData?.admissionDate), ns: "patientHeader" })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <FileText className="w-3 h-3" />
