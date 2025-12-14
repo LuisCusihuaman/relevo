@@ -15,7 +15,9 @@ public class CreateHandoverActionItemHandler(IHandoverRepository _repository)
         var item = await _repository.CreateActionItemAsync(
             request.HandoverId,
             request.Description,
-            request.Priority);
+            request.Priority,
+            request.DueTime,
+            request.CreatedBy);
 
         return Result.Success(item);
     }

@@ -9,9 +9,12 @@ public record HandoverActionItemFullRecord(
     [property: Required] bool IsCompleted,
     [property: Required] DateTime CreatedAt,
     [property: Required] DateTime UpdatedAt,
-    DateTime? CompletedAt
+    DateTime? CompletedAt,
+    string? Priority,
+    string? DueTime,
+    string? CreatedBy
 )
 {
-    public HandoverActionItemFullRecord() : this("", "", "", false, DateTime.MinValue, DateTime.MinValue, null) { }
+    public HandoverActionItemFullRecord() : this("", "", "", false, DateTime.MinValue, DateTime.MinValue, null, null, null, null) { }
 }
 

@@ -22,7 +22,12 @@ public class CreateHandoverActionItem(IMediator _mediator, ICurrentUser _current
         }
 
         var result = await _mediator.Send(
-            new CreateHandoverActionItemCommand(req.HandoverId, req.Description, req.Priority),
+            new CreateHandoverActionItemCommand(
+                req.HandoverId, 
+                req.Description, 
+                req.Priority,
+                req.DueTime,
+                _currentUser.FullName ?? _currentUser.Id ?? "Unknown"),
             ct);
 
         if (result.IsSuccess)
@@ -46,6 +51,7 @@ public class CreateHandoverActionItemRequest
     public string HandoverId { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Priority { get; set; } = "medium";
+    public string? DueTime { get; set; }
 }
 
 public class CreateHandoverActionItemResponse

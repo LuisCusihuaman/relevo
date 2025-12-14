@@ -7,6 +7,8 @@ namespace Relevo.UseCases.Me.ActionItems;
 public record CreateHandoverActionItemCommand(
     string HandoverId,
     string Description,
-    string Priority
+    string Priority,
+    string? DueTime,
+    string CreatedBy
 ) : IRequest<Result<HandoverActionItemFullRecord>>;
 

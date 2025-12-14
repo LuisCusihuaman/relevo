@@ -27,7 +27,7 @@ public interface IHandoverRepository
 
     // Action Items
     Task<IReadOnlyList<HandoverActionItemFullRecord>> GetActionItemsAsync(string handoverId);
-    Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority);
+    Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority, string? dueTime, string createdBy);
     Task<bool> UpdateActionItemAsync(string handoverId, string itemId, bool isCompleted);
     Task<bool> DeleteActionItemAsync(string handoverId, string itemId);
 

@@ -15,7 +15,8 @@ public partial class HandoverRepository
 
         const string sql = @"
             SELECT ID, HANDOVER_ID as HandoverId, DESCRIPTION, IS_COMPLETED as IsCompleted,
-                   CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt, COMPLETED_AT as CompletedAt
+                   CREATED_AT as CreatedAt, UPDATED_AT as UpdatedAt, COMPLETED_AT as CompletedAt,
+                   PRIORITY, DUE_TIME as DueTime, CREATED_BY as CreatedBy
             FROM HANDOVER_ACTION_ITEMS
             WHERE HANDOVER_ID = :handoverId
             ORDER BY CREATED_AT DESC";
@@ -24,17 +25,17 @@ public partial class HandoverRepository
         return items.ToList();
     }
 
-    public async Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority)
+    public async Task<HandoverActionItemFullRecord> CreateActionItemAsync(string handoverId, string description, string priority, string? dueTime, string createdBy)
     {
         using var conn = _connectionFactory.CreateConnection();
         var id = $"action-{Guid.NewGuid().ToString()[..8]}";
         var now = DateTime.UtcNow;
 
         const string sql = @"
-            INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED, CREATED_AT, UPDATED_AT)
-            VALUES (:id, :handoverId, :description, 0, LOCALTIMESTAMP, LOCALTIMESTAMP)";
+            INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED, PRIORITY, DUE_TIME, CREATED_BY, CREATED_AT, UPDATED_AT)
+            VALUES (:id, :handoverId, :description, 0, :priority, :dueTime, :createdBy, LOCALTIMESTAMP, LOCALTIMESTAMP)";
 
-        await conn.ExecuteAsync(sql, new { id, handoverId, description });
+        await conn.ExecuteAsync(sql, new { id, handoverId, description, priority, dueTime, createdBy });
 
         return new HandoverActionItemFullRecord(
             id,
@@ -43,7 +44,10 @@ public partial class HandoverRepository
             false,
             now,
             now,
-            null
+            null,
+            priority,
+            dueTime,
+            createdBy
         );
     }
 
