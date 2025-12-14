@@ -9,7 +9,7 @@
     "illnessSeverityDescription": "Evaluar la condición y estabilidad del paciente",
     "patientSummaryDescription": "Registro estático del paciente copiado de traspasos anteriores",
     "situationAwarenessDescription": "Estado del paciente y actualizaciones en tiempo real",
-    "actionListDescription": "Tareas pendientes"
+    "actionListDescription": " "
   },
   "loadingPatientData": "Cargando datos del paciente...",
   "errorLoadingPatientData": "Error al cargar datos del paciente",
