@@ -13,5 +13,14 @@ public interface IShiftTransitionService
     /// <param name="currentShiftId">Current shift ID (e.g., "shift-day", "shift-night")</param>
     /// <returns>Next shift ID, or null if transition cannot be determined</returns>
     Task<string?> GetNextShiftIdAsync(string currentShiftId);
+
+    /// <summary>
+    /// Gets the previous shift ID before the given shift.
+    /// For MVP: Night -> Day (previous), Day -> Night (previous).
+    /// Used to determine if an assignment is to the TO shift of an existing handover.
+    /// </summary>
+    /// <param name="currentShiftId">Current shift ID (e.g., "shift-day", "shift-night")</param>
+    /// <returns>Previous shift ID, or null if transition cannot be determined</returns>
+    Task<string?> GetPreviousShiftIdAsync(string currentShiftId);
 }
 

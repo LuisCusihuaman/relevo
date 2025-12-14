@@ -431,4 +431,30 @@ public partial class HandoverRepository
         var count = await conn.ExecuteScalarAsync<int>(sql, new { handoverId, userId });
         return count > 0;
     }
+
+    public async Task<string?> GetActiveHandoverForPatientAndToShiftAsync(string patientId, string toShiftId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Find an active handover where the TO shift matches the given shift template
+        // This is used to detect if an assignment is for receiving (TO shift) rather than sending (FROM shift)
+        // Regla #27: Receiver assignment should NOT create a new handover
+        // 
+        // We only look for handovers created TODAY to avoid false positives from old handovers
+        const string sql = @"
+            SELECT ID FROM (
+                SELECT h.ID
+                FROM HANDOVERS h
+                JOIN SHIFT_WINDOWS sw ON h.SHIFT_WINDOW_ID = sw.ID
+                JOIN SHIFT_INSTANCES si_to ON sw.TO_SHIFT_INSTANCE_ID = si_to.ID
+                WHERE h.PATIENT_ID = :patientId
+                  AND si_to.SHIFT_ID = :toShiftId
+                  AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                  AND TRUNC(h.CREATED_AT) = TRUNC(SYSDATE)
+                ORDER BY h.CREATED_AT DESC
+            ) WHERE ROWNUM <= 1";
+
+        var handoverId = await conn.ExecuteScalarAsync<string>(sql, new { patientId, toShiftId });
+        return handoverId;
+    }
 }

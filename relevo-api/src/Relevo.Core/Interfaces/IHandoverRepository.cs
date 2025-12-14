@@ -43,4 +43,14 @@ public interface IHandoverRepository
 
     // Coverage validation (V3 app-enforced rules)
     Task<bool> HasCoverageInToShiftAsync(string handoverId, string userId);
+
+    /// <summary>
+    /// Gets the ID of an active handover where the given shift is the TO shift.
+    /// Used to detect if a patient assignment is for receiving (TO shift) rather than sending (FROM shift).
+    /// Regla #27: Receiver assignment should NOT create a new handover.
+    /// </summary>
+    /// <param name="patientId">Patient ID</param>
+    /// <param name="toShiftId">The shift template ID (e.g., "shift-day", "shift-night")</param>
+    /// <returns>Handover ID if an active handover exists with this TO shift, null otherwise</returns>
+    Task<string?> GetActiveHandoverForPatientAndToShiftAsync(string patientId, string toShiftId);
 }

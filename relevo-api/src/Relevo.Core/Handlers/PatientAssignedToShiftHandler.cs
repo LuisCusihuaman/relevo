@@ -9,7 +9,12 @@ namespace Relevo.Core.Handlers;
 /// <summary>
 /// Handler for PatientAssignedToShiftEvent.
 /// Automatically creates handovers when patients are assigned to shifts.
-/// V3_PLAN.md Regla #14: Handovers are created as side effects of domain commands.
+/// V3_PLAN.md Regla #24: Handovers are created as side effects of domain commands.
+/// 
+/// IMPORTANT: This handler only creates handovers when assigning to the FROM shift (sender role).
+/// When assigning to the TO shift (receiver role), no new handover should be created.
+/// Regla #27: "Cuando un receptor se asigna pacientes para el próximo turno, 
+/// el handover debería poder estar disponible (Draft) para completarse antes de la reunión."
 /// 
 /// This handler reuses the existing CreateHandoverAsync logic from HandoverRepository,
 /// which already handles all the complexity of shift instances, windows, coverage validation, etc.
@@ -35,6 +40,26 @@ public class PatientAssignedToShiftHandler(
                     "Skipping handover creation: assignment is not primary. PatientId={PatientId}, ShiftId={ShiftId}",
                     domainEvent.PatientId, domainEvent.ShiftId);
                 return;
+            }
+
+            // Check if this assignment is to the TO shift of an existing active handover
+            // Regla #27: Receiver assignment should NOT create new handover
+            var previousShiftId = await _shiftTransitionService.GetPreviousShiftIdAsync(domainEvent.ShiftId);
+            if (!string.IsNullOrEmpty(previousShiftId))
+            {
+                // Check if there's an active handover where this shift is the TO shift
+                // (i.e., an existing handover from previousShift -> currentShift)
+                var existingHandoverId = await _handoverRepository.GetActiveHandoverForPatientAndToShiftAsync(
+                    domainEvent.PatientId, domainEvent.ShiftId);
+                
+                if (!string.IsNullOrEmpty(existingHandoverId))
+                {
+                    _logger.LogInformation(
+                        "Skipping handover creation: user is being assigned as receiver to TO shift of existing handover. " +
+                        "PatientId={PatientId}, ShiftId={ShiftId}, ExistingHandoverId={ExistingHandoverId}",
+                        domainEvent.PatientId, domainEvent.ShiftId, existingHandoverId);
+                    return;
+                }
             }
 
             // Get next shift ID (e.g., Day -> Night, Night -> Day)

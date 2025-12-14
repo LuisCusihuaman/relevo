@@ -130,126 +130,29 @@ VALUES ('sw-unit1-night-day-0', 'unit-1', 'si-unit1-night-1', 'si-unit1-day-1');
 -- ========================================
 -- SHIFT COVERAGE (V3: Replaces USER_ASSIGNMENTS)
 -- ========================================
-
--- Coverage for today's day shift (primary assignments)
-INSERT INTO SHIFT_COVERAGE (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, IS_PRIMARY)
-VALUES ('sc-001', 'user_demo12345678901234567890123456', 'pat-001', 'si-unit1-day-1', 'unit-1', 1);
-
-INSERT INTO SHIFT_COVERAGE (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, IS_PRIMARY)
-VALUES ('sc-002', 'user_demo12345678901234567890123456', 'pat-002', 'si-unit1-day-1', 'unit-1', 1);
-
-INSERT INTO SHIFT_COVERAGE (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, IS_PRIMARY)
-VALUES ('sc-003', 'user_demo12345678901234567890123456', 'pat-003', 'si-unit1-day-1', 'unit-1', 1);
-
--- Coverage for today's night shift
-INSERT INTO SHIFT_COVERAGE (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, IS_PRIMARY)
-VALUES ('sc-004', 'user_demo12345678901234567890123457', 'pat-001', 'si-unit1-night-1', 'unit-1', 1);
-
-INSERT INTO SHIFT_COVERAGE (ID, RESPONSIBLE_USER_ID, PATIENT_ID, SHIFT_INSTANCE_ID, UNIT_ID, IS_PRIMARY)
-VALUES ('sc-005', 'user_demo12345678901234567890123457', 'pat-002', 'si-unit1-night-1', 'unit-1', 1);
-
--- ========================================
--- HANDOVERS (V3: Uses SHIFT_WINDOW_ID)
--- ========================================
-
--- handover-001: Ready (yesterday: day-2 -> night-1)
-INSERT INTO HANDOVERS (ID, PATIENT_ID, SHIFT_WINDOW_ID, UNIT_ID, SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID, CREATED_AT, READY_AT, READY_BY_USER_ID)
-VALUES ('handover-001', 'pat-001', 'sw-unit1-day-night-1', 'unit-1', 
-        'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 
-        'user_demo12345678901234567890123456',
-        LOCALTIMESTAMP - INTERVAL '1' HOUR, LOCALTIMESTAMP - INTERVAL '30' MINUTE, 'user_demo12345678901234567890123456');
-
--- handover-002: Draft (yesterday: day-2 -> night-1)
-INSERT INTO HANDOVERS (ID, PATIENT_ID, SHIFT_WINDOW_ID, UNIT_ID, CREATED_BY_USER_ID)
-VALUES ('handover-002', 'pat-002', 'sw-unit1-day-night-1', 'unit-1', 'user_demo12345678901234567890123456');
-
--- handover-003: InProgress (yesterday: day-2 -> night-1)
-INSERT INTO HANDOVERS (ID, PATIENT_ID, SHIFT_WINDOW_ID, UNIT_ID, SENDER_USER_ID, RECEIVER_USER_ID, CREATED_BY_USER_ID, 
-                       CREATED_AT, READY_AT, READY_BY_USER_ID, STARTED_AT, STARTED_BY_USER_ID)
-VALUES ('handover-003', 'pat-003', 'sw-unit1-day-night-1', 'unit-1', 
-        'user_demo12345678901234567890123456', 'user_demo12345678901234567890123457', 
-        'user_demo12345678901234567890123456',
-        LOCALTIMESTAMP - INTERVAL '2' HOUR, LOCALTIMESTAMP - INTERVAL '1' HOUR, 'user_demo12345678901234567890123456',
-        LOCALTIMESTAMP - INTERVAL '30' MINUTE, 'user_demo12345678901234567890123457');
+-- NO pre-created coverage - use the app to assign patients and test automatic handover creation
+-- 
+-- Test flow:
+-- 1. Login as Dr. Johnson (user_demo...56) 
+-- 2. Assign yourself to pat-001 in day shift (FROM) → Handover created automatically (Draft)
+-- 3. Login as Dr. Patel (user_demo...57)
+-- 4. Assign yourself to pat-001 in night shift (TO) → Now you can receive
+-- 5. Dr. Johnson marks as Ready → State: Ready
+-- 6. Dr. Patel starts handover → State: InProgress  
+-- 7. Dr. Patel completes handover → State: Completed
+--
+-- Available users:
+-- - user_demo12345678901234567890123456 (Dr. John Johnson)
+-- - user_demo12345678901234567890123457 (Dr. Priya Patel)
+-- - user_demo12345678901234567890123458 (Dr. Carlos Martinez)
+--
+-- Available patients: pat-001 to pat-012 (all in unit-1, no assignments)
+-- Available shifts: shift-day (07:00-15:00), shift-night (19:00-07:00)
 
 -- ========================================
--- HANDOVER CONTENT
+-- NO HANDOVERS - Created automatically when assigning patients
 -- ========================================
-
--- Content for handover-001
-INSERT INTO HANDOVER_CONTENTS(
-    HANDOVER_ID, 
-    ILLNESS_SEVERITY, 
-    PATIENT_SUMMARY, 
-    SITUATION_AWARENESS, 
-    SYNTHESIS, 
-    PATIENT_SUMMARY_STATUS,
-    SA_STATUS,
-    SYNTHESIS_STATUS,
-    LAST_EDITED_BY
-)
-VALUES (
-    'handover-001', 
-    'Stable', 
-    'Paciente de 14 años con neumonía adquirida en comunidad. Ingreso hace 3 días. Tratamiento con Amoxicilina y oxígeno suplementario.', 
-    'Paciente estable, saturación de oxígeno 94%, requiere nebulizaciones cada 6 horas. Sin complicaciones.', 
-    'Paciente estable, sin complicaciones. Buena respuesta al tratamiento antibiótico.', 
-    'Completed',
-    'Completed',
-    'Draft',
-    'user_demo12345678901234567890123456'
-);
-
--- Content for handover-003
-INSERT INTO HANDOVER_CONTENTS(
-    HANDOVER_ID, 
-    ILLNESS_SEVERITY, 
-    PATIENT_SUMMARY, 
-    SITUATION_AWARENESS, 
-    SYNTHESIS, 
-    PATIENT_SUMMARY_STATUS,
-    SA_STATUS,
-    SYNTHESIS_STATUS,
-    LAST_EDITED_BY
-)
-VALUES (
-    'handover-003', 
-    'Watcher', 
-    'Paciente con estado asmático agudo. Mejoría progresiva.', 
-    'Requiere monitoreo de función respiratoria.', 
-    'Continuar tratamiento actual.', 
-    'Completed', 
-    'Completed', 
-    'Draft',
-    'user_demo12345678901234567890123457'
-);
-
--- ========================================
--- HANDOVER ACTION ITEMS
--- ========================================
-
-INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
-VALUES ('action-001', 'handover-001', 'Realizar nebulizaciones cada 6 horas', 0);
-
-INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
-VALUES ('action-002', 'handover-001', 'Monitorear saturación de oxígeno', 0);
-
-INSERT INTO HANDOVER_ACTION_ITEMS (ID, HANDOVER_ID, DESCRIPTION, IS_COMPLETED)
-VALUES ('action-003', 'handover-001', 'Control de temperatura cada 4 horas', 1);
-
--- ========================================
--- HANDOVER MESSAGES
--- ========================================
-
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-001', 'handover-001', 'user_demo12345678901234567890123456', 'Just reviewed the case. The patient seems stable today. Any concerns?', 'message', LOCALTIMESTAMP - INTERVAL '5' MINUTE);
-
-INSERT INTO HANDOVER_MESSAGES (ID, HANDOVER_ID, USER_ID, MESSAGE_TEXT, MESSAGE_TYPE, CREATED_AT)
-VALUES ('message-002', 'handover-001', 'user_demo12345678901234567890123457', 'Patient has been stable. Responded well to the treatment this morning.', 'message', LOCALTIMESTAMP - INTERVAL '3' MINUTE);
-
--- ========================================
--- HANDOVER CONTINGENCY
--- ========================================
-
-INSERT INTO HANDOVER_CONTINGENCY (ID, HANDOVER_ID, CONDITION_TEXT, ACTION_TEXT, PRIORITY, STATUS, CREATED_BY, CREATED_AT)
-VALUES ('contingency-001', 'handover-001', 'Si el paciente desarrolla dificultad respiratoria aguda o saturación de oxígeno < 92%', 'Administrar oxígeno suplementario, llamar a terapia respiratoria, considerar BIPAP, contactar al médico tratante inmediatamente', 'high', 'active', 'user_demo12345678901234567890123456', LOCALTIMESTAMP - INTERVAL '30' MINUTE);
+-- Handovers are created as side effects of domain commands (Rule 24)
+-- The PatientAssignedToShiftHandler creates handovers when:
+-- - A patient is assigned to a shift (coverage created)
+-- - The assignment is primary (IS_PRIMARY=1)

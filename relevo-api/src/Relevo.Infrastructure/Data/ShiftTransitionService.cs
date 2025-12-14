@@ -77,6 +77,38 @@ public class ShiftTransitionService(DapperConnectionFactory _connectionFactory) 
             .ID;
     }
 
+    public async Task<string?> GetPreviousShiftIdAsync(string currentShiftId)
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        // Get all shifts to determine transition
+        const string getShiftsSql = @"
+            SELECT ID, NAME, START_TIME, END_TIME
+            FROM SHIFTS
+            ORDER BY START_TIME";
+
+        var shifts = await conn.QueryAsync<dynamic>(getShiftsSql);
+
+        var shiftList = shifts.ToList();
+        if (shiftList.Count < 2)
+        {
+            // Need at least 2 shifts for transitions
+            return null;
+        }
+
+        // For MVP with 2 shifts: Previous of Day is Night, Previous of Night is Day
+        // This is the inverse of GetNextShiftIdAsync
+        var currentShift = shiftList.FirstOrDefault(s => (string)s.ID == currentShiftId);
+        if (currentShift == null)
+        {
+            return null;
+        }
+
+        // Find the other shift (for MVP with 2 shifts)
+        var otherShift = shiftList.FirstOrDefault(s => (string)s.ID != currentShiftId);
+        return otherShift?.ID;
+    }
+
     private static TimeSpan ParseTime(string timeString)
     {
         var parts = timeString.Split(':');
