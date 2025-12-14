@@ -257,12 +257,12 @@ export function MainContent(): React.JSX.Element {
 			<div className="xl:col-span-2 space-y-6">
 				{IllnessSection}
 				{PatientSection}
+				{ActionSection}
 				{SituationSection}
 			</div>
 
-			{/* Right Column - Actions & Synthesis */}
+			{/* Right Column - Synthesis */}
 			<div className="xl:col-span-1 space-y-6">
-				{ActionSection}
 				{SynthesisSection}
 			</div>
 		</div>
