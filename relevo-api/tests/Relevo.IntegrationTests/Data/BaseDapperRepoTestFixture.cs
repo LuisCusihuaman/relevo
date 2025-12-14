@@ -5,7 +5,6 @@ using Relevo.FunctionalTests;
 using Relevo.Infrastructure.Data;
 using Xunit;
 using Dapper;
-using System.Data;
 
 namespace Relevo.IntegrationTests.Data;
 
@@ -18,11 +17,6 @@ public abstract class BaseDapperRepoTestFixture : IClassFixture<CustomWebApplica
     {
         _factory = factory;
         _scope = _factory.Services.CreateScope();
-    }
-
-    protected ContributorRepository GetRepository()
-    {
-        return (ContributorRepository)_scope.ServiceProvider.GetRequiredService<IContributorRepository>();
     }
 
     /// <summary>

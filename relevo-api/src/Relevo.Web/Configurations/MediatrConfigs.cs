@@ -1,6 +1,6 @@
-﻿using Ardalis.SharedKernel;
-using Relevo.Core.ContributorAggregate;
-using Relevo.UseCases.Contributors.Create;
+using Ardalis.SharedKernel;
+using Relevo.Core.Handlers;
+using Relevo.UseCases.Handovers.StateMachine;
 using MediatR;
 using System.Reflection;
 
@@ -12,8 +12,8 @@ public static class MediatrConfigs
   {
     var mediatRAssemblies = new[]
       {
-        Assembly.GetAssembly(typeof(Contributor)), // Core
-        Assembly.GetAssembly(typeof(CreateContributorCommand)) // UseCases
+        Assembly.GetAssembly(typeof(PatientAssignedToShiftHandler)), // Core
+        Assembly.GetAssembly(typeof(HandoverStateMachineHandlers)) // UseCases
       };
 
     services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!))

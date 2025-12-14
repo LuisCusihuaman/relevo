@@ -26,8 +26,6 @@ public class DapperTestSeeder(IConfiguration configuration)
     private static readonly string TestRunId = Guid.NewGuid().ToString()[..8];
     
     // Public test IDs that tests can reference
-    public static string ContributorId1 => $"c1-{TestRunId}";
-    public static string ContributorId2 => $"c2-{TestRunId}";
     public static string UnitId => $"unit-{TestRunId}";
     public static string ShiftDayId => $"shift-day-{TestRunId}";
     public static string ShiftNightId => $"shift-night-{TestRunId}";
@@ -402,9 +400,6 @@ public class DapperTestSeeder(IConfiguration configuration)
 
         // Seed additional data for new endpoints (tables already exist from relevo-api SQL scripts)
         SeedMessages(connection);
-
-        // Seed Contributors for legacy tests
-        SeedContributors(connection);
     }
 
     private void SeedMessages(IDbConnection connection)
@@ -422,58 +417,5 @@ public class DapperTestSeeder(IConfiguration configuration)
                     MessageType = "message"
                 });
         } catch (OracleException e) when (e.Number == 1 || e.Number == 2291 || e.Number == 942) {}
-    }
-
-    private void SeedContributors(IDbConnection connection)
-    {
-        // CONTRIBUTORS table/sequence are NOT in relevo-api SQL scripts - they're only in the new api project
-        // So we need to ensure they exist here
-        try {
-            connection.Execute(@"
-                CREATE TABLE CONTRIBUTORS (
-                    Id NUMBER(10) NOT NULL,
-                    Name VARCHAR2(100) NOT NULL,
-                    Status NUMBER(10) DEFAULT 0 NOT NULL,
-                    PhoneNumber_CountryCode VARCHAR2(50),
-                    PhoneNumber_Number VARCHAR2(50),
-                    PhoneNumber_Extension VARCHAR2(50),
-                    CONSTRAINT PK_CONTRIBUTORS PRIMARY KEY (Id)
-                )");
-        } catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used
-
-        try {
-            connection.Execute("CREATE SEQUENCE CONTRIBUTORS_SEQ START WITH 1000 INCREMENT BY 1");
-        } catch (OracleException e) when (e.Number == 955) {} // ORA-00955: name already used
-
-        // Use MERGE to make contributor inserts idempotent (prevents race conditions in parallel tests)
-        // Insert contributor with ID=1 for test that expects GetContributorById(1)
-        try {
-            connection.Execute(@"
-                MERGE INTO CONTRIBUTORS c
-                USING (SELECT 1 AS Id FROM DUAL) src ON (c.Id = src.Id)
-                WHEN NOT MATCHED THEN
-                    INSERT (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 
-                    VALUES (1, :Name, 1, NULL, NULL, NULL)
-                WHEN MATCHED THEN
-                    UPDATE SET Name = :Name", 
-                new { Name = TestSeeds.Contributor1 });
-        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
-            // Unique constraint or foreign key - ignore if already exists or dependency missing
-        }
-
-        // Insert contributor with ID=2 using MERGE
-        try {
-            connection.Execute(@"
-                MERGE INTO CONTRIBUTORS c
-                USING (SELECT 2 AS Id FROM DUAL) src ON (c.Id = src.Id)
-                WHEN NOT MATCHED THEN
-                    INSERT (Id, Name, Status, PhoneNumber_CountryCode, PhoneNumber_Number, PhoneNumber_Extension) 
-                    VALUES (2, :Name, 1, NULL, NULL, NULL)
-                WHEN MATCHED THEN
-                    UPDATE SET Name = :Name", 
-                new { Name = TestSeeds.Contributor2 });
-        } catch (OracleException e) when (e.Number == 1 || e.Number == 2291) {
-            // Unique constraint or foreign key - ignore if already exists or dependency missing
-        }
     }
 }
