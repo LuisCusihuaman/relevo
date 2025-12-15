@@ -33,7 +33,7 @@ export function FullscreenEditor(): JSX.Element | null {
 
   // Hooks
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
-  const { handoverId, patientData, currentUser } = useCurrentHandover();
+  const { handoverId, patientData, currentUser, assignedPhysician } = useCurrentHandover();
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -224,6 +224,7 @@ export function FullscreenEditor(): JSX.Element | null {
                   currentUser={currentUser}
                   handoverId={handoverId}
                   patientData={patientData || undefined}
+                  responsiblePhysician={assignedPhysician}
                   onContentChange={handleContentChange}
                   onRequestFullscreen={() => {}}
                   onSave={handleFullscreenSave}

@@ -31,6 +31,8 @@
     "clickToEdit": "Haga clic para editar",
     "noSummaryMessage": "No hay resumen clínico disponible. Haga clic para crear uno."
   },
+  "responsiblePhysician": "Médico Responsable",
+  "unassigned": "Sin asignar",
   "permission": {
     "only": "Solo",
     "canModify": "puede modificar este historial clínico."

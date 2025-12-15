@@ -109,11 +109,6 @@ export function MainContent(): React.JSX.Element {
 		);
 	}
 
-	const responsiblePhysician = {
-		id: handoverData.responsiblePhysicianId,
-		name: handoverData.responsiblePhysicianName,
-	};
-
 	// Section labels
 	const sectionLabels = {
 		illness: {
@@ -191,7 +186,7 @@ export function MainContent(): React.JSX.Element {
 							handoverId={handoverData.id}
 							handoverStateName={handoverData.stateName}
 							patientData={patientData || undefined}
-							responsiblePhysician={responsiblePhysician}
+							responsiblePhysician={assignedPhysician}
 							onRequestFullscreen={() => { handleOpenFullscreenEdit("patient-summary"); }}
 						/>
 					</HandoverSection>

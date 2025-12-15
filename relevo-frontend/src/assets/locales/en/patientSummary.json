@@ -30,6 +30,8 @@
     "words": "words",
     "clickToEdit": "Click to edit"
   },
+  "responsiblePhysician": "Responsible Physician",
+  "unassigned": "Unassigned",
   "permission": {
     "only": "Only",
     "canModify": "can modify this clinical record."
