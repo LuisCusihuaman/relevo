@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Clock, Edit, FileText, Lock, Save, Shield } from "lucide-react";
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	useUpdatePatientData,
 } from "@/api/endpoints/handovers";
+
+export interface PatientSummaryHandle {
+  save: () => Promise<void>;
+}
 
 interface PatientSummaryProps {
   handoverId: string; // Required: ID of the handover
@@ -17,8 +21,6 @@ interface PatientSummaryProps {
   autoEdit?: boolean;
   onRequestFullscreen?: () => void;
   hideControls?: boolean; // NEW PROP to hide internal save/done buttons
-  onSave?: () => void; // Handler for external save button
-  onSaveReady?: (saveFunction: () => void) => void; // Provide save function to parent
   currentUser?: {
     id: string;
     name: string;
@@ -26,27 +28,25 @@ interface PatientSummaryProps {
     role: string;
   };
   responsiblePhysician?: {
-    id: string;
+    id?: string;
     name: string;
   };
   handoverStateName?: "Draft" | "Ready" | "InProgress" | "Completed" | "Cancelled";
   onContentChange?: () => void;
 }
 
-export function PatientSummary({
+export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryProps>(({
   handoverId,
   patientData: patientDataProp,
   fullscreenMode = false,
   autoEdit = false,
   onRequestFullscreen,
   hideControls = false, // Default to false for backwards compatibility
-  onSave, // External save handler
-  onSaveReady,
   currentUser,
   responsiblePhysician,
   handoverStateName,
   onContentChange,
-}: PatientSummaryProps): ReactElement {
+}, ref) => {
   const { t } = useTranslation("patientSummary");
 
   // Patient data now comes as prop instead of separate API call
@@ -61,8 +61,10 @@ export function PatientSummary({
   const currentText = isEditing ? editingText : displayText;
 
   // Check if current user can edit (only responsible physician for drafts)
+  // If state is undefined/empty, treat as Draft (new handover)
+  const effectiveState = handoverStateName || "Draft";
   const canEdit =
-    handoverStateName === "Draft" &&
+    (effectiveState === "Draft" || effectiveState === "InProgress") &&
     !!currentUser?.id &&
     !!responsiblePhysician?.id &&
     currentUser.id === responsiblePhysician.id;
@@ -71,7 +73,9 @@ export function PatientSummary({
   const updateSummaryMutation = useUpdatePatientData();
 
   const handleSave = useCallback(async () => {
-    if (!editingText.trim()) return;
+    if (!editingText.trim()) {
+        return;
+    }
 
     setIsUpdating(true);
 
@@ -86,10 +90,6 @@ export function PatientSummary({
       setIsEditing(false);
       setEditingText("");
 
-      // Call external save handler if provided
-      if (onSave) {
-        onSave();
-      }
     } catch (error) {
       console.error("Failed to save patient summary:", error);
       // Handle error - could show a toast notification here
@@ -97,12 +97,15 @@ export function PatientSummary({
       setIsUpdating(false);
     }
   }, [
-    editingText,
     handoverId,
     updateSummaryMutation,
-    onSave,
-    patientDataProp,
+    editingText,
+    patientDataProp
   ]);
+
+  useImperativeHandle(ref, () => ({
+    save: handleSave
+  }));
 
   // Auto-start editing when in fullscreen with autoEdit
   useEffect(() => {
@@ -111,13 +114,6 @@ export function PatientSummary({
       setEditingText(displayText);
     }
   }, [fullscreenMode, autoEdit, canEdit, displayText, isEditing]);
-
-  // Provide save function to parent
-  useEffect(() => {
-    if (onSaveReady) {
-      onSaveReady(() => { void handleSave(); });
-    }
-  }, [onSaveReady, handleSave]);
 
 
   const getTimeAgo = (): string => {
@@ -238,8 +234,8 @@ export function PatientSummary({
                       {t("editing.cancel")}
                     </Button>
                     <Button
-                      className="text-xs bg-gray-700 hover:bg-gray-800 text-white h-7 px-3"
-                      disabled={isUpdating}
+                      className="text-xs bg-blue-600 hover:bg-blue-700 text-white h-7 px-3"
+                      disabled={isUpdating || !currentText.trim()}
                       size="sm"
                       onClick={() => { void handleSave(); }}
                     >
@@ -376,12 +372,14 @@ export function PatientSummary({
           {/* Permission notice for non-authorized users */}
           {!canEdit && (
             <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <div className="flex items-center space-x-2 text-sm text-orange-700">
-                <Lock className="w-4 h-4" />
-                <span>
-                  {t("permission.only")} {responsiblePhysician?.name || t("unassigned")}{" "}
-                  {t("permission.canModify")}
-                </span>
+              <div className="flex flex-col space-y-1 text-sm text-orange-700">
+                <div className="flex items-center space-x-2">
+                  <Lock className="w-4 h-4" />
+                  <span>
+                    {t("permission.only")} {responsiblePhysician?.name || t("unassigned")}{" "}
+                    {t("permission.canModify")}
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -389,4 +387,6 @@ export function PatientSummary({
       )}
     </div>
   );
-}
+});
+
+PatientSummary.displayName = "PatientSummary";

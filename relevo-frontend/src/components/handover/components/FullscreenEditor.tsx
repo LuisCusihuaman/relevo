@@ -13,7 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Clock, Save, Stethoscope, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
-import { PatientSummary } from "./PatientSummary";
+import { PatientSummary, type PatientSummaryHandle } from "./PatientSummary";
 import { SituationAwareness } from "./SituationAwareness";
 import { useHandoverUIStore } from "@/store/handover-ui.store";
 import { useSyncStatus } from "@/components/handover/hooks/useSyncStatus";
@@ -24,12 +24,12 @@ export function FullscreenEditor(): JSX.Element | null {
   const { t } = useTranslation("fullscreenEditor");
   const isMobile = useIsMobile();
   const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const patientSummaryRef = useRef<PatientSummaryHandle>(null);
   
   // Store - Optimized selectors
   const fullscreenEditing = useHandoverUIStore(state => state.fullscreenEditing);
   const setFullscreenEditing = useHandoverUIStore(state => state.setFullscreenEditing);
-  const currentSaveFunction = useHandoverUIStore(state => state.currentSaveFunction);
-  const setCurrentSaveFunction = useHandoverUIStore(state => state.setCurrentSaveFunction);
+  // Removed currentSaveFunction usage
 
   // Hooks
   const { syncStatus, setSyncStatus, getSyncStatusDisplay } = useSyncStatus();
@@ -55,12 +55,14 @@ export function FullscreenEditor(): JSX.Element | null {
     setFullscreenEditing(null);
   }, [setFullscreenEditing]);
 
-  // Handle Save (call the function registered in store)
-  const handleFullscreenSave = useCallback(() => {
-    if (currentSaveFunction) {
-        currentSaveFunction();
+  // Handle Save (call the function via ref)
+  const handleFullscreenSave = useCallback(async () => {
+    if (patientSummaryRef.current) {
+        await patientSummaryRef.current.save();
+        setHasUnsavedChanges(false); // Reset unsaved changes after save
+        setSyncStatus("synced");
     }
-  }, [currentSaveFunction]);
+  }, [setSyncStatus]);
 
   // Handle content changes
   const handleContentChange = useCallback((): void => {
@@ -75,7 +77,7 @@ export function FullscreenEditor(): JSX.Element | null {
         handleCloseFullscreenEdit();
       } else if ((event.ctrlKey || event.metaKey) && event.key === "s") {
         event.preventDefault();
-        handleFullscreenSave();
+        void handleFullscreenSave();
       }
     };
 
@@ -187,9 +189,9 @@ export function FullscreenEditor(): JSX.Element | null {
               <Button
                 ref={saveButtonRef}
                 className="bg-gray-900 hover:bg-gray-800 text-white text-xs px-3 h-8"
-                disabled={!hasUnsavedChanges || syncStatus === "pending"}
+                disabled={!hasUnsavedChanges}
                 size="sm"
-                onClick={handleFullscreenSave}
+                onClick={() => { void handleFullscreenSave(); }}
               >
                 <Save className="w-3 h-3 mr-1" />
                 {t("save")}
@@ -218,6 +220,7 @@ export function FullscreenEditor(): JSX.Element | null {
             {fullscreenEditing.component === "patient-summary" && (
               <div className="h-full">
                 <PatientSummary
+                  ref={patientSummaryRef}
                   fullscreenMode
                   hideControls
                   autoEdit={fullscreenEditing.autoEdit}
@@ -227,8 +230,6 @@ export function FullscreenEditor(): JSX.Element | null {
                   responsiblePhysician={assignedPhysician}
                   onContentChange={handleContentChange}
                   onRequestFullscreen={() => {}}
-                  onSave={handleFullscreenSave}
-                  onSaveReady={setCurrentSaveFunction}
                 />
               </div>
             )}
