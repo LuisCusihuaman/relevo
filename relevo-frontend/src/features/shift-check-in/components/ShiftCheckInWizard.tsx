@@ -130,17 +130,6 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 				</div>
 			</Card>
 
-			{currentStep === 3 && selectedIndexes.length === 0 && (
-				<div
-					className="fixed bottom-0 left-0 right-0 z-20 bg-red-50 border-t border-red-200 px-4 py-2"
-					style={{
-						paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
-						marginBottom: "96px",
-					}}
-				>
-					<p className="text-xs text-red-700 text-center">{t("mobileValidation")}</p>
-				</div>
-			)}
 		</div>
 	);
 }

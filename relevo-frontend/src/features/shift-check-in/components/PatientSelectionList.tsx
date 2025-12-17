@@ -31,6 +31,10 @@ export function PatientSelectionList({
 						{t("selectYourPatients")}
 					</h3>
 
+					{selectedIndexes.length === 0 && (
+						<p className="text-sm text-foreground text-center">{t("mobileValidation")}</p>
+					)}
+
 					<Badge
 						variant="outline"
 						className={`text-base px-4 py-2 ${
