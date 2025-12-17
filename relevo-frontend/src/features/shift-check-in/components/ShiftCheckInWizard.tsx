@@ -105,7 +105,7 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 	};
 
 	return (
-		<div className="min-h-[100dvh] bg-background flex flex-col md:items-center md:justify-center md:p-6">
+		<div className="min-h-[100dvh] bg-background flex flex-col md:flex md:justify-start md:items-center md:p-6 md:overflow-y-auto">
 			<ShiftCheckInNavigation
 				canProceed={canProceed}
 				currentStep={currentStep}
@@ -116,16 +116,18 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 				}}
 			/>
 
-			<Card className="w-full h-[100dvh] md:h-auto md:max-w-4xl bg-background md:bg-white shadow-none md:shadow-sm border-0 md:border md:border-border flex flex-col">
-				<ShiftCheckInHeader
-					currentStep={currentStep}
-					doctorName={doctorName}
-					getStepTitle={getStepTitle}
-					totalSteps={TOTAL_STEPS}
-					onSignOut={handleSignOut}
-				/>
+			<Card className="w-full h-[100dvh] md:h-auto md:max-w-4xl md:my-6 bg-background md:bg-white shadow-none md:shadow-sm border-0 md:border md:border-border flex flex-col">
+				<div className="flex-shrink-0">
+					<ShiftCheckInHeader
+						currentStep={currentStep}
+						doctorName={doctorName}
+						getStepTitle={getStepTitle}
+						totalSteps={TOTAL_STEPS}
+						onSignOut={handleSignOut}
+					/>
+				</div>
 
-				<div className="flex-1 overflow-y-auto p-4 pt-28 pb-32 md:p-6 md:pt-28 mobile-scroll-fix space-y-6">
+				<div className="flex-1 overflow-y-auto p-4 pt-28 pb-32 md:p-6 md:pt-6 mobile-scroll-fix space-y-6">
 					{renderStepContent()}
 				</div>
 			</Card>
