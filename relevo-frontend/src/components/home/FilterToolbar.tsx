@@ -4,11 +4,17 @@ import { useTranslation } from "react-i18next";
 type FilterToolbarProps = {
 	selectedUnit?: string | null;
 	onUnitChange?: (unitId: string | null) => void;
+	selectedUser?: string | null;
+	onUserChange?: (userId: string | null) => void;
+	users?: Array<{ id: string; fullName: string }>;
 };
 
 export const FilterToolbar: FC<FilterToolbarProps> = ({
 	selectedUnit,
 	onUnitChange,
+	selectedUser,
+	onUserChange,
+	users = [],
 }) => {
 	const { t } = useTranslation("home");
 
@@ -16,6 +22,12 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 		event.preventDefault();
 		const value = event.target.value;
 		onUnitChange?.(value === "all" ? null : value);
+	};
+
+	const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+		event.preventDefault();
+		const value = event.target.value;
+		onUserChange?.(value === "all" ? null : value);
 	};
 
 	return (
@@ -32,13 +44,17 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 				</select>
 			</div>
 			<div className="flex items-center gap-4">
-				<select className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
-					<option>{t("filterToolbar.status")}</option>
-					<option>{t("filterToolbar.all")}</option>
-					<option>{t("filterToolbar.notStarted")}</option>
-					<option>{t("filterToolbar.inProgress")}</option>
-					<option>{t("filterToolbar.completed")}</option>
-					<option>{t("filterToolbar.failed")}</option>
+				<select
+					className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+					value={selectedUser ?? "all"}
+					onChange={handleUserChange}
+				>
+					<option value="all">{t("filterToolbar.allUsers")}</option>
+					{users.map((user) => (
+						<option key={user.id} value={user.id}>
+							{user.fullName}
+						</option>
+					))}
 				</select>
 			</div>
 		</div>

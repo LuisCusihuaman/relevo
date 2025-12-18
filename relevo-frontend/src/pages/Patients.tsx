@@ -7,14 +7,19 @@ import {
 	ListHeader,
 } from "@/components/home";
 import type { HandoverUI as Handover } from "@/types/domain";
-import { useAllPatients, usePatientsByUnitForList, mapApiPatientToUiHandover, useUnits } from "@/api";
+import { useAllPatients, usePatientsByUnitForList, mapApiPatientToUiHandover, useUnits, useAllUsers } from "@/api";
 
 export function Patients(): ReactElement {
 	const navigate = useNavigate();
 	const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+	const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
 	const handleUnitChange = useCallback((unitId: string | null): void => {
 		setSelectedUnit(unitId);
+	}, []);
+
+	const handleUserChange = useCallback((userId: string | null): void => {
+		setSelectedUser(userId);
 	}, []);
 
 	const { data: allPatientsData, isLoading: isLoadingAll, error: errorAll } = useAllPatients();
@@ -22,6 +27,7 @@ export function Patients(): ReactElement {
 		selectedUnit
 	);
 	const { data: units } = useUnits();
+	const { data: users } = useAllUsers();
 
 	// When a unit is selected, only use unit data (never fall back to allPatientsData)
 	// When no unit is selected, use allPatientsData
@@ -40,10 +46,23 @@ export function Patients(): ReactElement {
 	}, [selectedUnit, units]);
 
 	// Memoize the mapped patients to handovers to avoid unnecessary re-computations
+	// Filter by selected user if a user is selected
 	const handovers: ReadonlyArray<Handover> = useMemo(() => {
 		if (!patientsData?.items) return [];
-		return patientsData.items.map(mapApiPatientToUiHandover);
-	}, [patientsData]);
+		const mapped = patientsData.items.map(mapApiPatientToUiHandover);
+		
+		if (selectedUser) {
+			return mapped.filter((handover) => {
+				// Compare by full name (case-insensitive)
+				const handoverAuthor = handover.author?.toLowerCase().trim();
+				const selectedUserData = users?.find((u) => u.id === selectedUser);
+				const selectedUserName = selectedUserData?.fullName.toLowerCase().trim();
+				return handoverAuthor === selectedUserName;
+			});
+		}
+		
+		return mapped;
+	}, [patientsData, selectedUser, users]);
 
 	const handleHandoverClick = (
 		handoverId: string,
@@ -62,7 +81,13 @@ export function Patients(): ReactElement {
 		return (
 		<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 			<ListHeader />
-			<FilterToolbar selectedUnit={selectedUnit} onUnitChange={handleUnitChange} />
+			<FilterToolbar 
+				selectedUnit={selectedUnit} 
+				onUnitChange={handleUnitChange}
+				selectedUser={selectedUser}
+				onUserChange={handleUserChange}
+				users={users}
+			/>
 			<EntityTable loading handleHandoverClick={() => {}} handovers={[]} unitName={selectedUnitName} />
 			<div className="mt-6">
 				<EntityListMobile loading handleHandoverClick={() => {}} handovers={[]} unitName={selectedUnitName} />
@@ -88,7 +113,13 @@ export function Patients(): ReactElement {
 	return (
 		<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 			<ListHeader />
-			<FilterToolbar selectedUnit={selectedUnit} onUnitChange={handleUnitChange} />
+			<FilterToolbar 
+				selectedUnit={selectedUnit} 
+				onUnitChange={handleUnitChange}
+				selectedUser={selectedUser}
+				onUserChange={handleUserChange}
+				users={users}
+			/>
 			<EntityTable handleHandoverClick={handleHandoverClick} handovers={handovers} unitName={selectedUnitName} />
 			<EntityListMobile handleHandoverClick={handleHandoverClick} handovers={handovers} unitName={selectedUnitName} />
 		</div>

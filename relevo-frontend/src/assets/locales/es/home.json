@@ -9,6 +9,7 @@
   "filterToolbar.dateRange": "Rango de fechas",
   "filterToolbar.searchPlaceholder": "Buscar pacientes…",
   "filterToolbar.allUnits": "Todas las unidades",
+  "filterToolbar.allUsers": "Todos los usuarios",
   "filterToolbar.icu": "UCI",
   "filterToolbar.emergency": "Emergencia",
   "filterToolbar.pediatrics": "Pediatría",
