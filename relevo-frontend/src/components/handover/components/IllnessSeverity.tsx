@@ -100,7 +100,12 @@ export function IllnessSeverity({
 	}));
 
 	const handleSeverityChange = (severityId: SeverityLevel): void => {
-		if (!canEdit || isPending || severityId === selectedSeverity) return;
+		console.log("[IllnessSeverity] handleSeverityChange called", { severityId, canEdit, isPending, selectedSeverity, handoverId });
+		
+		if (!canEdit || isPending || severityId === selectedSeverity) {
+			console.log("[IllnessSeverity] Early return", { canEdit, isPending, severityId, selectedSeverity });
+			return;
+		}
 		
 		const previousSeverity = selectedSeverity;
 		
@@ -109,14 +114,18 @@ export function IllnessSeverity({
 		setRealtimeUpdate(true);
 		setLastUpdated(t("justNow"));
 
+		console.log("[IllnessSeverity] Calling updatePatientData mutation", { handoverId, illnessSeverity: severityId });
+		
 		updatePatientData(
 			{ handoverId, illnessSeverity: severityId },
 			{
 				onSuccess: () => {
+					console.log("[IllnessSeverity] Mutation success");
 					toast.success(t("severityUpdated"));
 					setTimeout(() => { setRealtimeUpdate(false); }, 2000);
 				},
 				onError: (error) => {
+					console.error("[IllnessSeverity] Mutation error:", error);
 					// Rollback on error
 					setSelectedSeverity(previousSeverity);
 					setRealtimeUpdate(false);

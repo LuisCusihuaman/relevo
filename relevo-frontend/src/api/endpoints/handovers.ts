@@ -264,8 +264,15 @@ export async function updatePatientData(
 	handoverId: string,
 	request: UpdatePatientDataRequest
 ): Promise<ApiResponse<void>> {
-	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/patient-data`, request);
-	return data;
+	console.log("[API] updatePatientData called", { handoverId, request });
+	try {
+		const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/patient-data`, request);
+		console.log("[API] updatePatientData response", data);
+		return data;
+	} catch (error) {
+		console.error("[API] updatePatientData error", error);
+		throw error;
+	}
 }
 
 export async function updateSituationAwareness(
@@ -315,8 +322,17 @@ function useInvalidatingMutation<TData, TVariables extends { handoverId: string 
 ): ReturnType<typeof useMutation<TData, Error, TVariables>> {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn,
-		onSuccess: (_, variables) => void queryClient.invalidateQueries({ queryKey: getQueryKey(variables) }),
+		mutationFn: (variables) => {
+			console.log("[useInvalidatingMutation] Calling mutationFn", variables);
+			return mutationFn(variables);
+		},
+		onSuccess: (_, variables) => {
+			console.log("[useInvalidatingMutation] onSuccess", variables);
+			void queryClient.invalidateQueries({ queryKey: getQueryKey(variables) });
+		},
+		onError: (error, variables) => {
+			console.error("[useInvalidatingMutation] onError", error, variables);
+		},
 	});
 }
 
@@ -595,10 +611,31 @@ type UpdatePatientDataVariables = { handoverId: string } & UpdatePatientDataRequ
 export function useUpdatePatientData(): ReturnType<
 	typeof useMutation<ApiResponse<void>, Error, UpdatePatientDataVariables>
 > {
-	return useInvalidatingMutation(
-		({ handoverId, ...request }: UpdatePatientDataVariables) => updatePatientData(handoverId, request),
-		(variables) => handoverQueryKeys.patientData(variables.handoverId)
-	);
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, ...request }: UpdatePatientDataVariables) => {
+			console.log("[useUpdatePatientData] Calling mutationFn", { handoverId, request });
+			return updatePatientData(handoverId, request);
+		},
+		onSuccess: (_, variables) => {
+			console.log("[useUpdatePatientData] onSuccess, updating cache", variables);
+			// Update patientHandoverData cache optimistically
+			const patientDataKey = handoverQueryKeys.patientHandoverData(variables.handoverId);
+			queryClient.setQueryData<PatientHandoverData>(patientDataKey, (oldData) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					illnessSeverity: variables.illnessSeverity,
+				};
+			});
+			// Also invalidate to ensure fresh data
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(variables.handoverId) });
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientHandoverData(variables.handoverId) });
+		},
+		onError: (error, variables) => {
+			console.error("[useUpdatePatientData] onError", error, variables);
+		},
+	});
 }
 
 type UpdateSituationAwarenessVariables = {
