@@ -5,6 +5,7 @@ import { useAssignPatients, useReadyHandover, handoverQueryKeys } from "@/api";
 import { getPatientHandoverTimeline } from "@/api/endpoints/patients";
 import { useShiftCheckInStore } from "@/store/shift-check-in.store";
 import type { ShiftCheckInPatient } from "@/types/domain";
+import type { UnitConfig } from "@/types/domain";
 
 type SubmitCheckInParams = {
 	shiftId: string;
@@ -13,12 +14,16 @@ type SubmitCheckInParams = {
 	userId: string;
 };
 
-export function useCompleteCheckIn(_userId: string) {
+type UseCompleteCheckInParams = {
+	units: Array<UnitConfig>;
+};
+
+export function useCompleteCheckIn(_userId: string, { units }: UseCompleteCheckInParams) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const assignMutation = useAssignPatients();
 	const readyHandoverMutation = useReadyHandover();
-	const { reset: resetPersistentState } = useShiftCheckInStore();
+	const { reset: resetPersistentState, unit: selectedUnitId } = useShiftCheckInStore();
 
 	const submitCheckIn = useCallback(({ shiftId, patients, selectedIndexes }: SubmitCheckInParams) => {
 		const selectedPatientIds = selectedIndexes
@@ -95,6 +100,15 @@ export function useCompleteCheckIn(_userId: string) {
 					);
 				}
 
+				// Save unit name to localStorage before resetting
+				const selectedUnit = units.find(u => u.id === selectedUnitId);
+				if (selectedUnit) {
+					window.localStorage.setItem("selectedUnitName", selectedUnit.name);
+				} else {
+					// Fallback to UCIP if unit not found
+					window.localStorage.setItem("selectedUnitName", "UCIP");
+				}
+
 				window.localStorage.setItem("dailySetupCompleted", "true");
 				resetPersistentState();
 				void navigate({ to: "/" });
@@ -103,7 +117,7 @@ export function useCompleteCheckIn(_userId: string) {
 				console.error('Assignment failed:', error);
 			},
 		});
-	}, [assignMutation, navigate, resetPersistentState, readyHandoverMutation, queryClient]);
+	}, [assignMutation, navigate, resetPersistentState, readyHandoverMutation, queryClient, units, selectedUnitId]);
 
 	return {
 		submitCheckIn,

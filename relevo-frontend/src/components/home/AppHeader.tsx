@@ -28,7 +28,10 @@ export const AppHeader: FC<AppHeaderProps> = ({
 	const { t } = useTranslation("home");
 
 	const doctorName = user?.fullName || "Doctor";
-	const unitName = "UCIP"; // For now, hardcoded as per previous usage
+	// Get unit name from localStorage (saved after shift check-in configuration)
+	const unitName = typeof window !== "undefined" 
+		? (window.localStorage.getItem("selectedUnitName") || "UCIP")
+		: "UCIP";
 
 	// Debug logs
 	console.log("AppHeader Debug Info:");

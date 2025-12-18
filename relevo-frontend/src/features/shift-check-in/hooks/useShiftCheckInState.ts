@@ -6,15 +6,20 @@ import { useCompleteCheckIn } from "./useCompleteCheckIn";
 import { useShiftCheckInStore } from "@/store/shift-check-in.store";
 import type { ShiftCheckInPatient } from "@/types/domain";
 import type { ShiftCheckInState, ShiftCheckInActions, ShiftCheckInStep } from "../types";
+import type { UnitConfig } from "@/types/domain";
 
-export function useShiftCheckInState(): ShiftCheckInState & ShiftCheckInActions {
+type UseShiftCheckInStateParams = {
+	units: Array<UnitConfig>;
+};
+
+export function useShiftCheckInState({ units }: UseShiftCheckInStateParams): ShiftCheckInState & ShiftCheckInActions {
 	const { user } = useUser();
 	const { signOut } = useClerk();
 	const { reset: resetPersistentState } = useShiftCheckInStore();
 
 	const navigation = useCheckInNavigation();
 	const data = useCheckInData(navigation.currentStep);
-	const completion = useCompleteCheckIn(user?.id ?? "");
+	const completion = useCompleteCheckIn(user?.id ?? "", { units });
 
 	const handleSignOut = useCallback(async (): Promise<void> => {
 		return signOut().finally(() => {

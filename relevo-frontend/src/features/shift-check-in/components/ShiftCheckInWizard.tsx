@@ -39,7 +39,7 @@ function ShiftCheckInWizardComponent({ units, shifts }: ShiftCheckInWizardProps)
 		handleNextStep,
 		handleBackStep,
 		handleSignOut,
-	} = useShiftCheckInState();
+	} = useShiftCheckInState({ units });
 
 	const getStepTitle = (step: number): string => {
 		switch (step) {

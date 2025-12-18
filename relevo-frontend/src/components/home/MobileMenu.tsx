@@ -31,7 +31,10 @@ export const MobileMenu: FC<MobileMenuProps> = ({
     const { signOut } = useSignOut();
     const { t } = useTranslation("home");
 
-    const unitName = "UCIP"; // For now, hardcoded as per previous usage
+    // Get unit name from localStorage (saved after shift check-in configuration)
+    const unitName = typeof window !== "undefined" 
+		? (window.localStorage.getItem("selectedUnitName") || "UCIP")
+		: "UCIP";
     const displayName = user?.fullName || "";
     const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? "";
 	return (
