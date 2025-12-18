@@ -75,6 +75,12 @@
   "recentActivity.ready": "Ready",
   "recentActivity.error": "Error",
   "recentActivity.empty": "There is no activity for this range yet.",
+  "upcomingActions.title": "Upcoming Actions",
+  "upcomingActions.loading": "Loading actions...",
+  "upcomingActions.empty": "No actions scheduled in the next 3 hours.",
+  "upcomingActions.priority.high": "High",
+  "upcomingActions.priority.medium": "Medium",
+  "upcomingActions.priority.low": "Low",
 
   "recentPreview.newPatientAssigned": "New patient assigned",
   "recentPreview.severityChangedCritical": "Severity changed to Critical",

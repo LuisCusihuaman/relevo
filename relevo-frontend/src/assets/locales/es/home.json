@@ -75,6 +75,12 @@
   "recentActivity.ready": "Listo",
   "recentActivity.error": "Error",
   "recentActivity.empty": "Aún no hay actividad para este rango.",
+  "upcomingActions.title": "Acciones próximas",
+  "upcomingActions.loading": "Cargando acciones...",
+  "upcomingActions.empty": "No hay acciones programadas en las próximas 3 horas.",
+  "upcomingActions.priority.high": "Alta",
+  "upcomingActions.priority.medium": "Media",
+  "upcomingActions.priority.low": "Baja",
 
   "recentPreview.newPatientAssigned": "Nuevo paciente asignado",
   "recentPreview.severityChangedCritical": "Severidad cambió a Crítico",

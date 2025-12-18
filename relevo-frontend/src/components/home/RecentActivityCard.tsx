@@ -1,63 +1,96 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import type { RecentPreview } from "@/types/domain";
+import { Clock } from "lucide-react";
+import { useUpcomingActions } from "@/hooks/useUpcomingActions";
 
 type RecentActivityCardProps = {
-	recentPreviews: Array<RecentPreview>;
+	// Keep for backwards compatibility but not used
+	recentPreviews?: Array<unknown>;
 };
 
-export const RecentActivityCard: FC<RecentActivityCardProps> = ({
-	recentPreviews,
-}) => {
-    const { t } = useTranslation("home");
-	const handleActionClick = (): void => {
-		// Agrega aquí la lógica para el deep-link
-		alert("Abriendo detalles...");
+export const RecentActivityCard: FC<RecentActivityCardProps> = () => {
+	const { t } = useTranslation("home");
+	const navigate = useNavigate();
+	const { upcomingActions, isLoading } = useUpcomingActions();
+
+	const handleActionClick = (patientId: string, handoverId: string): void => {
+		void navigate({ to: `/patient/${patientId}`, search: { handoverId } });
 	};
+
+	const formatDueTime = (dueTime: string | undefined): string => {
+		if (!dueTime) return "";
+		// If it's already a readable format, return as is
+		if (dueTime.length < 20) return dueTime;
+		// Otherwise try to format it
+		return dueTime;
+	};
+
+	if (isLoading) {
+		return (
+			<div className="border border-gray-200 rounded-lg bg-white">
+				<div className="p-6">
+					<h3 className="text-base font-medium mb-4 leading-tight">{t("upcomingActions.title")}</h3>
+					<div className="text-center py-8 text-gray-500">{t("upcomingActions.loading")}</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="border border-gray-200 rounded-lg bg-white">
 			<div className="p-6">
-				<h3 className="text-base font-medium mb-4 leading-tight">{t("recentActivity.title")}</h3>
+				<h3 className="text-base font-medium mb-4 leading-tight">{t("upcomingActions.title")}</h3>
 				<div className="space-y-0 divide-y divide-gray-100">
-					{recentPreviews.length > 0 ? (
-						recentPreviews.map((preview, index) => (
+					{upcomingActions.length > 0 ? (
+						upcomingActions.map((action) => (
 							<div
-								key={index}
+								key={action.id}
 								className="py-4 first:pt-0 last:pb-0"
 							>
-								<div className="flex items-center gap-3">
-									<div className="flex -space-x-1 flex-shrink-0">
-										{preview.avatars.map((avatar, index_) => (
-											<Avatar
-												key={index_}
-												className="h-6 w-6 border-2 border-white"
-											>
-												<AvatarImage
-													src={avatar.src || "/placeholder.svg"}
-												/>
-												<AvatarFallback
-													className={`${avatar.bg} text-white text-xs font-medium`}
-												>
-													{avatar.fallback}
-												</AvatarFallback>
-											</Avatar>
-										))}
-									</div>
+								<div className="flex items-start gap-3">
 									<div className="flex-1 min-w-0">
-										<p className="text-sm text-gray-900 mb-2 leading-tight font-normal">
-											{t(preview.title)}
+										<p className="text-sm text-gray-900 mb-1 leading-tight font-medium">
+											{action.patientName}
+										</p>
+										<p className="text-sm text-gray-600 mb-2 leading-tight font-normal">
+											{action.description}
 										</p>
 										<div className="flex items-center gap-2 flex-wrap">
+											{action.dueTime && (
+												<Badge
+													className="text-xs h-5 px-2 bg-blue-50 text-blue-700 hover:bg-blue-50 border-0 font-normal rounded flex items-center gap-1"
+													variant="secondary"
+												>
+													<Clock className="h-3 w-3" />
+													{formatDueTime(action.dueTime)}
+												</Badge>
+											)}
+											{action.priority && (
+												<Badge
+													className={`text-xs h-5 px-2 border-0 font-normal rounded ${
+														action.priority === "high"
+															? "bg-red-50 text-red-700 hover:bg-red-50"
+															: action.priority === "medium"
+																? "bg-yellow-50 text-yellow-700 hover:bg-yellow-50"
+																: "bg-gray-50 text-gray-700 hover:bg-gray-50"
+													}`}
+													variant="secondary"
+												>
+													{action.priority === "high"
+														? t("upcomingActions.priority.high")
+														: action.priority === "medium"
+															? t("upcomingActions.priority.medium")
+															: t("upcomingActions.priority.low")}
+												</Badge>
+											)}
 											<Button
 												className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900 font-normal bg-gray-50 hover:bg-gray-100 rounded border border-gray-200"
 												size="sm"
 												variant="ghost"
-												onClick={handleActionClick}
+												onClick={() => handleActionClick(action.patientId, action.handoverId)}
 											>
 												<svg
 													className="h-3 w-3 mr-1"
@@ -73,49 +106,13 @@ export const RecentActivityCard: FC<RecentActivityCardProps> = ({
 												</svg>
 												{t("recentActivity.open")}
 											</Button>
-											{preview.status === "Source" && (
-												<Badge
-													className="text-xs h-5 px-2 bg-gray-100 text-gray-700 hover:bg-gray-200 border-0 font-normal rounded"
-													variant="secondary"
-												>
-													{t("recentActivity.source")}
-												</Badge>
-											)}
-											{preview.pr && (
-												<span className="text-xs text-gray-500 font-normal">
-													{preview.pr}
-												</span>
-											)}
-											{preview.color === "Ready" && (
-												<Badge
-													className="text-xs h-5 px-2 bg-green-50 text-green-700 hover:bg-green-50 border-0 font-normal rounded"
-													variant="secondary"
-												>
-													{t("recentActivity.ready")}
-												</Badge>
-											)}
-											{preview.status === "Error" && (
-												<Badge
-													className="text-xs h-5 px-2 bg-red-50 text-red-600 hover:bg-red-50 border-0 font-normal rounded"
-													variant="destructive"
-												>
-													● {t("recentActivity.error")}
-												</Badge>
-											)}
 										</div>
 									</div>
-									<Button
-										className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex-shrink-0 flex items-center justify-center"
-										size="sm"
-										variant="ghost"
-									>
-										<MoreHorizontal className="h-4 w-4" />
-									</Button>
 								</div>
 							</div>
 						))
 					) : (
-						<div className="text-center py-8 text-gray-500">{t("recentActivity.empty")}</div>
+						<div className="text-center py-8 text-gray-500">{t("upcomingActions.empty")}</div>
 					)}
 				</div>
 			</div>

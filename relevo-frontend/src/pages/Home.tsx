@@ -7,7 +7,6 @@ import {
 	PatientProfileHeader,
 	VersionNotice,
 } from "@/components/home";
-import { recentPreviews } from "@/pages/data";
 import { useAssignedPatients } from "@/api";
 import type { PatientSummaryCard } from "@/types/domain";
 import { useUiStore } from "@/store/ui.store";
@@ -47,7 +46,7 @@ export function Home(): ReactElement {
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar />
 						<div className="flex flex-col lg:flex-row gap-8">
-							<DashboardSidebar recentPreviews={recentPreviews} patients={[]} />
+							<DashboardSidebar patients={[]} />
 							<PatientDirectorySkeleton />
 						</div>
 					</div>
@@ -83,7 +82,7 @@ export function Home(): ReactElement {
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 						<div className="flex flex-col lg:flex-row gap-8">
-							<DashboardSidebar recentPreviews={recentPreviews} patients={allPatients} />
+							<DashboardSidebar patients={allPatients} />
 
 							<PatientDirectoryList patients={patients} />
 						</div>
