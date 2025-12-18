@@ -96,7 +96,7 @@
   "table.handoverType": "Tipo de sesión de traspaso",
   "table.more": "Más",
   "table.copyId": "Copiar ID",
-  "table.deletePatient": "Eliminar paciente",
+  "table.deletePatient": "Eliminar asignación",
   "table.deleteConfirm": "¿Está seguro de que desea eliminar este paciente? Esta acción no se puede deshacer.",
   "table.clinicalNotes": "Notas clínicas",
   "table.createdBy": "por {{author}}",
