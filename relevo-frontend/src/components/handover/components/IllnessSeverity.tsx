@@ -13,8 +13,10 @@ import {
 
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import type { IllnessSeverity as SeverityLevel } from "@/types/domain";
-import { useUpdatePatientData } from "@/api/endpoints/handovers";
+import { useUpdatePatientData, handoverQueryKeys } from "@/api/endpoints/handovers";
+import type { PatientHandoverData } from "@/types/domain";
 
 const severityLevelIds: Array<SeverityLevel> = ["stable", "watcher", "unstable", "critical"];
 
@@ -75,6 +77,7 @@ export function IllnessSeverity({
 	initialSeverity = "stable",
 }: IllnessSeverityProps): JSX.Element {
 	const { t } = useTranslation("illnessSeverity");
+	const queryClient = useQueryClient();
 	const { mutate: updatePatientData, isPending } = useUpdatePatientData();
 	
 	const [selectedSeverity, setSelectedSeverity] = useState<SeverityLevel>(initialSeverity);
@@ -108,15 +111,28 @@ export function IllnessSeverity({
 		
 		const previousSeverity = selectedSeverity;
 		
+		// Get current summaryText from cache to preserve it
+		const patientDataKey = handoverQueryKeys.patientHandoverData(handoverId);
+		const currentPatientData = queryClient.getQueryData<PatientHandoverData>(patientDataKey);
+		const currentSummaryText = currentPatientData?.summaryText || "";
+		
 		// Optimistic update
 		setSelectedSeverity(severityId);
 		setRealtimeUpdate(true);
 		setLastUpdated(t("justNow"));
 
-		console.log("[IllnessSeverity] Calling updatePatientData mutation", { handoverId, illnessSeverity: severityId });
+		console.log("[IllnessSeverity] Calling updatePatientData mutation", { 
+			handoverId, 
+			illnessSeverity: severityId,
+			summaryText: currentSummaryText 
+		});
 		
 		updatePatientData(
-			{ handoverId, illnessSeverity: severityId },
+			{ 
+				handoverId, 
+				illnessSeverity: severityId,
+				summaryText: currentSummaryText // Preserve existing summaryText
+			},
 			{
 				onSuccess: () => {
 					console.log("[IllnessSeverity] Mutation success");
