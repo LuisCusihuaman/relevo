@@ -46,6 +46,29 @@ VALUES ('pat-011', 'Elena Jiménez', 'unit-1', TO_DATE('2012-02-28', 'YYYY-MM-DD
 INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
 VALUES ('pat-012', 'Francisco Ruiz', 'unit-1', TO_DATE('2008-10-19', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '5' DAY, '212', 'Trauma abdominal', 'Ninguna', 'Analgésicos, Antibióticos profilácticos', 'Paciente estable, sin signos de peritonitis', 'MRN001245', '61', '166');
 
+-- Insert Patients for Unit 2 (Pediatría General) - 10 patients
+-- Weight and Height values are age-appropriate pediatric ranges
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-013', 'Lucía Fernández', 'unit-2', TO_DATE('2015-04-12', 'YYYY-MM-DD'), 'Female', LOCALTIMESTAMP - INTERVAL '2' DAY, '301', 'Gastroenteritis aguda', 'Ninguna', 'Solución de rehidratación oral, Probióticos', 'Paciente con vómitos y diarrea, mejoría con hidratación oral, tolerando dieta blanda', 'MRN001246', '28', '125');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-014', 'Diego Torres', 'unit-2', TO_DATE('2016-08-25', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '1' DAY, '302', 'Infección respiratoria alta', 'Penicilina', 'Amoxicilina, Antitusivos', 'Rinorrea y tos productiva, fiebre controlada, buen estado general', 'MRN001247', '24', '118');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-015', 'Valentina Morales', 'unit-2', TO_DATE('2014-11-30', 'YYYY-MM-DD'), 'Female', LOCALTIMESTAMP - INTERVAL '3' DAY, '303', 'Otitis media aguda', 'Ninguna', 'Amoxicilina-ácido clavulánico, Analgésicos', 'Dolor de oído derecho, otoscopia con tímpano abombado, mejoría con tratamiento', 'MRN001248', '32', '135');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-016', 'Mateo Castro', 'unit-2', TO_DATE('2017-02-14', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '4' DAY, '304', 'Amigdalitis bacteriana', 'Penicilina', 'Azitromicina, Antipiréticos', 'Faringoamigdalitis con exudado, cultivo positivo para estreptococo, tratamiento antibiótico iniciado', 'MRN001249', '20', '110');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-017', 'Camila Vargas', 'unit-2', TO_DATE('2015-09-08', 'YYYY-MM-DD'), 'Female', LOCALTIMESTAMP - INTERVAL '2' DAY, '305', 'Bronquitis aguda', 'Ninguna', 'Salbutamol inhalado, Expectorantes', 'Tos persistente con sibilancias leves, respuesta favorable a broncodilatadores', 'MRN001250', '26', '122');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-018', 'Santiago Ramírez', 'unit-2', TO_DATE('2016-12-20', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '1' DAY, '306', 'Fiebre sin foco aparente', 'Ibuprofeno', 'Paracetamol, Observación', 'Fiebre de 38.5°C sin foco evidente, estudios complementarios en curso, estado general conservado', 'MRN001251', '22', '115');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-019', 'Emma Herrera', 'unit-2', TO_DATE('2014-05-03', 'YYYY-MM-DD'), 'Female', LOCALTIMESTAMP - INTERVAL '5' DAY, '307', 'Deshidratación leve', 'Ninguna', 'Solución salina intravenosa, Rehidratación oral', 'Deshidratación secundaria a gastroenteritis, mejoría con hidratación parenteral, tolerando vía oral', 'MRN001252', '30', '130');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-020', 'Sebastián Jiménez', 'unit-2', TO_DATE('2015-07-17', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '3' DAY, '308', 'Infección urinaria', 'Sulfonamidas', 'Cefalexina, Analgésicos', 'Cistitis con urocultivo positivo, tratamiento antibiótico, mejoría de síntomas', 'MRN001253', '27', '128');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-021', 'Isabella Rojas', 'unit-2', TO_DATE('2016-10-29', 'YYYY-MM-DD'), 'Female', LOCALTIMESTAMP - INTERVAL '2' DAY, '309', 'Conjuntivitis bacteriana', 'Ninguna', 'Colirio antibiótico, Higiene ocular', 'Conjuntivitis bilateral con secreción purulenta, tratamiento tópico iniciado, mejoría progresiva', 'MRN001254', '23', '120');
+INSERT INTO PATIENTS (ID, NAME, UNIT_ID, DATE_OF_BIRTH, GENDER, ADMISSION_DATE, ROOM_NUMBER, DIAGNOSIS, ALLERGIES, MEDICATIONS, NOTES, MRN, WEIGHT, HEIGHT)
+VALUES ('pat-022', 'Lucas Mendoza', 'unit-2', TO_DATE('2014-01-22', 'YYYY-MM-DD'), 'Male', LOCALTIMESTAMP - INTERVAL '4' DAY, '310', 'Dermatitis atópica exacerbada', 'Látex', 'Corticoides tópicos, Antihistamínicos', 'Dermatitis con lesiones eccematosas en pliegues, tratamiento tópico y medidas de cuidado de la piel', 'MRN001255', '31', '132');
+
 -- Insert sample users
 INSERT INTO USERS (ID, EMAIL, FIRST_NAME, LAST_NAME, FULL_NAME, AVATAR_URL, ROLE, IS_ACTIVE, LAST_LOGIN)
 VALUES ('user_demo12345678901234567890123456', 'dr.johnson@hospital.com', 'John', 'Johnson', 'Dr. John Johnson', 'https://example.com/avatar1.jpg', 'doctor', 1, LOCALTIMESTAMP);
@@ -96,6 +119,38 @@ VALUES ('si-unit1-night-3', 'unit-1', 'shift-night',
         TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '19' HOUR, 
         TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR);
 
+-- Unit 2: Day shift instances (last 3 days)
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-day-1', 'unit-2', 'shift-day', 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '15' HOUR);
+
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-day-2', 'unit-2', 'shift-day', 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '15' HOUR);
+
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-day-3', 'unit-2', 'shift-day', 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '15' HOUR);
+
+-- Unit 2: Night shift instances (last 3 nights)
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-night-1', 'unit-2', 'shift-night', 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '19' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR);
+
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-night-2', 'unit-2', 'shift-night', 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '19' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR);
+
+INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
+VALUES ('si-unit2-night-3', 'unit-2', 'shift-night', 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '19' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR);
+
 -- ========================================
 -- SHIFT WINDOWS (V3: Windows between shift instances)
 -- ========================================
@@ -127,6 +182,27 @@ VALUES ('sw-unit1-day-night-1', 'unit-1', 'si-unit1-day-2', 'si-unit1-night-1');
 INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
 VALUES ('sw-unit1-night-day-0', 'unit-1', 'si-unit1-night-1', 'si-unit1-day-1');
 
+-- Unit 2: Shift Windows
+-- Window: Night -> Day (2 days ago: night-3 -> day-3)
+INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
+VALUES ('sw-unit2-night-day-2', 'unit-2', 'si-unit2-night-3', 'si-unit2-day-3');
+
+-- Window: Day -> Night (2 days ago: day-3 -> night-2)
+INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
+VALUES ('sw-unit2-day-night-2', 'unit-2', 'si-unit2-day-3', 'si-unit2-night-2');
+
+-- Window: Night -> Day (yesterday: night-2 -> day-2)
+INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
+VALUES ('sw-unit2-night-day-1', 'unit-2', 'si-unit2-night-2', 'si-unit2-day-2');
+
+-- Window: Day -> Night (yesterday: day-2 -> night-1)
+INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
+VALUES ('sw-unit2-day-night-1', 'unit-2', 'si-unit2-day-2', 'si-unit2-night-1');
+
+-- Window: Night -> Day (today: night-1 -> day-1)
+INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
+VALUES ('sw-unit2-night-day-0', 'unit-2', 'si-unit2-night-1', 'si-unit2-day-1');
+
 -- ========================================
 -- SHIFT COVERAGE (V3: Replaces USER_ASSIGNMENTS)
 -- ========================================
@@ -146,7 +222,9 @@ VALUES ('sw-unit1-night-day-0', 'unit-1', 'si-unit1-night-1', 'si-unit1-day-1');
 -- - user_demo12345678901234567890123457 (Dr. Priya Patel)
 -- - user_demo12345678901234567890123458 (Dr. Carlos Martinez)
 --
--- Available patients: pat-001 to pat-012 (all in unit-1, no assignments)
+-- Available patients: 
+--   - pat-001 to pat-012 (unit-1: UCI, no assignments)
+--   - pat-013 to pat-022 (unit-2: Pediatría General, no assignments)
 -- Available shifts: shift-day (07:00-15:00), shift-night (19:00-07:00)
 
 -- ========================================

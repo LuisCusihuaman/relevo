@@ -10,7 +10,7 @@ public class UnitRepository(DapperConnectionFactory _connectionFactory) : IUnitR
   public async Task<IReadOnlyList<UnitRecord>> GetUnitsAsync()
   {
     using var conn = _connectionFactory.CreateConnection();
-    const string sql = "SELECT ID, NAME FROM UNITS ORDER BY ID";
+    const string sql = "SELECT ID as Id, NAME as Name FROM UNITS ORDER BY ID";
     var units = await conn.QueryAsync<UnitRecord>(sql);
     return units.ToList();
   }
