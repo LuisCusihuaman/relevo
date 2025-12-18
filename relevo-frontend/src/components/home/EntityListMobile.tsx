@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { GitBranch, MoreHorizontal } from "lucide-react";
+import { GitBranch, MoreHorizontal, UserX } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { HandoverUI as Handover } from "@/types/domain";
 
@@ -200,9 +200,15 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					{/* Assigned User */}
 					<div className="flex items-center justify-between pt-2 border-t border-gray-100">
 						<div className="flex items-center gap-2">
-							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
-								{handover.avatar}
-							</div>
+							{formatAuthor(handover.author) === String(t("table.unassigned")) ? (
+								<div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center">
+									<UserX className="h-3 w-3 text-gray-600" />
+								</div>
+							) : (
+								<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
+									{handover.avatar}
+								</div>
+							)}
 							<span className="text-sm text-gray-600">
 								{formatAuthor(handover.author)}
 							</span>
