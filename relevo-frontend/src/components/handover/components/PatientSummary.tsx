@@ -63,11 +63,29 @@ export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryPro
   // Check if current user can edit (only responsible physician for drafts)
   // If state is undefined/empty, treat as Draft (new handover)
   const effectiveState = handoverStateName || "Draft";
-  const canEdit =
-    (effectiveState === "Draft" || effectiveState === "InProgress") &&
-    !!currentUser?.id &&
-    !!responsiblePhysician?.id &&
-    currentUser.id === responsiblePhysician.id;
+  
+  // Check permissions: user can edit if:
+  // 1. State allows editing (Draft, Ready, or InProgress)
+  // 2. User ID matches responsible physician ID (primary check)
+  // 3. OR if IDs are not available, check by name (fallback)
+  const stateAllowsEditing = effectiveState === "Draft" || effectiveState === "Ready" || effectiveState === "InProgress";
+  const idsMatch = !!currentUser?.id && !!responsiblePhysician?.id && currentUser.id === responsiblePhysician.id;
+  const namesMatch = !!currentUser?.name && !!responsiblePhysician?.name && 
+    currentUser.name.trim().toLowerCase() === responsiblePhysician.name.trim().toLowerCase();
+  
+  // Debug logging
+  console.log("[PatientSummary] Permission check:", {
+    effectiveState,
+    stateAllowsEditing,
+    currentUserId: currentUser?.id,
+    responsiblePhysicianId: responsiblePhysician?.id,
+    responsiblePhysicianName: responsiblePhysician?.name,
+    currentUserName: currentUser?.name,
+    idsMatch,
+    namesMatch,
+  });
+  
+  const canEdit = stateAllowsEditing && (idsMatch || (namesMatch && !responsiblePhysician?.id));
 
   // Mutations for creating/updating patient summary
   const updateSummaryMutation = useUpdatePatientData();
