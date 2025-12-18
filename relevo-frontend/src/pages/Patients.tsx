@@ -75,12 +75,14 @@ export function Patients(): ReactElement {
 	const handleHandoverClick = (
 		handoverId: string,
 		_patientName: string,
+		patientId?: string,
 	): void => {
-		// Navigate to patient page - handoverId here is actually the patient ID
-		// The patient page will resolve the active handover
+		// Use the actual patientId if provided, otherwise fallback to handoverId
+		// Navigate to /patient/pat-010 format
+		const idToUse = patientId || handoverId;
 		void navigate({ 
 			to: "/patient/$patientId", 
-			params: { patientId: handoverId } 
+			params: { patientId: idToUse } 
 		});
 	};
 

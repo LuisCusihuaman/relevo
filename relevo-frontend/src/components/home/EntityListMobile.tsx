@@ -21,7 +21,7 @@ const monthMap: Record<string, string> = {
 
 type EntityListMobileProps = {
 	handovers: ReadonlyArray<Handover>;
-	handleHandoverClick: (handoverId: string, projectName: string) => void;
+	handleHandoverClick: (handoverId: string, projectName: string, patientId?: string) => void;
 	loading?: boolean;
 	unitName?: string;
 };
@@ -184,7 +184,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 					key={handover.id}
 					className="bg-white border border-gray-200 rounded-lg p-4 space-y-3 cursor-pointer hover:border-gray-300 transition-colors"
 					onClick={() => {
-						handleHandoverClick(handover.id, handover.patientKey);
+						handleHandoverClick(handover.id, handover.patientKey, handover.patientId);
 					}}
 				>
 					{/* Card Header */}

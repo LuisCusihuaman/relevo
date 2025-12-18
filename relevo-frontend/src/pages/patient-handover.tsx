@@ -296,7 +296,9 @@ function HandoverContent({
 }
 
 export default function PatientHandoverPage(): JSX.Element {
-	const { patientId } = useParams({ from: "/_authenticated/patient/$patientId" });
+	// Support both route formats: /$patientId and /patient/$patientId
+	const params = useParams({ strict: false }) as { patientId?: string };
+	const patientId = params.patientId || "";
 	const navigate = useNavigate();
 
 	// Resolve active handover for this patient

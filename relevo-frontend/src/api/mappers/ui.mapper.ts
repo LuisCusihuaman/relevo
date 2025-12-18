@@ -106,6 +106,7 @@ export function mapApiHandoverToUiHandover(apiHandover: ApiHandover): UiHandover
 		environment: config.environment,
 		environmentColor: config.environmentColor,
 		patientKey: getPatientKey(apiHandover.patientId),
+		patientId: apiHandover.patientId,
 		patientName: patientName,
 		patientIcon: {
 			type: "text",
@@ -135,6 +136,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		environment: config.environment,
 		environmentColor: config.environmentColor,
 		patientKey: getPatientKey(apiPatient.id),
+		patientId: apiPatient.id,
 		patientName: apiPatient.name,
 		patientIcon: {
 			type: "text",

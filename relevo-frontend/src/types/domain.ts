@@ -323,6 +323,7 @@ export type HandoverUI = {
 	environment: string;
 	environmentColor: string;
 	patientKey: string;
+	patientId: string;
 	patientName: string;
 	patientIcon: {
 		type: "text";

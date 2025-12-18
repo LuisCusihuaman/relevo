@@ -7,7 +7,7 @@ import { getInitials } from "@/lib/formatters";
 
 type EntityTableProps = {
 	handovers: ReadonlyArray<Handover>;
-	handleHandoverClick: (handoverId: string, projectName: string) => void;
+	handleHandoverClick: (handoverId: string, projectName: string, patientId?: string) => void;
 	loading?: boolean;
 	unitName?: string;
 };
@@ -154,7 +154,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						index < 5 ? "border-b border-gray-100" : ""
 					}`}
 					onClick={() => {
-						handleHandoverClick(handover.id, handover.patientKey);
+						handleHandoverClick(handover.id, handover.patientKey, handover.patientId);
 					}}
 				>
 					{/* Left Column: Location/MRN instead of technical ID */}
