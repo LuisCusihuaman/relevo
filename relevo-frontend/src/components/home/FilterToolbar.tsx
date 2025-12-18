@@ -27,7 +27,13 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 	const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		event.preventDefault();
 		const value = event.target.value;
-		onUserChange?.(value === "all" ? null : value);
+		if (value === "all") {
+			onUserChange?.(null);
+		} else if (value === "unassigned") {
+			onUserChange?.("unassigned");
+		} else {
+			onUserChange?.(value);
+		}
 	};
 
 	return (
@@ -50,6 +56,7 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 					onChange={handleUserChange}
 				>
 					<option value="all">{t("filterToolbar.allUsers")}</option>
+					<option value="unassigned">{t("table.unassigned")}</option>
 					{users.map((user) => (
 						<option key={user.id} value={user.id}>
 							{user.fullName}

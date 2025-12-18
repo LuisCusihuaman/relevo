@@ -51,6 +51,14 @@ export function Patients(): ReactElement {
 		if (!patientsData?.items) return [];
 		const mapped = patientsData.items.map(mapApiPatientToUiHandover);
 		
+		if (selectedUser === "unassigned") {
+			// Filter for unassigned patients
+			return mapped.filter((handover) => {
+				const handoverAuthor = handover.author?.toLowerCase().trim();
+				return !handoverAuthor || handoverAuthor === "system" || handoverAuthor.includes("[bot]") || handoverAuthor.includes("dependabot");
+			});
+		}
+		
 		if (selectedUser) {
 			return mapped.filter((handover) => {
 				// Compare by full name (case-insensitive)
