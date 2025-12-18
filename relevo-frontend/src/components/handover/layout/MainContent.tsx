@@ -151,20 +151,18 @@ export function MainContent(): React.JSX.Element {
 	};
 
 	/*
-	 * Layout Strategy:
+	 * Layout Strategy - IPASS Order:
 	 * - Mobile (flex-col): I → P → A → S(Situation) → S(Synthesis) using CSS order
 	 *   Column wrappers use `contents` to flatten, allowing order to work across all items
-	 * - Desktop (flex-row with two independent columns):
-	 *     Left (2/3): I, P, S-Situation flow vertically
-	 *     Right (1/3): A, S-Synthesis flow vertically
-	 *   Each column flows independently - no row alignment issues
+	 * - Desktop (flex-col): All sections flow vertically in a single column (full width)
+	 *     I, P, A, S-Situation, S-Synthesis (all same width, full screen)
 	 * 
 	 * Single instance of each component (no unmount/mount on resize)
 	 */
 	return (
-		<div className="flex flex-col gap-3 md:flex-row md:gap-6">
-			{/* Left Column - contents on mobile to flatten for order, flex-col on desktop */}
-			<div className="contents md:flex md:flex-col md:w-2/3 md:gap-6">
+		<div className="flex flex-col gap-3 md:gap-6 w-full">
+			{/* Main Column - contents on mobile to flatten for order, flex-col on desktop */}
+			<div className="contents md:flex md:flex-col md:w-full md:gap-6">
 				{/* I - Illness Severity */}
 				<div className="order-1 md:order-none">
 					<HandoverSection
@@ -209,29 +207,6 @@ export function MainContent(): React.JSX.Element {
 					</HandoverSection>
 				</div>
 
-				{/* S - Situation Awareness */}
-				<div className="order-4 md:order-none">
-					<HandoverSection
-						description={sectionLabels.situation.description}
-						guidelines={ipassGuidelines.awareness}
-						isExpanded={expandedSections.awareness}
-						isMobile={isMobile}
-						letter="S"
-						letterColor="blue"
-						title={sectionLabels.situation.title}
-						onOpenChange={(open) => { setExpandedSection('awareness', open); }}
-					>
-					<SituationAwareness
-						currentUser={currentUser}
-						handoverId={handoverData.id}
-						// No onRequestFullscreen - edit directly in place
-					/>
-					</HandoverSection>
-				</div>
-			</div>
-
-			{/* Right Column - contents on mobile to flatten for order, flex-col on desktop */}
-			<div className="contents md:flex md:flex-col md:w-1/3 md:gap-6">
 				{/* A - Action List */}
 				<div className="order-3 md:order-none">
 					<HandoverSection
@@ -252,7 +227,27 @@ export function MainContent(): React.JSX.Element {
 					</HandoverSection>
 				</div>
 
-				{/* S - Synthesis by Receiver */}
+				{/* S - Situation Awareness */}
+				<div className="order-4 md:order-none">
+					<HandoverSection
+						description={sectionLabels.situation.description}
+						guidelines={ipassGuidelines.awareness}
+						isExpanded={expandedSections.awareness}
+						isMobile={isMobile}
+						letter="S"
+						letterColor="blue"
+						title={sectionLabels.situation.title}
+						onOpenChange={(open) => { setExpandedSection('awareness', open); }}
+					>
+					<SituationAwareness
+						currentUser={currentUser}
+						handoverId={handoverData.id}
+						// No onRequestFullscreen - edit directly in place
+					/>
+					</HandoverSection>
+				</div>
+
+				{/* S - Synthesis by Receiver - At the bottom, same width */}
 				<div className="order-5 md:order-none">
 					<HandoverSection
 						description={sectionLabels.synthesis.description}
