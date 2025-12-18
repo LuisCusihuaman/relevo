@@ -68,8 +68,7 @@
   "search.actions.openNotifications": "Open notifications",
   "search.actions.createClinicalNote": "Create clinical note",
 
-  "versionNotice.title": "You have 5 patients without an active handover.",
-  "versionNotice.subtitle": "You should start their handovers soon.",
+  "versionNotice.title": "Has {{count}} patients assigned",
 
   "recentActivity.title": "Recent activity",
   "recentActivity.open": "Open",

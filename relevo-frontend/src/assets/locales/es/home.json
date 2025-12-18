@@ -68,8 +68,7 @@
   "search.actions.openNotifications": "Abrir notificaciones",
   "search.actions.createClinicalNote": "Crear nota clínica",
 
-  "versionNotice.title": "Tienes 5 pacientes sin traspaso activo.",
-  "versionNotice.subtitle": "Debes iniciar sus traspasos pronto.",
+  "versionNotice.title": "Tiene {{count}} pacientes asignados",
 
   "recentActivity.title": "Actividad reciente",
   "recentActivity.open": "Abrir",

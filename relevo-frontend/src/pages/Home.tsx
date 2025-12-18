@@ -33,7 +33,7 @@ export function Home(): ReactElement {
 		return (
 			<div className="flex-1 p-6">
 				<div className="space-y-6">
-					<VersionNotice />
+					<VersionNotice patients={[]} />
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar />
 						<div className="flex flex-col lg:flex-row gap-8">
@@ -51,7 +51,7 @@ export function Home(): ReactElement {
 		return (
 			<div className="flex-1 p-6">
 				<div className="space-y-6">
-					<VersionNotice />
+					<VersionNotice patients={[]} />
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<div className="flex items-center justify-center h-64">
 							<div className="text-center">
@@ -69,7 +69,7 @@ export function Home(): ReactElement {
 		<div className="flex-1 p-6">
 			{!isPatientView && (
 				<div className="space-y-6">
-					<VersionNotice />
+					<VersionNotice patients={patients} />
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar />
 						<div className="flex flex-col lg:flex-row gap-8">
