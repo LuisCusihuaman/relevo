@@ -39,7 +39,7 @@ export const PatientDirectoryToolbar: FC<PatientDirectoryToolbarProps> = ({
 					}}
 				/>
 			</div>
-			<div className="flex items-center gap-2">
+			<div className="hidden flex items-center gap-2">
 				<div className="flex items-center gap-1">
 					<Button
 						className="h-10 w-10 p-0 border-gray-300 bg-white hover:bg-gray-50"
