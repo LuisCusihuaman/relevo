@@ -54,7 +54,6 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                         FROM SHIFT_COVERAGE sc
                         INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
                         WHERE sc.PATIENT_ID = p.ID
-                          AND sc.RESPONSIBLE_USER_ID = :UserId
                           AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
                     ) THEN 'assigned'
                     ELSE 'pending'
@@ -96,7 +95,16 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                 ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
                 p.ROOM_NUMBER as Room,
                 p.DIAGNOSIS,
-                'pending' as Status,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM SHIFT_COVERAGE sc
+                        INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                        WHERE sc.PATIENT_ID = p.ID
+                          AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                    ) THEN 'assigned'
+                    ELSE 'pending'
+                END as Status,
                 COALESCE(
                     (SELECT hc.ILLNESS_SEVERITY 
                      FROM HANDOVERS h
