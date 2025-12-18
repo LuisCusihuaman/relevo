@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { GitBranch, MoreHorizontal } from "lucide-react";
 import type { HandoverUI as Handover } from "@/types/domain";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { formatRelativeTime, getInitials } from "@/lib/formatters";
+import { getInitials } from "@/lib/formatters";
 
 type EntityTableProps = {
 	handovers: ReadonlyArray<Handover>;
@@ -147,12 +147,11 @@ export const EntityTable: FC<EntityTableProps> = ({
 						</div>
 					</div>
 
-					{/* Created Column */}
+					{/* Assigned User Column */}
 					<div className="min-w-0 text-right">
 						<div className="flex items-center justify-end gap-2">
-							<GitBranch className="h-3 w-3 text-gray-400" />
 							<span className="text-xs text-gray-500">
-								{formatRelativeTime(handover.time)} {String(t("table.createdBy", { author: formatAuthor(handover.author) }))}
+								{formatAuthor(handover.author)}
 							</span>
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
 								{handover.avatar}

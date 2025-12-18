@@ -197,14 +197,14 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 						</div>
 					</div>
 
-					{/* Author */}
+					{/* Assigned User */}
 					<div className="flex items-center justify-between pt-2 border-t border-gray-100">
 						<div className="flex items-center gap-2">
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
 								{handover.avatar}
 							</div>
 							<span className="text-sm text-gray-600">
-								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
+								{formatAuthor(handover.author)}
 							</span>
 						</div>
 					</div>
