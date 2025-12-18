@@ -204,11 +204,11 @@ export function MainContent(): React.JSX.Element {
 						title={sectionLabels.situation.title}
 						onOpenChange={(open) => { setExpandedSection('awareness', open); }}
 					>
-						<SituationAwareness
-							currentUser={currentUser}
-							handoverId={handoverData.id}
-							onRequestFullscreen={() => { handleOpenFullscreenEdit("situation-awareness", true); }}
-						/>
+					<SituationAwareness
+						currentUser={currentUser}
+						handoverId={handoverData.id}
+						// No onRequestFullscreen - edit directly in place
+					/>
 					</HandoverSection>
 				</div>
 			</div>

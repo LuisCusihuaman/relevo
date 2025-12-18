@@ -151,19 +151,14 @@ export function SituationAwareness({
     });
   };
 
-  // Handle click for editing or fullscreen
+  // Handle click for editing - always edit directly, never open fullscreen
   const handleEnterEdit = (): void => {
     if (!isEditing) {
       // Initialize draft with current content if needed
       if (draft !== displayContent) setDraft(displayContent);
       setIsEditing(true);
     }
-    
-    if (fullscreenMode) {
-      // Already in fullscreen, just ensure editing is on (handled above)
-    } else if (onRequestFullscreen) {
-      onRequestFullscreen();
-    }
+    // Never call onRequestFullscreen - always edit directly in place
   };
 
   // Show loading state
