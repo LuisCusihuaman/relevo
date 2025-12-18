@@ -60,7 +60,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 				{skeletonRows.map((index) => (
 					<div
 						key={`desktop-${index}`}
-						className={`grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 ${
+						className={`grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 ${
 							index < 4 ? "border-b border-gray-100" : ""
 						}`}
 					>
@@ -68,15 +68,6 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="min-w-0 space-y-2">
 							<div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
 							<div className="h-3 bg-gray-100 rounded animate-pulse w-1/2"></div>
-						</div>
-
-						{/* Status Column */}
-						<div className="min-w-0 space-y-2">
-							<div className="flex items-center gap-2">
-								<div className="h-2 w-2 bg-gray-200 rounded-full animate-pulse"></div>
-								<div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-							</div>
-							<div className="h-3 bg-gray-100 rounded animate-pulse w-12"></div>
 						</div>
 
 						{/* Patient/Source Column */}
@@ -111,7 +102,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 			{handoversList.map((handover, index) => (
 				<div
 					key={handover.id}
-					className={`grid grid-cols-[1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+					className={`grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 hover:bg-gray-50 transition-colors cursor-pointer ${
 						index < 5 ? "border-b border-gray-100" : ""
 					}`}
 					onClick={() => {
@@ -125,22 +116,6 @@ export const EntityTable: FC<EntityTableProps> = ({
 						</div>
 						<div className="text-xs text-gray-500 mt-0.5" title={String(t("table.handoverType"))}>
 							{handover.environmentType}
-						</div>
-					</div>
-
-					{/* Status Column */}
-					<div className="min-w-0">
-						<div className="flex items-center gap-2 mb-1">
-							<span
-								className={`h-2 w-2 rounded-full ${handover.statusColor}`}
-								title={String(t("table.handoverType"))}
-							></span>
-							<span className="text-sm font-medium text-gray-900">
-								{handover.status}
-							</span>
-						</div>
-						<div className="text-xs text-gray-500">
-							{formatRelativeTime(handover.statusTime)}
 						</div>
 					</div>
 

@@ -102,14 +102,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 							<div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
 						</div>
 
-						{/* Status */}
-						<div className="flex items-center gap-2">
-							<div className="h-2 w-2 bg-gray-200 rounded-full animate-pulse"></div>
-							<div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-							<div className="h-3 bg-gray-100 rounded animate-pulse w-12"></div>
-						</div>
-
-						{/* Environment */}
+					{/* Environment */}
 						<div className="space-y-1">
 							<div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
 							<div className="h-3 bg-gray-100 rounded animate-pulse w-16"></div>
@@ -170,20 +163,6 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								<DropdownMenuItem onClick={(event_) => { event_.stopPropagation(); void navigator.clipboard.writeText(handover.id); }}>{String(t("table.copyId"))}</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-					</div>
-
-					{/* Status */}
-					<div className="flex items-center gap-2">
-						<span
-							className={`h-2 w-2 rounded-full ${handover.statusColor}`}
-							title={String(t("table.handoverType"))}
-						></span>
-						<span className="text-sm font-medium text-gray-900">
-							{handover.status}
-						</span>
-						<span className="text-sm text-gray-500">
-							{formatRelative(handover.statusTime)}
-						</span>
 					</div>
 
 					{/* Environment */}
