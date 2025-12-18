@@ -28,6 +28,50 @@ export const EntityTable: FC<EntityTableProps> = ({
 		return name;
 	};
 
+	const formatSeverity = (severity: string | null | undefined): { text: string; color: string; bg: string } => {
+		if (!severity) {
+			return {
+				text: String(t("table.severity.unknown")),
+				color: "text-gray-500",
+				bg: "bg-gray-100",
+			};
+		}
+		const lower = severity.toLowerCase();
+		if (lower === "stable") {
+			return {
+				text: String(t("table.severity.stable")),
+				color: "text-green-700",
+				bg: "bg-green-100",
+			};
+		}
+		if (lower === "watcher") {
+			return {
+				text: String(t("table.severity.watcher")),
+				color: "text-yellow-700",
+				bg: "bg-yellow-100",
+			};
+		}
+		if (lower === "unstable") {
+			return {
+				text: String(t("table.severity.unstable")),
+				color: "text-orange-700",
+				bg: "bg-orange-100",
+			};
+		}
+		if (lower === "critical") {
+			return {
+				text: String(t("table.severity.critical")),
+				color: "text-red-700",
+				bg: "bg-red-100",
+			};
+		}
+		return {
+			text: severity,
+			color: "text-gray-500",
+			bg: "bg-gray-100",
+		};
+	};
+
 	const isString = (v: unknown): v is string => typeof v === "string";
 
 	const getTitleLine = (d: Handover): string => {
@@ -58,12 +102,12 @@ export const EntityTable: FC<EntityTableProps> = ({
 		return (
 			<div className="hidden md:block rounded-lg border border-gray-200 bg-white overflow-hidden">
 				{skeletonRows.map((index) => (
-					<div
-						key={`desktop-${index}`}
-						className={`grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 ${
-							index < 4 ? "border-b border-gray-100" : ""
-						}`}
-					>
+				<div
+					key={`desktop-${index}`}
+					className={`grid grid-cols-[1.5fr_2fr_1fr_1fr] items-center gap-3 py-3 px-4 ${
+						index < 4 ? "border-b border-gray-100" : ""
+					}`}
+				>
 						{/* Left Column: Location/MRN */}
 						<div className="min-w-0 space-y-2">
 							<div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
@@ -83,10 +127,14 @@ export const EntityTable: FC<EntityTableProps> = ({
 							</div>
 						</div>
 
-						{/* Created Column */}
+						{/* Severity Column */}
+						<div className="min-w-0">
+							<div className="h-5 bg-gray-200 rounded animate-pulse w-20"></div>
+						</div>
+
+						{/* Assigned User Column */}
 						<div className="min-w-0 text-right space-y-2">
 							<div className="flex items-center justify-end gap-2">
-								<div className="h-3 w-3 bg-gray-200 rounded animate-pulse"></div>
 								<div className="h-3 bg-gray-200 rounded animate-pulse w-16"></div>
 								<div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse"></div>
 							</div>
@@ -102,7 +150,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 			{handoversList.map((handover, index) => (
 				<div
 					key={handover.id}
-					className={`grid grid-cols-[1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 hover:bg-gray-50 transition-colors cursor-pointer ${
+					className={`grid grid-cols-[1.5fr_2fr_1fr_1fr] items-center gap-3 py-3 px-4 hover:bg-gray-50 transition-colors cursor-pointer ${
 						index < 5 ? "border-b border-gray-100" : ""
 					}`}
 					onClick={() => {
@@ -145,6 +193,18 @@ export const EntityTable: FC<EntityTableProps> = ({
 							<GitBranch className="h-3 w-3" />
 							<span className="truncate">{String(t("table.clinicalNotes"))}</span>
 						</div>
+					</div>
+
+					{/* Severity Column */}
+					<div className="min-w-0">
+						{(() => {
+							const severityInfo = formatSeverity(handover.severity);
+							return (
+								<span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${severityInfo.bg} ${severityInfo.color}`}>
+									{severityInfo.text}
+								</span>
+							);
+						})()}
 					</div>
 
 					{/* Assigned User Column */}

@@ -161,13 +161,39 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
           SELECT
               p.ID,
               p.NAME,
-              'not-started' as HandoverStatus,
-              CAST(NULL AS VARCHAR2(50)) as HandoverId,
+              COALESCE(
+                  (SELECT h.CURRENT_STATE FROM HANDOVERS h 
+                   WHERE h.PATIENT_ID = p.ID 
+                     AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                     AND ROWNUM = 1),
+                  'not-started'
+              ) as HandoverStatus,
+              (SELECT h.ID FROM HANDOVERS h 
+               WHERE h.PATIENT_ID = p.ID 
+                 AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                 AND ROWNUM = 1) as HandoverId,
               ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
               p.ROOM_NUMBER as Room,
               p.DIAGNOSIS,
-              CAST(NULL AS VARCHAR2(20)) as Status,
-              CAST(NULL AS VARCHAR2(20)) as Severity,
+              CASE 
+                  WHEN EXISTS (
+                      SELECT 1 
+                      FROM SHIFT_COVERAGE sc
+                      INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                      WHERE sc.PATIENT_ID = p.ID
+                        AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                  ) THEN 'assigned'
+                  ELSE 'pending'
+              END as Status,
+              COALESCE(
+                  (SELECT hc.ILLNESS_SEVERITY 
+                   FROM HANDOVERS h
+                   INNER JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+                   WHERE h.PATIENT_ID = p.ID 
+                     AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                     AND ROWNUM = 1),
+                  'Stable'
+              ) as Severity,
               u.NAME as Unit,
               (SELECT u2.FULL_NAME 
                FROM SHIFT_COVERAGE sc

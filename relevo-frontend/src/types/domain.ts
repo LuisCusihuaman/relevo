@@ -339,6 +339,7 @@ export type HandoverUI = {
 	unit?: string;
 	author?: string;
 	avatar?: string;
+	severity?: string | null;
 };
 
 export type Metric = {

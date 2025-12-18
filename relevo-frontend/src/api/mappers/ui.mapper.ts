@@ -149,5 +149,6 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		author: apiPatient.assignedToName ?? "System",
 		avatar: "",
 		unit: apiPatient.unit ?? undefined,
+		severity: apiPatient.severity ?? null,
 	};
 }

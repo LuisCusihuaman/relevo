@@ -30,7 +30,8 @@ public class GetAllPatients(IMediator _mediator)
             HandoverStatus = p.HandoverStatus,
             HandoverId = p.HandoverId,
             Unit = p.Unit,
-            AssignedToName = p.AssignedToName
+            AssignedToName = p.AssignedToName,
+            Severity = p.Severity
         }).ToList(),
         Pagination = new PaginationInfo
         {
@@ -68,6 +69,7 @@ public class PatientSummaryCard
     public string? HandoverId { get; set; }
     public string? Unit { get; set; }
     public string? AssignedToName { get; set; }
+    public string? Severity { get; set; }
 }
 
 public class PaginationInfo

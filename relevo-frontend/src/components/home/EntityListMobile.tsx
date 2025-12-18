@@ -54,6 +54,50 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 		return name;
 	};
 
+	const formatSeverity = (severity: string | null | undefined): { text: string; color: string; bg: string } => {
+		if (!severity) {
+			return {
+				text: String(t("table.severity.unknown")),
+				color: "text-gray-500",
+				bg: "bg-gray-100",
+			};
+		}
+		const lower = severity.toLowerCase();
+		if (lower === "stable") {
+			return {
+				text: String(t("table.severity.stable")),
+				color: "text-green-700",
+				bg: "bg-green-100",
+			};
+		}
+		if (lower === "watcher") {
+			return {
+				text: String(t("table.severity.watcher")),
+				color: "text-yellow-700",
+				bg: "bg-yellow-100",
+			};
+		}
+		if (lower === "unstable") {
+			return {
+				text: String(t("table.severity.unstable")),
+				color: "text-orange-700",
+				bg: "bg-orange-100",
+			};
+		}
+		if (lower === "critical") {
+			return {
+				text: String(t("table.severity.critical")),
+				color: "text-red-700",
+				bg: "bg-red-100",
+			};
+		}
+		return {
+			text: severity,
+			color: "text-gray-500",
+			bg: "bg-gray-100",
+		};
+	};
+
 	const getInitials = (fullName: string): string => {
 		const cleaned = typeof fullName === "string" ? fullName.trim() : "";
 		const parts = cleaned.split(/\s+/).filter(Boolean);
@@ -195,6 +239,18 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 							<GitBranch className="h-4 w-4" />
 							<span>{String(t("table.clinicalNotes"))}</span>
 						</div>
+					</div>
+
+					{/* Severity */}
+					<div className="flex items-center gap-2">
+						{(() => {
+							const severityInfo = formatSeverity(handover.severity);
+							return (
+								<span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${severityInfo.bg} ${severityInfo.color}`}>
+									{severityInfo.text}
+								</span>
+							);
+						})()}
 					</div>
 
 					{/* Assigned User */}
