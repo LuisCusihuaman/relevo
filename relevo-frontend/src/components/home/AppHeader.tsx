@@ -1,11 +1,9 @@
 import type { FC } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
 import type { PatientHandoverData } from "@/types/domain";
 import { useTranslation } from "react-i18next";
-import { NotificationsPopover } from "./NotificationsPopover";
 import { UserMenuPopover } from "./UserMenuPopover";
 
 type AppHeaderProps = {
@@ -98,29 +96,6 @@ export const AppHeader: FC<AppHeaderProps> = ({
 			</div>
 
 			<div className="flex items-center gap-2 md:gap-4">
-				{/* Notification Bell */}
-				<NotificationsPopover isMobileMenuOpen={isMobileMenuOpen} />
-
-				{/* Debug: Clear localStorage */}
-				<Button
-					className="h-8 w-8 p-0 text-gray-600 hover:text-red-600 hidden md:flex"
-					size="sm"
-					title="Clear localStorage (Debug)"
-					variant="ghost"
-					onClick={() => {
-						if (
-							window.confirm(
-								"Are you sure you want to clear all localStorage data?"
-							)
-						) {
-							localStorage.clear();
-							window.location.reload();
-						}
-					}}
-				>
-					<Trash2 className="h-4 w-4" />
-				</Button>
-
 				{/* User Avatar + Mobile Menu */}
 				<UserMenuPopover
 					onOpenMobileMenu={() => {
