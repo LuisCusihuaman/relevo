@@ -23,7 +23,7 @@ public record CreateMeContingencyPlanResponse
     public ContingencyPlanRecord? ContingencyPlan { get; init; }
 }
 
-public class CreateMeContingencyPlanEndpoint(IMediator _mediator, ICurrentUser _currentUser)
+public class CreateMeContingencyPlanEndpoint(IMediator _mediator, ICurrentUser _currentUser, IUserRepository _userRepository)
     : Endpoint<CreateMeContingencyPlanRequest, CreateMeContingencyPlanResponse>
 {
     public override void Configure()
@@ -40,27 +40,56 @@ public class CreateMeContingencyPlanEndpoint(IMediator _mediator, ICurrentUser _
             return;
         }
 
-        var result = await _mediator.Send(
-            new CreateMeContingencyPlanCommand(
-                req.HandoverId,
-                req.ConditionText,
-                req.ActionText,
-                req.Priority,
-                _currentUser.FullName ?? _currentUser.Id ?? "Unknown"),
-            ct);
+        // Ensure user exists in database before creating contingency plan
+        // This ensures the FK constraint is satisfied
+        await _userRepository.EnsureUserExistsAsync(
+            userId,
+            _currentUser.Email,
+            _currentUser.FirstName,
+            _currentUser.LastName,
+            _currentUser.FullName,
+            _currentUser.AvatarUrl,
+            _currentUser.OrgRole
+        );
 
-        if (!result.IsSuccess)
+        try
         {
-            await SendNotFoundAsync(ct);
-            return;
+            // Normalize priority to lowercase for constraint compliance
+            var normalizedPriority = req.Priority.ToLowerInvariant();
+            if (normalizedPriority != "low" && normalizedPriority != "medium" && normalizedPriority != "high")
+            {
+                normalizedPriority = "medium"; // Default to medium if invalid
+            }
+
+            var result = await _mediator.Send(
+                new CreateMeContingencyPlanCommand(
+                    req.HandoverId,
+                    req.ConditionText,
+                    req.ActionText,
+                    normalizedPriority,
+                    userId), // Use user ID, not FullName (FK constraint requires USERS.ID)
+                ct);
+
+            if (!result.IsSuccess)
+            {
+                var errorMessage = result.Errors.FirstOrDefault() ?? "Error creating contingency plan";
+                AddError(errorMessage);
+                await SendErrorsAsync(statusCode: 400, cancellation: ct);
+                return;
+            }
+
+            Response = new CreateMeContingencyPlanResponse
+            {
+                Success = true,
+                ContingencyPlan = result.Value
+            };
+            await SendAsync(Response, cancellation: ct);
         }
-
-        Response = new CreateMeContingencyPlanResponse
+        catch (Exception ex)
         {
-            Success = true,
-            ContingencyPlan = result.Value
-        };
-        await SendAsync(Response, cancellation: ct);
+            AddError($"Error creating contingency plan: {ex.Message}");
+            await SendErrorsAsync(statusCode: 500, cancellation: ct);
+        }
     }
 }
 
