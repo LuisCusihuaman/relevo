@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Command, HomeIcon, LogOut, Monitor, Plus, Settings, Sun, Moon, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useUser } from "@clerk/clerk-react";
 import { useSignOut } from "@/hooks/useSignOut";
@@ -53,51 +53,6 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
           <div className="text-sm text-gray-600">{primaryEmail}</div>
         </div>
         <div className="p-2">
-          <button className="flex items-center gap-3 px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <User className="h-4 w-4" />
-            {t("userMenu.dashboard")}
-          </button>
-          <button className="flex items-center gap-3 px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <Settings className="h-4 w-4" />
-            {t("userMenu.accountSettings")}
-          </button>
-          <button className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <div className="flex items-center gap-3">
-              <Plus className="h-4 w-4" />
-              {t("userMenu.createTeam")}
-            </div>
-            <Plus className="h-4 w-4 text-gray-400" />
-          </button>
-          <button className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <div className="flex items-center gap-3">
-              <Command className="h-4 w-4" />
-              {t("userMenu.commandMenu")}
-            </div>
-            <div className="flex items-center gap-1">
-              <kbd className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">⌘</kbd>
-              <kbd className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">K</kbd>
-            </div>
-          </button>
-          <button className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <div className="flex items-center gap-3">
-              <Monitor className="h-4 w-4" />
-              {t("userMenu.theme")}
-            </div>
-            <div className="flex items-center gap-1">
-              <Monitor className="h-4 w-4 text-gray-400" />
-              <Sun className="h-4 w-4 text-gray-400" />
-              <Moon className="h-4 w-4 text-gray-400" />
-            </div>
-          </button>
-          <button className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none">
-            <div className="flex items-center gap-3">
-              <HomeIcon className="h-4 w-4" />
-              {t("userMenu.homePage")}
-            </div>
-            <svg className="text-gray-400" fill="currentColor" height="16" viewBox="0 0 75 65" width="16">
-              <path d="M37.59.25l36.95 64H.64l36.95-64z" />
-            </svg>
-          </button>
           <button
             className="flex items-center justify-between px-3 py-2 text-gray-700 w-full text-left rounded-md focus:outline-none"
             onClick={() => signOut()}
