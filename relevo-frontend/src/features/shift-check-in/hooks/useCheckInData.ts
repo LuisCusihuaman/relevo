@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePatientsByUnit } from "@/api";
 import { formatDiagnosis } from "@/lib/formatters";
 import { transformApiPatient } from "../utils/patientUtilities";
@@ -48,14 +48,41 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 		}));
 	}, [apiPatients, currentStep, unit]);
 
+	// Filter selectedIndexes to only include valid, non-assigned patients
+	const validSelectedIndexes = useMemo((): Array<number> => {
+		return selectedIndexes.filter((index) => {
+			// Check if index is within bounds
+			if (index < 0 || index >= patients.length) return false;
+			// Check if patient is not assigned
+			return patients[index]?.status !== "assigned";
+		});
+	}, [selectedIndexes, patients]);
+
+	// Update selectedIndexes if they were filtered (only when patients change)
+	useEffect(() => {
+		if (patients.length > 0) {
+			// Check if arrays are different
+			const arraysEqual =
+				validSelectedIndexes.length === selectedIndexes.length &&
+				validSelectedIndexes.every((val, idx) => val === selectedIndexes[idx]);
+			
+			if (!arraysEqual) {
+				setSelectedIndexes(validSelectedIndexes);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [patients.length, validSelectedIndexes.join(",")]);
+
 	const togglePatientSelection = useCallback((rowIndex: number): void => {
+		// Use validSelectedIndexes for consistency
+		const currentValid = validSelectedIndexes;
 		setSelectedIndexes(
-			selectedIndexes.includes(rowIndex)
-				? selectedIndexes.filter((index: number) => index !== rowIndex)
-				: [...selectedIndexes, rowIndex]
+			currentValid.includes(rowIndex)
+				? currentValid.filter((index: number) => index !== rowIndex)
+				: [...currentValid, rowIndex]
 		);
 		if (showValidationError) setShowValidationError(false);
-	}, [selectedIndexes, showValidationError, setSelectedIndexes]);
+	}, [validSelectedIndexes, showValidationError, setSelectedIndexes]);
 
 	const handleSelectAll = useCallback((patients: Array<ShiftCheckInPatient>): void => {
 		// Only select patients that are not assigned
@@ -63,29 +90,31 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 			.map((patient, index) => (patient.status !== "assigned" ? index : null))
 			.filter((index): index is number => index !== null);
 		
+		// Use validSelectedIndexes for consistency
+		const currentValid = validSelectedIndexes;
 		const allSelectableSelected = selectableIndexes.every((index) =>
-			selectedIndexes.includes(index)
+			currentValid.includes(index)
 		);
 
 		if (allSelectableSelected && selectableIndexes.length > 0) {
 			// Deselect all selectable patients
 			setSelectedIndexes(
-				selectedIndexes.filter((index) => !selectableIndexes.includes(index))
+				currentValid.filter((index) => !selectableIndexes.includes(index))
 			);
 		} else {
 			// Select all selectable patients (excluding assigned ones)
 			setSelectedIndexes([
-				...selectedIndexes.filter((index) => !selectableIndexes.includes(index)),
+				...currentValid.filter((index) => !selectableIndexes.includes(index)),
 				...selectableIndexes,
 			]);
 		}
 		if (showValidationError) setShowValidationError(false);
-	}, [selectedIndexes, showValidationError, setSelectedIndexes]);
+	}, [validSelectedIndexes, showValidationError, setSelectedIndexes]);
 
 	return {
 		unit,
 		shift,
-		selectedIndexes,
+		selectedIndexes: validSelectedIndexes,
 		patients,
 		isFetching,
 		showValidationError,
