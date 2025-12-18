@@ -115,7 +115,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 							{getTitleLine(handover)}
 						</div>
 						<div className="text-xs text-gray-500 mt-0.5" title={String(t("table.handoverType"))}>
-							{handover.environmentType}
+							{t("filterToolbar.medicalUnit")}
 						</div>
 					</div>
 

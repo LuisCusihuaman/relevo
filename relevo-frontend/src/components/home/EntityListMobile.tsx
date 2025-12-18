@@ -150,7 +150,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								{getTitleLine(handover)}
 							</h3>
 							<p className="text-sm text-gray-500" title={String(t("table.handoverType"))}>
-								{handover.environmentType}
+								{t("filterToolbar.medicalUnit")}
 							</p>
 						</div>
 						<DropdownMenu>

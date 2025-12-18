@@ -10,6 +10,7 @@
   "filterToolbar.searchPlaceholder": "Buscar pacientes…",
   "filterToolbar.allUnits": "Todas las unidades",
   "filterToolbar.allUsers": "Todos los usuarios",
+  "filterToolbar.medicalUnit": "Unidad médica",
   "filterToolbar.icu": "UCI",
   "filterToolbar.emergency": "Emergencia",
   "filterToolbar.pediatrics": "Pediatría",
