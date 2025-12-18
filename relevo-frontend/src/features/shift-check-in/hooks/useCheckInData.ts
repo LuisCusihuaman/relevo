@@ -58,13 +58,29 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 	}, [selectedIndexes, showValidationError, setSelectedIndexes]);
 
 	const handleSelectAll = useCallback((patients: Array<ShiftCheckInPatient>): void => {
-		if (selectedIndexes.length === patients.length) {
-			setSelectedIndexes([]);
+		// Only select patients that are not assigned
+		const selectableIndexes = patients
+			.map((patient, index) => (patient.status !== "assigned" ? index : null))
+			.filter((index): index is number => index !== null);
+		
+		const allSelectableSelected = selectableIndexes.every((index) =>
+			selectedIndexes.includes(index)
+		);
+
+		if (allSelectableSelected && selectableIndexes.length > 0) {
+			// Deselect all selectable patients
+			setSelectedIndexes(
+				selectedIndexes.filter((index) => !selectableIndexes.includes(index))
+			);
 		} else {
-			setSelectedIndexes(Array.from({ length: patients.length }, (_, index) => index));
+			// Select all selectable patients (excluding assigned ones)
+			setSelectedIndexes([
+				...selectedIndexes.filter((index) => !selectableIndexes.includes(index)),
+				...selectableIndexes,
+			]);
 		}
 		if (showValidationError) setShowValidationError(false);
-	}, [selectedIndexes.length, showValidationError, setSelectedIndexes]);
+	}, [selectedIndexes, showValidationError, setSelectedIndexes]);
 
 	return {
 		unit,

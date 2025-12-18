@@ -23,6 +23,15 @@ export function PatientSelectionList({
 }: PatientSelectionListProps): ReactElement {
 	const { t } = useTranslation(["dailySetup", "handover"]);
 
+	// Calculate selectable patients (excluding assigned ones)
+	const selectableIndexes = patients
+		.map((patient, index) => (patient.status !== "assigned" ? index : null))
+		.filter((index): index is number => index !== null);
+	const selectableCount = selectableIndexes.length;
+	const allSelectableSelected =
+		selectableCount > 0 &&
+		selectableIndexes.every((index) => selectedIndexes.includes(index));
+
 	return (
 		<div className="flex flex-col h-full">
 			<div className="flex-shrink-0 space-y-6">
@@ -45,7 +54,7 @@ export function PatientSelectionList({
 					>
 						{t("patientsSelected", {
 							count: selectedIndexes.length,
-							total: patients.length,
+							total: selectableCount,
 						})}
 					</Badge>
 				</div>
@@ -56,8 +65,9 @@ export function PatientSelectionList({
 						size="sm"
 						variant="outline"
 						onClick={onSelectAll}
+						disabled={selectableCount === 0}
 					>
-						{selectedIndexes.length === patients.length ? (
+						{allSelectableSelected ? (
 							<>
 								<Circle className="w-4 h-4" />
 								{t("deselectAll")}
@@ -85,27 +95,32 @@ export function PatientSelectionList({
 			<div className="flex-1 min-h-0 mt-6">
 				<div className="h-full overflow-y-auto mobile-scroll-fix">
 					<div className="space-y-3 pb-4">
-						{patients.map((patient, index) => (
-							<div
-								key={patient.id}
-								className="cursor-pointer"
-								role="button"
-								tabIndex={0}
-								onClick={() => {
-									onPatientToggle(index);
-								}}
-								onKeyDown={(event) => {
-									if (event.key === "Enter" || event.key === " ") {
-										onPatientToggle(index);
-									}
-								}}
-							>
-								<PatientSelectionCard
-									isSelected={selectedIndexes.includes(index)}
-									patient={patient}
-								/>
-							</div>
-						))}
+						{patients.map((patient, index) => {
+							const isAssigned = patient.status === "assigned";
+							return (
+								<div
+									key={patient.id}
+									className={isAssigned ? "" : "cursor-pointer"}
+									role={isAssigned ? "presentation" : "button"}
+									tabIndex={isAssigned ? -1 : 0}
+									onClick={() => {
+										if (!isAssigned) {
+											onPatientToggle(index);
+										}
+									}}
+									onKeyDown={(event) => {
+										if (!isAssigned && (event.key === "Enter" || event.key === " ")) {
+											onPatientToggle(index);
+										}
+									}}
+								>
+									<PatientSelectionCard
+										isSelected={selectedIndexes.includes(index)}
+										patient={patient}
+									/>
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</div>
