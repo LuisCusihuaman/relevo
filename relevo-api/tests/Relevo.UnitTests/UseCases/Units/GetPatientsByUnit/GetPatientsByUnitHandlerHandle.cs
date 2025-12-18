@@ -26,10 +26,10 @@ public class GetPatientsByUnitHandlerHandle
         {
             new PatientRecord("pat-001", "Test Patient", "not-started", null, 10, "101", "Flu", null, null)
         };
-        _repository.GetPatientsByUnitAsync(unitId, 1, 25)
+        _repository.GetPatientsByUnitAsync(unitId, 1, 25, null)
             .Returns(Task.FromResult<(IReadOnlyList<PatientRecord>, int)>((patients, 1)));
 
-        var result = await _handler.Handle(new GetPatientsByUnitQuery(unitId, 1, 25), CancellationToken.None);
+        var result = await _handler.Handle(new GetPatientsByUnitQuery(unitId, 1, 25, null), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Patients.Should().HaveCount(1);
@@ -40,10 +40,10 @@ public class GetPatientsByUnitHandlerHandle
     public async Task ReturnsEmptyListGivenInvalidUnitId()
     {
         var unitId = "invalid-unit";
-        _repository.GetPatientsByUnitAsync(unitId, 1, 25)
+        _repository.GetPatientsByUnitAsync(unitId, 1, 25, null)
             .Returns(Task.FromResult<(IReadOnlyList<PatientRecord>, int)>((new List<PatientRecord>(), 0)));
 
-        var result = await _handler.Handle(new GetPatientsByUnitQuery(unitId, 1, 25), CancellationToken.None);
+        var result = await _handler.Handle(new GetPatientsByUnitQuery(unitId, 1, 25, null), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Patients.Should().BeEmpty();

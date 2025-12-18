@@ -101,6 +101,8 @@ export const getStatusColor = (status: string): string => {
 	switch (status.toLowerCase()) {
 		case "pending":
 			return "text-orange-600";
+		case "assigned":
+			return "text-purple-600";
 		case "in-progress":
 		case "inprogress":
 			return "text-blue-600";

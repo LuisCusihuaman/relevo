@@ -23,7 +23,7 @@ public class PatientRepositoryTests : BaseDapperRepoTestFixture
         var unitId = DapperTestSeeder.UnitId;
         var patientId = DapperTestSeeder.PatientId1;
 
-        var (patients, total) = await repository.GetPatientsByUnitAsync(unitId, 1, 25);
+        var (patients, total) = await repository.GetPatientsByUnitAsync(unitId, 1, 25, null);
 
         Assert.True(total > 0);
         Assert.Contains(patients, p => p.Id == patientId);

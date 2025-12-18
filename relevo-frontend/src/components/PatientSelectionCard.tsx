@@ -80,6 +80,7 @@ export function PatientSelectionCard({
       <div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
         <span className={`text-xs font-medium ${getStatusColor(patient.status)}`}>
           {patient.status === "pending" && translate("status.pending")}
+          {patient.status === "assigned" && translate("status.assigned")}
           {patient.status === "in-progress" && translate("status.inProgress")}
           {patient.status === "complete" && translate("status.complete")}
         </span>

@@ -1,7 +1,7 @@
 import type { ShiftCheckInPatient } from "@/types/domain";
 
-function toStatus(s?: string): "pending" | "in-progress" | "complete" {
-	return s === "pending" || s === "in-progress" || s === "complete" ? s : "pending";
+function toStatus(s?: string): "pending" | "assigned" | "in-progress" | "complete" {
+	return s === "pending" || s === "assigned" || s === "in-progress" || s === "complete" ? s : "pending";
 }
 
 function toSeverity(v?: string): "stable" | "watcher" | "unstable" {

@@ -29,7 +29,7 @@ function parseIllnessSeverity(value: string | null | undefined): IllnessSeverity
 }
 
 function parseShiftCheckInStatus(value: string | null | undefined): ShiftCheckInStatus {
-	if (value === "pending" || value === "in-progress" || value === "complete") {
+	if (value === "pending" || value === "assigned" || value === "in-progress" || value === "complete") {
 		return value;
 	}
 	return "pending";

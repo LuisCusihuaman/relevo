@@ -1,11 +1,12 @@
 using FastEndpoints;
 using MediatR;
+using Relevo.Core.Interfaces;
 using Relevo.UseCases.Units.GetPatientsByUnit;
 using Relevo.Core.Models;
 
 namespace Relevo.Web.Units;
 
-public class GetPatientsByUnit(IMediator _mediator)
+public class GetPatientsByUnit(IMediator _mediator, ICurrentUser _currentUser)
   : Endpoint<GetPatientsByUnitRequest, GetPatientsByUnitResponse>
 {
   public override void Configure()
@@ -15,7 +16,8 @@ public class GetPatientsByUnit(IMediator _mediator)
 
   public override async Task HandleAsync(GetPatientsByUnitRequest req, CancellationToken ct)
   {
-    var query = new GetPatientsByUnitQuery(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize);
+    var userId = _currentUser.Id;
+    var query = new GetPatientsByUnitQuery(req.UnitId, req.Page <= 0 ? 1 : req.Page, req.PageSize <= 0 ? 25 : req.PageSize, userId);
     var result = await _mediator.Send(query, ct);
 
     if (result.IsSuccess)

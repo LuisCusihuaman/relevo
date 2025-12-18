@@ -3,6 +3,7 @@
   "ageNotAvailable": "Age N/A",
   "status": {
     "pending": "Pending",
+    "assigned": "Assigned",
     "inProgress": "In Progress",
     "complete": "Complete",
     "unknown": "Unknown"

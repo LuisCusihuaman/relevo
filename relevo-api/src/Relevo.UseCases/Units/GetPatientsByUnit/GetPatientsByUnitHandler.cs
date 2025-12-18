@@ -9,7 +9,7 @@ public class GetPatientsByUnitHandler(IPatientRepository _repository)
 {
   public async Task<Result<GetPatientsByUnitResult>> Handle(GetPatientsByUnitQuery request, CancellationToken cancellationToken)
   {
-    var (patients, total) = await _repository.GetPatientsByUnitAsync(request.UnitId, request.Page, request.PageSize);
+    var (patients, total) = await _repository.GetPatientsByUnitAsync(request.UnitId, request.Page, request.PageSize, request.UserId);
 
     return new GetPatientsByUnitResult(patients, total, request.Page, request.PageSize);
   }

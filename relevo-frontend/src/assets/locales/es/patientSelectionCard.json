@@ -3,6 +3,7 @@
   "ageNotAvailable": "Edad N/D",
   "status": {
     "pending": "Pendiente",
+    "assigned": "Asignado",
     "inProgress": "En Curso",
     "complete": "Completo",
     "unknown": "Desconocido"

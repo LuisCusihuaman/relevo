@@ -23,7 +23,7 @@ export type HandoverStatus =
 	| "Completed"
 	| "Cancelled";
 
-export type ShiftCheckInStatus = "pending" | "in-progress" | "complete";
+export type ShiftCheckInStatus = "pending" | "assigned" | "in-progress" | "complete";
 
 export type SituationAwarenessStatus = "Draft" | "Ready" | "InProgress" | "Completed";
 

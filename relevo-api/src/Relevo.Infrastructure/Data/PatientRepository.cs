@@ -7,7 +7,7 @@ namespace Relevo.Infrastructure.Data;
 
 public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPatientRepository
 {
-  public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(string unitId, int page, int pageSize)
+  public async Task<(IReadOnlyList<PatientRecord> Patients, int TotalCount)> GetPatientsByUnitAsync(string unitId, int page, int pageSize, string? userId = null)
   {
     using var conn = _connectionFactory.CreateConnection();
 
@@ -15,7 +15,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     var ps = Math.Max(pageSize, 1);
     var offset = (p - 1) * ps;
 
-    // Count
+    // Count - always count all patients in the unit
     var total = await conn.ExecuteScalarAsync<int>(
         "SELECT COUNT(*) FROM PATIENTS WHERE UNIT_ID = :UnitId",
         new { UnitId = unitId });
@@ -23,26 +23,64 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     if (total == 0)
         return (Array.Empty<PatientRecord>(), 0);
 
-    // Query
-    const string sql = @"
-      SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
-        SELECT
-            p.ID,
-            p.NAME,
-            'not-started' as HandoverStatus,
-            CAST(NULL AS VARCHAR2(50)) as HandoverId,
-            ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
-            p.ROOM_NUMBER as Room,
-            p.DIAGNOSIS,
-            CAST(NULL AS VARCHAR2(20)) as Status,
-            CAST(NULL AS VARCHAR2(20)) as Severity,
-            ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
-        FROM PATIENTS p
-        WHERE p.UNIT_ID = :UnitId
-      )
-      WHERE RN BETWEEN :StartRow AND :EndRow";
+    // Query - set Status to 'assigned' if patient is already assigned to the user, otherwise 'pending'
+    string sql;
+    object queryParams;
+    
+    if (!string.IsNullOrEmpty(userId))
+    {
+        sql = @"
+          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+            SELECT
+                p.ID,
+                p.NAME,
+                'not-started' as HandoverStatus,
+                CAST(NULL AS VARCHAR2(50)) as HandoverId,
+                ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
+                p.ROOM_NUMBER as Room,
+                p.DIAGNOSIS,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM SHIFT_COVERAGE sc
+                        INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                        WHERE sc.PATIENT_ID = p.ID
+                          AND sc.RESPONSIBLE_USER_ID = :UserId
+                          AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                    ) THEN 'assigned'
+                    ELSE 'pending'
+                END as Status,
+                CAST(NULL AS VARCHAR2(20)) as Severity,
+                ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
+            FROM PATIENTS p
+            WHERE p.UNIT_ID = :UnitId
+          )
+          WHERE RN BETWEEN :StartRow AND :EndRow";
+        queryParams = new { UnitId = unitId, UserId = userId, StartRow = offset + 1, EndRow = offset + ps };
+    }
+    else
+    {
+        sql = @"
+          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+            SELECT
+                p.ID,
+                p.NAME,
+                'not-started' as HandoverStatus,
+                CAST(NULL AS VARCHAR2(50)) as HandoverId,
+                ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
+                p.ROOM_NUMBER as Room,
+                p.DIAGNOSIS,
+                'pending' as Status,
+                CAST(NULL AS VARCHAR2(20)) as Severity,
+                ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
+            FROM PATIENTS p
+            WHERE p.UNIT_ID = :UnitId
+          )
+          WHERE RN BETWEEN :StartRow AND :EndRow";
+        queryParams = new { UnitId = unitId, StartRow = offset + 1, EndRow = offset + ps };
+    }
 
-    var patients = await conn.QueryAsync<PatientRecord>(sql, new { UnitId = unitId, StartRow = offset + 1, EndRow = offset + ps });
+    var patients = await conn.QueryAsync<PatientRecord>(sql, queryParams);
 
     return (patients.ToList(), total);
   }
