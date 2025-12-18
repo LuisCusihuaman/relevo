@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAssignPatients, useReadyHandover, usePendingHandovers, handoverQueryKeys } from "@/api";
+import { useAssignPatients, useReadyHandover, handoverQueryKeys } from "@/api";
+import { getPatientHandoverTimeline } from "@/api/endpoints/patients";
 import { useShiftCheckInStore } from "@/store/shift-check-in.store";
 import type { ShiftCheckInPatient } from "@/types/domain";
 
@@ -12,13 +13,12 @@ type SubmitCheckInParams = {
 	userId: string;
 };
 
-export function useCompleteCheckIn(userId: string) {
+export function useCompleteCheckIn(_userId: string) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const assignMutation = useAssignPatients();
 	const readyHandoverMutation = useReadyHandover();
 	const { reset: resetPersistentState } = useShiftCheckInStore();
-	const { refetch: refetchPendingHandovers } = usePendingHandovers(userId);
 
 	const submitCheckIn = useCallback(({ shiftId, patients, selectedIndexes }: SubmitCheckInParams) => {
 		const selectedPatientIds = selectedIndexes
@@ -34,28 +34,49 @@ export function useCompleteCheckIn(userId: string) {
 				// Invalidate handover queries to trigger a refetch
 				await queryClient.invalidateQueries({ queryKey: handoverQueryKeys.all });
 				
-				// Retry logic: wait for handovers to be created (max 5 attempts, 500ms each)
+				// Retry logic: wait for handovers to be created (max 8 attempts, 750ms each = 6 seconds total)
 				let attempts = 0;
-				const maxAttempts = 5;
-				let foundHandovers: Array<{ id: string; patientId: string; stateName: string }> = [];
+				const maxAttempts = 8;
+				const foundHandoversMap = new Map<string, { id: string; patientId: string; stateName: string }>();
 				
-				while (attempts < maxAttempts && foundHandovers.length < selectedPatientIds.length) {
-					await new Promise(resolve => setTimeout(resolve, 500));
+				while (attempts < maxAttempts && foundHandoversMap.size < selectedPatientIds.length) {
+					await new Promise(resolve => setTimeout(resolve, 750));
 					
-					// Refetch pending handovers to get the newly created ones
-					const { data: updatedHandovers } = await refetchPendingHandovers();
-					
-					if (updatedHandovers?.handovers) {
-						foundHandovers = updatedHandovers.handovers
-							.filter(h => selectedPatientIds.includes(h.patientId))
-							.map(h => ({ id: h.id, patientId: h.patientId, stateName: h.stateName }));
-					}
+					// For each patient, check if handover was created by querying their timeline
+					await Promise.all(
+						selectedPatientIds.map(async (patientId) => {
+							if (foundHandoversMap.has(patientId)) return; // Already found
+							
+							try {
+								const timeline = await queryClient.fetchQuery({
+									queryKey: ["patients", "handoverTimeline", patientId, { page: 1, pageSize: 5 }],
+									queryFn: () => getPatientHandoverTimeline(patientId, { page: 1, pageSize: 5 }),
+									staleTime: 0, // Always fetch fresh
+								});
+								
+								// Find the most recent active handover (Draft, Ready, or InProgress)
+								const activeHandover = timeline?.items?.find(h => 
+									h.stateName === "Draft" || h.stateName === "Ready" || h.stateName === "InProgress"
+								);
+								
+								if (activeHandover) {
+									foundHandoversMap.set(patientId, {
+										id: activeHandover.id,
+										patientId: activeHandover.patientId,
+										stateName: activeHandover.stateName,
+									});
+								}
+							} catch (error) {
+								console.warn(`Failed to fetch handover for patient ${patientId}:`, error);
+							}
+						})
+					);
 					
 					attempts++;
 				}
 				
 				// Mark all draft handovers as ready
-				const draftHandovers = foundHandovers.filter(h => h.stateName === "Draft");
+				const draftHandovers = Array.from(foundHandoversMap.values()).filter(h => h.stateName === "Draft");
 				
 				if (draftHandovers.length > 0) {
 					await Promise.all(
@@ -82,7 +103,7 @@ export function useCompleteCheckIn(userId: string) {
 				console.error('Assignment failed:', error);
 			},
 		});
-	}, [assignMutation, navigate, resetPersistentState, readyHandoverMutation, queryClient, refetchPendingHandovers]);
+	}, [assignMutation, navigate, resetPersistentState, readyHandoverMutation, queryClient]);
 
 	return {
 		submitCheckIn,
