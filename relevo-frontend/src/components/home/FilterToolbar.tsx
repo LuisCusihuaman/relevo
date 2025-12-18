@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar } from "lucide-react";
 
 type FilterToolbarProps = {
 	selectedUnit?: string | null;
@@ -22,12 +21,6 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 	return (
 		<div className="flex items-center justify-between mt-6 mb-4">
 			<div className="flex items-center gap-4">
-				<button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
-					<Calendar className="h-4 w-4" />
-					{t("filterToolbar.dateRange")}
-				</button>
-			</div>
-			<div className="flex items-center gap-4">
 				<select
 					className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
 					value={selectedUnit ?? "all"}
@@ -37,6 +30,8 @@ export const FilterToolbar: FC<FilterToolbarProps> = ({
 					<option value="unit-1">{t("filterToolbar.icu")}</option>
 					<option value="unit-2">{t("filterToolbar.generalPediatrics")}</option>
 				</select>
+			</div>
+			<div className="flex items-center gap-4">
 				<select className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
 					<option>{t("filterToolbar.status")}</option>
 					<option>{t("filterToolbar.all")}</option>
