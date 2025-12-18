@@ -248,6 +248,7 @@ export function MainContent(): React.JSX.Element {
 						onOpenChange={(open) => { setExpandedSection('synthesis', open); }}
 					>
 						<SynthesisByReceiver
+							assignedPhysician={assignedPhysician}
 							currentUser={currentUser}
 							handoverComplete={handoverData.stateName === "Completed"}
 							handoverState={handoverData.stateName}

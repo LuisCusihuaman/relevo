@@ -31,6 +31,29 @@ public class UserRepository(DapperConnectionFactory _connectionFactory) : IUserR
         );
     }
 
+    public async Task<IReadOnlyList<UserProfileRecord>> GetAllUsersAsync()
+    {
+        using var conn = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT ID, EMAIL, FIRST_NAME as FirstName, LAST_NAME as LastName, FULL_NAME as FullName
+            FROM USERS
+            WHERE IS_ACTIVE = 1
+            ORDER BY FULL_NAME ASC";
+
+        var users = await conn.QueryAsync<dynamic>(sql);
+
+        return users.Select(u => new UserProfileRecord(
+            Id: (string)u.ID,
+            Email: (string?)u.EMAIL ?? "",
+            FirstName: (string?)u.FIRSTNAME ?? "",
+            LastName: (string?)u.LASTNAME ?? "",
+            FullName: (string?)u.FULLNAME ?? "",
+            Roles: new List<string> { "Doctor" }, // Default role
+            IsActive: true
+        )).ToList();
+    }
+
     public async Task EnsureUserExistsAsync(string userId, string? email = null, string? firstName = null, string? lastName = null, string? fullName = null, string? avatarUrl = null, string? role = null)
     {
         using var conn = _connectionFactory.CreateConnection();

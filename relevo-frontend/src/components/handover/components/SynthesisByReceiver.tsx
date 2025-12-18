@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   CheckCircle2,
   CheckSquare,
   Circle,
@@ -13,22 +20,33 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
+import { useAllUsers } from "@/api/endpoints/users";
+import { getInitials } from "@/lib/formatters";
 
 interface SynthesisByReceiverProps {
   onComplete?: (completed: boolean) => void;
   onConfirm?: () => void;
   currentUser: {
+    id?: string;
     name: string;
     initials: string;
     role: string;
   };
   receivingPhysician: {
+    id?: string;
+    name: string;
+    initials: string;
+    role: string;
+  };
+  assignedPhysician?: {
+    id?: string;
     name: string;
     initials: string;
     role: string;
   };
   handoverState?: string;
   handoverComplete?: boolean;
+  onReceiverChange?: (userId: string, userName: string) => void;
 }
 
 export function SynthesisByReceiver({
@@ -36,13 +54,26 @@ export function SynthesisByReceiver({
   onConfirm,
   currentUser,
   receivingPhysician,
+  assignedPhysician,
   handoverState,
   handoverComplete = false,
+  onReceiverChange,
 }: SynthesisByReceiverProps): JSX.Element {
   const { t } = useTranslation("synthesisByReceiver");
+  const { data: allUsers = [], isLoading: isLoadingUsers } = useAllUsers();
+
+  // Check if current user is the assigned physician (can select receiver)
+  const isAssignedPhysician = assignedPhysician
+    ? (currentUser.id ? currentUser.id === assignedPhysician.id : currentUser.name === assignedPhysician.name)
+    : false;
 
   // Check if current user is the receiving physician
   const isReceiver = currentUser.name === receivingPhysician.name;
+
+  // Selected receiver state
+  const [selectedReceiverId, setSelectedReceiverId] = useState<string>(
+    receivingPhysician.id || ""
+  );
 
   // Confirmation checklist items
   const [confirmationItems, setConfirmationItems] = useState(() => [
@@ -91,12 +122,24 @@ export function SynthesisByReceiver({
     },
   ]);
 
+  // Get selected receiver display info (must be defined before use)
+  const selectedReceiver = allUsers.find((u) => u.id === selectedReceiverId) || {
+    id: receivingPhysician.id || "",
+    fullName: receivingPhysician.name,
+    firstName: "",
+    lastName: "",
+    email: "",
+  };
+
   // Additional checks for confirmation permissions
   const handoverInProgress = handoverState === "InProgress";
   const handoverNotComplete = !handoverComplete;
 
   // Check if current user can confirm (must be receiver, handover in progress, and not already complete)
-  const canConfirm = isReceiver && handoverInProgress && handoverNotComplete;
+  // Update isReceiver check to use selected receiver
+  const isCurrentUserReceiver = currentUser.name === selectedReceiver.fullName || 
+    (currentUser.id && currentUser.id === selectedReceiver.id);
+  const canConfirm = isCurrentUserReceiver && handoverInProgress && handoverNotComplete;
 
   // Calculate completion
   const completedItems = confirmationItems.filter(
@@ -129,6 +172,15 @@ export function SynthesisByReceiver({
     onComplete?.(isComplete);
   }, [isComplete, onComplete]);
 
+  // Handle receiver selection change
+  const handleReceiverChange = (userId: string): void => {
+    setSelectedReceiverId(userId);
+    const selectedUser = allUsers.find((u) => u.id === userId);
+    if (selectedUser && onReceiverChange) {
+      onReceiverChange(userId, selectedUser.fullName);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Receiving Physician Info */}
@@ -136,14 +188,37 @@ export function SynthesisByReceiver({
         <div className="flex items-center space-x-3">
           <Avatar className="w-10 h-10 border-2 border-purple-300">
             <AvatarFallback className="bg-purple-600 text-white">
-              {receivingPhysician.initials}
+              {getInitials(selectedReceiver.fullName)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h4 className="font-medium text-purple-900">
-              {receivingPhysician.name}
-            </h4>
-            <p className="text-sm text-purple-700">{receivingPhysician.role}</p>
+            {isAssignedPhysician && !handoverComplete ? (
+              <Select
+                value={selectedReceiverId}
+                onValueChange={handleReceiverChange}
+                disabled={isLoadingUsers}
+              >
+                <SelectTrigger className="w-[200px] h-auto py-1 border-purple-300 bg-white">
+                  <SelectValue placeholder={t("selectReceiver", "Seleccionar receptor")}>
+                    {selectedReceiver.fullName}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {allUsers.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <>
+                <h4 className="font-medium text-purple-900">
+                  {selectedReceiver.fullName}
+                </h4>
+                <p className="text-sm text-purple-700">{receivingPhysician.role}</p>
+              </>
+            )}
           </div>
         </div>
         <div className="text-right">
@@ -160,7 +235,7 @@ export function SynthesisByReceiver({
           <div className="flex items-center space-x-2 text-amber-800">
             <Lock className="w-4 h-4" />
             <span className="text-sm font-medium">
-              {t("onlyReceiverConfirms", { name: receivingPhysician.name })}
+              {t("onlyReceiverConfirms", { name: selectedReceiver.fullName })}
             </span>
           </div>
           <p className="text-sm text-amber-700 mt-1">
@@ -170,7 +245,7 @@ export function SynthesisByReceiver({
       )}
 
       {/* Progress Indicator */}
-      {isReceiver && (
+      {isCurrentUserReceiver && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-gray-900">
@@ -302,13 +377,13 @@ export function SynthesisByReceiver({
       )}
 
       {/* Status Display for Non-Receiving Users */}
-      {!isReceiver && !canConfirm && (
+      {!isCurrentUserReceiver && !canConfirm && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg text-center">
           <div className="space-y-2">
             <div className="flex items-center justify-center space-x-2">
               <Clock className="w-4 h-4 text-gray-500" />
               <span className="text-sm text-gray-600">
-                {t("status.waitingFor", { name: receivingPhysician.name })}
+                {t("status.waitingFor", { name: selectedReceiver.fullName })}
               </span>
             </div>
             <div className="text-xs text-gray-500">
@@ -324,12 +399,12 @@ export function SynthesisByReceiver({
       )}
 
       {/* Focus Mode - Read-Only Display */}
-      {!isReceiver && (
+      {!isCurrentUserReceiver && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
           <div className="text-center space-y-2">
             <h4 className="font-medium text-gray-900">{t("title")}</h4>
             <p className="text-sm text-gray-600">
-              {t("description", { name: receivingPhysician.name })}
+              {t("description", { name: selectedReceiver.fullName })}
             </p>
             <div className="text-xs text-gray-500">
               {t("readOnly")}
