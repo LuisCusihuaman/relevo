@@ -8,7 +8,7 @@
   "sectionMeta.viewMore": "View more",
 
   "filterToolbar.dateRange": "Date range",
-  "filterToolbar.searchPlaceholder": "Search patients… (F)",
+  "filterToolbar.searchPlaceholder": "Search patients…",
   "filterToolbar.allUnits": "All units",
   "filterToolbar.icu": "ICU",
   "filterToolbar.emergency": "Emergency",
