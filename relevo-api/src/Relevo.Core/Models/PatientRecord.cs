@@ -11,9 +11,10 @@ public record PatientRecord(
     [property: Required] string Room,
     [property: Required] string Diagnosis,
     string? Status,
-    string? Severity
+    string? Severity,
+    string? AssignedToName
 )
 {
-    public PatientRecord() : this("", "", "not-started", null, null, "", "", null, null) { }
+    public PatientRecord() : this("", "", "not-started", null, null, "", "", null, null, null) { }
 }
 

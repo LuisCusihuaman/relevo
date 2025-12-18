@@ -220,6 +220,7 @@ export type ShiftCheckInPatient = {
 	room: string;
 	diagnosis: string;
 	age?: number;
+	assignedToName?: string | null;
 };
 
 export type Unit = {

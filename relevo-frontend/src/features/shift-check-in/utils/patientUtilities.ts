@@ -16,6 +16,7 @@ export function transformApiPatient(apiPatient: {
 	diagnosis?: string | null;
 	status?: string;
 	severity?: string;
+	assignedToName?: string | null;
 }): ShiftCheckInPatient {
 	return {
 		id: apiPatient.id,
@@ -25,5 +26,6 @@ export function transformApiPatient(apiPatient: {
 		diagnosis: apiPatient.diagnosis ?? "",
 		status: toStatus(apiPatient.status),
 		severity: toSeverity(apiPatient.severity),
+		assignedToName: apiPatient.assignedToName ?? null,
 	};
 }

@@ -87,6 +87,10 @@ function mapPhysician(api: ApiPhysicianDto | null | undefined): PhysicianAssignm
 }
 
 export function mapApiPatientHandoverData(api: ApiGetPatientHandoverDataResponse): PatientHandoverData {
+	const apiWithWeightHeight = api as ApiGetPatientHandoverDataResponse & {
+		weight?: string | null;
+		height?: string | null;
+	};
 	return {
 		id: api.id,
 		name: api.name,
@@ -105,8 +109,8 @@ export function mapApiPatientHandoverData(api: ApiGetPatientHandoverDataResponse
 		summaryText: api.summaryText ?? undefined,
 		lastEditedBy: api.lastEditedBy ?? undefined,
 		updatedAt: api.updatedAt ?? undefined,
-		weight: api.weight ?? undefined,
-		height: api.height ?? undefined,
+		weight: apiWithWeightHeight.weight ?? undefined,
+		height: apiWithWeightHeight.height ?? undefined,
 	};
 }
 
@@ -119,5 +123,6 @@ export function mapApiPatientRecordToShiftCheckIn(api: ApiPatientRecord): ShiftC
 		room: api.room,
 		diagnosis: api.diagnosis,
 		age: api.age != null ? Math.floor(api.age) : undefined,
+		assignedToName: (api as { assignedToName?: string | null }).assignedToName ?? null,
 	};
 }

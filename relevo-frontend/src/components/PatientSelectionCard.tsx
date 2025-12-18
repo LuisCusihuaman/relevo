@@ -94,7 +94,7 @@ export function PatientSelectionCard({
       </div>
 
       {/* Status and Actions Column */}
-      <div className="flex items-center justify-end gap-2 shrink-0 min-w-0">
+      <div className="flex flex-col items-end gap-1 shrink-0 min-w-0">
         <span className={`text-xs font-medium ${
           isAssigned ? "text-gray-500" : getStatusColor(patient.status)
         }`}>
@@ -103,6 +103,11 @@ export function PatientSelectionCard({
           {patient.status === "in-progress" && translate("status.inProgress")}
           {patient.status === "complete" && translate("status.complete")}
         </span>
+        {isAssigned && patient.assignedToName && (
+          <span className="text-xs text-gray-400 truncate max-w-[120px]">
+            {patient.assignedToName}
+          </span>
+        )}
       </div>
     </li>
   );

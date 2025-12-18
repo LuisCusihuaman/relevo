@@ -30,7 +30,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     if (!string.IsNullOrEmpty(userId))
     {
         sql = @"
-          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity, AssignedToName FROM (
             SELECT
                 p.ID,
                 p.NAME,
@@ -67,6 +67,13 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                        AND ROWNUM = 1),
                     'Stable'
                 ) as Severity,
+                (SELECT u.FULL_NAME 
+                 FROM SHIFT_COVERAGE sc
+                 INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                 INNER JOIN USERS u ON sc.RESPONSIBLE_USER_ID = u.ID
+                 WHERE sc.PATIENT_ID = p.ID
+                   AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                   AND ROWNUM = 1) as AssignedToName,
                 ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
             FROM PATIENTS p
             WHERE p.UNIT_ID = :UnitId
@@ -77,7 +84,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
     else
     {
         sql = @"
-          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+          SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity, AssignedToName FROM (
             SELECT
                 p.ID,
                 p.NAME,
@@ -114,6 +121,13 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                        AND ROWNUM = 1),
                     'Stable'
                 ) as Severity,
+                (SELECT u.FULL_NAME 
+                 FROM SHIFT_COVERAGE sc
+                 INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                 INNER JOIN USERS u ON sc.RESPONSIBLE_USER_ID = u.ID
+                 WHERE sc.PATIENT_ID = p.ID
+                   AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                   AND ROWNUM = 1) as AssignedToName,
                 ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
             FROM PATIENTS p
             WHERE p.UNIT_ID = :UnitId
