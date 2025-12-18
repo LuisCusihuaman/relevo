@@ -47,10 +47,10 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 		return s.trim();
 	};
 
-	const formatAuthor = (name: string): string => {
-		if (!name) return String(t("table.system"));
+	const formatAuthor = (name: string | undefined): string => {
+		if (!name || name === "System") return String(t("table.unassigned"));
 		const lower = name.toLowerCase();
-		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.system"));
+		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.unassigned"));
 		return name;
 	};
 
@@ -204,7 +204,7 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 								{handover.avatar}
 							</div>
 							<span className="text-sm text-gray-600">
-								{formatRelative(handover.time)} por {formatAuthor(handover.author || "")}
+								{formatRelative(handover.time)} por {formatAuthor(handover.author)}
 							</span>
 						</div>
 					</div>

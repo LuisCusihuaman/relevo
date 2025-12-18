@@ -55,6 +55,7 @@ export function mapApiPatientSummaryCard(api: Partial<ApiPatientSummaryCard>): P
 		handoverId: api.handoverId ?? null,
 		severity: (api as { severity?: string | null }).severity ?? null,
 		unit: (api as { unit?: string | null }).unit ?? null,
+		assignedToName: (api as { assignedToName?: string | null }).assignedToName ?? null,
 	};
 }
 
@@ -136,5 +137,6 @@ export function mapApiPatientRecordToSummaryCard(api: ApiPatientRecord): Patient
 		handoverStatus: api.handoverStatus ?? "NotStarted",
 		handoverId: api.handoverId ?? null,
 		severity: api.severity ?? null,
+		assignedToName: (api as { assignedToName?: string | null }).assignedToName ?? null,
 	};
 }

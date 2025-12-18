@@ -65,6 +65,7 @@ export type PatientSummaryCard = {
 	handoverId: string | null;
 	severity?: string | null;
 	unit?: string | null;
+	assignedToName?: string | null;
 };
 
 export type PatientDetail = {

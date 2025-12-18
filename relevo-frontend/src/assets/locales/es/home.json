@@ -119,6 +119,7 @@
   "table.clinicalNotes": "Notas clínicas",
   "table.createdBy": "por {{author}}",
   "table.system": "sistema",
+  "table.unassigned": "Sin Asignar",
   "table.bed": "Cama {{label}}",
   "table.mrn": "MRN · {{value}}",
   "table.noLocation": "Sin ubicación",

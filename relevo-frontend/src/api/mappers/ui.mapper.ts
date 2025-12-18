@@ -146,7 +146,7 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		statusTime: "Active",
 		environmentType: "Preview",
 		current: config.isActive,
-		author: "System",
+		author: apiPatient.assignedToName ?? "System",
 		avatar: "",
 		unit: apiPatient.unit ?? undefined,
 	};

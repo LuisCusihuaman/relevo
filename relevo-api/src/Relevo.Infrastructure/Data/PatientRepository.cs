@@ -157,7 +157,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
 
       // Query
       const string sql = @"
-        SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity, Unit FROM (
+        SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity, Unit, AssignedToName FROM (
           SELECT
               p.ID,
               p.NAME,
@@ -169,6 +169,13 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
               CAST(NULL AS VARCHAR2(20)) as Status,
               CAST(NULL AS VARCHAR2(20)) as Severity,
               u.NAME as Unit,
+              (SELECT u2.FULL_NAME 
+               FROM SHIFT_COVERAGE sc
+               INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+               INNER JOIN USERS u2 ON sc.RESPONSIBLE_USER_ID = u2.ID
+               WHERE sc.PATIENT_ID = p.ID
+                 AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                 AND ROWNUM = 1) as AssignedToName,
               ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
           FROM PATIENTS p
           LEFT JOIN UNITS u ON p.UNIT_ID = u.ID

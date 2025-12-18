@@ -21,10 +21,10 @@ export const EntityTable: FC<EntityTableProps> = ({
 	const { t } = useTranslation("home");
 	// environment label now shown only via status/time; keep mapping if needed later
 
-	const formatAuthor = (name: string): string => {
-		if (!name) return String(t("table.system"));
+	const formatAuthor = (name: string | undefined): string => {
+		if (!name || name === "System") return String(t("table.unassigned"));
 		const lower = name.toLowerCase();
-		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.system"));
+		if (lower.includes("[bot]") || lower.includes("dependabot")) return String(t("table.unassigned"));
 		return name;
 	};
 
@@ -152,7 +152,7 @@ export const EntityTable: FC<EntityTableProps> = ({
 						<div className="flex items-center justify-end gap-2">
 							<GitBranch className="h-3 w-3 text-gray-400" />
 							<span className="text-xs text-gray-500">
-								{formatRelativeTime(handover.time)} {String(t("table.createdBy", { author: formatAuthor(handover.author || "") }))}
+								{formatRelativeTime(handover.time)} {String(t("table.createdBy", { author: formatAuthor(handover.author) }))}
 							</span>
 							<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
 								{handover.avatar}
