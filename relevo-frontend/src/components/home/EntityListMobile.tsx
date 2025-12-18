@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { GitBranch, MoreHorizontal, UserX } from "lucide-react";
+import { GitBranch, MoreHorizontal, UserX, Stethoscope } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { HandoverUI as Handover } from "@/types/domain";
 
@@ -205,8 +205,8 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 									<UserX className="h-3 w-3 text-gray-600" />
 								</div>
 							) : (
-								<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-medium text-white">
-									{handover.avatar}
+								<div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+									<Stethoscope className="h-3 w-3 text-white" />
 								</div>
 							)}
 							<span className="text-sm text-gray-600">
