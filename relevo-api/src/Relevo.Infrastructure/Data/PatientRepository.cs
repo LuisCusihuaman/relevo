@@ -34,8 +34,17 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
             SELECT
                 p.ID,
                 p.NAME,
-                'not-started' as HandoverStatus,
-                CAST(NULL AS VARCHAR2(50)) as HandoverId,
+                COALESCE(
+                    (SELECT h.CURRENT_STATE FROM HANDOVERS h 
+                     WHERE h.PATIENT_ID = p.ID 
+                       AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                       AND ROWNUM = 1),
+                    'not-started'
+                ) as HandoverStatus,
+                (SELECT h.ID FROM HANDOVERS h 
+                 WHERE h.PATIENT_ID = p.ID 
+                   AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                   AND ROWNUM = 1) as HandoverId,
                 ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
                 p.ROOM_NUMBER as Room,
                 p.DIAGNOSIS,
@@ -50,7 +59,15 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
                     ) THEN 'assigned'
                     ELSE 'pending'
                 END as Status,
-                CAST(NULL AS VARCHAR2(20)) as Severity,
+                COALESCE(
+                    (SELECT hc.ILLNESS_SEVERITY 
+                     FROM HANDOVERS h
+                     INNER JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+                     WHERE h.PATIENT_ID = p.ID 
+                       AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                       AND ROWNUM = 1),
+                    'Stable'
+                ) as Severity,
                 ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
             FROM PATIENTS p
             WHERE p.UNIT_ID = :UnitId
@@ -65,13 +82,30 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
             SELECT
                 p.ID,
                 p.NAME,
-                'not-started' as HandoverStatus,
-                CAST(NULL AS VARCHAR2(50)) as HandoverId,
+                COALESCE(
+                    (SELECT h.CURRENT_STATE FROM HANDOVERS h 
+                     WHERE h.PATIENT_ID = p.ID 
+                       AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                       AND ROWNUM = 1),
+                    'not-started'
+                ) as HandoverStatus,
+                (SELECT h.ID FROM HANDOVERS h 
+                 WHERE h.PATIENT_ID = p.ID 
+                   AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                   AND ROWNUM = 1) as HandoverId,
                 ROUND(MONTHS_BETWEEN(SYSDATE, p.DATE_OF_BIRTH)/12, 1) as Age,
                 p.ROOM_NUMBER as Room,
                 p.DIAGNOSIS,
                 'pending' as Status,
-                CAST(NULL AS VARCHAR2(20)) as Severity,
+                COALESCE(
+                    (SELECT hc.ILLNESS_SEVERITY 
+                     FROM HANDOVERS h
+                     INNER JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+                     WHERE h.PATIENT_ID = p.ID 
+                       AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                       AND ROWNUM = 1),
+                    'Stable'
+                ) as Severity,
                 ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
             FROM PATIENTS p
             WHERE p.UNIT_ID = :UnitId
