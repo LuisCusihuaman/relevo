@@ -152,15 +152,6 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 												</button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												<DropdownMenuItem>
-													{t("patientList.open")}
-												</DropdownMenuItem>
-												<DropdownMenuItem>
-													{t("patientList.viewNotes")}
-												</DropdownMenuItem>
-												<DropdownMenuItem>
-													{t("patientList.startHandover")}
-												</DropdownMenuItem>
 												<DropdownMenuItem 
 													onClick={(event_) => {
 														event_?.stopPropagation();
