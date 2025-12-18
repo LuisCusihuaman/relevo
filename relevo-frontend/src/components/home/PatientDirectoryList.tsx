@@ -6,9 +6,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Activity, GitBranch, MoreHorizontal } from "lucide-react";
+import { Activity, GitBranch, MoreHorizontal, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { PatientSummaryCard } from "@/types/domain";
+import { useUnassignMyPatient } from "@/api/endpoints/patients";
 
 export type PatientDirectoryListProps = {
 	patients: ReadonlyArray<PatientSummaryCard>;
@@ -19,6 +20,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 }: PatientDirectoryListProps) => {
 	const { t } = useTranslation("home");
 	const navigate = useNavigate();
+	const unassignPatientMutation = useUnassignMyPatient();
 
 	const formatDate = (date: Date): string => {
 		return date.toLocaleDateString("es-ES", { month: "short", day: "numeric" });
@@ -53,6 +55,26 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 			to: "/patient/$patientId",
 			params: { patientId: patient.id },
 		});
+	};
+
+	const handleUnassignPatient = (patientId: string): void => {
+		if (window.confirm(String(t("table.deleteConfirm")))) {
+			void unassignPatientMutation.mutateAsync(patientId).catch((error: unknown) => {
+				console.error("Error unassigning patient:", error);
+				let errorMessage = "Error al desasignar el paciente. Por favor, intente de nuevo.";
+				if (error && typeof error === "object") {
+					if ("response" in error && error.response && typeof error.response === "object" && 
+						"data" in error.response && error.response.data && typeof error.response.data === "object" &&
+						"errors" in error.response.data && Array.isArray(error.response.data.errors) && 
+						error.response.data.errors[0]) {
+						errorMessage = String(error.response.data.errors[0]);
+					} else if ("message" in error && typeof error.message === "string") {
+						errorMessage = error.message;
+					}
+				}
+				alert(errorMessage);
+			});
+		}
 	};
 
 	return (
@@ -138,6 +160,16 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 												</DropdownMenuItem>
 												<DropdownMenuItem>
 													{t("patientList.startHandover")}
+												</DropdownMenuItem>
+												<DropdownMenuItem 
+													onClick={(event_) => {
+														event_?.stopPropagation();
+														handleUnassignPatient(patient.id);
+													}}
+													className="text-red-600 focus:text-red-600 focus:bg-red-50"
+												>
+													<Trash2 className="h-4 w-4 mr-2" />
+													{String(t("table.deletePatient"))}
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>

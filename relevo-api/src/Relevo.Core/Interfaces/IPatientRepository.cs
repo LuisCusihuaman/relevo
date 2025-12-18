@@ -11,4 +11,5 @@ public interface IPatientRepository
         Task<PatientSummaryRecord> CreatePatientSummaryAsync(string handoverId, string summaryText, string createdBy);
         Task<bool> UpdatePatientSummaryAsync(string handoverId, string summaryText, string lastEditedBy);
         Task<IReadOnlyList<PatientActionItemRecord>> GetPatientActionItemsAsync(string patientId);
+        Task<bool> DeletePatientAsync(string patientId);
     }

@@ -267,5 +267,40 @@ public class AssignmentRepository(
             throw;
         }
     }
+
+    public async Task<bool> UnassignMyPatientAsync(string userId, string patientId)
+    {
+        try
+        {
+            using var conn = _connectionFactory.CreateConnection();
+            
+            // Find the current shift instance ID for this patient and user
+            const string findShiftInstanceSql = @"
+                SELECT sc.SHIFT_INSTANCE_ID
+                FROM SHIFT_COVERAGE sc
+                INNER JOIN SHIFT_INSTANCES si ON sc.SHIFT_INSTANCE_ID = si.ID
+                WHERE sc.RESPONSIBLE_USER_ID = :userId
+                  AND sc.PATIENT_ID = :patientId
+                  AND (si.END_AT >= SYSDATE OR si.START_AT >= SYSDATE - INTERVAL '24' HOUR)
+                AND ROWNUM = 1";
+            
+            var shiftInstanceId = await conn.ExecuteScalarAsync<string>(
+                findShiftInstanceSql, 
+                new { userId, patientId });
+            
+            if (string.IsNullOrEmpty(shiftInstanceId))
+            {
+                return false;
+            }
+
+            // Unassign using the found shift instance ID
+            return await RemoveCoverageWithPrimaryPromotionAsync(conn, userId, shiftInstanceId, patientId);
+        }
+        catch (Oracle.ManagedDataAccess.Client.OracleException ex)
+        {
+            Console.WriteLine($"Error in UnassignMyPatientAsync: {ex.Number} - {ex.Message}");
+            return false;
+        }
+    }
 }
 

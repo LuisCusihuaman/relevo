@@ -351,4 +351,43 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
         (string?)result.HEIGHT
     );
   }
+
+  public async Task<bool> DeletePatientAsync(string patientId)
+  {
+    using var conn = _connectionFactory.CreateConnection();
+    
+    // First, check if patient exists
+    var exists = await conn.ExecuteScalarAsync<int>(
+        "SELECT COUNT(*) FROM PATIENTS WHERE ID = :PatientId",
+        new { PatientId = patientId });
+
+    if (exists == 0)
+    {
+        return false;
+    }
+
+    // Delete related records first (in reverse order of dependencies)
+    // 1. Delete shift coverage (assignments)
+    await conn.ExecuteAsync(
+        "DELETE FROM SHIFT_COVERAGE WHERE PATIENT_ID = :PatientId",
+        new { PatientId = patientId });
+
+    // 2. Delete handovers (need to handle self-referencing FK first)
+    // First, set PREVIOUS_HANDOVER_ID to NULL for handovers that reference other handovers of the same patient
+    await conn.ExecuteAsync(
+        "UPDATE HANDOVERS SET PREVIOUS_HANDOVER_ID = NULL WHERE PATIENT_ID = :PatientId AND PREVIOUS_HANDOVER_ID IS NOT NULL",
+        new { PatientId = patientId });
+
+    // Then delete all handovers for this patient (cascade will delete handover contents, action items, etc.)
+    await conn.ExecuteAsync(
+        "DELETE FROM HANDOVERS WHERE PATIENT_ID = :PatientId",
+        new { PatientId = patientId });
+
+    // 3. Finally, delete the patient
+    var deleted = await conn.ExecuteAsync(
+        "DELETE FROM PATIENTS WHERE ID = :PatientId",
+        new { PatientId = patientId });
+
+    return deleted > 0;
+  }
 }

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
 import type { Schemas } from "@/api/generated";
 import type { PatientSummaryCard, PatientDetail, HandoverSummary } from "@/types/domain";
@@ -133,6 +133,20 @@ export async function updatePatientSummary(
 }
 
 /**
+ * Delete a patient
+ */
+export async function deletePatient(patientId: string): Promise<void> {
+	await api.delete(`/patients/${patientId}`);
+}
+
+/**
+ * Unassign a patient from current user (removes assignment, doesn't delete patient)
+ */
+export async function unassignMyPatient(patientId: string): Promise<void> {
+	await api.delete(`/me/patients/${patientId}`);
+}
+
+/**
  * Hook to get all patients across all units
  */
 export function useAllPatients(parameters?: {
@@ -229,5 +243,33 @@ export function usePatientSummary(patientId: string): ReturnType<typeof useQuery
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		select: (data: PatientSummaryResponse | undefined) => data,
+	});
+}
+
+/**
+ * Hook to delete a patient
+ */
+export function useDeletePatient(): ReturnType<typeof useMutation<void, Error, string>> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: deletePatient,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: patientQueryKeys.all });
+		},
+	});
+}
+
+/**
+ * Hook to unassign a patient from current user (removes assignment, doesn't delete patient)
+ */
+export function useUnassignMyPatient(): ReturnType<typeof useMutation<void, Error, string>> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: unassignMyPatient,
+		onSuccess: async () => {
+			// Invalidate and refetch all patient queries to ensure UI updates immediately
+			await queryClient.invalidateQueries({ queryKey: patientQueryKeys.all });
+			await queryClient.refetchQueries({ queryKey: patientQueryKeys.assigned() });
+		},
 	});
 }
