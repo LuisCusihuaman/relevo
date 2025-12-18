@@ -26,7 +26,7 @@
   "filterToolbar.view": "Vista",
   "filterToolbar.sort": "Ordenar",
   "filterToolbar.quickAction": "Acción rápida…",
-  "search.placeholder": "Buscar… (F)",
+  "search.placeholder": "Buscar…",
   "search.emptyTitle": "Sin resultados",
   "search.emptyHint": "Prueba con el nombre del paciente o escribe ‘acción’ para ver comandos",
   "feedback.suggestions": "Sugerencias",

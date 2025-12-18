@@ -17,10 +17,6 @@ export function AppLayout(): ReactElement {
 
 	useEffect(() => {
 		const handleKeyDown = (event_: KeyboardEvent): void => {
-			if (event_.key === "f" || event_.key === "F") {
-				event_.preventDefault();
-				actions.setIsSearchOpen(true);
-			}
 			if (event_.key === "Escape") {
 				actions.setIsSearchOpen(false);
 			}

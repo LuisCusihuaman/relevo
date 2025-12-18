@@ -23,7 +23,7 @@
   "filterToolbar.view": "View",
   "filterToolbar.sort": "Sort",
   "filterToolbar.quickAction": "Quick action…",
-  "search.placeholder": "Search… (F)",
+  "search.placeholder": "Search…",
   "search.emptyTitle": "No results",
   "search.emptyHint": "Try a patient name or type 'action' to see commands",
   "feedback.suggestions": "Suggestions",
