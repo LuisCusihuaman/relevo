@@ -18,11 +18,6 @@ export const SubNavigation: FC = () => {
 			label: t("subnav.patients"),
 			path: "/patients",
 		},
-		{
-			key: "settings",
-			label: t("subnav.settings"),
-			path: "/settings",
-		},
 	];
 
 	return (
