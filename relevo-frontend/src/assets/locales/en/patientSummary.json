@@ -2,7 +2,9 @@
   "initialSummary": "72-year-old female with acute exacerbation of COPD, admitted 3 days ago for increased dyspnea and productive cough. Patient has been responding well to bronchodilator therapy and systemic corticosteroids.\n\nPast Medical History:\n• COPD (moderate to severe)\n• Hypertension\n• Type 2 Diabetes Mellitus\n• Former smoker (quit 5 years ago)\n\nCurrent medications showing good response. Patient ambulating with minimal assistance and oxygen requirements have decreased from 4L to 2L over past 24 hours.\n\nSocial History:\n• Lives with daughter\n• Independent in ADLs prior to admission\n• No advance directives on file\n\nPhysical Exam:\n• Alert and oriented x3\n• Respiratory: Decreased breath sounds bilaterally, mild expiratory wheeze\n• Cardiovascular: Regular rate and rhythm\n• No acute distress currently\n\nDischarge Planning:\n• Social work consulted for home services\n• PT/OT evaluation completed\n• Family education on COPD management\n• Follow-up with pulmonology in 2 weeks\n\nCode Status: DNR/DNI (confirmed with family)\nAllergies: Penicillin, Sulfa\nEmergency Contact: Daughter - Sarah Rodriguez (555) 123-4567",
   "time": {
     "never": "Never",
-    "lessThan1Hour": "Less than 1 hour ago",
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
     "hoursAgo_one": "{{count}} hour ago",
     "hoursAgo_other": "{{count}} hours ago",
     "daysAgo_one": "{{count}} day ago",

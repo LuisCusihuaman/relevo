@@ -146,16 +146,34 @@ export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryPro
     const updatedAt = patientDataProp?.updatedAt;
     if (!updatedAt) return t("time.never");
 
-    const now = new Date();
-    const lastUpdated = new Date(updatedAt);
-    const diffHours = Math.floor(
-      (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60),
-    );
+    try {
+      const now = new Date();
+      const lastUpdated = new Date(updatedAt);
+      
+      // Check if date is valid
+      if (isNaN(lastUpdated.getTime())) {
+        console.warn("[PatientSummary] Invalid updatedAt date:", updatedAt);
+        return t("time.never");
+      }
 
-    if (diffHours < 1) return t("time.lessThan1Hour");
-    if (diffHours < 24) return t("time.hoursAgo", { count: diffHours });
-    const diffDays = Math.floor(diffHours / 24);
-    return t("time.daysAgo", { count: diffDays });
+      const diffMs = now.getTime() - lastUpdated.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffHours / 24);
+
+      // Show minutes if less than 1 hour
+      if (diffMinutes < 1) return t("time.justNow", "Hace un momento");
+      if (diffMinutes < 60) return t("time.minutesAgo", "Hace {{count}} minutos", { count: diffMinutes });
+      
+      // Show hours if less than 24 hours
+      if (diffHours < 24) return t("time.hoursAgo", { count: diffHours });
+      
+      // Show days
+      return t("time.daysAgo", { count: diffDays });
+    } catch (error) {
+      console.error("[PatientSummary] Error calculating time ago:", error, updatedAt);
+      return t("time.never");
+    }
   };
 
   // Handle click for editing or fullscreen - SIMPLIFIED FOR SINGLE CLICK
