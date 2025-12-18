@@ -4,7 +4,6 @@ import {
 	AlertTriangle,
 	CheckCircle2,
 	Clock,
-	Edit,
 	Eye,
 	Siren,
 	User,
@@ -188,23 +187,6 @@ export function IllnessSeverity({
 						</Badge>
 					)}
 				</div>
-
-				<Badge
-					className={`text-xs ${canEdit ? "text-blue-600 border-blue-200 bg-blue-50" : "text-gray-600"}`}
-					variant="outline"
-				>
-					{canEdit ? (
-						<>
-							<Edit className="w-3 h-3 mr-1" />
-							{t("editor")}
-						</>
-					) : (
-						<>
-							<Eye className="w-3 h-3 mr-1" />
-							{t("viewer")}
-						</>
-					)}
-				</Badge>
 			</div>
 
 			{/* Severity Selection Grid */}
