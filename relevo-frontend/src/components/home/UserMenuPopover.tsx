@@ -42,10 +42,13 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
 
       <Popover>
       <PopoverTrigger asChild>
-        <Avatar className="h-8 w-8 cursor-pointer hidden md:block">
-          <AvatarImage src={clerkUser?.imageUrl} />
-          <AvatarFallback>{clerkUser?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
-        </Avatar>
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer hidden md:flex">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={clerkUser?.imageUrl} />
+            <AvatarFallback>{clerkUser?.firstName?.[0] || displayName?.[0] || "U"}</AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-medium text-gray-700">{displayName || "Usuario"}</span>
+        </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0 z-50">
         <div className="p-4 border-b border-gray-100">
