@@ -171,6 +171,8 @@ public partial class HandoverRepository
                 TO_CHAR(p.ADMISSION_DATE, 'YYYY-MM-DD HH24:MI:SS') as AdmissionDate,
                 p.ROOM_NUMBER,
                 p.DIAGNOSIS,
+                p.WEIGHT,
+                p.HEIGHT,
                 u.NAME as UnitName,
                 hc.ILLNESS_SEVERITY,
                 hc.PATIENT_SUMMARY as SUMMARY_TEXT,
@@ -238,7 +240,9 @@ public partial class HandoverRepository
             (string?)data.ILLNESS_SEVERITY,
             (string?)data.SUMMARY_TEXT,
             (string?)data.LAST_EDITED_BY,
-            (string?)data.UPDATEDAT
+            (string?)data.UPDATEDAT,
+            (string?)data.WEIGHT,
+            (string?)data.HEIGHT
         );
     }
 

@@ -105,6 +105,8 @@ export function mapApiPatientHandoverData(api: ApiGetPatientHandoverDataResponse
 		summaryText: api.summaryText ?? undefined,
 		lastEditedBy: api.lastEditedBy ?? undefined,
 		updatedAt: api.updatedAt ?? undefined,
+		weight: api.weight ?? undefined,
+		height: api.height ?? undefined,
 	};
 }
 

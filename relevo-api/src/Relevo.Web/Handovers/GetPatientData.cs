@@ -62,7 +62,9 @@ public class GetPatientHandoverData(IMediator _mediator)
         illnessSeverity = data.IllnessSeverity,
         summaryText = data.SummaryText,
         lastEditedBy = data.LastEditedBy,
-        updatedAt = data.UpdatedAt
+        updatedAt = data.UpdatedAt,
+        weight = data.Weight,
+        height = data.Height
       };
       await SendAsync(Response, cancellation: ct);
     }
@@ -102,6 +104,8 @@ public class GetPatientHandoverDataResponse
   public string? summaryText { get; set; }
   public string? lastEditedBy { get; set; }
   public string? updatedAt { get; set; }
+  public string? weight { get; set; }
+  public string? height { get; set; }
 
   public class PhysicianDto
   {

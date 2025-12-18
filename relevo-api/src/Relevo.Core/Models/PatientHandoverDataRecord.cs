@@ -15,7 +15,9 @@ public record PatientHandoverDataRecord(
     string? IllnessSeverity,
     string? SummaryText,
     string? LastEditedBy,
-    string? UpdatedAt
+    string? UpdatedAt,
+    string? Weight,
+    string? Height
 );
 
 public record PhysicianRecord(
