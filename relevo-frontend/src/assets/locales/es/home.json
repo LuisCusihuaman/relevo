@@ -2,10 +2,9 @@
   "listHeader.title": "Pacientes",
   "listHeader.subtitle": "Bandeja de sesiones I-PASS",
 
-  "sectionMeta.title": "Indicadores del turno",
-  "sectionMeta.last30Days": "Últimos 30 días",
-  "sectionMeta.updatedAgo": "Actualizado hace 2 min",
-  "sectionMeta.viewMore": "Ver más",
+  "sectionMeta.title": "Estadísticas",
+  "sectionMeta.myPatients": "Mis Pacientes",
+  "sectionMeta.summary": "Resumen de asignaciones",
 
   "filterToolbar.dateRange": "Rango de fechas",
   "filterToolbar.searchPlaceholder": "Buscar pacientes…",
@@ -91,6 +90,14 @@
   "metrics.pendingActions.tooltip": "Tareas con vencimiento hoy.",
   "metrics.criticalAlerts.label": "Alertas críticas",
   "metrics.criticalAlerts.tooltip": "Severidad Crítico en últimas 24 h.",
+  "metrics.myPatients.stable.label": "Estable",
+  "metrics.myPatients.stable.tooltip": "Pacientes con estado de gravedad Estable.",
+  "metrics.myPatients.watcher.label": "Vigilancia",
+  "metrics.myPatients.watcher.tooltip": "Pacientes con estado de gravedad Vigilancia.",
+  "metrics.myPatients.unstable.label": "Inestable",
+  "metrics.myPatients.unstable.tooltip": "Pacientes con estado de gravedad Inestable.",
+  "metrics.myPatients.critical.label": "Crítico",
+  "metrics.myPatients.critical.tooltip": "Pacientes con estado de gravedad Crítico.",
 
   "table.locationTitle": "Ubicación del paciente",
   "table.handoverType": "Tipo de sesión de traspaso",

@@ -17,6 +17,7 @@ public record PatientSummaryCard
     public string Name { get; init; } = string.Empty;
     public string HandoverStatus { get; init; } = "not-started";
     public string? HandoverId { get; init; }
+    public string? Severity { get; init; }
 }
 
 public record GetMyPatientsResponse
@@ -69,7 +70,8 @@ public class GetMyPatientsEndpoint(IMediator _mediator, ICurrentUser _currentUse
                 Id = p.Id,
                 Name = p.Name,
                 HandoverStatus = p.HandoverStatus,
-                HandoverId = p.HandoverId
+                HandoverId = p.HandoverId,
+                Severity = p.Severity
             }).ToList(),
             Pagination = new PatientsPaginationInfo
             {

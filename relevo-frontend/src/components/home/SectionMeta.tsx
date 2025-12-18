@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
@@ -7,12 +8,61 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import type { Metric } from "@/types/domain";
-import { metrics } from "@/pages/data";
+import type { Metric, PatientSummaryCard } from "@/types/domain";
 
+type SectionMetaProps = {
+	patients: ReadonlyArray<PatientSummaryCard>;
+};
 
-export const SectionMeta: FC = () => {
+export const SectionMeta: FC<SectionMetaProps> = ({ patients }) => {
 	const { t } = useTranslation("home");
+
+	const metrics: Array<Metric> = useMemo(() => {
+		const total = patients.length;
+		const normalizeSeverity = (severity: string | null | undefined): string => {
+			const normalized = severity?.toLowerCase() ?? "stable";
+			if (["stable", "watcher", "unstable", "critical"].includes(normalized)) {
+				return normalized;
+			}
+			return "stable";
+		};
+
+		const stable = patients.filter(p => normalizeSeverity(p.severity) === "stable").length;
+		const watcher = patients.filter(p => normalizeSeverity(p.severity) === "watcher").length;
+		const unstable = patients.filter(p => normalizeSeverity(p.severity) === "unstable").length;
+		const critical = patients.filter(p => normalizeSeverity(p.severity) === "critical").length;
+
+		return [
+			{
+				label: "home:metrics.myPatients.stable.label",
+				value: String(stable),
+				tooltip: "home:metrics.myPatients.stable.tooltip",
+				currentValue: String(stable),
+				totalValue: String(total || 1),
+			},
+			{
+				label: "home:metrics.myPatients.watcher.label",
+				value: String(watcher),
+				tooltip: "home:metrics.myPatients.watcher.tooltip",
+				currentValue: String(watcher),
+				totalValue: String(total || 1),
+			},
+			{
+				label: "home:metrics.myPatients.unstable.label",
+				value: String(unstable),
+				tooltip: "home:metrics.myPatients.unstable.tooltip",
+				currentValue: String(unstable),
+				totalValue: String(total || 1),
+			},
+			{
+				label: "home:metrics.myPatients.critical.label",
+				value: String(critical),
+				tooltip: "home:metrics.myPatients.critical.tooltip",
+				currentValue: String(critical),
+				totalValue: String(total || 1),
+			},
+		];
+	}, [patients]);
 	return (
 		<div>
 			<h2 className="text-base font-medium mb-4 leading-tight">
@@ -23,18 +73,12 @@ export const SectionMeta: FC = () => {
 					<div className="flex items-center justify-between mb-6">
 						<div>
 							<p className="text-base font-medium text-gray-900 leading-tight">
-								{t("sectionMeta.last30Days")}
+								{t("sectionMeta.myPatients")}
 							</p>
 							<p className="text-sm text-gray-600 mt-1 leading-tight">
-								{t("sectionMeta.updatedAgo")}
+								{t("sectionMeta.summary")}
 							</p>
 						</div>
-						<Button
-							className="bg-black text-white hover:bg-gray-800 h-8 px-3 text-sm font-medium"
-							size="sm"
-						>
-							{t("sectionMeta.viewMore")}
-						</Button>
 					</div>
 
 					<div className="space-y-3">

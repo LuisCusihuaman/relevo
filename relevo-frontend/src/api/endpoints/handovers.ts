@@ -17,6 +17,7 @@ import {
 	mapApiContingencyPlan,
 	mapApiPatientHandoverData,
 } from "@/api/mappers";
+import { patientQueryKeys } from "./patients";
 
 // ========================================
 // TYPES
@@ -650,6 +651,9 @@ export function useUpdatePatientData(): ReturnType<
 			// Also invalidate to ensure fresh data from server
 			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientData(variables.handoverId) });
 			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientHandoverData(variables.handoverId) });
+			// Invalidate assigned patients queries to update dashboard statistics
+			void queryClient.invalidateQueries({ queryKey: patientQueryKeys.all });
+			void queryClient.refetchQueries({ queryKey: patientQueryKeys.assigned() });
 		},
 		onError: (error, variables) => {
 			console.error("[useUpdatePatientData] onError", error, variables);

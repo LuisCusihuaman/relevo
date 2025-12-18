@@ -2,10 +2,9 @@
   "listHeader.title": "Patients",
   "listHeader.subtitle": "I-PASS session inbox",
 
-  "sectionMeta.title": "Shift indicators",
-  "sectionMeta.last30Days": "Last 30 days",
-  "sectionMeta.updatedAgo": "Updated 2 min ago",
-  "sectionMeta.viewMore": "View more",
+  "sectionMeta.title": "Statistics",
+  "sectionMeta.myPatients": "My Patients",
+  "sectionMeta.summary": "Assignment summary",
 
   "filterToolbar.dateRange": "Date range",
   "filterToolbar.searchPlaceholder": "Search patients…",
@@ -91,6 +90,14 @@
   "metrics.pendingActions.tooltip": "Tasks due today.",
   "metrics.criticalAlerts.label": "Critical alerts",
   "metrics.criticalAlerts.tooltip": "Critical severity in the last 24h.",
+  "metrics.myPatients.stable.label": "Stable",
+  "metrics.myPatients.stable.tooltip": "Patients with Stable severity status.",
+  "metrics.myPatients.watcher.label": "Watcher",
+  "metrics.myPatients.watcher.tooltip": "Patients with Watcher severity status.",
+  "metrics.myPatients.unstable.label": "Unstable",
+  "metrics.myPatients.unstable.tooltip": "Patients with Unstable severity status.",
+  "metrics.myPatients.critical.label": "Critical",
+  "metrics.myPatients.critical.tooltip": "Patients with Critical severity status.",
 
   "table.locationTitle": "Patient location",
   "table.handoverType": "Handover session type",

@@ -241,7 +241,15 @@ public class AssignmentRepository(
                     p.ROOM_NUMBER AS Room,
                     p.DIAGNOSIS AS Diagnosis,
                     CAST(NULL AS VARCHAR2(50)) AS Status,
-                    CAST(NULL AS VARCHAR2(50)) AS Severity,
+                    COALESCE(
+                        (SELECT hc.ILLNESS_SEVERITY 
+                         FROM HANDOVERS h
+                         INNER JOIN HANDOVER_CONTENTS hc ON h.ID = hc.HANDOVER_ID
+                         WHERE h.PATIENT_ID = p.ID 
+                           AND h.CURRENT_STATE NOT IN ('Completed', 'Cancelled')
+                           AND ROWNUM = 1),
+                        'Stable'
+                    ) AS Severity,
                     ROW_NUMBER() OVER (ORDER BY p.NAME) AS rn
                 FROM PATIENTS p
                 INNER JOIN SHIFT_COVERAGE sc ON p.ID = sc.PATIENT_ID

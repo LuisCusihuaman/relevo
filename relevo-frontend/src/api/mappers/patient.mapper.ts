@@ -53,6 +53,7 @@ export function mapApiPatientSummaryCard(api: Partial<ApiPatientSummaryCard>): P
 		name: api.name ?? "",
 		handoverStatus: api.handoverStatus ?? "",
 		handoverId: api.handoverId ?? null,
+		severity: api.severity ?? null,
 	};
 }
 

@@ -47,7 +47,7 @@ export function Home(): ReactElement {
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar />
 						<div className="flex flex-col lg:flex-row gap-8">
-							<DashboardSidebar recentPreviews={recentPreviews} />
+							<DashboardSidebar recentPreviews={recentPreviews} patients={[]} />
 							<PatientDirectorySkeleton />
 						</div>
 					</div>
@@ -83,7 +83,7 @@ export function Home(): ReactElement {
 					<div className="max-w-7xl mx-auto px-6 py-6">
 						<PatientDirectoryToolbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 						<div className="flex flex-col lg:flex-row gap-8">
-							<DashboardSidebar recentPreviews={recentPreviews} />
+							<DashboardSidebar recentPreviews={recentPreviews} patients={allPatients} />
 
 							<PatientDirectoryList patients={patients} />
 						</div>
