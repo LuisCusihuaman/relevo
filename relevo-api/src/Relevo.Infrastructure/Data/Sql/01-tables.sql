@@ -19,7 +19,7 @@ CREATE TABLE UNITS (
     UPDATED_AT TIMESTAMP DEFAULT LOCALTIMESTAMP
 );
 
--- SHIFTS table: Work shift templates (e.g., Day shift 07:00-15:00, Night shift 19:00-07:00)
+-- SHIFTS table: Work shift templates (e.g., Day shift 08:00-14:00, Night shift 14:00-08:00)
 CREATE TABLE SHIFTS (
     ID VARCHAR2(50) PRIMARY KEY,
     NAME VARCHAR2(100) NOT NULL,

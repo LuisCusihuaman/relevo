@@ -15,9 +15,20 @@ INSERT INTO UNITS (ID, NAME, DESCRIPTION) VALUES ('unit-1', 'UCI', 'Unidad de Cu
 INSERT INTO UNITS (ID, NAME, DESCRIPTION) VALUES ('unit-2', 'Pediatría General', 'Unidad de Pediatría General');
 INSERT INTO UNITS (ID, NAME, DESCRIPTION) VALUES ('unit-3', 'Pediatría Especializada', 'Unidad de Pediatría Especializada');
 
--- Insert Shifts (templates)
-INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES ('shift-day', 'Mañana', '07:00', '15:00');
-INSERT INTO SHIFTS (ID, NAME, START_TIME, END_TIME) VALUES ('shift-night', 'Noche', '19:00', '07:00');
+-- Insert/Update Shifts (templates) - Using MERGE for idempotency
+MERGE INTO SHIFTS s
+USING (SELECT 'shift-day' AS ID FROM DUAL) src ON (s.ID = src.ID)
+WHEN MATCHED THEN
+    UPDATE SET NAME = 'Mañana', START_TIME = '08:00', END_TIME = '14:00'
+WHEN NOT MATCHED THEN
+    INSERT (ID, NAME, START_TIME, END_TIME) VALUES ('shift-day', 'Mañana', '08:00', '14:00');
+
+MERGE INTO SHIFTS s
+USING (SELECT 'shift-night' AS ID FROM DUAL) src ON (s.ID = src.ID)
+WHEN MATCHED THEN
+    UPDATE SET NAME = 'Noche', START_TIME = '14:00', END_TIME = '08:00'
+WHEN NOT MATCHED THEN
+    INSERT (ID, NAME, START_TIME, END_TIME) VALUES ('shift-night', 'Noche', '14:00', '08:00');
 
 -- Insert Patients for Unit 1 (ICU) - 12 patients
 -- Weight and Height values are age-appropriate pediatric ranges
@@ -90,77 +101,77 @@ VALUES ('system', 'system@relevo.app', 'System', 'Bot', 'System Bot', NULL, 'sys
 -- Unit 1: Day shift instances (last 3 days)
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-day-1', 'unit-1', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '14' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-day-2', 'unit-1', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '14' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-day-3', 'unit-1', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '14' HOUR);
 
 -- Unit 1: Night shift instances (last 3 nights)
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-night-1', 'unit-1', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '8' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-night-2', 'unit-1', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '8' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit1-night-3', 'unit-1', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '8' HOUR);
 
 -- Unit 2: Day shift instances (last 3 days)
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-day-1', 'unit-2', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '14' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-day-2', 'unit-2', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '14' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-day-3', 'unit-2', 'shift-day', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '15' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '8' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '14' HOUR);
 
 -- Unit 2: Night shift instances (last 3 nights)
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-night-1', 'unit-2', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) + INTERVAL '8' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-night-2', 'unit-2', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '1' DAY + INTERVAL '8' HOUR);
 
 INSERT INTO SHIFT_INSTANCES (ID, UNIT_ID, SHIFT_ID, START_AT, END_AT)
 VALUES ('si-unit2-night-3', 'unit-2', 'shift-night', 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '19' HOUR, 
-        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '7' HOUR);
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '3' DAY + INTERVAL '14' HOUR, 
+        TRUNC(LOCALTIMESTAMP) - INTERVAL '2' DAY + INTERVAL '8' HOUR);
 
 -- ========================================
 -- SHIFT WINDOWS (V3: Windows between shift instances)
 -- ========================================
 -- Chronological order (oldest to newest):
--- si-unit1-night-3: 3 days ago 19:00 -> 2 days ago 07:00
--- si-unit1-day-3:   2 days ago 07:00 -> 2 days ago 15:00
--- si-unit1-night-2: 2 days ago 19:00 -> yesterday 07:00
--- si-unit1-day-2:   yesterday 07:00 -> yesterday 15:00
--- si-unit1-night-1: yesterday 19:00 -> today 07:00
--- si-unit1-day-1:   today 07:00 -> today 15:00
+-- si-unit1-night-3: 3 days ago 14:00 -> 2 days ago 08:00
+-- si-unit1-day-3:   2 days ago 08:00 -> 2 days ago 14:00
+-- si-unit1-night-2: 2 days ago 14:00 -> yesterday 08:00
+-- si-unit1-day-2:   yesterday 08:00 -> yesterday 14:00
+-- si-unit1-night-1: yesterday 14:00 -> today 08:00
+-- si-unit1-day-1:   today 08:00 -> today 14:00
 
 -- Window: Night -> Day (2 days ago: night-3 -> day-3)
 INSERT INTO SHIFT_WINDOWS (ID, UNIT_ID, FROM_SHIFT_INSTANCE_ID, TO_SHIFT_INSTANCE_ID)
@@ -225,7 +236,7 @@ VALUES ('sw-unit2-night-day-0', 'unit-2', 'si-unit2-night-1', 'si-unit2-day-1');
 -- Available patients: 
 --   - pat-001 to pat-012 (unit-1: UCI, no assignments)
 --   - pat-013 to pat-022 (unit-2: Pediatría General, no assignments)
--- Available shifts: shift-day (07:00-15:00), shift-night (19:00-07:00)
+-- Available shifts: shift-day (08:00-14:00), shift-night (14:00-08:00)
 
 -- ========================================
 -- NO HANDOVERS - Created automatically when assigning patients
