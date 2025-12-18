@@ -209,6 +209,7 @@ export function SituationAwareness({
           onChange={(value) => { void handleSituationChange(value); }}
           onEditChange={setIsEditing}
           onEnterEdit={handleEnterEdit}
+          lastEditedBy={situationData?.situationAwareness?.lastEditedBy}
         />
       </div>
 

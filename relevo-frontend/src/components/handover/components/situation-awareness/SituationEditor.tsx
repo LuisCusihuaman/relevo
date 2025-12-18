@@ -16,6 +16,7 @@ interface SituationEditorProps {
   hideControls?: boolean;
   canEdit: boolean;
   onEnterEdit?: () => void;
+  lastEditedBy?: string;
 }
 
 export function SituationEditor(props: SituationEditorProps): React.ReactElement {
@@ -29,6 +30,7 @@ export function SituationEditor(props: SituationEditorProps): React.ReactElement
     hideControls = false,
     canEdit,
     onEnterEdit,
+    lastEditedBy,
   } = props;
   const { t } = useTranslation("situationAwareness");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -222,7 +224,9 @@ export function SituationEditor(props: SituationEditorProps): React.ReactElement
             <span>
               {content.split(" ").length} {t("editor.words")}
             </span>
-            <span>{t("view.lastUpdatedBy", { user: "Dr. Rodriguez" })}</span>
+            {lastEditedBy && (
+              <span>{t("view.lastUpdatedBy", { user: lastEditedBy })}</span>
+            )}
           </div>
           {canEdit && (
             <div className="opacity-0 group-hover:opacity-100 transition-opacity">

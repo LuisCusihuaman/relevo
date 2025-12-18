@@ -88,10 +88,16 @@ public partial class HandoverRepository
     {
         using var conn = _connectionFactory.CreateConnection();
         const string sql = @"
-            SELECT HANDOVER_ID as HandoverId, SITUATION_AWARENESS as Content, SA_STATUS as STATUS,
-                   LAST_EDITED_BY as LastEditedBy, UPDATED_AT as CreatedAt, UPDATED_AT as UpdatedAt
-            FROM HANDOVER_CONTENTS
-            WHERE HANDOVER_ID = :handoverId";
+            SELECT 
+                hc.HANDOVER_ID as HandoverId, 
+                hc.SITUATION_AWARENESS as Content, 
+                hc.SA_STATUS as STATUS,
+                COALESCE(u.FULL_NAME, hc.LAST_EDITED_BY) as LastEditedBy,
+                hc.UPDATED_AT as CreatedAt, 
+                hc.UPDATED_AT as UpdatedAt
+            FROM HANDOVER_CONTENTS hc
+            LEFT JOIN USERS u ON hc.LAST_EDITED_BY = u.ID
+            WHERE hc.HANDOVER_ID = :handoverId";
 
         var result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
 
@@ -112,6 +118,7 @@ public partial class HandoverRepository
                     'Stable', '', '', 'Draft', 'Draft'
                 )", new { handoverId, createdBy });
 
+            // Re-query with JOIN to get user name
             result = await conn.QueryFirstOrDefaultAsync<HandoverSituationAwarenessRecord>(sql, new { handoverId });
         }
 
