@@ -33,6 +33,7 @@ interface PatientSummaryProps {
   };
   handoverStateName?: "Draft" | "Ready" | "InProgress" | "Completed" | "Cancelled";
   onContentChange?: () => void;
+  onSaveSuccess?: () => void;
 }
 
 export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryProps>(({
@@ -46,6 +47,7 @@ export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryPro
   responsiblePhysician,
   handoverStateName,
   onContentChange,
+  onSaveSuccess,
 }, ref) => {
   const { t } = useTranslation("patientSummary");
 
@@ -107,6 +109,11 @@ export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryPro
 
       setIsEditing(false);
       setEditingText("");
+      
+      // Notify parent component that save was successful
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
 
     } catch (error) {
       console.error("Failed to save patient summary:", error);
@@ -118,7 +125,8 @@ export const PatientSummary = forwardRef<PatientSummaryHandle, PatientSummaryPro
     handoverId,
     updateSummaryMutation,
     editingText,
-    patientDataProp
+    patientDataProp,
+    onSaveSuccess
   ]);
 
   useImperativeHandle(ref, () => ({

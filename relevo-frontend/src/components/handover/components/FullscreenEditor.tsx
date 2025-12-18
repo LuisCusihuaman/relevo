@@ -58,11 +58,18 @@ export function FullscreenEditor(): JSX.Element | null {
   // Handle Save (call the function via ref)
   const handleFullscreenSave = useCallback(async () => {
     if (patientSummaryRef.current) {
-        await patientSummaryRef.current.save();
-        setHasUnsavedChanges(false); // Reset unsaved changes after save
-        setSyncStatus("synced");
+        try {
+            await patientSummaryRef.current.save();
+            setHasUnsavedChanges(false); // Reset unsaved changes after save
+            setSyncStatus("synced");
+            // Close the fullscreen editor after successful save
+            setFullscreenEditing(null);
+        } catch (error) {
+            console.error("Error saving patient summary:", error);
+            setSyncStatus("error");
+        }
     }
-  }, [setSyncStatus]);
+  }, [setSyncStatus, setFullscreenEditing]);
 
   // Handle content changes
   const handleContentChange = useCallback((): void => {
@@ -230,6 +237,11 @@ export function FullscreenEditor(): JSX.Element | null {
                   responsiblePhysician={assignedPhysician}
                   onContentChange={handleContentChange}
                   onRequestFullscreen={() => {}}
+                  onSaveSuccess={() => {
+                    setHasUnsavedChanges(false);
+                    setSyncStatus("synced");
+                    setFullscreenEditing(null);
+                  }}
                 />
               </div>
             )}
