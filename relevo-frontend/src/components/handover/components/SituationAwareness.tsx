@@ -229,10 +229,6 @@ export function SituationAwareness({
                 {contingencyPlans.filter((p) => p.status === "active").length}{" "}
                 {t("status.active")}
               </Badge>
-              <Badge className="text-xs" variant="outline">
-                {contingencyPlans.filter((p) => p.status === "planned").length}{" "}
-                {t("status.planned")}
-              </Badge>
             </div>
           </div>
 
