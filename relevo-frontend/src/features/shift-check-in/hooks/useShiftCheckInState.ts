@@ -36,14 +36,33 @@ export function useShiftCheckInState({ units }: UseShiftCheckInStateParams): Shi
 			case 2:
 				return data.shift !== "";
 			case 3:
-				return data.patients.length > 0 && data.selectedIndexes.length > 0;
+				// Allow proceeding if there are patients and either:
+				// - at least one patient is selected manually, OR
+				// - at least one patient is assigned
+				return (
+					data.patients.length > 0 &&
+					(data.selectedIndexes.length > 0 || data.assignedPatientsCount > 0)
+				);
 			default:
 				return false;
 		}
-	}, [navigation.currentStep, user?.fullName, data.unit, data.shift, data.patients.length, data.selectedIndexes.length]);
+	}, [
+		navigation.currentStep,
+		user?.fullName,
+		data.unit,
+		data.shift,
+		data.patients.length,
+		data.selectedIndexes.length,
+		data.assignedPatientsCount,
+	]);
 
 	const handleNextStep = useCallback((_patients: Array<ShiftCheckInPatient>): void => {
-		if (navigation.currentStep === 3 && data.selectedIndexes.length === 0) {
+		// Show validation error only if there are no selected patients AND no assigned patients
+		if (
+			navigation.currentStep === 3 &&
+			data.selectedIndexes.length === 0 &&
+			data.assignedPatientsCount === 0
+		) {
 			data.setShowValidationError(true);
 			return;
 		}
@@ -63,6 +82,7 @@ export function useShiftCheckInState({ units }: UseShiftCheckInStateParams): Shi
 	}, [
 		navigation.currentStep,
 		data.selectedIndexes,
+		data.assignedPatientsCount,
 		canProceedToNextStep,
 		completion.submitCheckIn,
 		data.shift,

@@ -111,11 +111,17 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 		if (showValidationError) setShowValidationError(false);
 	}, [validSelectedIndexes, showValidationError, setSelectedIndexes]);
 
+	// Count assigned patients
+	const assignedPatientsCount = useMemo((): number => {
+		return patients.filter((patient) => patient.status === "assigned").length;
+	}, [patients]);
+
 	return {
 		unit,
 		shift,
 		selectedIndexes: validSelectedIndexes,
 		patients,
+		assignedPatientsCount,
 		isFetching,
 		showValidationError,
 		setShowValidationError,
