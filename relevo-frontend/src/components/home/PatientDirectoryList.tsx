@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
 	DropdownMenu,
@@ -6,6 +6,16 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Activity, GitBranch, MoreHorizontal, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { PatientSummaryCard } from "@/types/domain";
@@ -21,6 +31,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 	const { t } = useTranslation("home");
 	const navigate = useNavigate();
 	const unassignPatientMutation = useUnassignMyPatient();
+	const [patientToUnassign, setPatientToUnassign] = useState<string | null>(null);
 
 	const formatDate = (date: Date): string => {
 		return date.toLocaleDateString("es-ES", { month: "short", day: "numeric" });
@@ -57,9 +68,17 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 		});
 	};
 
-	const handleUnassignPatient = (patientId: string): void => {
-		if (window.confirm(String(t("table.deleteConfirm")))) {
-			void unassignPatientMutation.mutateAsync(patientId).catch((error: unknown) => {
+	const handleUnassignClick = (patientId: string): void => {
+		setPatientToUnassign(patientId);
+	};
+
+	const handleConfirmUnassign = (): void => {
+		if (!patientToUnassign) return;
+		
+		setPatientToUnassign(null);
+		
+		void unassignPatientMutation.mutateAsync(patientToUnassign)
+			.catch((error: unknown) => {
 				console.error("Error unassigning patient:", error);
 				let errorMessage = "Error al desasignar el paciente. Por favor, intente de nuevo.";
 				if (error && typeof error === "object") {
@@ -74,7 +93,6 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 				}
 				alert(errorMessage);
 			});
-		}
 	};
 
 	return (
@@ -155,7 +173,7 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 												<DropdownMenuItem 
 													onClick={(event_) => {
 														event_?.stopPropagation();
-														handleUnassignPatient(patient.id);
+														handleUnassignClick(patient.id);
 													}}
 													className="text-red-600 focus:text-red-600 focus:bg-red-50"
 												>
@@ -178,6 +196,34 @@ export const PatientDirectoryList: FC<PatientDirectoryListProps> = ({
 					)}
 				</ul>
 			</div>
+
+			<AlertDialog open={patientToUnassign !== null} onOpenChange={(open) => {
+				if (!open) setPatientToUnassign(null);
+			}}>
+				<AlertDialogContent className="sm:max-w-[425px]">
+					<AlertDialogHeader>
+						<AlertDialogTitle className="text-lg font-semibold text-gray-900">
+							{String(t("table.deleteConfirmTitle"))}
+						</AlertDialogTitle>
+						<AlertDialogDescription className="text-sm text-gray-600 mt-2">
+							{String(t("table.deleteConfirmDescription"))}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter className="mt-4">
+						<AlertDialogCancel asChild>
+							<button type="button" className="sm:mt-0">
+								{String(t("table.deleteCancelButton"))}
+							</button>
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleConfirmUnassign}
+							className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
+						>
+							{String(t("table.deleteConfirmButton"))}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 };
