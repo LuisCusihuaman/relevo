@@ -1,16 +1,7 @@
 import type { JSX } from "react";
-import {
-  activeCollaborators,
-  currentlyPresent,
-} from "@/common/constants";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
@@ -28,7 +19,6 @@ import {
   MoreHorizontal,
   Ruler,
   Scale,
-  UserPlus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -48,8 +38,6 @@ export function Header({
   
   // UI Store
   const {
-    showCollaborators,
-    setShowCollaborators,
     showComments,
     setShowComments,
     showHistory,
@@ -119,10 +107,6 @@ export function Header({
       .join("")
       .toUpperCase();
   };
-  
-  const activeUsers = activeCollaborators.filter(
-    (user) => user.status === "active" || user.status === "viewing",
-  );
 
   return (
     <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -166,152 +150,7 @@ export function Header({
             </div>
           </div>
 
-          {/* Center - Google Docs Style Collaborators with Tooltips */}
-          <div className="flex items-center space-x-1">
-            {/* Currently Present - Show first 2 active with tooltips */}
-            {activeUsers.slice(0, 2).map((user) => (
-              <Tooltip key={user.id}>
-                <TooltipTrigger asChild>
-                  <div className="relative cursor-pointer">
-                    <Avatar className="w-8 h-8 border-2 border-white hover:border-gray-200 transition-colors">
-                      <AvatarFallback
-                        className={`${user.color} text-white text-xs`}
-                      >
-                        {user.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    {/* Live indicator */}
-                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent
-                  className="bg-gray-900 text-white text-xs px-2 py-1 border-none shadow-lg"
-                  side="bottom"
-                >
-                  <div className="text-center">
-                    <div className="font-medium">{user.name}</div>
-                    <div className="text-gray-300">{user.role}</div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-
-            {/* Show More Button - Google Docs Style */}
-            {activeUsers.length > 2 && (
-              <Popover
-                open={showCollaborators}
-                onOpenChange={setShowCollaborators}
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    className="h-8 w-auto px-2 text-xs text-gray-600 hover:bg-gray-100 rounded-full"
-                    size="sm"
-                    variant="ghost"
-                  >
-                    +{activeUsers.length - 2}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="center"
-                  className="w-72 p-0 bg-white border-gray-200 shadow-lg"
-                >
-                  <div className="p-3 border-b border-gray-100">
-                    <h3 className="font-medium text-gray-900 text-sm">
-                      {t("peopleWithAccess")}
-                    </h3>
-                    <p className="text-xs text-gray-600">
-                      {t("peopleCanViewAndEdit", {
-                        count: activeUsers.length,
-                      })}
-                    </p>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {currentlyPresent.map((person) => (
-                      <div
-                        key={person.id}
-                        className="p-3 hover:bg-gray-50 transition-colors border-b border-gray-50"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="relative">
-                            <Avatar className="w-8 h-8">
-                              <AvatarFallback
-                                className={`${person.color} text-white text-sm`}
-                              >
-                                {person.initials}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div
-                              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
-                                person.status === "active"
-                                  ? "bg-green-500"
-                                  : person.status === "viewing"
-                                  ? "bg-amber-500"
-                                  : "bg-gray-400"
-                              }`}
-                            ></div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2">
-                              <p className="text-sm font-medium text-gray-900">
-                                {person.name}
-                              </p>
-                              {person.presenceType === "assigned-current" && (
-                                <Badge
-                                  className="text-xs px-1 py-0 bg-blue-50 text-blue-700 border-blue-200"
-                                  variant="outline"
-                                >
-                                  {t("current")}
-                                </Badge>
-                              )}
-                              {person.presenceType === "assigned-receiving" && (
-                                <Badge
-                                  className="text-xs px-1 py-0 bg-purple-50 text-purple-700 border-purple-200"
-                                  variant="outline"
-                                >
-                                  {t("receiving")}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {person.role}
-                            </p>
-                            <div className="flex items-center space-x-1 mt-1">
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  person.status === "active"
-                                    ? "bg-green-500"
-                                    : person.status === "viewing"
-                                    ? "bg-amber-500"
-                                    : "bg-gray-400"
-                                }`}
-                              ></div>
-                              <span className="text-xs text-gray-500">
-                                {person.status === "active"
-                                  ? t("activeNow")
-                                  : person.status === "viewing"
-                                  ? "Viewing now"
-                                  : `Last seen ${person.lastSeen}`}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-3 border-t border-gray-100">
-                    <Button
-                      className="w-full text-xs hover:bg-gray-50 justify-center"
-                      size="sm"
-                      variant="ghost"
-                    >
-                      <UserPlus className="w-3 h-3 mr-2" />
-                      Share with others
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
+          {/* Center - Google Docs Style Collaborators with Tooltips - Oculto */}
 
           {/* Right Section - Controls */}
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
