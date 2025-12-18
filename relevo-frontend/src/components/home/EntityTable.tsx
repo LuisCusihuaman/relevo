@@ -9,12 +9,14 @@ type EntityTableProps = {
 	handovers: ReadonlyArray<Handover>;
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
 	loading?: boolean;
+	unitName?: string;
 };
 
 export const EntityTable: FC<EntityTableProps> = ({
 	handovers,
 	handleHandoverClick,
 	loading = false,
+	unitName,
 }) => {
 	const { t } = useTranslation("home");
 	// environment label now shown only via status/time; keep mapping if needed later
@@ -29,8 +31,16 @@ export const EntityTable: FC<EntityTableProps> = ({
 	const isString = (v: unknown): v is string => typeof v === "string";
 
 	const getTitleLine = (d: Handover): string => {
-		const bed = isString(d.bedLabel) ? String(d.bedLabel) : undefined;
-		if (bed && bed !== "") return String(t("table.bed", { label: bed }));
+		// Show unit name from patient data (priority)
+		const unitValue = isString(d.unit) ? String(d.unit) : undefined;
+		if (unitValue && unitValue !== "") {
+			return unitValue;
+		}
+
+		// Fallback to unitName prop if available (when filtering by unit)
+		if (unitName && unitName !== "") {
+			return unitName;
+		}
 
 		const mrnValue = isString(d.mrn) ? String(d.mrn) : undefined;
 		if (mrnValue && mrnValue !== "") {

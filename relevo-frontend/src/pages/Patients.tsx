@@ -7,7 +7,7 @@ import {
 	ListHeader,
 } from "@/components/home";
 import type { HandoverUI as Handover } from "@/types/domain";
-import { useAllPatients, usePatientsByUnitForList, mapApiPatientToUiHandover } from "@/api";
+import { useAllPatients, usePatientsByUnitForList, mapApiPatientToUiHandover, useUnits } from "@/api";
 
 export function Patients(): ReactElement {
 	const navigate = useNavigate();
@@ -21,6 +21,7 @@ export function Patients(): ReactElement {
 	const { data: unitPatientsData, isLoading: isLoadingUnit, error: errorUnit } = usePatientsByUnitForList(
 		selectedUnit
 	);
+	const { data: units } = useUnits();
 
 	// When a unit is selected, only use unit data (never fall back to allPatientsData)
 	// When no unit is selected, use allPatientsData
@@ -31,6 +32,12 @@ export function Patients(): ReactElement {
 		: allPatientsData;
 	const isLoading = selectedUnit ? isLoadingUnit : isLoadingAll;
 	const error = selectedUnit ? errorUnit : errorAll;
+
+	// Get unit name from selected unit ID
+	const selectedUnitName = useMemo(() => {
+		if (!selectedUnit || !units) return undefined;
+		return units.find(u => u.id === selectedUnit)?.name;
+	}, [selectedUnit, units]);
 
 	// Memoize the mapped patients to handovers to avoid unnecessary re-computations
 	const handovers: ReadonlyArray<Handover> = useMemo(() => {
@@ -56,9 +63,9 @@ export function Patients(): ReactElement {
 		<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 			<ListHeader />
 			<FilterToolbar selectedUnit={selectedUnit} onUnitChange={handleUnitChange} />
-			<EntityTable loading handleHandoverClick={() => {}} handovers={[]} />
+			<EntityTable loading handleHandoverClick={() => {}} handovers={[]} unitName={selectedUnitName} />
 			<div className="mt-6">
-				<EntityListMobile loading handleHandoverClick={() => {}} handovers={[]} />
+				<EntityListMobile loading handleHandoverClick={() => {}} handovers={[]} unitName={selectedUnitName} />
 			</div>
 		</div>
 		);
@@ -82,8 +89,8 @@ export function Patients(): ReactElement {
 		<div className="mx-auto my-6 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-6 py-0 md:min-h-[calc(100vh-273px)]">
 			<ListHeader />
 			<FilterToolbar selectedUnit={selectedUnit} onUnitChange={handleUnitChange} />
-			<EntityTable handleHandoverClick={handleHandoverClick} handovers={handovers} />
-			<EntityListMobile handleHandoverClick={handleHandoverClick} handovers={handovers} />
+			<EntityTable handleHandoverClick={handleHandoverClick} handovers={handovers} unitName={selectedUnitName} />
+			<EntityListMobile handleHandoverClick={handleHandoverClick} handovers={handovers} unitName={selectedUnitName} />
 		</div>
 	);
 }

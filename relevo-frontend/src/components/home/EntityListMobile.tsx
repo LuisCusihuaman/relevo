@@ -23,12 +23,14 @@ type EntityListMobileProps = {
 	handovers: ReadonlyArray<Handover>;
 	handleHandoverClick: (handoverId: string, projectName: string) => void;
 	loading?: boolean;
+	unitName?: string;
 };
 
 export const EntityListMobile: FC<EntityListMobileProps> = ({
 	handovers,
 	handleHandoverClick,
 	loading = false,
+	unitName,
 }) => {
 	const { t } = useTranslation("home");
 	const mapEnvironment = (env: string): string => {
@@ -63,7 +65,16 @@ export const EntityListMobile: FC<EntityListMobileProps> = ({
 	};
 
 	const getTitleLine = (d: typeof handovers[number]): string => {
-		if (d.bedLabel) return String(t("table.bed", { label: d.bedLabel }));
+		// Show unit name from patient data (priority)
+		if (typeof d.unit === "string" && d.unit.length > 0) {
+			return d.unit;
+		}
+
+		// Fallback to unitName prop if available (when filtering by unit)
+		if (unitName && unitName !== "") {
+			return unitName;
+		}
+
 		if (typeof d.mrn === "string" && d.mrn.length > 0) {
 			const mrn: string = d.mrn;
 			const short = mrn.length > 6 ? `${mrn.slice(-6, -2)}-${mrn.slice(-2)}` : mrn;

@@ -157,7 +157,7 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
 
       // Query
       const string sql = @"
-        SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity FROM (
+        SELECT ID, NAME, HandoverStatus, HandoverId, Age, Room, DIAGNOSIS, Status, Severity, Unit FROM (
           SELECT
               p.ID,
               p.NAME,
@@ -168,8 +168,10 @@ public class PatientRepository(DapperConnectionFactory _connectionFactory) : IPa
               p.DIAGNOSIS,
               CAST(NULL AS VARCHAR2(20)) as Status,
               CAST(NULL AS VARCHAR2(20)) as Severity,
+              u.NAME as Unit,
               ROW_NUMBER() OVER (ORDER BY p.NAME) AS RN
           FROM PATIENTS p
+          LEFT JOIN UNITS u ON p.UNIT_ID = u.ID
         )
         WHERE RN BETWEEN :StartRow AND :EndRow";
 

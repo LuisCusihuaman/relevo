@@ -148,5 +148,6 @@ export function mapApiPatientToUiHandover(apiPatient: PatientSummaryCard): UiHan
 		current: config.isActive,
 		author: "System",
 		avatar: "",
+		unit: apiPatient.unit ?? undefined,
 	};
 }

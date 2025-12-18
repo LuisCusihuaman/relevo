@@ -54,6 +54,7 @@ export function mapApiPatientSummaryCard(api: Partial<ApiPatientSummaryCard>): P
 		handoverStatus: api.handoverStatus ?? "",
 		handoverId: api.handoverId ?? null,
 		severity: (api as { severity?: string | null }).severity ?? null,
+		unit: (api as { unit?: string | null }).unit ?? null,
 	};
 }
 
