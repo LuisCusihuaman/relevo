@@ -197,19 +197,36 @@ public partial class HandoverRepository
         try
         {
             using var conn = _connectionFactory.CreateConnection();
+            
+            // Get current summaryText to check if it changed
+            var currentSummaryText = await conn.ExecuteScalarAsync<string>(
+                "SELECT PATIENT_SUMMARY FROM HANDOVER_CONTENTS WHERE HANDOVER_ID = :handoverId",
+                new { handoverId });
+            
+            // Only update UPDATED_AT if summaryText actually changed
+            var summaryTextChanged = currentSummaryText != summaryText;
+            
             const string sql = @"
                 MERGE INTO HANDOVER_CONTENTS hc
                 USING (SELECT :handoverId AS HANDOVER_ID FROM dual) src ON (hc.HANDOVER_ID = src.HANDOVER_ID)
                 WHEN MATCHED THEN
-                    UPDATE SET ILLNESS_SEVERITY = :illnessSeverity, PATIENT_SUMMARY = :summaryText, 
-                               LAST_EDITED_BY = :userId, UPDATED_AT = LOCALTIMESTAMP
+                    UPDATE SET ILLNESS_SEVERITY = :illnessSeverity, 
+                               PATIENT_SUMMARY = :summaryText, 
+                               LAST_EDITED_BY = :userId, 
+                               UPDATED_AT = CASE WHEN :summaryTextChanged = 1 THEN LOCALTIMESTAMP ELSE hc.UPDATED_AT END
                 WHEN NOT MATCHED THEN
                     INSERT (HANDOVER_ID, ILLNESS_SEVERITY, PATIENT_SUMMARY, PATIENT_SUMMARY_STATUS, LAST_EDITED_BY, UPDATED_AT,
                             SITUATION_AWARENESS, SYNTHESIS, SA_STATUS, SYNTHESIS_STATUS)
                     VALUES (:handoverId, :illnessSeverity, :summaryText, 'Draft', :userId, LOCALTIMESTAMP,
                             '', '', 'Draft', 'Draft')";
 
-            var rowsAffected = await conn.ExecuteAsync(sql, new { handoverId, illnessSeverity, summaryText, userId });
+            var rowsAffected = await conn.ExecuteAsync(sql, new { 
+                handoverId, 
+                illnessSeverity, 
+                summaryText, 
+                userId,
+                summaryTextChanged = summaryTextChanged ? 1 : 0
+            });
             return rowsAffected > 0;
         }
         catch (Exception)

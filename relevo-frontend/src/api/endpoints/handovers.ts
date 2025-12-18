@@ -621,14 +621,20 @@ export function useUpdatePatientData(): ReturnType<
 			console.log("[useUpdatePatientData] onSuccess, updating cache", variables);
 			// Update patientHandoverData cache optimistically
 			const patientDataKey = handoverQueryKeys.patientHandoverData(variables.handoverId);
+			const oldData = queryClient.getQueryData<PatientHandoverData>(patientDataKey);
+			
+			// Only update updatedAt if summaryText actually changed
+			const summaryTextChanged = oldData?.summaryText !== variables.summaryText;
 			const now = new Date().toISOString();
-			queryClient.setQueryData<PatientHandoverData>(patientDataKey, (oldData) => {
-				if (!oldData) return oldData;
+			
+			queryClient.setQueryData<PatientHandoverData>(patientDataKey, (currentData) => {
+				if (!currentData) return currentData;
 				return {
-					...oldData,
+					...currentData,
 					illnessSeverity: variables.illnessSeverity,
-					summaryText: variables.summaryText ?? oldData.summaryText,
-					updatedAt: now, // Update timestamp to current time
+					summaryText: variables.summaryText ?? currentData.summaryText,
+					// Only update timestamp if summaryText changed
+					updatedAt: summaryTextChanged ? now : currentData.updatedAt,
 				};
 			});
 			// Also invalidate to ensure fresh data from server
