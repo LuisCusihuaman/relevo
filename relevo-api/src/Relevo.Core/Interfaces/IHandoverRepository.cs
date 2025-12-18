@@ -23,6 +23,7 @@ public interface IHandoverRepository
     Task<bool> RejectHandoverAsync(string handoverId, string cancelReason, string userId); // Uses Cancel with CANCEL_REASON='ReceiverRefused'
     Task<bool> CancelHandoverAsync(string handoverId, string cancelReason, string userId); // V3 requires cancelReason
     Task<bool> CompleteHandoverAsync(string handoverId, string userId);
+    Task<bool> UpdateReceiverAsync(string handoverId, string receiverUserId);
     Task<IReadOnlyList<HandoverRecord>> GetPendingHandoversAsync(string userId);
 
     // Action Items

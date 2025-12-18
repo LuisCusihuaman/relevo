@@ -414,4 +414,28 @@ public partial class HandoverRepository
             return false;
         }
     }
+
+    public async Task<bool> UpdateReceiverAsync(string handoverId, string receiverUserId)
+    {
+        try
+        {
+            using var conn = _connectionFactory.CreateConnection();
+            
+            const string sql = @"
+                UPDATE HANDOVERS
+                SET RECEIVER_USER_ID = :receiverUserId,
+                    UPDATED_AT = SYSTIMESTAMP
+                WHERE ID = :handoverId
+                  AND CANCELLED_AT IS NULL
+                  AND COMPLETED_AT IS NULL";
+
+            var rows = await conn.ExecuteAsync(sql, new { handoverId, receiverUserId });
+            return rows > 0;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"UpdateReceiverAsync exception: {ex.Message}");
+            return false;
+        }
+    }
 }

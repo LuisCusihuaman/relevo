@@ -7,6 +7,7 @@ import {
 	useSituationAwareness,
 	useSynthesis,
 	useCompleteHandover,
+	useUpdateReceiver,
 } from "@/api/endpoints/handovers";
 import {
 	ActionList,
@@ -42,6 +43,7 @@ export function MainContent(): React.JSX.Element {
 	const ipassGuidelines = getIpassGuidelines(t);
 
 	const { mutate: completeHandover } = useCompleteHandover();
+	const { mutate: updateReceiver } = useUpdateReceiver();
 
 	const handleConfirmHandover = (): void => {
 		if (!handoverData?.id) return;
@@ -49,6 +51,21 @@ export function MainContent(): React.JSX.Element {
 			onSuccess: () => { toast.success("Handover completed successfully"); },
 			onError: (err) => { toast.error(`Failed to complete handover: ${err.message}`); },
 		});
+	};
+
+	const handleReceiverChange = (userId: string, userName: string): void => {
+		if (!handoverData?.id) return;
+		updateReceiver(
+			{ handoverId: handoverData.id, receiverUserId: userId },
+			{
+				onSuccess: () => {
+					toast.success(`Receptor actualizado: ${userName}`);
+				},
+				onError: (err) => {
+					toast.error(`Error al actualizar receptor: ${err.message}`);
+				},
+			}
+		);
 	};
 
 	const {
@@ -254,6 +271,7 @@ export function MainContent(): React.JSX.Element {
 							handoverState={handoverData.stateName}
 							receivingPhysician={receivingPhysician}
 							onConfirm={handleConfirmHandover}
+							onReceiverChange={handleReceiverChange}
 						/>
 					</HandoverSection>
 				</div>

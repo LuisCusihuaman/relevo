@@ -291,6 +291,16 @@ export async function updateSynthesis(
 	return data;
 }
 
+export async function updateReceiver(
+	handoverId: string,
+	receiverUserId: string
+): Promise<ApiResponse<void>> {
+	const { data } = await api.put<ApiResponse<void>>(`/handovers/${handoverId}/receiver`, {
+		receiverUserId,
+	});
+	return data;
+}
+
 export async function deleteContingencyPlan(handoverId: string, contingencyId: string): Promise<void> {
 	await api.delete(`/handovers/${handoverId}/contingency-plans/${contingencyId}`);
 }
@@ -673,4 +683,24 @@ export function useUpdateSynthesis(): ReturnType<
 			updateSynthesis(handoverId, { content, status }),
 		(variables) => handoverQueryKeys.synthesis(variables.handoverId)
 	);
+}
+
+type UpdateReceiverVariables = {
+	handoverId: string;
+	receiverUserId: string;
+};
+
+export function useUpdateReceiver(): ReturnType<
+	typeof useMutation<ApiResponse<void>, Error, UpdateReceiverVariables>
+> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, receiverUserId }: UpdateReceiverVariables) =>
+			updateReceiver(handoverId, receiverUserId),
+		onSuccess: (_, variables) => {
+			// Invalidate handover data to refresh receiver info
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.patientHandoverData(variables.handoverId) });
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.detail(variables.handoverId) });
+		},
+	});
 }
