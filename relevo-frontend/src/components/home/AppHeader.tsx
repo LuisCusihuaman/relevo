@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 
 import type { PatientHandoverData } from "@/types/domain";
@@ -99,44 +98,6 @@ export const AppHeader: FC<AppHeaderProps> = ({
 			</div>
 
 			<div className="flex items-center gap-2 md:gap-4">
-				{/* Search Field */}
-				<div className="relative hidden md:block">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-					<Input
-						readOnly
-						className="pl-10 pr-8 w-48 h-8 text-sm border-gray-300 focus:border-gray-400 focus:ring-0 cursor-pointer"
-						placeholder={t("search.placeholder")}
-						onClick={() => {
-							setIsSearchOpen(true);
-						}}
-					/>
-					<kbd className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-1 py-0.5 rounded">
-						F
-					</kbd>
-				</div>
-
-				{/* Feedback */}
-				<Button
-					className="text-sm text-gray-600 hover:text-gray-900 h-8 hidden md:flex"
-					size="sm"
-					variant="ghost"
-				>
-					{t("feedback.suggestions")}
-				</Button>
-
-				<Button
-					size="sm"
-					variant="ghost"
-					className={`h-8 w-8 p-0 text-gray-600 hover:text-gray-900 md:hidden ${
-						isMobileMenuOpen ? "hidden" : ""
-					}`}
-					onClick={() => {
-						setIsSearchOpen(true);
-					}}
-				>
-					<Search className="h-4 w-4" />
-				</Button>
-
 				{/* Notification Bell */}
 				<NotificationsPopover isMobileMenuOpen={isMobileMenuOpen} />
 
