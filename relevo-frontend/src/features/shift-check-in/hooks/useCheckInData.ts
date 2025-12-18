@@ -3,6 +3,7 @@ import { usePatientsByUnit } from "@/api";
 import { formatDiagnosis } from "@/lib/formatters";
 import { transformApiPatient } from "../utils/patientUtilities";
 import { useShiftCheckInStore } from "@/store/shift-check-in.store";
+import { useCurrentPhysician } from "@/hooks/useCurrentPhysician";
 import type { ShiftCheckInPatient } from "@/types/domain";
 import type { ShiftCheckInStep } from "../types";
 
@@ -14,6 +15,7 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 		setState: setPersistentState,
 	} = useShiftCheckInStore();
 
+	const currentUser = useCurrentPhysician();
 	const [showValidationError, setShowValidationError] = useState(false);
 
 	const setUnit = useCallback((newUnit: string): void => {
@@ -111,10 +113,15 @@ export function useCheckInData(currentStep: ShiftCheckInStep) {
 		if (showValidationError) setShowValidationError(false);
 	}, [validSelectedIndexes, showValidationError, setSelectedIndexes]);
 
-	// Count assigned patients
+	// Count assigned patients for current user
 	const assignedPatientsCount = useMemo((): number => {
-		return patients.filter((patient) => patient.status === "assigned").length;
-	}, [patients]);
+		if (!currentUser?.name) return 0;
+		return patients.filter(
+			(patient) =>
+				patient.status === "assigned" &&
+				patient.assignedToName?.trim().toLowerCase() === currentUser.name.trim().toLowerCase()
+		).length;
+	}, [patients, currentUser?.name]);
 
 	return {
 		unit,
