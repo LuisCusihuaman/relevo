@@ -1,4 +1,4 @@
-import { type ReactElement, useMemo } from "react";
+import { type ReactElement, useMemo, useState } from "react";
 import {
 	DashboardSidebar,
 	PatientDirectoryList,
@@ -19,12 +19,22 @@ export type HomeProps = {
 export function Home(): ReactElement {
 	const { currentPatient } = useUiStore();
 	const { data: assignedPatientsData, isLoading, error } = useAssignedPatients();
+	const [searchTerm, setSearchTerm] = useState("");
 
 	// Memoize the mapped patients to avoid unnecessary re-computations
-	const patients: ReadonlyArray<PatientSummaryCard> = useMemo(() => {
+	const allPatients: ReadonlyArray<PatientSummaryCard> = useMemo(() => {
 		if (!assignedPatientsData?.items) return [];
 		return assignedPatientsData.items;
 	}, [assignedPatientsData]);
+
+	// Filter patients based on search term
+	const patients: ReadonlyArray<PatientSummaryCard> = useMemo(() => {
+		if (!searchTerm.trim()) return allPatients;
+		const lowerSearchTerm = searchTerm.toLowerCase().trim();
+		return allPatients.filter((patient) =>
+			patient.name.toLowerCase().includes(lowerSearchTerm)
+		);
+	}, [allPatients, searchTerm]);
 
 	const isPatientView: boolean = Boolean(currentPatient);
 
@@ -69,9 +79,9 @@ export function Home(): ReactElement {
 		<div className="flex-1 p-6">
 			{!isPatientView && (
 				<div className="space-y-6">
-					<VersionNotice patients={patients} />
+					<VersionNotice patients={allPatients} />
 					<div className="max-w-7xl mx-auto px-6 py-6">
-						<PatientDirectoryToolbar />
+						<PatientDirectoryToolbar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 						<div className="flex flex-col lg:flex-row gap-8">
 							<DashboardSidebar recentPreviews={recentPreviews} />
 

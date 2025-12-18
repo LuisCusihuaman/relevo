@@ -16,7 +16,15 @@ import {
 	LucideChevronDown as DropdownMenuChevronDown,
 } from "lucide-react";
 
-export const PatientDirectoryToolbar: FC = () => {
+type PatientDirectoryToolbarProps = {
+	searchTerm?: string;
+	onSearchChange?: (value: string) => void;
+};
+
+export const PatientDirectoryToolbar: FC<PatientDirectoryToolbarProps> = ({
+	searchTerm = "",
+	onSearchChange,
+}) => {
 	const { t } = useTranslation("home");
 	return (
 		<div className="flex items-center justify-between gap-4 mb-8">
@@ -25,6 +33,10 @@ export const PatientDirectoryToolbar: FC = () => {
 				<Input
 					className="pl-10 h-10 border-gray-300 focus:border-gray-400 focus:ring-0 bg-white"
 					placeholder={t("filterToolbar.searchPlaceholder")}
+					value={searchTerm}
+					onChange={(e) => {
+						onSearchChange?.(e.target.value);
+					}}
 				/>
 			</div>
 			<div className="flex items-center gap-2">
