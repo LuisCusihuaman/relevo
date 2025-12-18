@@ -15,7 +15,6 @@ import {
   FileText,
   History,
   MapPin,
-  MessageSquare,
   MoreHorizontal,
   Ruler,
   Scale,
@@ -38,8 +37,6 @@ export function Header({
   
   // UI Store
   const {
-    showComments,
-    setShowComments,
     showHistory,
     setShowHistory,
     setShowMobileMenu,
@@ -184,17 +181,6 @@ export function Header({
 
             {/* Desktop Controls */}
             <div className="hidden md:flex items-center space-x-2">
-              {/* Discussion */}
-              <Button
-                size="sm"
-                variant="ghost"
-                className={`text-xs p-2 hover:bg-gray-100 ${
-                  showComments ? "bg-gray-100" : ""
-                }`}
-                onClick={() => { setShowComments(!showComments); }}
-              >
-                <MessageSquare className="w-4 h-4" />
-              </Button>
               {/* History */}
               <Button
                 size="sm"
