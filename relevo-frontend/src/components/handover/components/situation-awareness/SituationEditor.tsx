@@ -136,17 +136,11 @@ export function SituationEditor(props: SituationEditorProps): React.ReactElement
               <span>
                 {content.split("\n").length} {t("editor.lines")}
               </span>
-              <span>
-                {content.split(" ").length} {t("editor.words")}
-              </span>
               {!hideControls && <span>{t("editor.autosaving")}</span>}
               {hideControls && (
                 <span>{t("editor.useFullscreenControls")}</span>
               )}
             </div>
-            <span className="text-xs text-gray-500">
-              {t("editor.peopleEditing", { count: 3 })}
-            </span>
           </div>
         </div>
       </div>
@@ -220,9 +214,6 @@ export function SituationEditor(props: SituationEditorProps): React.ReactElement
           <div className="flex items-center space-x-3 text-xs text-gray-500">
             <span>
               {content.split("\n").length} {t("editor.lines")}
-            </span>
-            <span>
-              {content.split(" ").length} {t("editor.words")}
             </span>
             {lastEditedBy && (
               <span>{t("view.lastUpdatedBy", { user: lastEditedBy })}</span>
