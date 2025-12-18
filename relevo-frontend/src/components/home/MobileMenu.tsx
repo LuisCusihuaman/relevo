@@ -115,11 +115,6 @@ export const MobileMenu: FC<MobileMenuProps> = ({
 			{/* Mobile Menu Content */}
 			<div className="flex flex-col h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain touch-pan-y">
 				<div className="p-4 space-y-4 pb-8">
-					{/* Upgrade to Pro Button */}
-					<Button className="w-full bg-black text-white hover:bg-gray-800 h-12 text-base font-medium">
-						{t("userMenu.upgradeToPro")}
-					</Button>
-
 					{/* Contact Button */}
 					<Button className="w-full h-12 text-base font-medium border-gray-300 bg-transparent" variant="outline">
 						{t("userMenu.contact")}

@@ -109,9 +109,6 @@ export const UserMenuPopover: FC<UserMenuPopoverProps> = ({ onOpenMobileMenu }) 
             <LogOut className="h-4 w-4 text-gray-400" />
           </button>
         </div>
-        <div className="p-4 border-t border-gray-100">
-          <Button className="w-full bg-black text-white hover:bg-gray-800">{t("userMenu.upgradeToPro")}</Button>
-        </div>
       </PopoverContent>
       </Popover>
     </>
