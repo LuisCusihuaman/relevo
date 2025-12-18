@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../client";
 import type { Schemas } from "@/api/generated";
 import type { PatientSummaryCard, PatientDetail, HandoverSummary } from "@/types/domain";
-import { mapApiPatientSummaryCard, mapApiPatientDetail } from "@/api/mappers";
+import { mapApiPatientSummaryCard, mapApiPatientDetail, mapApiPatientRecordToSummaryCard } from "@/api/mappers";
 import { mapApiHandoverRecord } from "@/api/mappers";
 
 // Response types from API (using generated types)
@@ -30,6 +30,9 @@ export const patientQueryKeys = {
 	assigned: () => [...patientQueryKeys.all, "assigned"] as const,
 	assignedWithParams: (parameters?: { page?: number; pageSize?: number }) =>
 		[...patientQueryKeys.assigned(), parameters] as const,
+	byUnit: () => [...patientQueryKeys.all, "byUnit"] as const,
+	byUnitWithParams: (unitId: string, parameters?: { page?: number; pageSize?: number }) =>
+		[...patientQueryKeys.byUnit(), unitId, parameters] as const,
 	details: () => [...patientQueryKeys.all, "details"] as const,
 	detailsById: (id: string) => [...patientQueryKeys.details(), id] as const,
 	handoverTimeline: () => [...patientQueryKeys.all, "handoverTimeline"] as const,
@@ -70,6 +73,28 @@ export async function getAssignedPatients(
 	return {
 		items: (data.items ?? []).map(mapApiPatientSummaryCard),
 		pagination: data.pagination ?? { totalCount: 0, page: 1, pageSize: 10 },
+	};
+}
+
+/**
+ * Get patients by unit
+ */
+export async function getPatientsByUnit(
+	unitId: string,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): Promise<PaginatedPatientSummaryCards> {
+	const { data } = await api.get<Schemas["GetPatientsByUnitResponse"]>(`/units/${unitId}/patients`, { params: parameters });
+	return {
+		items: (data.patients ?? []).map(mapApiPatientRecordToSummaryCard),
+		pagination: {
+			totalItems: data.totalCount ?? 0,
+			page: data.page ?? 1,
+			pageSize: data.pageSize ?? 25,
+			totalPages: data.totalCount && data.pageSize ? Math.ceil(data.totalCount / data.pageSize) : 0,
+		},
 	};
 }
 
@@ -172,6 +197,26 @@ export function useAssignedPatients(parameters?: {
 	return useQuery({
 		queryKey: patientQueryKeys.assignedWithParams(parameters),
 		queryFn: () => getAssignedPatients(parameters),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+		select: (data: PaginatedPatientSummaryCards | undefined) => data,
+	});
+}
+
+/**
+ * Hook to get patients by unit for the patients list page
+ */
+export function usePatientsByUnitForList(
+	unitId: string | null | undefined,
+	parameters?: {
+		page?: number;
+		pageSize?: number;
+	}
+): ReturnType<typeof useQuery<PaginatedPatientSummaryCards | undefined, Error>> {
+	return useQuery({
+		queryKey: patientQueryKeys.byUnitWithParams(unitId ?? "", parameters),
+		queryFn: () => getPatientsByUnit(unitId ?? "", parameters),
+		enabled: Boolean(unitId),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		select: (data: PaginatedPatientSummaryCards | undefined) => data,

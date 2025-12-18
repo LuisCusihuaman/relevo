@@ -53,7 +53,7 @@ export function mapApiPatientSummaryCard(api: Partial<ApiPatientSummaryCard>): P
 		name: api.name ?? "",
 		handoverStatus: api.handoverStatus ?? "",
 		handoverId: api.handoverId ?? null,
-		severity: api.severity ?? null,
+		severity: (api as { severity?: string | null }).severity ?? null,
 	};
 }
 
@@ -125,5 +125,15 @@ export function mapApiPatientRecordToShiftCheckIn(api: ApiPatientRecord): ShiftC
 		diagnosis: api.diagnosis,
 		age: api.age != null ? Math.floor(api.age) : undefined,
 		assignedToName: (api as { assignedToName?: string | null }).assignedToName ?? null,
+	};
+}
+
+export function mapApiPatientRecordToSummaryCard(api: ApiPatientRecord): PatientSummaryCard {
+	return {
+		id: api.id,
+		name: api.name,
+		handoverStatus: api.handoverStatus ?? "NotStarted",
+		handoverId: api.handoverId ?? null,
+		severity: api.severity ?? null,
 	};
 }
