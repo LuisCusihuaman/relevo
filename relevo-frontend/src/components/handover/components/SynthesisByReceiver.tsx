@@ -131,6 +131,12 @@ export function SynthesisByReceiver({
     email: "",
   };
 
+  // Check if receiver is valid (not empty and not "Unknown")
+  const hasValidReceiver = selectedReceiverId && 
+    selectedReceiver.fullName && 
+    selectedReceiver.fullName.trim() !== "" && 
+    selectedReceiver.fullName.toLowerCase() !== "unknown";
+
   // Additional checks for confirmation permissions
   const handoverInProgress = handoverState === "InProgress";
   const handoverNotComplete = !handoverComplete;
@@ -229,8 +235,8 @@ export function SynthesisByReceiver({
         </div>
       </div>
 
-      {/* Permission Notice */}
-      {!canConfirm && (
+      {/* Permission Notice - Only show if there's a valid receiver */}
+      {!canConfirm && hasValidReceiver && (
         <div className="p-4 bg-amber-25 border border-amber-200 rounded-lg">
           <div className="flex items-center space-x-2 text-amber-800">
             <Lock className="w-4 h-4" />
