@@ -58,7 +58,7 @@ export function PatientSelectionCard({
             {patient.name || 'Unknown Patient'}
           </div>
           <div className="text-xs text-gray-600 truncate">
-            {patient.age ? translate("age", { age: patient.age }) : translate("ageNotAvailable")} • {patient.room || 'Unknown Room'}
+            {patient.age != null ? translate("age", { age: patient.age }) : translate("ageNotAvailable")} • {patient.room || 'Unknown Room'}
           </div>
         </div>
       </div>

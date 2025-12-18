@@ -118,5 +118,6 @@ export function mapApiPatientRecordToShiftCheckIn(api: ApiPatientRecord): ShiftC
 		severity: parseIllnessSeverity(api.severity),
 		room: api.room,
 		diagnosis: api.diagnosis,
+		age: api.age != null ? Math.floor(api.age) : undefined,
 	};
 }
