@@ -382,28 +382,6 @@ export function SynthesisByReceiver({
         </div>
       )}
 
-      {/* Status Display for Non-Receiving Users */}
-      {!isCurrentUserReceiver && !canConfirm && (
-        <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg text-center">
-          <div className="space-y-2">
-            <div className="flex items-center justify-center space-x-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {t("status.waitingFor", { name: selectedReceiver.fullName })}
-              </span>
-            </div>
-            <div className="text-xs text-gray-500">
-              {completedItems > 0
-                ? t("status.itemsConfirmed", {
-                    completed: completedItems,
-                    total: totalItems,
-                  })
-                : t("status.pending")}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Focus Mode - Read-Only Display */}
       {!isCurrentUserReceiver && (
         <div className="p-4 bg-gray-25 border border-gray-200 rounded-lg">
