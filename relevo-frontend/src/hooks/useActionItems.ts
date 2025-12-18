@@ -5,6 +5,7 @@ import {
   getHandoverActionItems,
   updateActionItem,
 } from "@/api/endpoints/handovers";
+import { patientQueryKeys } from "@/api/endpoints/patients";
 import type { HandoverActionItem } from "@/types/domain";
 
 // Extended ActionItem for UI display
@@ -91,6 +92,9 @@ const createActionItemMutationConfig = (
   },
   onSuccess: (): void => {
     void queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
+    // Invalidate dashboard queries to refresh the grid immediately
+    void queryClient.invalidateQueries({ queryKey: patientQueryKeys.assigned() });
+    void queryClient.invalidateQueries({ queryKey: ["upcomingActions"] });
   },
 });
 
@@ -130,6 +134,9 @@ const updateActionItemMutationConfig = (
   },
   onSuccess: (): void => {
     void queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
+    // Invalidate dashboard queries to refresh the grid immediately
+    void queryClient.invalidateQueries({ queryKey: patientQueryKeys.assigned() });
+    void queryClient.invalidateQueries({ queryKey: ["upcomingActions"] });
   },
 });
 
@@ -146,6 +153,9 @@ const deleteActionItemMutationConfig = (
   },
   onSuccess: (): void => {
     void queryClient.invalidateQueries({ queryKey: ["actionItems", handoverId] });
+    // Invalidate dashboard queries to refresh the grid immediately
+    void queryClient.invalidateQueries({ queryKey: patientQueryKeys.assigned() });
+    void queryClient.invalidateQueries({ queryKey: ["upcomingActions"] });
   },
 });
 
