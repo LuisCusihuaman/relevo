@@ -177,8 +177,7 @@ CREATE TABLE HANDOVERS (
     CONSTRAINT CHK_HO_CAN_BY_IMPLIES_CAN_AT CHECK (CANCELLED_BY_USER_ID IS NULL OR CANCELLED_AT IS NOT NULL),
     -- Ready requires sender set (receiver-of-record is defined when completing)
     CONSTRAINT CHK_HO_READY_REQ_SENDER CHECK (READY_AT IS NULL OR SENDER_USER_ID IS NOT NULL),
-    -- DB-enforced: who start/complete CANNOT be the sender (same doctor cannot be sender and receiver)
-    CONSTRAINT CHK_HO_STARTED_NE_SENDER CHECK (SENDER_USER_ID IS NULL OR STARTED_BY_USER_ID IS NULL OR SENDER_USER_ID <> STARTED_BY_USER_ID),
+    -- DB-enforced: who complete CANNOT be the sender (to ensure proper handoff confirmation)
     CONSTRAINT CHK_HO_COMPLETED_NE_SENDER CHECK (SENDER_USER_ID IS NULL OR COMPLETED_BY_USER_ID IS NULL OR SENDER_USER_ID <> COMPLETED_BY_USER_ID),
     -- Cancel: allowed even in Draft, but audited
     CONSTRAINT CHK_HO_CAN_BY_REQ CHECK (CANCELLED_AT IS NULL OR CANCELLED_BY_USER_ID IS NOT NULL),

@@ -18,7 +18,7 @@ public class StartHandover(IMediator _mediator, ICurrentUser _currentUser)
     var userId = _currentUser.Id;
     if (string.IsNullOrEmpty(userId)) { await SendUnauthorizedAsync(ct); return; }
     
-    var result = await _mediator.Send(new StartHandoverCommand(req.HandoverId, userId), ct);
+    var result = await _mediator.Send(new StartHandoverCommand(req.HandoverId, userId, req.ReceiverUserId), ct);
 
     if (result.IsSuccess) 
       await SendOkAsync(ct);
@@ -33,5 +33,6 @@ public class StartHandover(IMediator _mediator, ICurrentUser _currentUser)
 public class StartHandoverRequest
 {
     public string HandoverId { get; set; } = string.Empty;
+    public string? ReceiverUserId { get; set; }
 }
 

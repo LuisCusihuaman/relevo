@@ -314,24 +314,32 @@ public partial class HandoverRepository
         }
     }
 
-    public async Task<bool> StartHandoverAsync(string handoverId, string userId)
+    public async Task<bool> StartHandoverAsync(string handoverId, string userId, string? receiverUserId = null)
     {
         try
         {
             using var conn = _connectionFactory.CreateConnection();
             
             // V3: Set STARTED_AT and STARTED_BY_USER_ID
-            // Constraint CHK_HO_STARTED_NE_SENDER ensures STARTED_BY_USER_ID <> SENDER_USER_ID
-            const string sql = @"
+            // Optionally update RECEIVER_USER_ID if provided
+            // Note: Sender can now start their own handover (constraint removed)
+            var sql = @"
                 UPDATE HANDOVERS
                 SET STARTED_AT = SYSTIMESTAMP,
                     STARTED_BY_USER_ID = :userId,
-                    UPDATED_AT = SYSTIMESTAMP
+                    UPDATED_AT = SYSTIMESTAMP";
+            
+            if (!string.IsNullOrEmpty(receiverUserId))
+            {
+                sql += ",\n                    RECEIVER_USER_ID = :receiverUserId";
+            }
+            
+            sql += @"
                 WHERE ID = :handoverId
                   AND STARTED_AT IS NULL
                   AND READY_AT IS NOT NULL";
 
-            var rows = await conn.ExecuteAsync(sql, new { handoverId, userId });
+            var rows = await conn.ExecuteAsync(sql, new { handoverId, userId, receiverUserId });
             return rows > 0;
         }
         catch (OracleException ex) when (ex.Number == 2290)

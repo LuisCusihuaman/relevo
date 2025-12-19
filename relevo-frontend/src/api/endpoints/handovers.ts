@@ -136,7 +136,8 @@ export async function createHandover(request: {
 
 // State Transitions
 export const readyHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/ready`, {}).then(() => undefined);
-export const startHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/start`, {}).then(() => undefined);
+export const startHandover = (id: string, receiverUserId?: string): Promise<void> => 
+	api.post(`/handovers/${id}/start`, { receiverUserId }).then(() => undefined);
 export const acceptHandover = (id: string): Promise<void> => api.post(`/handovers/${id}/accept`, {}).then(() => undefined);
 export const completeHandover = (id: string): Promise<void> =>
 	api.post(`/handovers/${id}/complete`, {}).then(() => undefined);
@@ -395,8 +396,17 @@ export function useCreateHandover(): ReturnType<
 export function useReadyHandover(): ReturnType<typeof useMutation<void, Error, string>> {
 	return useStateMutation(readyHandover);
 }
-export function useStartHandover(): ReturnType<typeof useMutation<void, Error, string>> {
-	return useStateMutation(startHandover);
+type StartHandoverVariables = { handoverId: string; receiverUserId?: string };
+
+export function useStartHandover(): ReturnType<typeof useMutation<void, Error, StartHandoverVariables>> {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ handoverId, receiverUserId }: StartHandoverVariables) => startHandover(handoverId, receiverUserId),
+		onSuccess: (_, variables) => {
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.detail(variables.handoverId) });
+			void queryClient.invalidateQueries({ queryKey: handoverQueryKeys.lists() });
+		},
+	});
 }
 export function useAcceptHandover(): ReturnType<typeof useMutation<void, Error, string>> {
 	return useStateMutation(acceptHandover);

@@ -16,21 +16,8 @@ public class HandoverStateMachineHandlers(
 {
     public async Task<Result> Handle(StartHandoverCommand request, CancellationToken cancellationToken)
     {
-        // V3 Regla #22: quien start debe tener coverage en TO shift, NO puede ser sender
-        var hasCoverage = await _repository.HasCoverageInToShiftAsync(request.HandoverId, request.UserId);
-        if (!hasCoverage)
-        {
-            return Result.Error("Cannot start handover: user must have coverage in the TO shift.");
-        }
-
-        // Get handover to verify user is not the sender
-        var handover = await _repository.GetHandoverByIdAsync(request.HandoverId);
-        if (handover?.Handover.SenderUserId == request.UserId)
-        {
-            return Result.Error("Cannot start handover: sender cannot start the handover.");
-        }
-
-        return await ExecuteStateChange(request.HandoverId, request.UserId, (id, uid) => _repository.StartHandoverAsync(id, uid));
+        // V3: Start handover - sender can now start their own handover
+        return await ExecuteStateChange(request.HandoverId, request.UserId, (id, uid) => _repository.StartHandoverAsync(id, uid, request.ReceiverUserId));
     }
 
     public async Task<Result> Handle(RejectHandoverCommand request, CancellationToken cancellationToken)

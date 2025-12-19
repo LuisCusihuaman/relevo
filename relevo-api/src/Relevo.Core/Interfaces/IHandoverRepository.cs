@@ -19,7 +19,7 @@ public interface IHandoverRepository
     Task<bool> ReturnForChangesAsync(string handoverId, string userId);
     Task<HandoverClinicalDataRecord?> GetClinicalDataAsync(string handoverId);
     Task<bool> UpdateClinicalDataAsync(string handoverId, string illnessSeverity, string summaryText, string userId);
-    Task<bool> StartHandoverAsync(string handoverId, string userId);
+    Task<bool> StartHandoverAsync(string handoverId, string userId, string? receiverUserId = null);
     Task<bool> RejectHandoverAsync(string handoverId, string cancelReason, string userId); // Uses Cancel with CANCEL_REASON='ReceiverRefused'
     Task<bool> CancelHandoverAsync(string handoverId, string cancelReason, string userId); // V3 requires cancelReason
     Task<bool> CompleteHandoverAsync(string handoverId, string userId);

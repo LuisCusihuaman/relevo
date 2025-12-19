@@ -31,10 +31,15 @@ export function HandoverStatusControls({
 	};
 
 	const handleStart = (): void => {
-		startHandover(handover.id, {
-			onSuccess: () => toast.success("Handover started"),
-			onError: (err) => toast.error(`Error: ${err.message}`),
-		});
+		// receiverUserId is already updated via onReceiverChange/updateReceiver
+		// when the combo selection changes, so we don't need to send it here
+		startHandover(
+			{ handoverId: handover.id },
+			{
+				onSuccess: () => toast.success("Handover started"),
+				onError: (err) => toast.error(`Error: ${err.message}`),
+			}
+		);
 	};
 
 	// Status: Draft
