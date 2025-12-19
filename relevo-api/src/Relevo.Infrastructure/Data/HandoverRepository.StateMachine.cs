@@ -398,7 +398,7 @@ public partial class HandoverRepository
             using var conn = _connectionFactory.CreateConnection();
             
             // V3: Set COMPLETED_AT and COMPLETED_BY_USER_ID
-            // Constraint CHK_HO_COMPLETED_NE_SENDER ensures COMPLETED_BY_USER_ID <> SENDER_USER_ID
+            // Note: Sender can now complete their own handover (constraint removed)
             const string sql = @"
                 UPDATE HANDOVERS
                 SET COMPLETED_AT = SYSTIMESTAMP,

@@ -38,21 +38,7 @@ public class HandoverStateMachineHandlers(
 
     public async Task<Result> Handle(CompleteHandoverCommand request, CancellationToken cancellationToken)
     {
-        // V3 Regla #24: quien completa debe tener coverage en TO shift, NO puede ser sender
-        var hasCoverage = await _repository.HasCoverageInToShiftAsync(request.HandoverId, request.UserId);
-        if (!hasCoverage)
-        {
-            return Result.Error("Cannot complete handover: user must have coverage in the TO shift.");
-        }
-
-        // Get handover to verify user is not the sender
-        var handover = await _repository.GetHandoverByIdAsync(request.HandoverId);
-        if (handover?.Handover.SenderUserId == request.UserId)
-        {
-            return Result.Error("Cannot complete handover: sender cannot complete the handover.");
-        }
-
-        // Execute the completion
+        // V3: Complete handover - sender can now complete their own handover
         var success = await _repository.CompleteHandoverAsync(request.HandoverId, request.UserId);
         if (!success)
         {
